@@ -1,0 +1,406 @@
+==========
+16/04/2015
+==========
+- New Table
+	- bg_memo_format_tab
+	- bg_memo_header
+	- bg_memo_header_dtl
+	
+- Change Table
+	- bg_memo_format_dtl
+		- add field "tab_id"
+	- bg_memo
+		- change field name "form_id" to "format_id"
+		- add field "header_id"
+		
+==========
+17/04/2015
+==========
+- Change Table
+	- bg_memo_header
+		- add field "label_width"
+	- bg_memo_header_dtl
+		- delete field "field_format"
+	- bg_memo_format
+		- add field "label_width"
+	- bg_memo_format_dtl
+		- delete field "field_format"
+	- bg_memo_approver
+		- change field name "ref_id" to "master_id"
+	- bg_memo_workflow
+		- change field name "ref_id" to "master_id"
+
+==========
+18/04/2015
+==========
+- Change Table
+	- bg_memo_header_dtl
+		- change type "save_to_field" from integer to varchar(50)
+		
+==========
+19/04/2015
+==========
+- Change Table
+	- bg_memo
+		- add field workflow_id varchar(20)
+				
+==========
+20/04/2015
+==========
+- Change Table
+	- bg_memo_format_dtl
+		- add field cmb_src_url varchar(255)
+		- add field cmb_src_param varchar(255)
+		- add field cmb_trigger varchar(255)
+				
+==========
+21/04/2015
+==========
+- Change Table
+	- bg_memo_header_dtl
+		- rename field cmb_src_url to src_url 
+		- rename field cmb_src_param to src_param
+		- rename field cmb_trigger to trigger_field
+		- add field display_height integer
+		- add field is_edit_disable boolean
+	- bg_memo_format_dtl
+		- rename field cmb_src_url to src_url 
+		- rename field cmb_src_param to src_param
+		- rename field cmb_trigger to trigger_field
+		- add field display_height integer
+
+==========
+23/04/2015
+==========
+- Change Table
+	- bg_memo_dtl
+		- change type field 'value' to text 
+
+		
+==========
+08/05/2015
+==========
+- Change Table
+	- bg_memo_format_dtl
+		- add field parent_name varchar(255)
+		
+		
+==========
+10/05/2015
+==========
+- Change Table
+	- bg_memo_format_tab
+		- add field label_width integer
+		- add field editable_cond(255)
+		
+==========
+22/05/2015
+==========
+- Change Table
+	- bg_memo_workflow_history
+		- change field name workflow_id to master_id
+
+==========
+24/05/2015
+==========
+- Change Table
+	- bg_memo
+		- add field workflow_ins_id varchar(50)
+	- bg_memo_workflow
+		- rename field workflow_id to workflow_ins_id	
+		
+==========
+29/05/2015
+==========
+- Change Table
+	- bg_memo_workflow
+		- add field assignee varchar(20)
+- Add Table
+	- bg_memo_sign
+	
+CREATE TABLE bg_memo_sign
+(
+  id bigserial NOT NULL,
+  master_id character varying(50) NOT NULL,
+  created_time timestamp with time zone DEFAULT statement_timestamp(),
+  created_by character varying(20),
+  level integer,
+  CONSTRAINT pk_bg_memo_sign PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE bg_memo_sign
+  OWNER TO alfresco;
+
+  
+==========
+03/06/2015
+==========
+- Add Table
+	- bg_memo_approval_matrix_format
+	- bg_memo_approval_matrix_format_dtl
+
+
+CREATE TABLE bg_main_approval_matrix_format
+(
+  id bigserial NOT NULL,
+  module character varying(20),
+  grid_format character varying(255),
+  label_width integer,
+  created_by character varying(20),
+  created_time timestamp with time zone,
+  updated_by character varying(20),
+  updated_time timestamp with time zone,
+  CONSTRAINT pk_bg_main_approval_matrix_format PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE bg_main_approval_matrix_format
+  OWNER TO alfresco;
+	
+	
+CREATE TABLE bg_main_approval_matrix_format_dtl
+(
+  id bigserial NOT NULL,
+  master_id bigint NOT NULL,
+  order_no integer,
+  is_mandatory boolean,
+  field_name character varying(255),
+  field_type character varying(1),
+  field_length integer,
+  display_name character varying(255),
+  display_type character varying(1),
+  display_width integer,
+  display_height integer,
+  display_format character varying(100),
+  default_value character varying(255),
+  src_url character varying(255),
+  src_param character varying(255),
+  trigger_field character varying(255),
+  created_time timestamp with time zone DEFAULT statement_timestamp(),
+  created_by character varying(20),
+  updated_time timestamp with time zone DEFAULT statement_timestamp(),
+  updated_by character varying(20),
+  CONSTRAINT pk_bg_main_approval_matrix_format_dtl PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE bg_main_approval_matrix_format_dtl
+  OWNER TO alfresco;
+	
+==========
+04/06/2015
+==========  
+drop table >> supalai.bg_main_role_auth 
+   
+CREATE TABLE  bg_main_authority
+(
+  module character varying(10),
+  type character varying(10) NOT NULL,
+  code character varying(20) NOT NULL,
+  groups text,
+  users text,
+  created_time timestamp with time zone DEFAULT statement_timestamp(),
+  created_by character varying(20),
+  CONSTRAINT pk_bg_main_authority PRIMARY KEY (module, type, code)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE bg_main_authority
+  OWNER TO alfresco;
+  
+drop table >> bg_main_authority
+
+ALTER TABLE bg_main_approval_matrix
+  ADD COLUMN requester_user character varying(500);
+ALTER TABLE bg_main_approval_matrix
+  ADD COLUMN requester_group character varying(500);
+  
+
+- change srcUrl
+	- mainMaster -> memo/master
+	- mainMasterField -> memo/masterField
+	- format -> memo/format
+	
+	- approvalMatrix -> main/approvalMatrix
+	- approvalMatrixUserGroup -> main/approvalMatrixUserGroup
+	- userProfile -> main/userProfile
+	
+- add srcUrl for approvalMatrix format
+	- main/master
+	- main/masterField
+	- memo/form
+	
+==========
+05/06/2015
+==========  
+- change table
+	- bg_main_approval_matrix_format_dtl
+		- add field parent_name varchar(255)
+		
+	- bg_main_approval_matrix_format
+		- add field width integer
+		- add field height integer		
+		
+ALTER TABLE bg_main_approval_matrix_format_dtl
+  ADD COLUMN parent_name character varying(255);
+ALTER TABLE bg_main_approval_matrix_format
+  ADD COLUMN width integer;
+ALTER TABLE bg_main_approval_matrix_format
+  ADD COLUMN height integer;
+
+ 
+==========
+09/06/2015
+==========
+- change table
+	- bg_main_approval_matrix_format
+		- remove field grid_format 
+		
+- add table
+	- bg_main_approval_matrix_format_col
+	- bg_main_approval_matrix_format_cri
+	
+CREATE TABLE bg_main_approval_matrix_format_col
+(
+  id bigint NOT NULL DEFAULT nextval('bg_main_approval_matrix_format_grid_id_seq'::regclass),
+  master_id bigint NOT NULL,
+  order_no integer,
+  field_label character varying(255),
+  field_name character varying(255),
+  width integer,
+  condition text,
+  created_time timestamp with time zone DEFAULT statement_timestamp(),
+  created_by character varying(20),
+  updated_time timestamp with time zone DEFAULT statement_timestamp(),
+  updated_by character varying(20),
+  CONSTRAINT pk_bg_main_approval_matrix_format_grid PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE bg_main_approval_matrix_format_col
+  OWNER TO alfresco;
+	
+	
+CREATE TABLE bg_main_approval_matrix_format_cri
+(
+  id bigserial NOT NULL,
+  master_id bigint NOT NULL,
+  order_no integer,
+  field_label character varying(255),
+  field_name character varying(255),
+  src_url character varying(255),
+  src_param character varying(255),
+  trigger_field character varying(255),
+  created_time timestamp with time zone DEFAULT statement_timestamp(),
+  created_by character varying(20),
+  updated_time timestamp with time zone DEFAULT statement_timestamp(),
+  updated_by character varying(20),
+  width integer,
+  list_width integer,
+  CONSTRAINT pk_bg_main_approval_matrix_format_cri PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE bg_main_approval_matrix_format_cri
+  OWNER TO alfresco;
+
+
+==========
+18/06/2015
+==========
+- change table
+	- bg_memo
+		- add field requester_group varchar(1000)
+		- add field requester_user varchar(1000) 
+		
+ALTER TABLE bg_memo
+  ADD COLUMN requester_group character varying(1000);
+ALTER TABLE bg_memo
+  ADD COLUMN requester_user character varying(1000);
+  
+  
+==========
+03/09/2015
+==========
+- change table
+	- bg_main_master
+		- change field code to varchar(40)
+		
+- add table
+	- bg_main_complete_notification
+	
+CREATE TABLE bg_main_complete_notification
+(
+  id bigserial NOT NULL,
+  receiver character varying(255),
+  task_id character varying(100),
+  template character(1),
+  created_time timestamp with time zone,
+  created_by character varying(20),
+  CONSTRAINT pk_bg_complete_notification PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE bg_main_complete_notification
+  OWNER TO alfresco;	
+	
+  
+==========
+07/09/2015
+==========
+- change table
+	- bg_mobile_device 
+		- change field customer_key to gen_id varchar(50)
+  
+  
+==========
+23/11/2015
+==========
+- change table
+	- bg_memo_format_dtl 
+		- add field edit_disable varchar(150)
+
+==========
+10/12/2015
+==========
+- change table
+	- bg_memo_format_dtl 
+		- add field spc_param varchar(255)
+
+==========
+14/12/2015
+==========
+- change table
+	- bg_main_approval_matrix_dtl 
+		- add field is_requester_approver boolean
+
+==========
+06/01/2016
+==========
+- change table
+	- bg_memo_header_dtl 
+		- add field spc_param varchar(255)
+
+==========
+07/01/2016
+==========
+- create table
+	- bg_main_msg 
+		- user_ varchar(100)
+		- msg varchar(255)
+  
+  
+==========
+20/01/2016
+==========
+- change table
+	- bg_memo_format_dtl 
+		- delete field edit_disable varchar(150)
