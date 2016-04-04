@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.pcm.dao.PcmReqDAO">
+    <resultMap id="result" type="pcmReqModel">
+        <result property="id" column="id"/>
+        <result property="reqBy" column="req_by"/>
+        <result property="reqBu" column="req_bu"/>
+        <result property="reqOu" column="req_ou"/>
+        <result property="objectiveType" column="objective_type"/>
+        <result property="objective" column="objective"/>
+        <result property="reason" column="reason"/>
+        <result property="currency" column="currency"/>
+        <result property="currencyRate" column="currency_rate"/>
+        <result property="budgetCc" column="budget_cc"/>
+        <result property="stockOu" column="stock_ou"/>
+        <result property="prototype" column="prototype"/>
+        <result property="event" column="event"/>
+        <result property="pcmOu" column="pcm_ou"/>
+        <result property="location" column="location"/>
+        <result property="refId" column="ref_id"/>
+        <result property="acrossBudget" column="across_budget"/>
+        <result property="method" column="method"/>
+        <result property="methodCond2Rule" column="method_cond2_rule"/>
+        <result property="methodCond2" column="method_cond2"/>
+        <result property="methodCond2Dtl" column="method_cond2_dtl"/>
+        <result property="workflowInsId" column="workflow_ins_id"/>
+        <result property="docRef" column="doc_ref"/>
+        <result property="folderRef" column="folder_ref"/>
+        <result property="waitingLevel" column="waiting_level"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="wfStatus" column="wf_status"/>
+        <result property="rewarning" column="rewarning"/>
+        <result property="waitingDay" column="waiting_day"/>
+    </resultMap>
+    
+    <select id="list" resultMap="result" parameterType="map">
+        SELECT
+		    *,
+  			CASE 
+  				WHEN STATUS='D' THEN '1'
+            	WHEN STATUS='W' THEN '2'
+            	WHEN STATUS='C1' THEN '3'
+            	WHEN STATUS='C2' THEN '4'
+            	WHEN STATUS='X1' THEN '5'
+            	WHEN STATUS='X2' THEN '6'
+            	ELSE STATUS
+       		END ORDER_FIELD,		    
+		    COUNT(*) OVER() totalRowCount
+		FROM
+		    pb2_pcm_req
+		ORDER BY ${orderBy}
+		LIMIT #{limit}
+		OFFSET #{start}
+    </select>
+    
+    <insert
+		id="add"
+		parameterType="pcmReqModel"
+		flushCache="true"
+		statementType="PREPARED"
+		keyProperty="id"
+		useGeneratedKeys="true"
+		>
+	    INSERT INTO pb2_pcm_req(
+	    	id
+	    	,req_by,req_bu,req_ou
+	    	,objective_type,objective,reason
+	    	,currency,currency_rate
+	    	,budget_cc,stock_ou
+	    	,prototype,event
+	    	,pcm_ou,location
+	    	,ref_id
+	    	,method
+	    	,method_cond2_rule,method_cond2,method_cond2_dtl
+	    	,total
+	    	,doc_ref,folder_ref
+	    	,waiting_level,status
+	    	,created_by,updated_by
+	    ) VALUES (
+	    	#{id}
+	    	,#{reqBy},#{reqBu},#{reqOu}
+	    	,#{objectiveType},#{objective},#{reason}
+	    	,#{currency},#{currencyRate}
+	    	,#{budgetCc},#{stockOu}
+	    	,#{prototype},#{event}
+	    	,#{pcmOu},#{location}
+	    	,#{refId}
+	    	,#{method}
+	    	,#{methodCond2Rule},#{methodCond2},#{methodCond2Dtl}
+    		,#{total}
+    		,#{docRef},#{folderRef}
+    		,#{waitingLevel},#{status}
+    		,#{createdBy},#{updatedBy}
+    	)
+		
+	</insert>
+	
+	<select id="count"  resultType="long">
+        SELECT
+		    count(1)
+		FROM
+		    pb2_pcm_req
+	
+    </select>
+	
+	<delete id="delete"
+    		parameterType="string"
+			flushCache="true"
+			statementType="PREPARED"
+			>
+   		DELETE FROM pb2_pcm_req WHERE id=#{id}
+	</delete>
+	
+	<update id="update" 
+        parameterType="pcmReqModel"
+		flushCache="true">
+     UPDATE pb2_pcm_req 
+     SET 
+     	workflow_ins_id=#{workflowInsId}
+		<if test="status != null">
+     		,status=#{status}
+		</if>			
+     	,doc_ref=#{docRef}
+     	,folder_ref=#{folderRef}
+	    ,waiting_level=#{waitingLevel}
+        ,updated_by=#{updatedBy}
+        ,updated_time=Now()
+     WHERE id=#{id}
+    </update>
+    
+    <select id="get" parameterType="string" resultMap="result">
+        SELECT
+		    *
+		FROM
+		    pb2_pcm_req
+		WHERE id=#{id}
+    </select>
+    
+    <select id="genNewId" parameterType="map" resultType="string">
+    	SELECT CONCAT(field2,TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMM'),'-',TRIM(TO_CHAR(CAST (RIGHT(id, 3) AS INT)+1,'000'))) NEW_ID 
+    	FROM pb2_pcm_req
+    	WHERE field2 = #{f2}
+    	AND CONCAT(field2,TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMM'),'-') = SUBSTRING(id,1,LENGTH(ID)-3) 
+    	ORDER BY id DESC 
+    	LIMIT 1
+    </select>
+    
+    <select id="getLastId" parameterType="map" resultType="string">
+    	SELECT id 
+    	FROM pb2_pcm_req
+    	WHERE id like #{idPrefix}
+    	ORDER BY id DESC 
+    	LIMIT 1
+    </select>
+    
+    <update id="updateStatus" 
+        parameterType="pcmReqModel"
+		flushCache="true">
+     UPDATE pb2_pcm_req 
+     SET  
+	<if test="status != null">
+		WAITING_LEVEL=#{waitingLevel}
+	</if>
+	<if test="status != null">
+		, status=#{status}
+	</if>
+     WHERE id=#{id}
+    </update>
+    
+	<select id="listWorkflowPath" resultType="map" parameterType="string">    
+    (SELECT CONCAT('REVIEWER #',LEVEL) AS LEVEL,TRIM(BOTH ',' FROM REVIEWER_USER) AS U,TRIM(BOTH ',' FROM REVIEWER_GROUP) AS G,LEVEL AS ORDERVAL
+	FROM pb2_PCM_REQ_REVIEWER
+	WHERE MASTER_ID = #{id})
+	ORDER BY ORDERVAL
+    </select>
+    
+</mapper>

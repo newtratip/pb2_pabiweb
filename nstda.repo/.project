@@ -10,8 +10,21 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.babel.editor.rbeBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>com.jaspersoft.studio.babel.editor.rbeNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>config/alfresco/workflows/ServiceTaskExample.bpmn20.xml</name>
+			<type>1</type>
+			<location>/tmp/ServiceTaskExample.bpmn20.xml</location>
+		</link>
+	</linkedResources>
 </projectDescription>

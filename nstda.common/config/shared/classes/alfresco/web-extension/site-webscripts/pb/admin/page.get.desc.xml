@@ -1,0 +1,5 @@
+<webscript>
+  <shortname>PBAdminPage</shortname>
+  <description>PB Admin: Page</description>
+  <url>/pb/admin</url>
+</webscript>

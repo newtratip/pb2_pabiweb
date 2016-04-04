@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Sencha Build" default="prd">
+    <description>Compress Sencha Page</description>
+    
+    <target name="prd" description="Run 'sencha app build'">
+    	
+        <exec searchpath="true" executable="sencha">
+			<arg value="app"/>
+			<arg value="build"/>			
+		</exec>
+
+    </target>
+	
+    <target name="dev" description="separate mininum size js for each page">
+
+        <property name="TARGET" value="../build/production/${page.dir}"/>
+    	<property name="P1" value="${page.dir}"/>
+    	
+        <exec searchpath="true" executable="sencha">
+			<arg value="compile"/>
+			<arg value="--classpath=app,app.js,../ext/src,../common/src,../common/src-ext,../overrides"/>			
+
+			<arg value="page"/>
+			<arg value="-name=${P1}"/>
+			<arg value="-i=index.html"/>
+			<arg value="-ou=${TARGET}/index.html"/>
+
+			<arg value="and"/>
+			<arg value="union"/>
+			<arg value="-set"/>
+			<arg value="${P1}"/>
+						
+			<arg value="and"/>
+			<arg value="concat"/>
+			<arg value="-yui"/>
+			<arg value="${TARGET}/app.js"/>
+			
+		</exec>
+
+    </target>
+	
+</project>

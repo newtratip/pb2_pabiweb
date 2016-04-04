@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+
+<project name="0.1 - PB REPO DYNA" default="deploy" basedir="..">
+
+   <property file="ant/build.properties"/>
+   <property file="${common.dir}/ant/build.properties"/>
+	
+   <property name="project.dir" value="."/>
+   <property name="build.dir" value="${project.dir}/build"/>
+   <property name="bin.dir" value="${project.dir}/bin"/>
+   <property name="lib.dir" value="${project.dir}/lib"/>
+   <property name="config.dir" value="${project.dir}/config"/>
+   <property name="common.bin.dir" value="${common.dir}/bin"/>
+   <property name="common.config.dir" value="${common.dir}/config"/>
+   <property name="common.lib.dir" value="${common.dir}/lib"/>
+	
+   <property name="jar.dir" value="${build.dir}/jar.dyna"/>
+   <property name="dist.dir" value="${build.dir}/dist"/>	
+	
+   <property name="alf.dir" value="${tomcat.dir}/webapps/alfresco"/>
+   <property name="alf.shared.dir" value="${tomcat.dir}/shared"/>
+	
+   <property name="dist.repo.dir" value="${build.repo.dir}/dist"/>
+   <property name="jar.repo.dir" value="${build.repo.dir}/jar"/>
+		
+   <macrodef name="deploy">
+	    <attribute name="module"/>
+	    <sequential>
+	        <echo>Deploy Module : @{module}</echo>
+	    	
+	   		<local name="deploy.module"/>
+			<local name="module.name"/>
+	    	
+	   		<condition property="deploy.module" else="false">
+	   			<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+	   			</and>
+	   		</condition>
+			<condition property="module.name" value="@{module}">
+				<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+				</and>
+			</condition>
+	   		<!--echo>${run.sencha} : ${page.dir}</echo-->
+			<antcall target="deploy">
+				<param name="deploy.module" value="${deploy.module}"/>
+				<param name="module.name" value="${module.name}"/>
+			</antcall>
+	    	
+	    </sequential>
+   </macrodef>
+	
+   <target name="deploy" if="${deploy.module}">
+   	
+   		<local name="jar.name"/>
+   	
+		<property name="jar.name" value="${jar.prefix}-${module.name}-${jar.repo.dyna.name}-${jar.version}.jar"/>
+	
+	    <mkdir dir="${jar.dir}/META-INF" />
+		<mkdir dir="${dist.dir}" />
+   	
+		<delete file="${dist.dir}/${jar.name}"/>
+		<delete dir="${jar.dir}" includeemptydirs="true"/>
+   	
+    	<mkdir dir="${jar.dir}/META-INF" />
+   	
+	    <copy todir="${jar.dir}" includeEmptyDirs="false">
+	        <fileset dir="${bin.dir}" includes="pb/repo/${module.name}/**/*" excludes="pb/repo/${module.name}/workflow/*"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/extension/**/*-${module.name}*"/>
+	    </copy>
+   	
+		<subant target="dist.dyna">
+				<property name="basedir" value=".."/>
+				<property name="jar.dir" value="${jar.dir}"/>
+	        	<property name="bin.dir" value="${bin.dir}"/>
+				<property name="alf.dir" value="${tomcat.dir}/webapps/alfresco"/>
+        		<property name="common.bin.dir" value="${common.bin.dir}"/>
+    			<property name="common.config.dir" value="${common.config.dir}"/>
+			    <property name="common.dir" value="${common.dir}"/>
+	        	<property name="common.lib.dir" value="${common.lib.dir}"/>
+			    <fileset dir="ant" includes="module-${module.name}.xml"/>
+		</subant>
+   	
+	    <copy todir="${jar.dir}/lib" includeEmptyDirs="false">
+	    	<fileset dir="${common.lib.dir}"/>
+	    	<fileset dir="${lib.dir}/${module.name}"/>
+	    </copy>
+   	
+	    <copy todir="${jar.dir}/META-INF" includeEmptyDirs="false">
+	    	<fileset dir="${config.dir}" includes="alfresco/models/**/*-${module.name}-*"/>
+	    	<fileset dir="${config.dir}" includes="alfresco/workflows/**/*-${module.name}-*"/>
+	    	<fileset dir="${config.dir}" includes="spring/**/*-${module.name}-*"/>
+	    	<fileset dir="${config.dir}" includes="report/img/*"/>
+	    	<fileset dir="${config.dir}" includes="report/${module.name}/*.jasper"/>
+	    </copy>
+   	
+	    <jar destfile="${dist.dir}/${jar.name}" manifest="manifest/${module.name}.txt">
+	         <fileset dir="${jar.dir}" />
+	    </jar>
+   	
+   		<echo>Deploy to ${dyn.deploy.url}</echo>
+   	
+	    <exec searchpath="true" executable="curl">
+			<arg value="-F"/>
+			<arg value="file=@${dist.dir}/${jar.name}"/>			
+			<arg value="-u"/>
+			<arg value="${dyn.deploy.authen}"/>
+			<arg value="${dyn.deploy.url}"/>
+		</exec>
+   	
+   </target>
+	
+   <!-- Modules Begin -->
+   <target name="Deploy.admin">
+		<deploy module="admin"/>
+   </target>
+	
+   <target name="Deploy.pcm">
+		<deploy module="pcm"/>
+   </target>
+
+   <target name="Deploy.exp">
+		<deploy module="exp"/>
+   </target>
+
+   <!-- Modules End -->
+	
+   <!--target name="Deploy All">
+   	
+	    <antcall target="Deploy.admin"/>
+	    <antcall target="Deploy.pcm"/>
+	    <antcall target="Deploy.exp"/>
+   	
+		<echo>Finish.</echo>
+			    	
+   </target-->
+	
+</project>	

@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
+<!-- 2016-04-02T16:42:02 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="steel" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e2aa35d9-8812-4e0d-9672-faccfe6da8b6">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="594"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="dataset1" uuid="3d9959f4-debf-45cc-8bb0-ee44366be7e0"/>
+	<subDataset name="Table Dataset 1" uuid="7ff83e86-8a81-41b0-a01e-ac583b395cb7"/>
+	<subDataset name="dataset2" uuid="8eb6515d-d268-4c02-a1d2-07cf7eb00ff6"/>
+	<subDataset name="Table Dataset 2" uuid="52f08fa3-1dfa-4896-b4cb-0a692ab7d73c"/>
+	<subDataset name="Table Dataset 3" uuid="ab580db8-b113-4b6b-8b15-7e1f3a10e930"/>
+	<subDataset name="Table Dataset 4" uuid="cca47e76-e4af-436f-a9f5-a0600a748e9a"/>
+	<subDataset name="Table Dataset 5" uuid="ee96e428-049f-4f42-b76d-ebfead2d37f9">
+		<parameter name="imgPath" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+	</subDataset>
+	<parameter name="imgPath" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="44" splitType="Stretch">
+			<image scaleImage="RealSize">
+				<reportElement x="437" y="1" width="116" height="39" uuid="57cb184a-f27e-4235-b328-ce09dac88c10"/>
+				<imageExpression><![CDATA[$P{imgPath}+"/logo-nstda-report.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<detail>
+		<band height="638" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="258" height="20" uuid="6307aec4-8240-439c-b95b-cac96f8a4d41"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="14" isBold="true" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ใบขอซื้อ / ขอจ้าง]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="20" width="104" height="20" uuid="95627130-ed3e-4a35-a38b-4f5bf16aafdc"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[พนักงานผู้ขอเบิก]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="40" width="104" height="20" uuid="d091306d-40f6-4a0c-80d2-c3d353364cb2"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ศูนย์]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="60" width="104" height="20" uuid="cd93448e-792e-4ba4-b2a4-0fbcb3d9461b"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[หน่วยงาน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="319" y="40" width="104" height="20" uuid="d15e891d-3a76-4669-8c93-41ef8f3b02ae"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ผู้บันทึกรายการ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="319" y="60" width="104" height="20" uuid="cef8e161-bd61-45dd-a72b-9bd856bb818a"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[วันที่บันทึกรายการ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="319" y="80" width="104" height="20" uuid="54f79f73-c157-46a1-a995-e44ad863f855"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[โทรศัพท์]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="319" y="20" width="104" height="20" uuid="7563a2f2-f17e-43d4-8ef0-7352550e1566"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เลขที่เอกสาร]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="0" y="109" width="555" height="274" uuid="162e7d53-d041-4055-9f4d-91eae26981c8"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="0" y="108" width="555" height="20" uuid="e213006f-9b46-4405-8bcd-269f43397991"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="10" isBold="true" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ข้อมูลเพื่อการจัดซื้อ / จัดจ้าง]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="128" width="555" height="1" uuid="b2162b92-5282-493a-a540-915ca485eaa9"/>
+			</line>
+			<staticText>
+				<reportElement x="1" y="129" width="71" height="27" uuid="0b940bbb-391d-40db-8209-ced0eeaa7db6"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[มีความประสงค์ที่จะขออนุมัติ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="156" width="108" height="20" uuid="3c9a1641-fafb-4672-b74b-139a35585867"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เหตุผล/ความจำเป็น]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="215" y="129" width="104" height="20" uuid="6b707f5b-8c95-4760-b69a-feadf0560359"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[วัตถุประสงค์]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="176" width="108" height="20" uuid="11ed3734-f547-48b4-9dda-eab6348e12fa"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[สกุลเงิน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="215" y="176" width="104" height="20" uuid="054f61af-0446-46a0-a05c-5a67d0a10ef3"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[อัตราแลกเปลี่ยน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="196" width="108" height="20" uuid="fd016f3e-9c57-4e2d-9e71-2738bc70a355"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[งบประมาณที่ใช้]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="216" width="108" height="20" uuid="1cb514d7-0c09-46c4-a448-25f3dfc485f1"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ประเภทการซ์้อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="216" width="61" height="20" uuid="d0cbbc00-0467-47dd-ae10-84a89e9efccf"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เข้า Stock]]></text>
+			</staticText>
+			<image>
+				<reportElement x="109" y="218" width="10" height="16" uuid="9c1c7596-3fbb-4f2f-9e1e-bd87bd1f7a42"/>
+				<imageExpression><![CDATA[$P{imgPath}+"/radio_on.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="319" y="216" width="61" height="20" uuid="ebeb2c6f-0569-4df2-8f08-bb63d8745ad0"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ไม่เข้า Stock]]></text>
+			</staticText>
+			<image>
+				<reportElement x="309" y="218" width="10" height="16" uuid="1b8e243a-3455-4166-bef8-0030e5052a56"/>
+				<imageExpression><![CDATA[$P{imgPath}+"/radio_off.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="1" y="236" width="200" height="20" uuid="01c0019d-3fa1-482d-8ac5-d3f5fae7dfcb"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[การจัดซื้อ/จัดจ้างครั้งนี้เป็นรายการวัสดุต้นแบบ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="215" y="236" width="61" height="20" uuid="c42252a1-d96c-4065-8fe2-903b5a911192"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ใช่]]></text>
+			</staticText>
+			<image>
+				<reportElement x="204" y="238" width="10" height="16" uuid="d97f13c7-5297-4c79-b4d5-ca9d907d07cd"/>
+				<imageExpression><![CDATA[$P{imgPath}+"/radio_on.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="282" y="237" width="10" height="16" uuid="e4c17e80-1f24-4a03-b527-a829517409f2"/>
+				<imageExpression><![CDATA[$P{imgPath}+"/radio_off.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="292" y="235" width="61" height="20" uuid="e63c66a4-55de-4e5e-a9db-e866bf240b40"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ไม่ใช่]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="256" width="108" height="20" uuid="66fa9794-5901-4367-8c22-3bacb20a1bad"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[จัดฝึกอบรม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="276" width="108" height="20" uuid="5feab4eb-caa7-4ca9-af61-732b9d56d882"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[หน่วยงานจัดซื้อ/จัดจ้าง]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="296" width="108" height="33" uuid="94eb80e8-ca72-4305-b59b-f1fc09482eac"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[สถานที่ส่งสินค้า/
+เบอร์โทรศํพท์ผู้ขอ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="14" y="329" width="109" height="33" uuid="ac53803d-99d5-47d2-887d-9b1807ec2ced"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ใช้เงินงบประมาณมากกว่า
+1 ปี มูลค่าเงินรวม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="14" y="362" width="109" height="20" uuid="14f427de-67b8-4f4a-b946-0a99702fc1b8"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[PR เพิ่มเติม  อ้างอิง PR#]]></text>
+			</staticText>
+			<image>
+				<reportElement x="1" y="337" width="10" height="16" uuid="f5a5950b-9ce2-4ba0-9209-1cd1b96734b2"/>
+				<imageExpression><![CDATA[$P{imgPath}+"/checked.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="1" y="363" width="10" height="16" uuid="27d3701d-a9e5-4301-a455-6d7f295eb040"/>
+				<imageExpression><![CDATA[$P{imgPath}+"/unchecked.png"]]></imageExpression>
+			</image>
+			<componentElement>
+				<reportElement key="table 1" style="table" x="0" y="388" width="555" height="122" uuid="14a6297e-0d6d-404a-8eec-c2576fac5236"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Table Dataset 5" uuid="adc65f9c-35ec-472f-85a8-d2aa7a5bfb73">
+						<datasetParameter name="imgPath">
+							<datasetParameterExpression><![CDATA[$P{imgPath}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.JREmptyDataSource(1)]]></dataSourceExpression>
+					</datasetRun>
+					<jr:columnGroup width="555" uuid="da03f808-3bec-474a-ad6e-dc1de8dff3cf">
+						<jr:tableHeader height="22" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="555" height="20" uuid="05123482-13ef-42c1-b1e8-cc965307c6fb"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Tahoma" size="9" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ข้อมูลรายการ]]></text>
+							</staticText>
+							<line>
+								<reportElement x="0" y="20" width="555" height="1" uuid="695a98e3-b9fc-4405-83c3-52472dcc2691"/>
+							</line>
+						</jr:tableHeader>
+						<jr:column width="42" uuid="f8ec72cd-5df0-4fc5-93bf-1a8debe332ae">
+							<jr:tableFooter height="55" rowSpan="1"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="42" height="30" uuid="a7f88bf2-a08f-452d-b9ea-31bd870a0be6"/>
+									<textElement textAlignment="Center">
+										<font fontName="Tahoma" isUnderline="false"/>
+									</textElement>
+									<text><![CDATA[ครุภัณฑ์]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="21" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="147" uuid="e675f34a-3dff-41ee-b48c-9544dd8c00a5">
+							<jr:tableFooter height="55" rowSpan="1"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="147" height="30" uuid="84b0335c-bfc6-46d2-9193-8ac427b5fd03"/>
+									<textElement>
+										<font fontName="Tahoma" isUnderline="false"/>
+									</textElement>
+									<text><![CDATA[รายการวัสดุ]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="21" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="63" uuid="0c02955f-f241-4819-b767-f0b665b38828">
+							<jr:tableFooter height="55" rowSpan="1"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="63" height="30" uuid="de2808e4-0ded-4f0d-94d8-c5c3537ab1ea"/>
+									<textElement textAlignment="Right">
+										<font fontName="Tahoma" isUnderline="false"/>
+									</textElement>
+									<text><![CDATA[จำนวน]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="21" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="63" uuid="ca112846-ea5e-459e-8644-beabece549c6">
+							<jr:tableFooter height="55" rowSpan="1"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="63" height="30" uuid="f7b35648-8d0c-4c60-b660-d9b8d1a7f595"/>
+									<textElement textAlignment="Right">
+										<font fontName="Tahoma" isUnderline="false"/>
+									</textElement>
+									<text><![CDATA[หน่วยนับ]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="21" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="63" uuid="1b7b3b52-f629-42da-8dc6-30e7d3b4ba8a">
+							<jr:tableFooter height="55" rowSpan="1"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="63" height="30" uuid="6c764561-0067-4c9f-897d-c1c8d5c2a357"/>
+									<textElement textAlignment="Right">
+										<font fontName="Tahoma" isUnderline="false"/>
+									</textElement>
+									<text><![CDATA[ราคาต่อหน่วย]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="21" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="83" uuid="44fd9bcc-16bc-448f-adb4-5c09c28164fc">
+							<jr:tableFooter height="55" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="83" height="17" uuid="e9a56d58-1e0b-4a81-9129-17c1a2efca59"/>
+									<textElement textAlignment="Right">
+										<font fontName="Tahoma" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<text><![CDATA[จำนวนเงินก่อนภาษี]]></text>
+								</staticText>
+								<staticText>
+									<reportElement x="20" y="17" width="63" height="17" uuid="30e48035-ed97-4ebf-b64c-0153d9668e23"/>
+									<textElement textAlignment="Right">
+										<font fontName="Tahoma" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<text><![CDATA[ภาษีมูลค่าเพิ่ม]]></text>
+								</staticText>
+								<staticText>
+									<reportElement x="0" y="34" width="83" height="17" uuid="dc0022a1-911f-49fa-af27-833bf561e18a"/>
+									<textElement textAlignment="Right">
+										<font fontName="Tahoma" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<text><![CDATA[จำนวนเงินรวม]]></text>
+								</staticText>
+								<image>
+									<reportElement x="10" y="18" width="10" height="16" uuid="5c45b1eb-af90-40d6-8c9e-daa9bae549bd"/>
+									<imageExpression><![CDATA[$P{imgPath}+"/checked.png"]]></imageExpression>
+								</image>
+							</jr:tableFooter>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="83" height="30" uuid="458e9467-07a3-46c9-a07a-3ab64bbd4f36"/>
+									<textElement textAlignment="Right">
+										<font fontName="Tahoma" isUnderline="false"/>
+									</textElement>
+									<text><![CDATA[ราคาต่อหน่วย
+(บาท)]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="21" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="94" uuid="2b853e3e-033c-40d7-8aba-161c635a6a0e">
+							<jr:tableFooter height="55" rowSpan="1"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="1" y="0" width="91" height="30" uuid="d9d98b5e-c801-4275-829c-9df825fdb540"/>
+									<textElement textAlignment="Right">
+										<font fontName="Tahoma" isUnderline="false"/>
+									</textElement>
+									<text><![CDATA[ราคารวม (บาท)]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="21" rowSpan="1"/>
+						</jr:column>
+					</jr:columnGroup>
+				</jr:table>
+			</componentElement>
+			<rectangle>
+				<reportElement x="0" y="521" width="555" height="105" uuid="b8eac38d-e67e-477d-830d-4fe7455f9f32"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="0" y="521" width="555" height="20" uuid="1abda6eb-9c2b-4b9f-9581-03e956604e75"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="10" isBold="true" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ข้อมูลคณะกรรมการ]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="541" width="555" height="1" uuid="024e9f30-9bc9-49e6-80d8-8ce3cea5ada4"/>
+			</line>
+			<staticText>
+				<reportElement x="1" y="542" width="109" height="20" uuid="0df716b9-ce09-4d29-898f-6ce5b35d84f0"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[วิธีการจัดหา :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="562" width="137" height="20" uuid="1691372e-8253-4fe6-9b3a-a4e14f3702de"/>
+				<textElement textAlignment="Left">
+					<font fontName="Tahoma" size="10" isBold="false" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[รายชื่อคณะกรรมการทุกคณะ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="11" y="-368" width="120" height="20" uuid="013f1b68-3223-4cc4-a9ee-6d88088716e8"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="10" isBold="true" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[1. ผู้จัดทำ]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="88">
+			<rectangle>
+				<reportElement x="0" y="0" width="555" height="88" uuid="f43324a7-671f-4908-ba8c-3175842b41c9"/>
+			</rectangle>
+			<line>
+				<reportElement x="1" y="33" width="555" height="1" uuid="ee63fb12-04da-4527-b94e-e8e72d8a989d"/>
+			</line>
+			<staticText>
+				<reportElement x="1" y="0" width="135" height="33" uuid="1080bf28-ba19-4f0b-a396-d7e5cb721869"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="10" isBold="true" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[1. ผู้จัดทำ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="140" y="0" width="135" height="33" uuid="0bc64b08-ba0a-44a2-b654-4ec758a12ed6"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="10" isBold="true" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[2. ผู้ทำแทน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="279" y="0" width="135" height="33" uuid="de833c04-75f9-48dc-b011-f6625faea23b"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="10" isBold="true" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[3. ผู้บังคับบัญชาขึ้นต้น / หัวหน้าโครงการ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="419" y="0" width="135" height="33" uuid="1953f5e3-afb9-4d75-bc7c-cceee1924b19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="10" isBold="true" pdfFontName="cordiaub.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[4. ผู้อนุมัติตามวงเงิน]]></text>
+			</staticText>
+			<line>
+				<reportElement x="136" y="0" width="1" height="88" uuid="14c1a9e0-bcd4-43e5-ac29-96b4e539ab3d"/>
+			</line>
+			<line>
+				<reportElement x="276" y="0" width="1" height="88" uuid="691e4590-62e1-4c78-ba60-d7aeb76ce417"/>
+			</line>
+			<line>
+				<reportElement x="417" y="0" width="1" height="88" uuid="6534f43b-6f3c-4d25-9304-2296f5ad1256"/>
+			</line>
+		</band>
+	</lastPageFooter>
+</jasperReport>

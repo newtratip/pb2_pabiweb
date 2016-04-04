@@ -1,0 +1,5 @@
+<webscript>
+  <shortname>PBPcmReqPage</shortname>
+  <description>PB Pcm Req: Page</description>
+  <url>/pb/pcm/req</url>
+</webscript>

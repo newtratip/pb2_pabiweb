@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template-instance>
+   <template-type>pb/page/exp-use</template-type>
+   <properties>
+   		<pageFamily>expUse</pageFamily>
+   		<container>expUse</container>
+   </properties>
+   
+   <components>
+      <!-- Home Pages -->
+      <component>
+         <region-id>expUsePage</region-id>
+         <url>/pb/exp/use</url>
+      </component>
+   </components>
+   
+</template-instance>

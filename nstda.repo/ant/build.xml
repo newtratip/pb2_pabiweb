@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+
+<project name="0.2 - PB REPO" default="deploy" basedir="..">
+
+   <property file="ant/build.properties"/>
+   <property file="${common.dir}/ant/build.properties"/>
+	
+   <property name="project.dir" value="."/>
+   <property name="build.dir" value="${project.dir}/build"/>
+   <property name="bin.dir" value="${project.dir}/bin"/>
+   <property name="config.dir" value="${project.dir}/config"/>
+   <property name="common.bin.dir" value="${common.dir}/bin"/>
+   <property name="common.config.dir" value="${common.dir}/config"/>
+	
+   <property name="jar.dir" value="${build.dir}/jar"/>
+   <property name="dist.dir" value="${build.dir}/dist"/>	
+	
+	
+   <property name="alf.dir" value="${tomcat.dir}/webapps/alfresco"/>
+   <property name="alf.shared.dir" value="${tomcat.dir}/shared"/>
+	
+   <macrodef name="deploy">
+	    <attribute name="module"/>
+	    <sequential>
+	        <echo>Deploy Module : @{module}</echo>
+	    	
+	   		<local name="deploy.module"/>
+			<local name="module.name"/>
+	    	
+	   		<condition property="deploy.module" else="false">
+	   			<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+	   			</and>
+	   		</condition>
+			<condition property="module.name" value="@{module}">
+				<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+				</and>
+			</condition>
+	   		<!--echo>${run.sencha} : ${page.dir}</echo-->
+			<antcall target="deploy">
+				<param name="deploy.module" value="${deploy.module}"/>
+				<param name="module.name" value="${module.name}"/>
+			</antcall>
+	    	
+	    </sequential>
+   </macrodef>
+	
+   <target name="deploy" if="${deploy.module}">
+ 
+   		<local name="jar.name"/>
+   	
+		<property name="jar.name" value="${jar.prefix}-${module.name}-${jar.repo.name}-${jar.version}.jar"/>
+	
+	    <mkdir dir="${jar.dir}/META-INF" />
+		<mkdir dir="${dist.dir}" />
+   	
+		<delete file="${dist.dir}/${jar.name}"/>
+		<delete dir="${jar.dir}" includeemptydirs="true" />
+   	
+		<mkdir dir="${jar.dir}/META-INF" />
+   	
+	    <copy todir="${jar.dir}" includeEmptyDirs="false">
+	        <fileset dir="${bin.dir}" includes="pb/repo/${module.name}/workflow/*"/>
+	    	<fileset dir="${bin.dir}" includes="pb/repo/${module.name}/schedule/*"/>
+	    </copy>
+   	
+		<subant target="dist">
+				<property name="basedir" value=".."/>
+				<property name="jar.dir" value="${jar.dir}"/>
+	        	<property name="bin.dir" value="${bin.dir}"/>
+    			<property name="common.config.dir" value="${common.config.dir}"/>
+        		<property name="common.bin.dir" value="${common.bin.dir}"/>
+				<property name="common.dir" value="${common.dir}"/>
+				<property name="alf.dir" value="${alf.dir}"/>
+			    <fileset dir="ant" includes="module-${module.name}.xml"/>
+		</subant>
+   
+	    <copy todir="${jar.dir}" includeEmptyDirs="false">
+	    	<fileset dir="${config.dir}" includes="alfresco/extension/**/*-${module.name}-*.xml"/>
+	    	<fileset dir="${config.dir}" includes="alfresco/messages/**/*-${module.name}-*"/>
+	    </copy>
+
+    	<copy todir="${alf.dir}/WEB-INF/classes">
+    		 <fileset dir="${common.config.dir}/alfresco/web/WEB-INF/classes" includes="*"/>
+	    </copy>
+   	
+	    <jar destfile="${dist.dir}/${jar.name}">
+	         <fileset dir="${jar.dir}" />
+	    </jar>
+   	
+	    <copy todir="${alf.dir}/WEB-INF/lib">
+	   		<fileset file="${dist.dir}/${jar.name}"/>
+	    </copy>
+
+	    <copy todir="${common.dir}/build/jar">
+	   		<fileset file="${dist.dir}/${jar.name}"/>
+	    </copy>
+   </target>
+	
+   <!-- Modules Begin -->
+   <target name="Deploy.admin">
+		<deploy module="admin"/>
+   </target>
+	
+   <target name="Deploy.pcm">
+		<deploy module="pcm"/>
+   </target>
+	
+   <target name="Deploy.exp">
+		<deploy module="exp"/>
+   </target>
+		
+   <!-- Modules End -->
+	
+   <!--target name="Deploy All">
+   	
+	    <antcall target="Deploy.admin"/>
+	    <antcall target="Deploy.pcm"/>
+	    <antcall target="Deploy.exp"/>
+   	
+		<echo>Finish.</echo>
+			    	
+   </target-->
+	
+</project>	

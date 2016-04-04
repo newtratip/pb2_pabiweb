@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.pcm.dao.MemoSignDAO">
+    <resultMap id="result" type="memoSignModel">
+        <result property="id" column="id"/>
+        <result property="masterId" column="master_id"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="level" column="level"/>
+     
+    </resultMap>
+    
+    <insert
+		id="add"
+		parameterType="memoSignModel"
+		flushCache="true"
+		statementType="PREPARED"
+		keyProperty="id"
+		useGeneratedKeys="true"
+		>
+	    INSERT INTO bg_memo_workflow_history(
+	    	master_id,level,
+	    	created_by
+	    ) VALUES (
+	    	#{masterId},#{level},
+	    	#{createdBy}
+    	)
+		
+	</insert>
+</mapper>

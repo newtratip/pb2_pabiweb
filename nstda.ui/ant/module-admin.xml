@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Module Admin" default="dist">
+    <description>Do Module Admin Task</description>
+    
+    <target name="dist" description="Copy Module Admin Files">
+    
+	    <copy todir="${jar.dir}" includeEmptyDirs="false">
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/web-extension/pb-share-config.xml"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/web-extension/pb-common-slingshot-application-context.xml"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/web-extension/site-data/presets/presets.xml"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/web-extension/site-webscripts/org/*/**"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/web-extension/site-webscripts/pb/*/**"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/web-extension/messages/comment-grid.properties"/>
+	    </copy>
+    	
+    	<java classname="pb.build.alfresco.MenuGenerator">
+    		<arg value="../${common.dir}/ant/build.properties"/>
+    		<arg value="../../nstda.ui/${jar.dir}/alfresco/web-extension/site-webscripts/pb/admin"/>
+    		<classpath>
+    			<pathelement path="${common.dir}/bin"/>
+    		</classpath> 
+    	</java>
+
+    </target>
+	
+</project>

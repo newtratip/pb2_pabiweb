@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<project name="0.0 - PB Common" default="Zip" basedir="..">
+
+   <property file="ant/build.properties"/>
+	
+   <property name="project.dir" value="."/>
+   <property name="build.dir" value="${project.dir}/build"/>
+   <property name="dist.dir" value="${build.dir}/dist"/>	
+   <property name="jar.dir" value="${build.dir}/jar"/>	
+	
+   <target name="Compress My Tasks">
+		<java jar="ant/yuicompressor-2.4.7.jar" fork="true">
+			<arg value="config/share/web/components/dashlets/my-tasks.js"/>
+			<arg value="-o"/>
+			<arg value="config/share/web/components/dashlets/my-tasks-min.js"/>
+		</java>
+
+   </target>
+	
+   <target name="Zip">
+ 
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${jar.dir}" />
+   	
+	   	<zip destfile="${dist.dir}/b.zip"
+	   	       basedir="${jar.dir}"
+	   	       update="true"
+	   	  />
+   </target>	
+	
+</project>	

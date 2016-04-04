@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<project name="0.3 - PB UI Dev" default="module" basedir=".">
+
+   <property file="../ant/build.properties"/>
+   <property file="../${common.dir}/ant/build.properties"/>
+   <property file="../ant/build-sencha.properties"/>
+	
+   <target name="module">
+		<parallel>
+			<!--subant target="Shutdown">
+				    <fileset dir="../ant" includes="tomcat-share.xml"/>
+			</subant-->
+			
+			<sequential>
+				<subant target="Module.${module}">
+					    <fileset dir="../ant" includes="build-sencha.xml"/>
+				</subant>
+				
+				<subant target="Deploy.${module}"> 
+					    <fileset dir="../ant" includes="build.xml"/>
+				</subant>
+				
+				<!--subant target="Startup">
+					    <fileset dir="../ant" includes="tomcat-share.xml"/>
+				</subant-->
+			</sequential>
+		</parallel>
+   	
+   </target>
+	
+   <!-- Modules Begin -->
+   <target name="Module.admin" if="page.admin.dir">
+		<antcall target="module">
+			<param name="module" value="admin"/>
+		</antcall>
+   </target>
+	
+   <target name="Module.pcm" if="page.pcm.dir">
+		<antcall target="module">
+			<param name="module" value="pcm"/>
+		</antcall>
+   </target>
+	
+   <target name="Module.pcmord" if="page.pcmord.dir">
+		<antcall target="module">
+			<param name="module" value="pcmord"/>
+		</antcall>
+   </target>
+	
+   <target name="Module.pcmuse" if="page.pcmuse.dir">
+		<antcall target="module">
+			<param name="module" value="pcmuse"/>
+		</antcall>
+   </target>
+		
+   <target name="Module.exp" if="page.exp.dir">
+		<antcall target="module">
+			<param name="module" value="exp"/>
+		</antcall>
+   </target>
+		
+   <target name="Module.expuse" if="page.expuse.dir">
+		<antcall target="module">
+			<param name="module" value="expuse"/>
+		</antcall>
+   </target>
+			
+   <!-- Modules End -->
+	
+</project>	

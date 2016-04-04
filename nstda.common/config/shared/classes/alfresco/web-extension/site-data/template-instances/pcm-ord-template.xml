@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template-instance>
+   <template-type>pb/page/pcm-ord</template-type>
+   <properties>
+   		<pageFamily>pcmOrd</pageFamily>
+   		<container>pcmOrd</container>
+   </properties>
+   
+   <components>
+      <!-- Home Pages -->
+      <component>
+         <region-id>pcmOrdPage</region-id>
+         <url>/pb/pcm/ord</url>
+      </component>
+   </components>
+   
+</template-instance>

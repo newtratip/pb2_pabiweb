@@ -1,0 +1,761 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.nstda.or.th/pcmwf">
+  <process id="NSTDAPcmWorkflow01" name="NSTDA Procurement Pattern #1" isExecutable="true">
+    <extensionElements>
+      <activiti:executionListener event="start" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateExecutionListener">
+        <activiti:field name="componentId">
+          <activiti:string><![CDATA[nstda.pcm.workflow.StartWorkflow]]></activiti:string>
+        </activiti:field>
+      </activiti:executionListener>
+    </extensionElements>
+    <userTask id="nextActionTask" name="Next Action Task" activiti:candidateUsers="${pcmwf_nextActionAssignee}" activiti:candidateGroups="${pcmwf_nextActionGroup}" activiti:formKey="pcmwf:nextActionTask">
+      <extensionElements>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="reviewer1Task" name="Reviewer #1" activiti:candidateGroups="${pcmwf_reviewer1Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="reviewGateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow53" sourceRef="reviewer1Task" targetRef="reviewGateway1"></sequenceFlow>
+    <userTask id="reviewer2Task" name="Reviewer #2" activiti:candidateGroups="${pcmwf_reviewer2Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="reviewGateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow55" sourceRef="reviewer2Task" targetRef="reviewGateway2"></sequenceFlow>
+    <userTask id="reviewer3Task" name="Reviewer #3" activiti:candidateGroups="${pcmwf_reviewer3Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow56" sourceRef="nextReviewerGateway2" targetRef="reviewer3Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer3Group !=''}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="reviewGateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow57" sourceRef="reviewer3Task" targetRef="reviewGateway3"></sequenceFlow>
+    <userTask id="reviewer4Task" name="Reviewer #4" activiti:candidateGroups="${pcmwf_reviewer4Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="reviewGateway4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow59" sourceRef="reviewer4Task" targetRef="reviewGateway4"></sequenceFlow>
+    <userTask id="requesterTask" name="Requester" activiti:assignee="${initiator.properties.userName}" activiti:formKey="pcmwf:requesterResubmitTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow65" name="Re-submit" sourceRef="resubmitGateway" targetRef="reviewer1Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reSubmitOutcome == 'Re-Submit'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow66" name="Reject" sourceRef="reviewGateway2" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow67" name="Reject" sourceRef="reviewGateway3" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow68" name="Reject" sourceRef="reviewGateway4" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="nextReviewerGateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow75" name="Approve" sourceRef="reviewGateway2" targetRef="nextReviewerGateway2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow76" name="No next reviewer" sourceRef="nextReviewerGateway2" targetRef="nextActionTask"></sequenceFlow>
+    <exclusiveGateway id="nextReviewerGateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow78" name="Approve" sourceRef="reviewGateway3" targetRef="nextReviewerGateway3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow79" sourceRef="nextReviewerGateway3" targetRef="reviewer4Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer4Group !=''}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow80" name="No next reviewer" sourceRef="nextReviewerGateway3" targetRef="nextActionTask"></sequenceFlow>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow82" sourceRef="nextActionTask" targetRef="endevent2"></sequenceFlow>
+    <userTask id="reviewer5Task" name="Reviewer #5" activiti:candidateGroups="${pcmwf_reviewer5Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="nextReviewerGateway4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow84" name="Approve" sourceRef="reviewGateway4" targetRef="nextReviewerGateway4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="reviewGateway5" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow87" sourceRef="reviewer5Task" targetRef="reviewGateway5"></sequenceFlow>
+    <startEvent id="startevent" name="Start" activiti:formKey="pcmwf:submitStartTask"></startEvent>
+    <sequenceFlow id="flow89" sourceRef="startevent" targetRef="reviewer1Task"></sequenceFlow>
+    <sequenceFlow id="flow90" name="Reject" sourceRef="reviewGateway5" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="reviewer6Task" name="Reviewer #6" activiti:candidateGroups="${pcmwf_reviewer6Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow93" sourceRef="nextReviewerGateway5" targetRef="reviewer6Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer6Group !=''}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="nextReviewerGateway5" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow94" name="Approve" sourceRef="reviewGateway5" targetRef="nextReviewerGateway5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow95" name="No next reviewer" sourceRef="nextReviewerGateway5" targetRef="nextActionTask"></sequenceFlow>
+    <exclusiveGateway id="reviewGateway6" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow96" sourceRef="reviewer6Task" targetRef="reviewGateway6"></sequenceFlow>
+    <exclusiveGateway id="nextReviewerGateway6" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow97" name="Approve" sourceRef="reviewGateway6" targetRef="nextReviewerGateway6">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="reviewer7Task" name="Reviewer #7" activiti:candidateGroups="${pcmwf_reviewer7Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow98" sourceRef="nextReviewerGateway6" targetRef="reviewer7Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer7Group !=''}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="reviewGateway7" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow99" sourceRef="reviewer7Task" targetRef="reviewGateway7"></sequenceFlow>
+    <exclusiveGateway id="nextReviewerGateway7" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow100" name="Approve" sourceRef="reviewGateway7" targetRef="nextReviewerGateway7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="reviewer8Task" name="Reviewer #8" activiti:candidateGroups="${pcmwf_reviewer8Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow101" sourceRef="nextReviewerGateway7" targetRef="reviewer8Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer8Group!=''}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="reviewGateway8" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow102" sourceRef="reviewer8Task" targetRef="reviewGateway8"></sequenceFlow>
+    <exclusiveGateway id="nextReviewerGateway8" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow103" name="Approve" sourceRef="reviewGateway8" targetRef="nextReviewerGateway8">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="reviewer9Task" name="Reviewer #9" activiti:candidateGroups="${pcmwf_reviewer9Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow104" sourceRef="nextReviewerGateway8" targetRef="reviewer9Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer9Group !=''}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="reviewGateway9" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow105" sourceRef="reviewer9Task" targetRef="reviewGateway9"></sequenceFlow>
+    <exclusiveGateway id="nextReviewerGateway9" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow106" name="Approve" sourceRef="reviewGateway9" targetRef="nextReviewerGateway9">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="reviewer10Task" name="Reviewer #10" activiti:candidateGroups="${pcmwf_reviewer10Group}" activiti:formKey="pcmwf:reviewerReviewTask">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CreateTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
+          <activiti:field name="componentId">
+            <activiti:string><![CDATA[nstda.pcm.workflow.CompleteTask]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow107" sourceRef="nextReviewerGateway9" targetRef="reviewer10Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer10Group!=''}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow109" name="Reject" sourceRef="reviewGateway6" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow110" name="No next reviewer" sourceRef="nextReviewerGateway6" targetRef="nextActionTask"></sequenceFlow>
+    <sequenceFlow id="flow111" name="Reject" sourceRef="reviewGateway7" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow112" name="No next reviewer" sourceRef="nextReviewerGateway7" targetRef="nextActionTask"></sequenceFlow>
+    <sequenceFlow id="flow113" name="Reject" sourceRef="reviewGateway8" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow114" name="No next reviewer" sourceRef="nextReviewerGateway8" targetRef="nextActionTask"></sequenceFlow>
+    <sequenceFlow id="flow115" name="Reject" sourceRef="reviewGateway9" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="reviewGateway10" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow117" sourceRef="reviewer10Task" targetRef="reviewGateway10"></sequenceFlow>
+    <sequenceFlow id="flow118" name="Approve" sourceRef="reviewGateway10" targetRef="nextActionTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow119" name="No next reviewer" sourceRef="nextReviewerGateway9" targetRef="nextActionTask"></sequenceFlow>
+    <sequenceFlow id="flow120" name="Reject" sourceRef="reviewGateway10" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="nextReviewerGateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow122" sourceRef="nextReviewerGateway1" targetRef="reviewer2Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer2Group !=''}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow123" name="No next reviewer" sourceRef="nextReviewerGateway1" targetRef="nextActionTask"></sequenceFlow>
+    <exclusiveGateway id="resubmitGateway" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow124" sourceRef="requesterTask" targetRef="resubmitGateway"></sequenceFlow>
+    <sequenceFlow id="flow125" name="Cancel" sourceRef="resubmitGateway" targetRef="endevent2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reSubmitOutcome == 'Cancel'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow126" name="Approve" sourceRef="reviewGateway1" targetRef="nextReviewerGateway1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow127" name="Reject" sourceRef="reviewGateway1" targetRef="requesterTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow128" sourceRef="nextReviewerGateway4" targetRef="reviewer5Task">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmwf_reviewer5Group !=''}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow130" name="No next reviewer" sourceRef="nextReviewerGateway4" targetRef="nextActionTask"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_NSTDAPcmWorkflow01">
+    <bpmndi:BPMNPlane bpmnElement="NSTDAPcmWorkflow01" id="BPMNPlane_NSTDAPcmWorkflow01">
+      <bpmndi:BPMNShape bpmnElement="nextActionTask" id="BPMNShape_nextActionTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="1218.0" y="283.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer1Task" id="BPMNShape_reviewer1Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="78.0" y="142.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway1" id="BPMNShape_reviewGateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="230.0" y="149.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer2Task" id="BPMNShape_reviewer2Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="391.0" y="142.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway2" id="BPMNShape_reviewGateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="525.0" y="149.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer3Task" id="BPMNShape_reviewer3Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="701.0" y="142.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway3" id="BPMNShape_reviewGateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="835.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer4Task" id="BPMNShape_reviewer4Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="1001.0" y="145.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway4" id="BPMNShape_reviewGateway4">
+        <omgdc:Bounds height="40.0" width="40.0" x="1143.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="requesterTask" id="BPMNShape_requesterTask">
+        <omgdc:Bounds height="55.0" width="105.0" x="379.0" y="0.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway2" id="BPMNShape_nextReviewerGateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="623.0" y="149.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway3" id="BPMNShape_nextReviewerGateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="927.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="1253.0" y="422.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer5Task" id="BPMNShape_reviewer5Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="1330.0" y="145.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway4" id="BPMNShape_nextReviewerGateway4">
+        <omgdc:Bounds height="40.0" width="40.0" x="1250.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway5" id="BPMNShape_reviewGateway5">
+        <omgdc:Bounds height="40.0" width="40.0" x="1481.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startevent" id="BPMNShape_startevent">
+        <omgdc:Bounds height="35.0" width="35.0" x="11.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer6Task" id="BPMNShape_reviewer6Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="1652.0" y="145.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway5" id="BPMNShape_nextReviewerGateway5">
+        <omgdc:Bounds height="40.0" width="40.0" x="1580.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway6" id="BPMNShape_reviewGateway6">
+        <omgdc:Bounds height="40.0" width="40.0" x="1780.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway6" id="BPMNShape_nextReviewerGateway6">
+        <omgdc:Bounds height="40.0" width="40.0" x="1879.0" y="152.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer7Task" id="BPMNShape_reviewer7Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="1978.0" y="144.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway7" id="BPMNShape_reviewGateway7">
+        <omgdc:Bounds height="40.0" width="40.0" x="2010.0" y="226.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway7" id="BPMNShape_nextReviewerGateway7">
+        <omgdc:Bounds height="40.0" width="40.0" x="2010.0" y="290.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer8Task" id="BPMNShape_reviewer8Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="1978.0" y="348.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway8" id="BPMNShape_reviewGateway8">
+        <omgdc:Bounds height="40.0" width="40.0" x="2010.0" y="427.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway8" id="BPMNShape_nextReviewerGateway8">
+        <omgdc:Bounds height="40.0" width="40.0" x="2010.0" y="491.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer9Task" id="BPMNShape_reviewer9Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="1978.0" y="548.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway9" id="BPMNShape_reviewGateway9">
+        <omgdc:Bounds height="40.0" width="40.0" x="2010.0" y="628.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway9" id="BPMNShape_nextReviewerGateway9">
+        <omgdc:Bounds height="40.0" width="40.0" x="2010.0" y="689.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewer10Task" id="BPMNShape_reviewer10Task">
+        <omgdc:Bounds height="55.0" width="105.0" x="1978.0" y="749.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewGateway10" id="BPMNShape_reviewGateway10">
+        <omgdc:Bounds height="40.0" width="40.0" x="2010.0" y="842.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="nextReviewerGateway1" id="BPMNShape_nextReviewerGateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="319.0" y="149.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="resubmitGateway" id="BPMNShape_resubmitGateway">
+        <omgdc:Bounds height="40.0" width="40.0" x="110.0" y="64.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow53" id="BPMNEdge_flow53">
+        <omgdi:waypoint x="183.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="230.0" y="169.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow55" id="BPMNEdge_flow55">
+        <omgdi:waypoint x="496.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="525.0" y="169.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow56" id="BPMNEdge_flow56">
+        <omgdi:waypoint x="663.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="701.0" y="169.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
+        <omgdi:waypoint x="806.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="835.0" y="172.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow59" id="BPMNEdge_flow59">
+        <omgdi:waypoint x="1106.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1143.0" y="172.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow65" id="BPMNEdge_flow65">
+        <omgdi:waypoint x="130.0" y="104.0"></omgdi:waypoint>
+        <omgdi:waypoint x="130.0" y="142.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="47.0" x="70.0" y="93.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow66" id="BPMNEdge_flow66">
+        <omgdi:waypoint x="545.0" y="149.0"></omgdi:waypoint>
+        <omgdi:waypoint x="544.0" y="27.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="29.0" x="551.0" y="71.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow67" id="BPMNEdge_flow67">
+        <omgdi:waypoint x="855.0" y="152.0"></omgdi:waypoint>
+        <omgdi:waypoint x="854.0" y="29.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="30.0" x="861.0" y="66.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow68" id="BPMNEdge_flow68">
+        <omgdi:waypoint x="1163.0" y="152.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1162.0" y="24.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="29.0" x="1161.0" y="66.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow75" id="BPMNEdge_flow75">
+        <omgdi:waypoint x="565.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="623.0" y="169.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="39.0" x="570.0" y="149.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow76" id="BPMNEdge_flow76">
+        <omgdi:waypoint x="643.0" y="189.0"></omgdi:waypoint>
+        <omgdi:waypoint x="642.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1218.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="81.0" x="651.0" y="212.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow78" id="BPMNEdge_flow78">
+        <omgdi:waypoint x="875.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="927.0" y="172.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="39.0" x="874.0" y="150.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow79" id="BPMNEdge_flow79">
+        <omgdi:waypoint x="967.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1001.0" y="172.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow80" id="BPMNEdge_flow80">
+        <omgdi:waypoint x="947.0" y="192.0"></omgdi:waypoint>
+        <omgdi:waypoint x="947.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1218.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="81.0" x="959.0" y="213.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow82" id="BPMNEdge_flow82">
+        <omgdi:waypoint x="1270.0" y="338.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1270.0" y="422.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow84" id="BPMNEdge_flow84">
+        <omgdi:waypoint x="1183.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1250.0" y="172.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="39.0" x="1182.0" y="146.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow87" id="BPMNEdge_flow87">
+        <omgdi:waypoint x="1435.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1481.0" y="172.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow89" id="BPMNEdge_flow89">
+        <omgdi:waypoint x="46.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="78.0" y="169.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow90" id="BPMNEdge_flow90">
+        <omgdi:waypoint x="1501.0" y="152.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1500.0" y="27.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="29.0" x="1501.0" y="66.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow93" id="BPMNEdge_flow93">
+        <omgdi:waypoint x="1620.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1652.0" y="172.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow94" id="BPMNEdge_flow94">
+        <omgdi:waypoint x="1521.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1580.0" y="172.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="39.0" x="1520.0" y="151.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow95" id="BPMNEdge_flow95">
+        <omgdi:waypoint x="1600.0" y="192.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1599.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1323.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="81.0" x="1601.0" y="218.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow96" id="BPMNEdge_flow96">
+        <omgdi:waypoint x="1757.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1780.0" y="172.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow97" id="BPMNEdge_flow97">
+        <omgdi:waypoint x="1820.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1879.0" y="172.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="39.0" x="1820.0" y="152.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow98" id="BPMNEdge_flow98">
+        <omgdi:waypoint x="1919.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1978.0" y="171.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow99" id="BPMNEdge_flow99">
+        <omgdi:waypoint x="2030.0" y="199.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="226.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow100" id="BPMNEdge_flow100">
+        <omgdi:waypoint x="2030.0" y="266.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="290.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="39.0" x="2040.0" y="266.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow101" id="BPMNEdge_flow101">
+        <omgdi:waypoint x="2030.0" y="330.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="348.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow102" id="BPMNEdge_flow102">
+        <omgdi:waypoint x="2030.0" y="403.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="427.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow103" id="BPMNEdge_flow103">
+        <omgdi:waypoint x="2030.0" y="467.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="491.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="39.0" x="2040.0" y="467.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow104" id="BPMNEdge_flow104">
+        <omgdi:waypoint x="2030.0" y="531.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="548.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow105" id="BPMNEdge_flow105">
+        <omgdi:waypoint x="2030.0" y="603.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="628.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow106" id="BPMNEdge_flow106">
+        <omgdi:waypoint x="2030.0" y="668.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="689.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="39.0" x="2040.0" y="668.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow107" id="BPMNEdge_flow107">
+        <omgdi:waypoint x="2030.0" y="729.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="749.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow109" id="BPMNEdge_flow109">
+        <omgdi:waypoint x="1800.0" y="152.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1799.0" y="27.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1576.0" y="27.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="29.0" x="1801.0" y="66.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow110" id="BPMNEdge_flow110">
+        <omgdi:waypoint x="1899.0" y="192.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1899.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1323.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="81.0" x="1899.0" y="196.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow111" id="BPMNEdge_flow111">
+        <omgdi:waypoint x="2050.0" y="246.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2145.0" y="245.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2145.0" y="28.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="29.0" x="2099.0" y="220.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow112" id="BPMNEdge_flow112">
+        <omgdi:waypoint x="2010.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1903.0" y="309.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1323.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="81.0" x="1911.0" y="272.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow113" id="BPMNEdge_flow113">
+        <omgdi:waypoint x="2050.0" y="447.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2141.0" y="447.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2141.0" y="26.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2008.0" y="26.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="29.0" x="2099.0" y="420.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow114" id="BPMNEdge_flow114">
+        <omgdi:waypoint x="2010.0" y="511.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1902.0" y="510.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1902.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1323.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="81.0" x="1911.0" y="481.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow115" id="BPMNEdge_flow115">
+        <omgdi:waypoint x="2050.0" y="648.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2144.0" y="647.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2144.0" y="27.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="39.0" width="29.0" x="2109.0" y="621.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow117" id="BPMNEdge_flow117">
+        <omgdi:waypoint x="2030.0" y="804.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2030.0" y="842.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow118" id="BPMNEdge_flow118">
+        <omgdi:waypoint x="2010.0" y="862.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1902.0" y="862.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1902.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1323.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="40.0" x="1871.0" y="842.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow119" id="BPMNEdge_flow119">
+        <omgdi:waypoint x="2010.0" y="709.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1905.0" y="709.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1905.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1323.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="81.0" x="1912.0" y="669.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow120" id="BPMNEdge_flow120">
+        <omgdi:waypoint x="2050.0" y="862.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2050.0" y="862.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2144.0" y="862.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2144.0" y="27.0"></omgdi:waypoint>
+        <omgdi:waypoint x="484.0" y="27.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="30.0" x="2109.0" y="803.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow122" id="BPMNEdge_flow122">
+        <omgdi:waypoint x="359.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="391.0" y="169.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow123" id="BPMNEdge_flow123">
+        <omgdi:waypoint x="339.0" y="189.0"></omgdi:waypoint>
+        <omgdi:waypoint x="339.0" y="310.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1218.0" y="310.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="100.0" x="350.0" y="212.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow124" id="BPMNEdge_flow124">
+        <omgdi:waypoint x="379.0" y="27.0"></omgdi:waypoint>
+        <omgdi:waypoint x="130.0" y="27.0"></omgdi:waypoint>
+        <omgdi:waypoint x="130.0" y="64.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow125" id="BPMNEdge_flow125">
+        <omgdi:waypoint x="150.0" y="84.0"></omgdi:waypoint>
+        <omgdi:waypoint x="208.0" y="83.0"></omgdi:waypoint>
+        <omgdi:waypoint x="208.0" y="439.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1253.0" y="439.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="33.0" x="168.0" y="95.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow126" id="BPMNEdge_flow126">
+        <omgdi:waypoint x="270.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="319.0" y="169.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="100.0" x="269.0" y="150.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow127" id="BPMNEdge_flow127">
+        <omgdi:waypoint x="250.0" y="149.0"></omgdi:waypoint>
+        <omgdi:waypoint x="249.0" y="104.0"></omgdi:waypoint>
+        <omgdi:waypoint x="430.0" y="104.0"></omgdi:waypoint>
+        <omgdi:waypoint x="431.0" y="55.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="100.0" x="260.0" y="81.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow128" id="BPMNEdge_flow128">
+        <omgdi:waypoint x="1290.0" y="172.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1330.0" y="172.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow130" id="BPMNEdge_flow130">
+        <omgdi:waypoint x="1270.0" y="192.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1270.0" y="283.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="13.0" width="81.0" x="1270.0" y="213.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

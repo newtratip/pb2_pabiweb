@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <title>Procuremrnt Use Home</title>
+   <title-id>Procurement Use</title-id>
+   <description>Procurement Use Page</description>
+   <description-id>page.pcmUseHome.description</description-id>
+   <template-instance>pcm-use-template</template-instance>
+   <authentication>user</authentication>
+</page>

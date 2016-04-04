@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainCurrencyRateDAO">
+    <resultMap id="result" type="mainCurrencyRateModel">
+        <result property="id" column="id"/>
+        <result property="masterId" column="currency_id"/>
+        <result property="rate" column="rate"/>
+        <result property="totalRowCount" column="totalRowCount"/>
+        
+    </resultMap>
+    
+	<select id="list" resultMap="result" parameterType="map">
+		select r.* from pb2_ext_res_currency_rate r
+		join pb2_ext_res_currency c on c.id=r.currency_id
+		where c.name=#{name} 
+		order by r.write_date
+	</select>    
+    
+	<select id="count"  resultType="long">
+        select
+		    count(1)
+		from
+		    pb2_ext_res_currency_rate
+	
+    </select>
+	
+</mapper>

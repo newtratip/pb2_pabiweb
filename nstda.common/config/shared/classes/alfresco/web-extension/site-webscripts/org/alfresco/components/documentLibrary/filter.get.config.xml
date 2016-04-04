@@ -1,0 +1,28 @@
+<filters>
+   <filter id="all" label="link.all" evaluator="page.url.templateArgs.site != 'iso-department'"/>
+   <filter id="editingMe" label="link.editingMe" evaluator="page.url.templateArgs.site != 'iso-department'"/>
+   <filter id="editingOthers" label="link.editingOthers" evaluator="page.url.templateArgs.site != 'iso-department'"/>
+   <filter id="recentlyModified" label="link.recentlyModified" evaluator="page.url.templateArgs.site != 'iso-department'"/>
+   <filter id="recentlyAdded" label="link.recentlyAdded" evaluator="page.url.templateArgs.site != 'iso-department'"/>
+   <filter id="favourites" label="link.favourites" evaluator="page.url.templateArgs.site != 'iso-department'"/>
+   <filter id="synced" label="link.synced" evaluator="syncMode.getValue() != 'OFF'"/>
+   <filter id="syncedErrors" label="link.syncedErrors" evaluator="syncMode.getValue() == 'ON_PREMISE'"/>
+   
+   <!--Start Add this section-->
+   <filter id="isoNormalStatus" label="link.isoStatus.normal" evaluator="page.url.templateArgs.site=='iso-department'"/>
+   <filter id="isoReSubmitStatus" label="link.isoStatus.resubmit" evaluator="page.url.templateArgs.site=='iso-department'"/>
+   
+   <filter id="isoReviewer1Status" label="link.isoStatus.reviewer1"  evaluator="page.url.templateArgs.site=='iso-department'"/>
+   <filter id="isoReviewer2Status" label="link.isoStatus.reviewer2"  evaluator="page.url.templateArgs.site=='iso-department'"/>
+   <filter id="isoReviewer3Status" label="link.isoStatus.reviewer3"  evaluator="page.url.templateArgs.site=='iso-department'"/>
+   
+   <filter id="isoApprover1Status" label="link.isoStatus.approver1"  evaluator="page.url.templateArgs.site=='iso-department'"/>
+   <filter id="isoApprover2Status" label="link.isoStatus.approver2"  evaluator="page.url.templateArgs.site=='iso-department'"/>
+   <filter id="isoApprover3Status" label="link.isoStatus.approver3"  evaluator="page.url.templateArgs.site=='iso-department'"/>
+   
+   <filter id="isodccReviewStatus" label="link.isoStatus.dccReview"  evaluator="page.url.templateArgs.site=='iso-department'"/>
+   <filter id="isoMrStatus" label="link.isoStatus.mr"  evaluator="page.url.templateArgs.site=='iso-department'"/>
+   <filter id="isoPublishStatus" label="link.isoStatus.publish" evaluator="page.url.templateArgs.site=='iso-department'"/>
+	<!--End Add this section-->
+
+</filters>

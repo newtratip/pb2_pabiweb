@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<page>
+   <title>Admin Home</title>
+   <title-id>Administration</title-id>
+   <description>Administration Page</description>
+   <description-id>page.adminHome.description</description-id>
+   <template-instance>admin-template</template-instance>
+   <authentication>user</authentication>
+</page>

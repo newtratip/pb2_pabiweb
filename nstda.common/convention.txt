@@ -1,0 +1,40 @@
+=================
+Java Package Name
+=================
+
+<app name>.<where to used>.<module name>.<class type>.<sub module name>
+
+<app name>     : "pb"
+
+<used where>       : "common" = ถูกใช้ทั้งใน alfresco และ share 
+				     "repo"   = ถูกใช้ใน webapps/alfresco
+					 "ui"     = ถูกใช้ใน webapps/share
+					 
+<module name>      : "common"
+				   : "admin"
+				   : "pcm"
+				   
+<class type>       : "common"
+				   : "model"     
+				   : "dao"
+				   : "util"
+				   : "constant"
+				   : "service"
+				   : "webscript"   = web script
+				   
+<sub module name>  : "common"  
+				   : "admin"
+				   : "usual"
+
+เช่น
+
+pb.common.admin.model.common
+
+
+===============
+Java Class Name
+===============
+
+<module name><page name>
+
+

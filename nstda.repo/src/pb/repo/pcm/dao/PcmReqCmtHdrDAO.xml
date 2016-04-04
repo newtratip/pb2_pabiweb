@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.pcm.dao.PcmReqCmtHdrDAO">
+    <resultMap id="result" type="pcmReqCmtHdrModel">
+        <result property="id" column="id"/>
+        <result property="pcmReqId" column="pcm_req_id"/>
+        <result property="committee" column="committee"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="updatedBy" column="updated_by"/>
+    </resultMap>
+    
+    <select id="list" resultMap="result" parameterType="map">
+        SELECT
+		    *,		    
+		    COUNT(*) OVER() totalRowCount
+		FROM
+		    pb2_ext_pcm_req_committee_hdr
+		ORDER BY ${orderBy}
+		LIMIT #{limit}
+		OFFSET #{start}
+    </select>
+	
+	<select id="count"  resultType="long">
+        SELECT
+		    count(1)
+		FROM
+		    pb2_ext_pcm_req_committee_hdr
+    </select>
+    
+    <select id="get" parameterType="string" resultMap="result">
+        SELECT
+		    *
+		FROM
+		    pb2_ext_pcm_req_committee_hdr
+		WHERE id=#{id}
+    </select>
+    
+</mapper>

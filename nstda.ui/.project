@@ -10,8 +10,46 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.babel.editor.rbeBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>com.jaspersoft.studio.babel.editor.rbeNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>sencha/PBAdmin/sencha.cfg</name>
+			<type>1</type>
+			<location>/home/osboxes/workspace/nstda/nstda.ui/sencha/PBAdmin/.sencha/app/sencha.cfg</location>
+		</link>
+		<link>
+			<name>sencha/PBExp/sencha.cfg</name>
+			<type>1</type>
+			<location>/home/osboxes/workspace/nstda/nstda.ui/sencha/PBExp/.sencha/app/sencha.cfg</location>
+		</link>
+		<link>
+			<name>sencha/PBExpUse/sencha.cfg</name>
+			<type>1</type>
+			<location>/home/osboxes/workspace/nstda/nstda.ui/sencha/PBExpUse/.sencha/app/sencha.cfg</location>
+		</link>
+		<link>
+			<name>sencha/PBPcm/sencha.cfg</name>
+			<type>1</type>
+			<location>/home/osboxes/workspace/nstda/nstda.ui/sencha/PBPcm/.sencha/app/sencha.cfg</location>
+		</link>
+		<link>
+			<name>sencha/PBPcmOrd/sencha.cfg</name>
+			<type>1</type>
+			<location>/home/osboxes/workspace/nstda/nstda.ui/sencha/PBPcmOrd/.sencha/app/sencha.cfg</location>
+		</link>
+		<link>
+			<name>sencha/PBPcmUse/sencha.cfg</name>
+			<type>1</type>
+			<location>/home/osboxes/workspace/nstda/nstda.ui/sencha/PBPcmUse/.sencha/app/sencha.cfg</location>
+		</link>
+	</linkedResources>
 </projectDescription>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.pcm.dao.PcmReqWorkflowDAO">
+    <resultMap id="result" type="pcmReqWorkflowModel">
+        <result property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="masterId" column="master_id"/>
+        <result property="workflowInsId" column="workflow_ins_id"/>
+        <result property="status" column="status"/>
+        <result property="assignee" column="assignee"/>
+        <result property="by" column="by"/>
+        <result property="byTime" column="by_time"/>
+        <result property="taskId" column="task_id"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="createdBy" column="created_by"/>
+     
+    </resultMap>
+    
+    <select id="getLastWorkflow" resultMap="result" parameterType="pcmReqWorkflowModel">
+    
+        SELECT
+		    *
+		FROM
+		    pb2_pcm_req_workflow
+		WHERE
+			master_id = #{masterId} ORDER BY id DESC LIMIT 1
+		
+    </select>
+   
+    
+    <insert
+		id="add"
+		parameterType="pcmReqWorkflowModel"
+		flushCache="true"
+		statementType="PREPARED"
+		keyProperty="id"
+		useGeneratedKeys="true"
+		>
+	    INSERT INTO pb2_pcm_req_workflow(
+	    	id,type,master_id,workflow_ins_id,status,assignee,by,by_time,task_id,created_time,created_by
+	    ) VALUES (
+	    	#{id},#{type},#{masterId},#{workflowInsId},#{status},#{assignee},#{by},Now(),#{taskId},Now(),#{createdBy}
+    	)
+		
+	</insert>
+	
+	<update id="update" 
+        parameterType="pcmReqWorkflowModel"
+		flushCache="true">
+		
+	     UPDATE pb2_pcm_req_workflow 
+	     SET task_id=#{taskId},
+	     	 status=#{status},
+	         assignee=#{assignee},
+	         by=#{by},
+	         by_time=#{byTime}
+	     WHERE id=#{id}
+	     
+    </update>
+	
+	<select id="getKey"  resultType="Long">
+	        select nextval('pb2_pcm_req_workflow_id_seq') id;
+	</select>
+    
+    <delete id="deleteByMasterId"
+    		parameterType="string"
+			flushCache="true"
+			statementType="PREPARED"
+			>
+   		DELETE FROM pb2_pcm_req_workflow WHERE master_id=#{masterId}
+	</delete>
+	
+	<select id="listByMasterId" parameterType="String" resultMap="result">
+        SELECT *, COUNT(*) OVER() totalRowCount
+        FROM pb2_pcm_req_workflow
+        WHERE master_id=#{id}
+        ORDER BY created_time DESC
+    </select>
+    
+</mapper>

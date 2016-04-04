@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Module Admin" default="dist">
+    <description>Do Module Admin Task</description>
+    
+    <target name="dist.dyna" description="Copy Dynamic Module Admin Files">
+    	
+	    <copy todir="${jar.dir}" includeEmptyDirs="false">
+	        <fileset dir="${common.bin.dir}" includes="pb/common/**/*"/>
+	    	<fileset dir="${bin.dir}" includes="pb/repo/common/**/*"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/extension/messages/*"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/extension/templates/**/*"/>
+	    </copy>
+    	
+    	<java classname="pb.build.sencha.MenuGenerator">
+    		<arg value="../${common.dir}/ant/build.properties"/>
+    		<arg value="../../nstda.repo/${jar.dir}"/>
+    		<classpath>
+    			<pathelement path="${common.dir}/bin"/>
+    		</classpath> 
+    	</java>
+
+    </target>
+	
+    <target name="dist" description="Copy Module Admin Files">
+	    <copy todir="${jar.dir}" includeEmptyDirs="false" overwrite="true">
+	    	<fileset dir="${common.config.dir}/alfresco/web/WEB-INF/classes" includes="alfresco/templates/**/*"/>
+	    </copy>
+    </target>
+	
+</project>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<project name="Share Tomcat" default="Startup" basedir="/opt/alfresco/tomcat-share/bin">
+
+   <property name="project.dir" value="."/>
+
+	<target name="Startup">
+	  <exec executable="sh">
+	    <arg value="startup.sh"/>
+	  </exec>
+	</target>
+	
+	<target name="Shutdown">
+	  <exec executable="sh">
+	    <arg value="shutdown.sh"/>
+	  </exec>
+	</target>
+
+</project>	

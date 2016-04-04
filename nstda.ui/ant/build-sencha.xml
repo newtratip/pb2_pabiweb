@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+
+<project name="0.4 - PB Sencha" default="sencha" basedir="../sencha">
+
+   <property file="../ant/build.properties"/>
+   <property file="../${common.dir}/ant/build.properties"/>
+   <property file="../ant/build-sencha.properties"/>
+	
+   <macrodef name="sencha">
+	    <attribute name="module"/>
+	    <sequential>
+	        <echo>Module : @{module}</echo>
+	    	
+	   		<local name="run.sencha"/>
+			<local name="page.dir"/>
+	    	<!--property name="run.sencha" value="${module.@{module}}"/>
+	    	<property name="page.dir" value="${page.@{module}.dir}"/-->
+	    	
+	   		<condition property="run.sencha" else="false">
+	   			<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+					<isset property="page.@{module}.dir"/>
+	   			</and>
+	   		</condition>
+			<condition property="page.dir" value="${page.@{module}.dir}">
+				<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+					<isset property="page.@{module}.dir"/>
+				</and>
+			</condition>
+	   		<!--echo>${run.sencha} : ${page.dir}</echo-->
+			<antcall target="sencha">
+				<param name="run.sencha" value="${run.sencha}"/>
+				<param name="page.dir" value="${page.dir}"/>
+			</antcall>
+	    	
+	    </sequential>
+   </macrodef>	
+	
+   <target name="sencha" if="${run.sencha}" depends="common">
+	    <property name="build.dir" value="${workspace.dir}/${page.dir}"/>
+	    <property name="build.prd.dir" value="${workspace.dir}/build/production/${page.dir}"/>
+    	<property name="build.jar.dir" value="../build/jar/META-INF/page/${page.dir}"/>
+   	
+		<delete dir="${build.dir}"/>
+   	
+		<copy todir="${build.dir}" includeEmptyDirs="false">
+			<fileset dir="${page.dir}"/>
+		</copy>
+			
+		<subant target="${build.target}"> <!-- target="prd" or "dev" -->
+				<property name="basedir" value="${build.dir}"/>
+				<property name="page.dir" value="${page.dir}"/>
+			    <fileset dir="../ant" includes="sencha.xml"/>
+		</subant>
+   	
+		<!--delete dir="${build.jar.dir}"/-->
+		
+		<!--copy todir="${build.jar.dir}" includeEmptyDirs="false">
+			<fileset dir="${build.prd.dir}"/>
+		</copy-->
+   </target>
+	
+   <!-- Modules Begin -->
+   <target name="Module.admin" if="page.admin.dir">
+		<sencha module="admin"/>
+   </target>
+	
+   <target name="Module.pcm" if="page.pcm.dir">
+		<sencha module="pcm"/>
+   </target>
+	
+   <target name="Module.pcmord" if="page.pcmord.dir">
+		<sencha module="pcmord"/>
+   </target>
+		
+   <target name="Module.pcmuse" if="page.pcmuse.dir">
+		<sencha module="pcmuse"/>
+   </target>
+	
+   <target name="Module.exp" if="page.exp.dir">
+		<sencha module="exp"/>
+   </target>
+			
+   <target name="Module.expuse" if="page.expuse.dir">
+		<sencha module="expuse"/>
+   </target>
+		
+   <!-- Modules End -->
+	
+   <!--target name="All Module">
+   	
+	    <antcall target="Module.admin"/>
+	    <antcall target="Module.pcm"/>
+	    <antcall target="Module.exp"/>
+   	
+		<echo>Finish.</echo>
+			    	
+   </target-->
+	
+   <target name="common">
+   	
+   		<delete dir="${workspace.dir}/common/src"/>
+	
+		<copy todir="${workspace.dir}/common/src" includeEmptyDirs="false">
+			<fileset dir="common/src"/>
+		</copy>
+			    	
+   </target>
+	
+	
+</project>	

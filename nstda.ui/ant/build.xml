@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+
+<project name="0.5 - PB UI" default="deploy" basedir="..">
+
+   <property file="ant/build.properties"/>
+   <property file="ant/build-sencha.properties"/>
+   <property file="${common.dir}/ant/build.properties"/>
+	
+   <property name="project.dir" value="."/>
+   <property name="build.dir" value="${project.dir}/build"/>
+   <property name="bin.dir" value="${project.dir}/bin"/>
+   <property name="config.dir" value="${project.dir}/config"/>
+   <property name="common.bin.dir" value="${common.dir}/bin"/>
+   <property name="common.config.dir" value="${common.dir}/config"/>
+	
+   <property name="jar.dir" value="${build.dir}/jar"/>
+   <property name="dist.dir" value="${build.dir}/dist"/>	
+   <property name="sencha.prd.dir" value="sencha/${workspace.dir}/build/production"/>
+	
+   <property name="jar.name" value="${jar.prefix}-${jar.ui.name}-${jar.version}.jar"/>
+	
+   <property name="share.dir" value="${tomcat-share.dir}/webapps/${share.path}"/>
+   <property name="shared.dir" value="${tomcat-share.dir}/shared"/>
+	
+   <macrodef name="deploy">
+	    <attribute name="module"/>
+	    <sequential>
+	        <echo>Deploy Module : @{module}</echo>
+	    	
+	   		<local name="deploy.module"/>
+			<local name="module.name"/>
+			<local name="pkg.name"/>
+	    	
+	   		<condition property="deploy.module" else="false">
+	   			<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+	   			</and>
+	   		</condition>
+			<condition property="module.name" value="@{module}">
+				<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+				</and>
+			</condition>
+			<condition property="page.dir" value="${page.@{module}.dir}">
+				<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+					<isset property="page.@{module}.dir"/>
+				</and>
+			</condition>
+			<condition property="page.dir2" value="${page.@{module}.dir2}">
+				<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+					<isset property="page.@{module}.dir2"/>
+				</and>
+			</condition>
+			<condition property="page.dir3" value="${page.@{module}.dir3}">
+				<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+					<isset property="page.@{module}.dir3"/>
+				</and>
+			</condition>
+			<condition property="pkg.name" value="${pkg.@{module}}">
+				<and>
+	   				<equals arg1="${module.@{module}}" arg2="true"/>
+					<isset property="pkg.@{module}"/>
+				</and>
+			</condition>
+	   		<!--echo>${run.sencha} : ${page.dir}</echo-->
+			<antcall target="deploy">
+				<param name="deploy.module" value="${deploy.module}"/>
+				<param name="module.name" value="${module.name}"/>
+				<param name="page.dir" value="${page.dir}"/>
+				<param name="page.dir2" value="${page.dir2}"/>
+				<param name="page.dir3" value="${page.dir3}"/>
+				<param name="pkg.name" value="${pkg.name}"/>
+			</antcall>
+	    	
+	    </sequential>
+   </macrodef>
+	
+   <target name="deploy" if="${deploy.module}">
+   	
+		<local name="jar.name"/>
+	
+		<property name="jar.name" value="${jar.prefix}-${pkg.name}-${jar.ui.name}-${jar.version}.jar"/>
+   	
+	    <mkdir dir="${jar.dir}" />
+		<mkdir dir="${dist.dir}" />
+   	
+   		<delete file="${dist.dir}/${jar.name}"/>
+   		<delete dir="${jar.dir}" includeemptydirs="true"/>
+   	
+	    <copy todir="${jar.dir}" includeEmptyDirs="false">
+	        <fileset dir="${common.bin.dir}" excludes="pb/build/**/*"/>
+	        <fileset dir="${bin.dir}" includes="pb/ui/${pkg.name}/**/*"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/web-extension/**/*${pkg.name}*"/>
+	    	<fileset dir="${common.config.dir}/shared/classes" includes="alfresco/web-extension/**/*${pkg.name}*/**/*"/>
+	    </copy>
+   	
+		<subant target="dist">
+				<property name="basedir" value=".."/>
+				<property name="common.config.dir" value="${common.config.dir}"/>
+				<property name="jar.dir" value="${jar.dir}"/>
+				<property name="common.dir" value="${common.dir}"/>
+			    <fileset dir="ant" includes="module-${pkg.name}.xml"/>
+		</subant>
+   	
+	    <copy todir="${jar.dir}/META-INF" includeEmptyDirs="false">
+        	<fileset dir="${common.config.dir}/share/web" includes="page/**/*"/>
+        	<fileset dir="${common.config.dir}/share/web" includes="components/**/*"/>
+            <fileset dir="${common.config.dir}/share/web" includes="js/**/*"/>
+    	</copy>
+   	
+	    <copy todir="${jar.dir}/META-INF/page" includeEmptyDirs="false">
+	    	<fileset dir="${sencha.prd.dir}" includes="${page.dir}/**/*"/>
+	    	<fileset dir="${sencha.prd.dir}" includes="${page.dir2}/**/*"/>
+	    	<fileset dir="${sencha.prd.dir}" includes="${page.dir3}/**/*"/>
+    	</copy>
+   	
+	    <jar destfile="${dist.dir}/${jar.name}">
+	         <fileset dir="${jar.dir}" />
+	         <fileset dir="${build.dir}" includes="META-INF/page/**/*" />
+	         <fileset dir="${build.dir}" includes="META-INF/components/**/*" />
+		     <fileset dir="${build.dir}" includes="META-INF/js/**/*" />
+	    </jar>
+   	
+	    <copy todir="${share.dir}/WEB-INF/lib">
+	   		<fileset file="${dist.dir}/${jar.name}"/>
+	    </copy>
+   	
+	    <copy todir="${common.dir}/build/jar">
+	   		<fileset file="${dist.dir}/${jar.name}"/>
+	    </copy>
+   	
+   	    <echo>Finish.</echo>
+   </target>
+	
+   <!-- Modules Begin -->
+   <target name="Deploy.admin">
+		<deploy module="admin"/>
+   </target>
+	
+   <target name="Deploy.pcm">
+		<deploy module="pcm"/>
+   </target>
+	
+   <target name="Deploy.pcmord">
+		<deploy module="pcmord"/>
+   </target>
+		
+   <target name="Deploy.pcmuse">
+		<deploy module="pcmuse"/>
+   </target>
+	
+   <target name="Deploy.exp">
+		<deploy module="exp"/>
+   </target>
+	
+   <target name="Deploy.expuse">
+		<deploy module="expuse"/>
+   </target>
+		
+   <!-- Modules End -->
+	
+   <!--target name="Deploy All">
+   	
+	    <antcall target="Deploy.admin"/>
+	    <antcall target="Deploy.pcm"/>
+	    <antcall target="Deploy.exp"/>
+   	
+		<echo>Finish.</echo>
+			    	
+   </target-->
+
+</project>	

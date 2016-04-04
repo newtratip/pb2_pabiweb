@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="pcmwf:pcmWorkflowModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+	<!-- Optional meta-data about the model -->
+	<description>PCM Workflow Model</description>
+	<author>Thongchai Jiansampimon</author>
+	<version>1.0</version>
+
+	<!-- Imports are required to allow references to definitions in other models -->
+	<imports>
+		<import uri="http://www.alfresco.org/model/dictionary/1.0"
+			prefix="d" />
+		<import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm" />
+		<import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+	</imports>
+
+	<!-- Introduction of new namespaces defined by this model -->
+	<namespaces>
+		<namespace uri="http://www.nstda.or.th/model/workflow/pcmwf/1.0"
+			prefix="pcmwf" />
+	</namespaces>
+
+	<types>
+		<type name="pcmwf:submitStartTask">
+			<parent>bpm:startTask</parent>
+			<mandatory-aspects>
+				<aspect>pcmwf:pcmAspect</aspect>
+			</mandatory-aspects>
+		</type>
+
+		<type name="pcmwf:requesterResubmitTask">
+			<parent>bpm:activitiOutcomeTask</parent>
+			<mandatory-aspects>
+				<aspect>pcmwf:pcmAspect</aspect>
+				<aspect>pcmwf:pcmResubmitAspect</aspect>
+			</mandatory-aspects>
+		</type>
+
+		<type name="pcmwf:reviewerReviewTask">
+			<parent>bpm:activitiOutcomeTask</parent>
+			<mandatory-aspects>
+				<aspect>pcmwf:pcmAspect</aspect>
+				<aspect>pcmwf:pcmReviewAspect</aspect>
+			</mandatory-aspects>
+		</type>
+
+		<type name="pcmwf:consultantConsultTask">
+			<parent>bpm:activitiOutcomeTask</parent>
+			<mandatory-aspects>
+				<aspect>pcmwf:pcmAspect</aspect>
+				<aspect>pcmwf:pcmConsultAspect</aspect>
+			</mandatory-aspects>
+		</type>
+
+	</types>
+
+	<aspects>
+		<aspect name="pcmwf:pcmAspect">
+			<title>PCM Common WorkFlow Properties</title>
+			<properties>
+				<property name="pcmwf:id">
+					<type>d:text</type>
+				</property>
+				<property name="pcmwf:requestedTime">
+					<type>d:datetime</type>
+				</property>
+				<property name="pcmwf:remark">
+					<type>d:text</type>
+				</property>
+				<property name="pcmwf:commentHistory">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>
+				<property name="pcmwf:nextReviewers">
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+				</property>
+				<property name="pcmwf:targetFolderNodeRef">
+					<type>d:text</type>
+				</property>
+				<property name="pcmwf:workflowStatus">
+					<type>d:text</type>
+				</property>
+				<property name="pcmwf:taskHistory">
+					<type>d:text</type>
+				</property>
+				<property name="pcmwf:currentTaskKey">
+					<type>d:text</type>
+				</property>
+
+			</properties>
+			
+			<associations>
+				<association name="pcmwf:document">
+					<source>
+						<mandatory>false</mandatory>
+						<many>false</many>
+					</source>
+					<target>
+						<class>cm:content</class>
+						<mandatory>false</mandatory>
+						<many>true</many>
+					</target>
+				</association>
+
+				<association name="pcmwf:attachDocument">
+					<source>
+						<mandatory>false</mandatory>
+						<many>false</many>
+					</source>
+					<target>
+						<class>cm:content</class>
+						<mandatory>false</mandatory>
+						<many>true</many>
+					</target>
+				</association>
+			</associations>			
+
+		</aspect>
+		
+		<aspect name="pcmwf:pcmReviewAspect">
+			<title>PCM WorkFlow Review Task Properties</title>
+			<properties>
+				<property name="pcmwf:reviewOutcome">
+					<type>d:text</type>
+					<default>Approve</default>
+					<constraints>
+						<constraint name="pcmwf:reviewOutcomeOptions" type="LIST">
+							<parameter name="allowedValues">
+								<list>
+									<value>Approve</value>
+									<value>Reject</value>
+									<value>Consult</value>
+								</list>
+							</parameter>
+						</constraint>
+					</constraints>
+				</property>
+			</properties>
+		</aspect>
+				
+		<aspect name="pcmwf:pcmConsultAspect">
+			<title>PCM WorkFlow Consult Task Properties</title>
+			<properties>
+				<property name="pcmwf:consultOutcome">
+					<type>d:text</type>
+					<default>Comment</default>
+					<constraints>
+						<constraint name="pcmwf:consultOutcomeOptions" type="LIST">
+							<parameter name="allowedValues">
+								<list>
+									<value>Comment</value>
+								</list>
+							</parameter>
+						</constraint>
+					</constraints>
+				</property>
+			</properties>
+		</aspect>
+				
+		<aspect name="pcmwf:pcmResubmitAspect">
+			<title>PCM WorkFlow Resubmit Task Properties</title>
+			<properties>
+				<property name="pcmwf:reSubmitOutcome">
+					<type>d:text</type>
+					<default>Resubmit</default>
+					<constraints>
+						<constraint name="pcmwf:reSubmitOutcomeOptions" type="LIST">
+							<parameter name="allowedValues">
+								<list>
+									<value>Resubmit</value>
+									<value>Cancel</value>
+								</list>
+							</parameter>
+						</constraint>
+					</constraints>
+				</property>
+			</properties>
+		</aspect>		
+
+	</aspects>
+
+</model>
+
+
+

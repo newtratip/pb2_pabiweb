@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template-instance>
+   <template-type>pb/page/admin</template-type>
+   <properties>
+   		<pageFamily>admin</pageFamily>
+   		<container>admin</container>
+   </properties>
+   
+   <components>
+      <!-- Home Pages -->
+      <component>
+         <region-id>adminPage</region-id>
+         <url>/pb/admin</url>
+      </component>
+   </components>
+   
+</template-instance>

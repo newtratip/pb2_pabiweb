@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template-instance>
+   <template-type>pb/page/exp-brw</template-type>
+   <properties>
+   		<pageFamily>expBrw</pageFamily>
+   		<container>expBrw</container>
+   </properties>
+   
+   <components>
+      <!-- Home Pages -->
+      <component>
+         <region-id>expBrwPage</region-id>
+         <url>/pb/exp/brw</url>
+      </component>
+   </components>
+   
+</template-instance>

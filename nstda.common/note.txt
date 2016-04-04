@@ -1,0 +1,92 @@
+ชชชชชชชชชชชชชชชชชช
+Report Date Format
+ชชชชชชชชชชชชชชชชชช
+
+${lastUpdated?["dd.MM.yyyy, HH:mm"]}
+${lastUpdated?["EEEE, MMMM dd, yyyy, hh:mm a '('zzz')'"]}
+${lastUpdated?["EEE, MMM d, ''yy"]}
+
+output:
+
+08.04.2003 21:24
+Tuesday, April 08, 2003, 09:24 PM (PDT)
+Tue, Apr 8, '03
+
+
+https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+
+
+ถ้าต้องการแสดง พ.ศ. ให้ใช้ 'b' แทน 'y'
+
+
+
+====================
+Report Number Format
+====================
+
+<#assign x = 1.234>
+${x?string["0"]}
+${x?string["0.#"]}
+${x?string["0.##"]}
+${x?string["0.###"]}
+${x?string["0.####"]}
+
+${1?string["000.00"]}
+${12.1?string["000.00"]}
+${123.456?string["000.00"]}
+
+${1.2?string["0"]}
+${1.8?string["0"]}
+${1.5?string["0"]} <-- 1.5, rounded towards even neighbor
+${2.5?string["0"]} <-- 2.5, rounded towards even neighbor
+
+output:
+
+1
+1.2
+1.23
+1.234
+1.234
+
+001.00
+012.10
+123.46
+
+1
+2
+2 <-- 1.5, rounded towards even neighbor
+2 <-- 2.5, rounded towards even neighbor
+
+
+http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html
+
+
+Float มี default format = string["#,##0.00"]
+Date มี default format = ["dd MMMM yyyy"]
+
+
+
+
+==========
+Deployment
+==========
+1. Fonts
+	- copy to jre/lib/fonts
+	- cd to jre/lib/fonts
+	- sudo mkfontscale
+	- sudo mkfontdir
+	
+	- copy to webapps/alfresco/WEB-INF/classes
+	
+2. Jasper Report (*.jrxml)
+	- copy to webapps/alfresco/report 
+	
+3. log4j (pb-log4j.properties)
+	- copy to shared/classes/alfresco/extension
+	
+	
+wkhtmltopdf : cannot connect to X server
+sudo apt-get install openssl build-essential xorg libssl-dev
+sudo apt-get install xvfb
+wkhtmltopdf.sh ->
+	xvfb-run -a -s "-screen 0 640x480x16" wkhtmltopdf "$@"

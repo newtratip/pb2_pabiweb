@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.pcm.dao.MemoFunctionDAO">
+   
+    
+   <select id="listType" parameterType="map" resultType="string">
+   
+      select array_to_json(array_agg(type.*)) list from ic_type_func (#{s},#{f}) type;
+	
+   </select>
+   
+   <select id="listLevel" parameterType="map" resultType="string">
+   
+      select array_to_json(array_agg(level.*)) list from ic_level_func (#{s},#{f}) level;
+	
+   </select>
+   
+   <select id="listTeam" parameterType="map" resultType="string">
+   
+      select array_to_json(array_agg(team.*)) list from ic_team_func (#{s},#{f}) team;
+	
+   </select>
+   
+	<select id="listHour" parameterType="map" resultType="string">
+      select array_to_json(array_agg(hour.*)) list from  (
+       select * from ic_hour_func(#{s},#{f})
+      
+        <choose>
+         <when test="Y != null">
+           where rc_date is not null and rc_date != ''
+         </when>
+         <when test="N != null">
+           where rc_date is null or rc_date = ''
+         </when>
+        </choose>
+    
+       <if test="sort != null">
+    	order by ${sort} asc
+   	   </if>
+      ) hour;
+  
+   </select>
+   
+   <select id="listTypeChange" parameterType="map" resultType="string">
+   
+      select array_to_json(array_agg(t.*)) list from  cr_type_func(#{s},#{f}) t;
+	
+   </select>
+   
+    <select id="listRequestDay" parameterType="map" resultType="string">
+   
+      select array_to_json(array_agg(t.*)) list from  cr_team_func(#{s},#{f},#{rt}) t;
+	
+   </select>
+   
+   <select id="listRequestEffect" parameterType="map" resultType="string">
+   
+      select array_to_json(array_agg(t.*)) list from  cr_level_func(#{s},#{f},#{rt}) t;
+	
+   </select>
+   
+
+   
+   <select id="listChange" parameterType="map" resultType="string">
+   
+      select array_to_json(array_agg(t.*)) list from  (
+      select * from cr_report_func(#{s},#{f},#{rt})
+	       <if test="sort != null">
+			order by ${sort} asc
+		 	</if>
+       ) t;
+	
+   </select>
+   
+   <select id="listTrain" parameterType="map" resultType="string">
+   
+      select array_to_json(array_agg(t.*)) list from  tr_report_func(#{s},#{f}) t where 1=1
+      
+      <if test="y != null">
+		AND BUDGET_YEAR = #{y}
+	  </if>
+	  
+	  <if test="i != null">
+		AND ${i}
+	  </if>
+	  
+	  <if test="n != null">
+		AND TRAINEE like #{n}
+	  </if>
+      ;
+
+   </select>
+   
+   
+</mapper>

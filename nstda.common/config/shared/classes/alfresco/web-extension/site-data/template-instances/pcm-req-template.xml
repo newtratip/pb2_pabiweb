@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template-instance>
+   <template-type>pb/page/pcm-req</template-type>
+   <properties>
+   		<pageFamily>pcmReq</pageFamily>
+   		<container>pcmReq</container>
+   </properties>
+   
+   <components>
+      <!-- Home Pages -->
+      <component>
+         <region-id>pcmReqPage</region-id>
+         <url>/pb/pcm/req</url>
+      </component>
+   </components>
+   
+</template-instance>

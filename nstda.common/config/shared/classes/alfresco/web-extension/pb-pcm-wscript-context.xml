@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+
+	<bean id="webscript.pb.pcm.req.page.get" 
+	      class="pb.ui.pcm.wscript.page.PcmReqPageWebScript"
+	      parent="webscript">
+	</bean>
+	
+	<bean id="webscript.pb.pcm.ord.page.get" 
+	      class="pb.ui.pcm.wscript.page.PcmOrdPageWebScript"
+	      parent="webscript">
+	</bean>
+	
+	<bean id="webscript.pb.pcm.use.page.get" 
+	      class="pb.ui.pcm.wscript.page.PcmUsePageWebScript"
+	      parent="webscript">
+	</bean>	
+
+</beans>
