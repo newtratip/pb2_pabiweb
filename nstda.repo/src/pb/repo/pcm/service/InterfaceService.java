@@ -90,6 +90,7 @@ public class InterfaceService {
         map.put("delivery_address", data.get("location"));
         map.put("date_start",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("created_time")));
         map.put("operating_unit_id.id",data.get("operating_unit_id"));
+        map.put("request_ref_id", data.get("ref_id"));
         
         for(String key : map.keySet()) {
         	log.info(" - "+key+":"+map.get(key));

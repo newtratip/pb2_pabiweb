@@ -351,7 +351,8 @@
 			budget_cc, 
 			method, 
 			w.by last_approver,
-			w.by_time
+			w.by_time,
+			case when (r.is_ref_id = '1') then ref_id else '' end ref_id
 		from pb2_pcm_req r
 		left join pb2_main_workflow_next_actor a on r.id = a.master_id --Next Actor
 		left join pb2_ext_res_currency c on r.currency = c.name

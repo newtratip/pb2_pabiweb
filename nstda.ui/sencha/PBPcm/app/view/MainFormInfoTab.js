@@ -391,24 +391,22 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				items:[{
 					xtype:'checkbox',
 					name:'isAcrossBudget',
-					boxLabel:'',
+					boxLabel:'ใช้เงินงบประมาณมากกว่า 1 ปี',
 					inputValue:'1',
 					margin:'5 0 0 10',
-					width:20,
+					width:200,
 					checked:replaceIfNull(me.rec.is_across_budget, "0") == "1",
 					listeners:{
 						change:function(chk, newV) {
-							if (newV) {
-								me.fireEvent("isAcrossBudget",chk);
-							}
+							me.fireEvent("isAcrossBudget",chk, newV);
 						}
 					}
 				},{
 					xtype:'textfield',
-					fieldLabel:mandatoryLabel('ใช้เงินงบประมาณมากกว่า 1 ปี มูลค่าเงินรวม'),
-					labelWidth:lbw-20,
+					fieldLabel:mandatoryLabel('มูลค่าเงินรวม'),
+					labelWidth:90,
 					margin:"5 0 0 0",
-					width:150+lbw,
+					width:400,
 					name:'acrossBudget',
 					value:replaceIfNull(me.rec.across_budget, null),
 					allowBlank:false,
@@ -423,19 +421,18 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					boxLabel:'PR เพิ่มเติม',
 					inputValue:'1',
 					margin:"5 0 0 10",
+					width:190,
 					checked:replaceIfNull(me.rec.is_ref_id, "0") == "1",
 					listeners:{
 						change:function(chk, newV) {
-							if (newV) {
-								me.fireEvent("isRefId",chk);
-							}
+							me.fireEvent("isRefId",chk, newV);
 						}
 					}
 				},{
 					xtype:'trigger',
 					name:'refId',
 					fieldLabel:mandatoryLabel('อ้างอิง #'),
-					labelWidth:60,
+					labelWidth:70,
 					margin:"5 0 0 30",
 					width:445,
 					triggerCls:'x-form-search-trigger',

@@ -808,12 +808,22 @@ Ext.define('PBPcm.controller.Form', {
 		setValue(tab, 'costControlTypeName', '');
 	},
 	
-	isAcrossBudget:function(chk) {
-		alert("isAcrossBudget");
+	isAcrossBudget:function(chk, v) {
+		var txt = this.getInfoTab().down("[name=acrossBudget]");
+		if (v) {
+			txt.enable();
+		} else {
+			txt.disable();
+		}
 	},
 	
-	isRefId:function(chk) {
-		alert("isRefId");
+	isRefId:function(chk, v) {
+		var txt = this.getInfoTab().down("[name=refId]");
+		if (v) {
+			txt.enable();
+		} else {
+			txt.disable();
+		}
 	}
 
 });
