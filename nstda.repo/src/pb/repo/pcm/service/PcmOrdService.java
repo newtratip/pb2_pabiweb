@@ -1,29 +1,20 @@
 package pb.repo.pcm.service;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
-import java.io.File;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
 import javax.sql.DataSource;
 
 import org.alfresco.model.ContentModel;
@@ -32,7 +23,6 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -52,34 +42,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import pb.common.constant.CommonConstant;
-import pb.common.constant.FileConstant;
 import pb.common.model.FileModel;
-import pb.common.util.DocUtil;
+import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
-import pb.common.util.ImageUtil;
-import pb.common.util.PersonUtil;
+import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
+import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.dao.MainWorkflowReviewerDAO;
+import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.admin.model.MainMasterModel;
+import pb.repo.admin.model.MainWorkflowNextActorModel;
+import pb.repo.admin.model.MainWorkflowReviewerModel;
+import pb.repo.admin.model.SubModuleModel;
+import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminUserGroupService;
+import pb.repo.admin.service.AdminWkfConfigService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.service.MainSrcUrlService;
+import pb.repo.admin.service.MainWorkflowService;
+import pb.repo.admin.service.SubModuleService;
+import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.pcm.constant.PcmOrdConstant;
+import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
+import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.dao.PcmOrdDAO;
 import pb.repo.pcm.dao.PcmOrdDtlDAO;
-import pb.repo.pcm.dao.PcmOrdReviewerDAO;
-import pb.repo.pcm.dao.PcmOrdWorkflowDAO;
-import pb.repo.pcm.dao.PcmOrdWorkflowHistoryDAO;
 import pb.repo.pcm.model.PcmOrdDtlModel;
 import pb.repo.pcm.model.PcmOrdModel;
-import pb.repo.pcm.model.PcmOrdReviewerModel;
-import pb.repo.pcm.model.PcmOrdWorkflowHistoryModel;
-import pb.repo.pcm.util.PcmOrdDtlUtil;
 import pb.repo.pcm.util.PcmOrdUtil;
 import pb.repo.pcm.util.PcmUtil;
 
 @Service
-public class PcmOrdService {
+public class PcmOrdService implements SubModuleService {
 
 	private static Logger log = Logger.getLogger(PcmOrdService.class);
 
@@ -129,80 +125,40 @@ public class PcmOrdService {
 	MainSrcUrlService mainSrcUrlService;
 	
 	@Autowired
-	PcmOrdWorkflowService pcmOrdWorkflowService;
+	MainWorkflowService mainWorkflowService;
 	
-	public PcmOrdModel save(PcmOrdModel model, String dtls, String files, boolean genDoc) throws Exception {
+	@Autowired
+	AdminWkfConfigService adminWkfConfigService;
+	
+	@Autowired
+	AdminHrEmployeeService adminHrEmployeeService;
+	
+	public PcmOrdModel save(PcmOrdModel model,Map<String, Object> docMap, List<Map<String, Object>> attList) throws Exception {
 		
         SqlSession session = PcmUtil.openSession(dataSource);
         
         try {
             PcmOrdDAO pcmOrdDAO = session.getMapper(PcmOrdDAO.class);
-            PcmOrdDtlDAO pcmOrdDtlDAO = session.getMapper(PcmOrdDtlDAO.class);
+//            PcmOrdDtlDAO pcmOrdDtlDAO = session.getMapper(PcmOrdDtlDAO.class);
             
             setUserGroupFields(model);
             
-    		model.setUpdatedBy(authService.getCurrentUserName());
+    		model.setUpdatedBy(model.getCreatedBy());
     		
-            if (model.getId() == null) {
-        		model.setCreatedBy(model.getUpdatedBy());
-        		
-    			/*
-    			 * Gen New ID
-    			 */
-        		MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ORD_ID_FORMAT);
-        		String idFormat = masterModel.getFlag1();
-
-        		String idPrefix = genNewId(model, idFormat, 1l, true); // genPrefix=true -> BY201508-
-        		log.info("idPrefix:"+idPrefix);
-        		
-        		Map<String, Object> params = new HashMap<String, Object>();
-        		params.put("idPrefix", idPrefix+"%");
-        		
-//        		Map<String, Object> params = new HashMap<String, Object>();
-//        		params.put("f2", model.getField2()); // Supalai : f2=project
-//        		String newId = pcmReqDAO.genNewId(params);
-        		String newId = null;
-        		String rawLastId = pcmOrdDAO.getLastId(params);
-        		log.info("rawLastId:"+rawLastId);
-        		if (rawLastId == null) {
-//        			SimpleDateFormat df = new SimpleDateFormat("YYYYMM");
-//        			newId = model.getField2() + df.format(new Date()) + "-001";
-        			
-            		newId = genNewId(model, idFormat, 1l, false); // genPrefix=false -> BY201508-001
-        		}
-        		else {
-            		String lastId = rawLastId.replace(idPrefix, "");
-            		Long id = Long.parseLong(lastId)+1;
-            		
-            		newId = genNewId(model, idFormat, id, false); // genPrefix=false -> BY201508-(lastId+1)
-        		}
-        		model.setId(newId);
-        		log.info("new id:"+newId);
-            	doCommonSaveProcess(model, genDoc, files, dtls);
-            	
-        		/*
-        		 * Add DB
-        		 */
-            	pcmOrdDAO.add(model);
-            }
-            else {
-            	doCommonSaveProcess(model, genDoc, files, dtls);
-            	
-            	/*
-            	 * Update DB
-            	 */
-            	pcmOrdDAO.update(model);
-            	
-            	pcmOrdDtlDAO.deleteByMasterId(model.getId());
-            }
+        	doCommonSaveProcess(model, docMap, attList);
+        	
+    		/*
+    		 * Add DB
+    		 */
+        	pcmOrdDAO.add(model);
             
-            List<PcmOrdDtlModel> dtlList = PcmOrdDtlUtil.convertJsonToList(dtls, model.getId());
-            for(PcmOrdDtlModel dtlModel : dtlList) {
-	        	dtlModel.setCreatedBy(model.getUpdatedBy());
-	        	dtlModel.setUpdatedBy(model.getUpdatedBy());
-	        	
-            	pcmOrdDtlDAO.add(dtlModel);
-            }
+//            List<PcmOrdDtlModel> dtlList = PcmOrdDtlUtil.convertJsonToList(dtls, model.getId());
+//            for(PcmOrdDtlModel dtlModel : dtlList) {
+//	        	dtlModel.setCreatedBy(model.getUpdatedBy());
+//	        	dtlModel.setUpdatedBy(model.getUpdatedBy());
+//	        	
+//            	pcmOrdDtlDAO.add(dtlModel);
+//            }
             
             session.commit();
         } catch (Exception ex) {
@@ -216,103 +172,14 @@ public class PcmOrdService {
         return model;
 	}
 	
-	public String save(PcmOrdModel model) throws Exception {
-		
-        SqlSession session = PcmUtil.openSession(dataSource);
-        
-        try {
-            PcmOrdDAO pcmReqDAO = session.getMapper(PcmOrdDAO.class);
-            
-    		model.setUpdatedBy(authService.getCurrentUserName());
-    		
-    		NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
-    		model = genDoc(model, folderNodeRef);
-        	
-        	/*
-        	 * Update DB
-        	 */
-        	pcmReqDAO.update(model);
-            
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
-        	throw ex;
-        } finally {
-        	session.close();
-        }
-
-        return model.getId();
-	}
-	
-	private String genNewId(PcmOrdModel pcmReqModel, String oriFormat, Long runningNo, boolean genPrefix) throws Exception {
-		
-		Map<String, Object> model = new HashMap<String, Object>();
-
-		int newFieldIndex = 0;
-		
-		boolean done = oriFormat.indexOf(PcmOrdConstant.JFN_CREATED_TIME)<0
-					&& oriFormat.indexOf(PcmOrdConstant.JFN_REQUESTED_TIME)<0
-					&& oriFormat.indexOf(PcmOrdConstant.JFN_UPDATED_TIME)<0
-					&& oriFormat.indexOf(PcmOrdConstant.JFN_RUNNING_NO)<0
-					;
-		while (!done) {
-    		if (oriFormat.indexOf(PcmOrdConstant.JFN_CREATED_TIME) >= 0) {
-	    		Timestamp timestampValue = pcmReqModel.getCreatedTime()!=null ? pcmReqModel.getCreatedTime() : new Timestamp(Calendar.getInstance().getTimeInMillis());
-	    		oriFormat = handleThaiDate("", PcmOrdConstant.JFN_CREATED_TIME, model, oriFormat, newFieldIndex, timestampValue, templateService, false);
-				model.put(PcmOrdConstant.JFN_CREATED_TIME,  getDateDefaultFormatValue(timestampValue));
-    		}
-    		else
-    		if (oriFormat.indexOf(PcmOrdConstant.JFN_UPDATED_TIME) >= 0) {
-	    		Timestamp timestampValue = pcmReqModel.getUpdatedTime()!=null ? pcmReqModel.getUpdatedTime() : new Timestamp(Calendar.getInstance().getTimeInMillis());
-	    		oriFormat = handleThaiDate("", PcmOrdConstant.JFN_UPDATED_TIME, model, oriFormat, newFieldIndex, timestampValue, templateService, false);
-				model.put(PcmOrdConstant.JFN_UPDATED_TIME,  getDateDefaultFormatValue(timestampValue));
-    		}
-    		else
-    		if (oriFormat.indexOf(PcmOrdConstant.JFN_REQUESTED_TIME) >= 0) {
-	    		Timestamp timestampValue = pcmReqModel.getRequestedTime()!=null ? pcmReqModel.getRequestedTime() : new Timestamp(Calendar.getInstance().getTimeInMillis());
-	    		oriFormat = handleThaiDate("", PcmOrdConstant.JFN_REQUESTED_TIME, model, oriFormat, newFieldIndex, timestampValue, templateService, false);
-				model.put(PcmOrdConstant.JFN_REQUESTED_TIME,  getDateDefaultFormatValue(timestampValue));
-    		}
-    		else
-    		if (oriFormat.indexOf(PcmOrdConstant.JFN_RUNNING_NO) >= 0) {
-    			if (genPrefix) {
-    				oriFormat = deleteRunningNoFromFormat(PcmOrdConstant.JFN_RUNNING_NO, oriFormat);
-    			} else {
-    				oriFormat = handleRunningNo(PcmOrdConstant.JFN_RUNNING_NO, model, oriFormat, newFieldIndex, runningNo);
-    				model.put(PcmOrdConstant.JFN_RUNNING_NO,  runningNo);
-    			}
-    		}
-    		
-			newFieldIndex++;
-			done = oriFormat.indexOf(PcmOrdConstant.JFN_CREATED_TIME)<0
-				&& oriFormat.indexOf(PcmOrdConstant.JFN_REQUESTED_TIME)<0
-				&& oriFormat.indexOf(PcmOrdConstant.JFN_UPDATED_TIME)<0
-				&& oriFormat.indexOf(PcmOrdConstant.JFN_RUNNING_NO)<0
-				|| newFieldIndex>10
-				;
-			
-//			log.info("oriFormat:"+oriFormat);
-		}			
-		
-		Writer w = new StringWriter();
-		
-		if (oriFormat!=null && !oriFormat.trim().equals("")) {
-			TemplateProcessor pc = templateService.getTemplateProcessor("freemarker");
-			pc.processString(oriFormat, model, w);
-		}
-		
-		return w.toString();
-	}
-	
 	public void updateStatus(PcmOrdModel model) throws Exception {
 		
         SqlSession session = PcmUtil.openSession(dataSource);
         
         try {
-            PcmOrdDAO pcmReqDAO = session.getMapper(PcmOrdDAO.class);
+            PcmOrdDAO dao = session.getMapper(PcmOrdDAO.class);
           
-            pcmReqDAO.updateStatus(model);
+            dao.updateStatus(model);
             
             session.commit();
         } catch (Exception ex) {
@@ -361,8 +228,7 @@ public class PcmOrdService {
         return result;
 	}
 	
-	private void doCommonSaveProcess(PcmOrdModel model, boolean genDoc, String files, String dtls) throws Exception {
-		
+	private void doCommonSaveProcess(PcmOrdModel model, Map<String, Object> docMap, List<Map<String, Object>> attList) throws Exception {
     	/*
     	 * Create ECM Folder
     	 */
@@ -371,108 +237,31 @@ public class PcmOrdService {
 		NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
 		
 		/*
-		 * Gen Memo Doc
+		 * Save Doc
 		 */
-		if (genDoc) {
-			model = genDoc(model, folderNodeRef);
-		}
+		model.setDocRef(genDoc(model, folderNodeRef, docMap));
     	
     	/*
-    	 * save files
+    	 * Save Attachments
     	 */
-		File file;
-		String path;
-		
-		List<String> oldList = new ArrayList<String>();
-		Map<String, String> newMap = new HashMap<String, String>();
-		
-		/*
-		 * Separate Old and New Files
-		 */
-    	JSONArray jsArr = new JSONArray(files);
-    	for(int i=0; i<jsArr.length(); i++) {
-    		JSONObject jsObj = jsArr.getJSONObject(i);
-    		log.info("  file:"+jsObj.getString(FileConstant.JFN_NAME)
-    							   +", "+jsObj.getString(FileConstant.JFN_PATH)
-    							   +", "+jsObj.getString(FileConstant.JFN_NODE_REF));
-    		
-    		path = jsObj.getString(FileConstant.JFN_PATH);
-    		if (path!=null && !path.equals("") && !path.equals("null")) {
-    			newMap.put(jsObj.getString(FileConstant.JFN_NAME), path);
-    		} else {
-    			oldList.add(jsObj.getString(FileConstant.JFN_NODE_REF));
-    		}
-    	}
-    
-    	/*
-    	 * Delete Old Files
-    	 */
-    	Set<QName> qnames = new HashSet<QName>();
-    	qnames.add(ContentModel.TYPE_CONTENT);
-    	List<ChildAssociationRef> docs = nodeService.getChildAssocs(folderNodeRef, qnames);
-    	for(ChildAssociationRef doc : docs) {
-    		
-    		log.info("doc:"+doc.toString());
-    		log.info("   childRef:"+doc.getChildRef().toString());
-    		if (!doc.getQName().getLocalName().equals(model.getId()+".pdf")) { // not is memo.pdf
-	    		if (oldList.indexOf(doc.getChildRef().toString()) < 0) {
-	    			
-			    	log.info("  is checked out:"+doc.getChildRef().toString());
-				    if (checkOutCheckInService.isCheckedOut(doc.getChildRef())) {
-				    	log.info("    true");
-				    	final NodeRef wNodeRef = alfrescoService.getWorkingCopyNodeRef(doc.getChildRef().toString());
-				    	log.info("    cancel check out:"+wNodeRef);
-						AuthenticationUtil.runAs(new RunAsWork<String>()
-						{
-							public String doWork() throws Exception
-							{
-
-						    	checkOutCheckInService.cancelCheckout(wNodeRef);
-								return null;
-							}
-						}, AuthenticationUtil.getAdminUserName());
-				    }
-				    else {
-				    	log.info("    false");
-				    }
-	    			
-	    			alfrescoService.deleteFileFolder(doc.getChildRef().toString());
-	        		log.info("   delete");
-	    		}
-	    		else {
-	    			model.setAttachDoc(doc.getChildRef().toString());
-	    		}
-    		}
-    	}
-    	
-    	/*
-    	 * Create New Files
-    	 */
-    	for(Entry<String, String> e : newMap.entrySet()) {
-    		log.info(e.getKey()+":"+e.getValue());
-    		file = new File(FolderUtil.getTmpDir()+File.separator+e.getValue()+File.separator+e.getKey());
-	    	if (file.exists()) {
-	    		NodeRef docRef = alfrescoService.createDoc(folderNodeRef, file, e.getKey());
-	    		file.delete();
-		    	model.setAttachDoc(docRef.toString());
-	    	}
+    	for(Map<String, Object> attMap : attList) {
+    		log.info(" + "+attMap.get("name"));
+		    model.setAttachDoc(genDoc(model, folderNodeRef, attMap));
     	}
 	}
 	
-	public PcmOrdModel genDoc(PcmOrdModel model, NodeRef folderNodeRef) throws Exception {
+	public String genDoc(PcmOrdModel model, NodeRef folderNodeRef, Map<String, Object> docMap) throws Exception {
 		/*
-		 * Gen Memo Doc in tmp folder
+		 * Convert Base64 String to InputStream 
 		 */
-    	String fileName =  doGenDoc("");
-		String tmpDir = FolderUtil.getTmpDir();
-//    	String fullName = tmpDir + File.separator + fileName+".pdf"; // real code
-    	String fullName = tmpDir + File.separator + "PD_FORM.pdf"; // for Demo
-    	File file = new File(fullName);
-    	String ecmFileName = model.getId()+".pdf";
+    	FileUtil fileUtil = new FileUtil();
+    	InputStream is = fileUtil.base64InputStream((String)docMap.get("content"));
     	
-    	log.info("Gen Memo Doc : "+ecmFileName);
+    	String ecmFileName = (String)docMap.get("name");
+    	
+    	log.info("Gen Doc : "+ecmFileName);
     	/*
-    	 * Put Memo Doc in ECM
+    	 * Put Doc in ECM
     	 */
     	NodeRef oldDocRef = alfrescoService.searchSimple(folderNodeRef, ecmFileName);
     	if (oldDocRef != null) {
@@ -497,95 +286,9 @@ public class PcmOrdService {
 
     		alfrescoService.deleteFileFolder(oldDocRef.toString());
     	}
-    	NodeRef docRef = alfrescoService.createDoc(folderNodeRef, file, ecmFileName);
+    	NodeRef docRef = alfrescoService.createDoc(folderNodeRef, is, ecmFileName);
     	
-    	/*
-    	 * Delete File from tmp folder 
-    	 */
-//    	if (file.exists()) {
-//    		file.delete();
-//    	}
-    	
-    	/*
-    	 * Update docRef field
-    	 */
-    	model.setDocRef(docRef.toString());
-    	
-    	return model;
-	}
-	
-	public String doGenDoc(String content1) throws Exception {
-		DocUtil docUtil = new DocUtil();
-		String tmpDir = FolderUtil.getTmpDir();
-		String fileName = docUtil.genUniqueFileName();
-		String fullName = tmpDir + File.separator + fileName;
-		
-		log.info("fullName="+fullName);
-		
-		Path outputPath = Paths.get(fullName + ".html");
-		try (BufferedWriter writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-			writer.write("<html><head><meta charset=\"UTF-8\"><head><body>");
-
-			writer.write(content1);
-			
-			writer.write("</body><html>");
-			writer.flush();
-			writer.close();
-			/*
-			 * Convert html to pdf
-			 */
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("fullName", fullName);
-			
-			MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_PAGE_MARGIN_T);
-			params.put("top", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_PAGE_MARGIN_B);
-			params.put("bottom", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_PAGE_MARGIN_L);
-			params.put("left", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_PAGE_MARGIN_R);
-			params.put("right", masterModel!=null ? masterModel.getFlag1() : null);
-			
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_LEFT);
-			params.put("h_left", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_RIGHT);
-			params.put("h_right", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_CENTER);
-			params.put("h_center", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_SPACING);
-			params.put("h_spacing", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_FONT_NAME);
-			params.put("h_font_name", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_FONT_SIZE);
-			params.put("h_font_size", masterModel!=null ? masterModel.getFlag1() : null);
-			
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_LEFT);
-			params.put("f_left", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_RIGHT);
-			params.put("f_right", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_CENTER);
-			params.put("f_center", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_SPACING);
-			params.put("f_spacing", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_FONT_NAME);
-			params.put("f_font_name", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_FONT_SIZE);
-			params.put("f_font_size", masterModel!=null ? masterModel.getFlag1() : null);
-			
-			docUtil.convertHtmlToPdf(params);
-			
-			/*
-			 * Delete html file
-			 */
-			File file = new File(fullName+".html");
-			file.delete();
-		}
-		catch (Exception ex) {
-			log.error("", ex);
-			throw ex;
-		}
-		
-		return fileName;
+    	return docRef.toString();
 	}
 	
 	public List<FileModel> listFile(String id) throws Exception {
@@ -670,6 +373,16 @@ public class PcmOrdService {
 			jsObj.put("field", fields[0]);
 			if (fields.length > 1) {
 				jsObj.put("width", fields[1]);
+				if(fields.length > 2) {
+					jsObj.put("align", fields[2]);
+					if(fields.length > 3) {
+						jsObj.put("wrap", fields[3]);
+					}
+				}
+			}
+			
+			if (model.getFlag3()!=null && !model.getFlag3().equals("")) {
+				jsObj.put("type", model.getFlag3());
 			}
 			
 			jsArr.put(jsObj);
@@ -683,8 +396,20 @@ public class PcmOrdService {
 		boolean exists = (model.getFolderRef()!=null) && fileFolderService.exists(new NodeRef(model.getFolderRef()));
 		
 		if (!exists) {
-			// format : ${field2}/${field6}/${year}/${id}
-			JSONObject memoMap = PcmOrdUtil.convertToJSONObject(model,false);
+			JSONObject map = PcmOrdUtil.convertToJSONObject(model);
+			Calendar cal = Calendar.getInstance();
+    		if (cal.get(Calendar.MONTH) >= 9) { // >= October (Thai Start Budget Year)
+    			cal.add(Calendar.YEAR, 1);
+    		}
+    		Timestamp timestampValue = new Timestamp(cal.getTimeInMillis());
+    		map.put(PcmReqConstant.JFN_FISCAL_YEAR, timestampValue);
+			
+			
+			Iterator it = map.keys();
+			while(it.hasNext()) {
+				Object obj = it.next();
+				log.info("--"+obj.toString());
+			}
 	
 			Writer w = null;
 			TemplateProcessor pc = templateService.getTemplateProcessor("freemarker");
@@ -700,9 +425,9 @@ public class PcmOrdService {
 				paths.add(folderMap);
 				
 				int pos;
-				if (format.indexOf("requested_time") >= 0
-					|| format.indexOf("created_time") >= 0
-					|| format.indexOf("updated_time") >= 0
+				if (format.indexOf(PcmReqConstant.JFN_FISCAL_YEAR) >= 0
+					|| format.indexOf(PcmReqConstant.JFN_CREATED_TIME) >= 0
+					|| format.indexOf(PcmReqConstant.JFN_UPDATED_TIME) >= 0
 					) {
 					
 					String dFormat = CommonConstant.RDF_DATE;
@@ -718,7 +443,7 @@ public class PcmOrdService {
 					String fieldName = format.substring(rpos+CommonConstant.REPS_PREFIX.length(), rpos2);
 					
 					SimpleDateFormat df = new SimpleDateFormat(dFormat);
-					folderMap.put("name", df.format(memoMap.get(fieldName)));
+					folderMap.put("name", df.format(map.get(fieldName)));
 				}	
 				else {
 					pos = format.indexOf("[");
@@ -727,7 +452,7 @@ public class PcmOrdService {
 						
 						String descFieldName = format.substring(pos+1, pos2);
 						w = new StringWriter();
-						pc.processString("${"+descFieldName+"}", memoMap, w);
+						pc.processString("${"+descFieldName+"}", map, w);
 						folderMap.put("desc", w.toString());
 						w.close();
 						
@@ -735,7 +460,7 @@ public class PcmOrdService {
 					}
 					
 					w = new StringWriter();
-					pc.processString(format, memoMap, w);
+					pc.processString(format, map, w);
 					folderMap.put("name", FolderUtil.getValidFolderName(w.toString()));
 					w.close();
 				}
@@ -794,36 +519,8 @@ public class PcmOrdService {
 	public void deleteReviewerByMasterId(String id) throws Exception {
 		SqlSession session = PcmUtil.openSession(dataSource);
         try {
-            PcmOrdReviewerDAO pcmReqReviewerDAO = session.getMapper(PcmOrdReviewerDAO.class);
+            MainWorkflowReviewerDAO pcmReqReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
             pcmReqReviewerDAO.deleteByMasterId(id);
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
-        } finally {
-        	session.close();
-        }
-	}
-	
-	public void delete(String id) throws Exception {
-		
-		SqlSession session = PcmUtil.openSession(dataSource);
-        try {
-            PcmOrdDAO pcmReqDAO = session.getMapper(PcmOrdDAO.class);
-            PcmOrdReviewerDAO pcmReqReviewerDAO = session.getMapper(PcmOrdReviewerDAO.class);
-            PcmOrdDtlDAO pcmReqDtlDAO = session.getMapper(PcmOrdDtlDAO.class);
-            PcmOrdWorkflowDAO pcmOrdWorkflowDAO = session.getMapper(PcmOrdWorkflowDAO.class);
-            PcmOrdWorkflowHistoryDAO pcmOrdWorkflowHistoryDAO = session.getMapper(PcmOrdWorkflowHistoryDAO.class);
-
-    		PcmOrdModel memoModel = get(id);
-    		alfrescoService.deleteFileFolder(memoModel.getFolderRef());
-    		
-    		pcmOrdWorkflowHistoryDAO.deleteByPcmOrdId(id);
-    		pcmOrdWorkflowDAO.deleteByMasterId(id);
-    		pcmReqReviewerDAO.deleteByMasterId(id);
-    		pcmReqDtlDAO.deleteByMasterId(id);
-    		pcmReqDAO.delete(id);
-            
             session.commit();
         } catch (Exception ex) {
 			log.error("", ex);
@@ -906,642 +603,6 @@ public class PcmOrdService {
         return list;
 	}
 	
-	private String encodedImage(String confName) throws Exception {
-		
-		MainMasterModel imgModel = masterService.getSystemConfig(confName);
-		
-		NodeRef imgNodeRef = new NodeRef(imgModel.getFlag1());
-		ContentReader reader = alfrescoService.getContentByNodeRef(imgNodeRef);
-		BufferedImage img = ImageIO.read(reader.getContentInputStream());
-		
-		StringBuffer imgTag = new StringBuffer();
-		imgTag.append("<img src=\"data:image/png;base64,"+ImageUtil.encodeToString(img, "png")+"\"");
-		imgTag.append("/>");
-		
-		return imgTag.toString();
-	}
-	
-	private void prepareSystemFields(Map<String, Object> model, JSONObject dataMap, Map<String, String> imageMap, Map<String, Timestamp> dateTimeMap) throws Exception {
-		
-		String id = null;
-		String reqUser = null;
-		
-		for (int lvl=1; lvl<=CommonConstant.MAX_APPROVER; lvl++) {
-			String v = "S_APP_ACTION_"+lvl; 
-			model.put(v, "${"+v+"}");
-
-			v = "S_APP_REASON_"+lvl;
-			model.put(v, "${"+v+"}");
-			
-			v = "S_APP_SIGN_"+lvl;
-			model.put(v, "${"+v+"}");
-			
-			v = "S_APP_NAME_"+lvl;
-			model.put(v, "${"+v+"}");
-			
-			v = "S_APP_TIME_"+lvl;
-			model.put(v, "${"+v+"}");
-			
-			dateTimeMap.put("APP_TIME_"+lvl, null);
-		}		
-		
-		if (dataMap.has(PcmOrdConstant.JFN_ID)) {
-			id = dataMap.getString(PcmOrdConstant.JFN_ID);
-			
-			if (!dataMap.has(PcmOrdConstant.JFN_CREATED_BY)) {
-				PcmOrdModel memoModel = get(id);
-				reqUser = memoModel.getCreatedBy();
-			}
-			else {
-				reqUser = dataMap.getString(PcmOrdConstant.JFN_CREATED_BY);
-			}
-			
-			Map<String,Object> params = new HashMap<String, Object>();
-			params.put("masterId", id);
-			params.put("orderDesc", "");
-			List<PcmOrdWorkflowHistoryModel> hList = pcmOrdWorkflowService.listHistory(params);
-
-			
-			
-			PersonUtil personUtil = new PersonUtil();
-			personUtil.setNodeService(nodeService);
-			
-			Set<Integer> lvlSet = new HashSet<Integer>();
-			
-			if (hList!=null) {
-				boolean wfClosed = false;
-				for (PcmOrdWorkflowHistoryModel hModel : hList) {
-					if (hModel.getAction().indexOf("ปิดงาน") >= 0) {
-						wfClosed = true;
-						break;
-					}
-				}
-				
-				if (wfClosed) {
-					for (PcmOrdWorkflowHistoryModel hModel : hList) {
-						Integer lvl = hModel.getLevel();
-						if ((hModel.getAction().indexOf("อนุมัติ") >= 0 || hModel.getAction().indexOf("ปิดงาน") >= 0)
-								&& !lvlSet.contains(lvl)
-							) {
-							
-							String action = hModel.getAction().indexOf("ไม่") >= 0 ? "ไม่อนุมัติ" : "อนุมัติ";
-							String reason = hModel.getComment();
-							String sign = "${S_APP_SIGN_"+lvl+"}";
-							dataMap.put("S_APP_SIGN_"+lvl, hModel.getUser_());
-							imageMap.put("S_APP_SIGN_"+lvl,"S_APP_SIGN_"+lvl);
-							String name = personUtil.getFullName(PersonUtil.getPerson(hModel.getUser_(), personService));
-							String time = hModel.getTime().toString();
-							dateTimeMap.put("APP_TIME_"+lvl, hModel.getTime());
-							dataMap.put("S_APP_TIME_"+lvl, hModel.getTime());
-							
-							lvlSet.add(lvl);
-							
-							model.put("S_APP_ACTION_"+lvl, action!=null ? action : "");
-							model.put("S_APP_REASON_"+lvl, reason!=null ? reason : "");
-							model.put("S_APP_SIGN_"+lvl, sign!=null ? sign : "");
-							model.put("S_APP_NAME_"+lvl, name!=null ? name : "");
-							model.put("S_APP_TIME_"+lvl, time!=null ? time : "");
-						}
-					}
-				}
-			}
-		}
-		else {
-			reqUser = authService.getCurrentUserName();
-		}
-		
-		NodeRef person = personService.getPerson(reqUser);
-
-		PersonUtil personUtil = new PersonUtil();
-		personUtil.setNodeService(nodeService);
-		String fullName = personUtil.getFullName(person);
-		String googleUserName = personUtil.getGoogleUserName(person);
-		
-		String jobTitle = personUtil.getJobTitle(person);
-		
-		model.put("S_REQ_NAME", fullName);
-		model.put("S_REQ_JOB_TITLE", jobTitle);
-		model.put("S_REQ_G_USERNAME", googleUserName);
-		
-		model.put("S_ID", id!=null ? id : "${S_ID}");
-	}
-	
-	private String handleSystemImage(String rptFormat) throws Exception  {
-		/*
-		 * Expected : ${S_IMAGE_1}
-		 * 			: ${S_IMAGE_1?["100,100"]} 
-		 */
-		
-		/*
-		 * prefix
-		 */
-		String prefix = CommonConstant.REPS_PREFIX
-				   + PcmOrdConstant.RPTSV_IMAGE
-				   + "_"
-				   ; // prefix = ${S_IMAGE_
-		int prePos = rptFormat.indexOf(prefix);
-		
-		/*
-		 * While found prefix or prefixF in rptFormat , replace pattern with image
-		 */
-		String displayFormat = null;
-		String pattern = null;
-		String suffix = null;
-		int sufPos;
-		int imgNo;
-		
-		while (prePos >= 0) {
-			displayFormat = null;
-			
-    		sufPos = rptFormat.indexOf(CommonConstant.REPS_SUFFIX, prePos);
-    		
-    		pattern = rptFormat.substring(prePos, sufPos + CommonConstant.REPS_SUFFIX.length());
-    		suffix = rptFormat.substring(prePos + prefix.length(), sufPos + CommonConstant.REPS_SUFFIX.length());
-    		
-    		int formatPos = suffix.indexOf(CommonConstant.FMTS_PREFIX);
-    		if (formatPos >= 0) {
-    			prePos = suffix.indexOf(CommonConstant.FMTS_PREFIX);
-    			imgNo = Integer.parseInt(suffix.substring(0, prePos));
-    			
-    			sufPos = suffix.indexOf(CommonConstant.FMTS_SUFFIX);
-    			displayFormat = suffix.substring(prePos + CommonConstant.FMTS_PREFIX.length(), sufPos);
-    		} else {
-    			sufPos = suffix.indexOf(CommonConstant.REPS_SUFFIX);
-    			imgNo = Integer.parseInt(suffix.substring(0, sufPos));
-    		}
-    		
-    		MainMasterModel imgModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ORD_IMAGE+"_"+imgNo);
-
-    		boolean hasValue = imgModel!=null;
-    		String value = null;
-    		if (hasValue) {
-        		value = imgModel.getFlag1();
-    			hasValue = (value != null) && !value.toString().equals("");
-    		}
-    		
-    		/*
-    		 * Prepare imgStr if found pattern in rptFormat
-    		 */
-			StringBuffer imgTag = new StringBuffer();
-			
-    		if (hasValue) {
-    			NodeRef imgNodeRef = new NodeRef(value.toString());
-    			ContentReader reader = alfrescoService.getContentByNodeRef(imgNodeRef);
-    			BufferedImage img = ImageIO.read(reader.getContentInputStream());
-    			imgTag.append("<img src=\"data:image/png;base64,"+ImageUtil.encodeToString(img, "png")+"\"");
-    			
-    			if (displayFormat!=null && !displayFormat.equals("")) {
-    				String[] pos = displayFormat.trim().split(","); 
-    				
-    				imgTag.append(" style=\"position:fixed;");
-    				imgTag.append("left:"+pos[0]+"px;");
-    				imgTag.append("top:"+pos[1]+"px\"");
-    			}
-    			
-    			imgTag.append("/>");
-    		}
-			
-    		rptFormat = rptFormat.replace(pattern, imgTag.toString());
-    		
-			prePos = rptFormat.indexOf(prefix);
-		}
-		
-		return rptFormat;
-	}	
-
-	private String handleSignatureImage(String rptFormat, JSONObject dataMap, Map<String, String> prefixMap) throws Exception  {
-		/*
-		 * Expected : ${S_SIGN_REQ}
-		 * 			: ${S_SIGN_REQ?["100,100"]} 
-		 */
-		
-		/*
-		 * prefix
-		 */
-		for(Entry<String, String> e:prefixMap.entrySet()) {
-			String prefix = CommonConstant.REPS_PREFIX
-					   + e.getKey()
-					   ; // prefix = ${S_SIGN_REQ
-			int prePos = rptFormat.indexOf(prefix);
-			
-			/*
-			 * While found prefix or prefixF in rptFormat , replace pattern with image
-			 */
-			String displayFormat = null;
-			String pattern = null;
-			String suffix = null;
-			int sufPos;
-			
-			while (prePos >= 0) {
-				displayFormat = null;
-				
-	    		sufPos = rptFormat.indexOf(CommonConstant.REPS_SUFFIX, prePos);
-	    		
-	    		pattern = rptFormat.substring(prePos, sufPos + CommonConstant.REPS_SUFFIX.length());
-	    		suffix = rptFormat.substring(prePos + prefix.length(), sufPos + CommonConstant.REPS_SUFFIX.length());
-	    		
-	    		int formatPos = suffix.indexOf(CommonConstant.FMTS_PREFIX);
-	    		if (formatPos >= 0) {
-	    			prePos = suffix.indexOf(CommonConstant.FMTS_PREFIX);
-	    			
-	    			sufPos = suffix.indexOf(CommonConstant.FMTS_SUFFIX);
-	    			displayFormat = suffix.substring(prePos + CommonConstant.FMTS_PREFIX.length(), sufPos);
-	    		} else {
-	    			sufPos = suffix.indexOf(CommonConstant.REPS_SUFFIX);
-	    		}
-	    		
-	    		MainMasterModel folderModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_SIGNATURE_PATH);
-	
-	    		boolean hasValue = folderModel!=null;
-	    		String value = null;
-	    		if (hasValue) {
-	        		value = folderModel.getFlag1();
-	    			hasValue = (value != null) && !value.toString().equals("");
-	    		}
-	    		
-	    		/*
-	    		 * Prepare imgStr if found pattern in rptFormat
-	    		 */
-				StringBuffer imgTag = new StringBuffer();
-				
-	    		if (hasValue) {
-	    			NodeRef folderNodeRef = new NodeRef(value.toString());
-	    			
-	    			NodeRef imgNodeRef = alfrescoService.searchSimple(folderNodeRef, dataMap.get(e.getValue())+".png");
-	    			
-	    			log.info("signature:"+imgNodeRef.toString());
-	    			
-	    		    if (imgNodeRef != null) {
-		    			ContentReader reader = alfrescoService.getContentByNodeRef(imgNodeRef);
-		    			BufferedImage img = ImageIO.read(reader.getContentInputStream());
-		    			imgTag.append("<img src=\"data:image/png;base64,"+ImageUtil.encodeToString(img, "png")+"\"");
-		    			
-		    			if (displayFormat!=null && !displayFormat.equals("")) {
-		    				String[] pos = displayFormat.trim().split(","); 
-		    				
-		    				imgTag.append(" style=\"position:fixed;");
-		    				imgTag.append("left:"+pos[0]+"px;");
-		    				imgTag.append("top:"+pos[1]+"px\"");
-		    			}
-		    			
-		    			imgTag.append("/>");
-	    		    }
-	    		}
-				
-	    		rptFormat = rptFormat.replace(pattern, imgTag.toString());
-	    		
-				prePos = rptFormat.indexOf(prefix);
-			}
-		}
-		
-		return rptFormat;
-	}	
-	
-	private String handleImage(String fieldNamePrefix, String fieldName, String rptFormat, Object value) throws Exception  {
-
-		boolean hasValue = value != null && !value.toString().equals("");
-		
-		String prefix = CommonConstant.REPS_PREFIX
-				   + fieldNamePrefix
-				   + fieldName
-				   + CommonConstant.REPS_SUFFIX
-				   ;
-		int prePos = rptFormat.indexOf(prefix);
-		
-		/*
-		 * prefix with format
-		 */
-		String prefixF = CommonConstant.REPS_PREFIX
-				   + fieldNamePrefix
-				   + fieldName
-				   + CommonConstant.FMTS_PREFIX
-				   ;
-		int prePosF = rptFormat.indexOf(prefixF);
-		
-		/*
-		 * Prepare imgStr if found pattern in rptFormat
-		 */
-		String imgPrefix = null;
-		if (hasValue && ((prePos >= 0) || (prePosF >= 0))) {
-			NodeRef imgNodeRef = new NodeRef(value.toString());
-			ContentReader reader = alfrescoService.getContentByNodeRef(imgNodeRef);
-			BufferedImage img = ImageIO.read(reader.getContentInputStream());
-			imgPrefix = "<img src=\"data:image/png;base64,"+ImageUtil.encodeToString(img, "png")+"\"";
-		}
-		else {
-			imgPrefix = "";
-		}
-		
-		/*
-		 * While found prefix or prefixF in rptFormat , replace pattern with image
-		 */
-		String displayFormat = null;
-		String pattern = null;
-		
-		while ((prePos >= 0) || (prePosF >= 0)) {
-			
-    		displayFormat = null;
-    		
-    		int sufPos;
-    		if (prePos >= 0) {
-    			sufPos = rptFormat.indexOf(CommonConstant.REPS_SUFFIX, prePos);
-	    		pattern = rptFormat.substring(prePos, sufPos + CommonConstant.REPS_SUFFIX.length());
-    		}
-    		else {
-	    		sufPos = rptFormat.indexOf(CommonConstant.FMTS_SUFFIX, prePosF);
-	    		pattern = rptFormat.substring(prePosF, sufPos + CommonConstant.FMTS_SUFFIX.length());
-	    		if (hasValue) {
-	    			displayFormat = rptFormat.substring(prePosF + prefixF.length(), sufPos);
-	    		}
-    		}
-    		
-			StringBuffer imgTag = new StringBuffer(imgPrefix);
-			
-			if (displayFormat!=null && !displayFormat.equals("")) {
-				String[] pos = displayFormat.trim().split(","); 
-				
-				imgTag.append(" style=\"position:fixed;");
-				imgTag.append("left:"+pos[0]+"px;");
-				imgTag.append("top:"+pos[1]+"px\"");
-			}
-			
-			if (hasValue) {
-				imgTag.append("/>");
-			}
-			
-    		rptFormat = rptFormat.replace(pattern, imgTag.toString());
-    		
-			prePos = rptFormat.indexOf(prefix);
-			prePosF = rptFormat.indexOf(prefixF);
-		}
-		
-		return rptFormat;
-	}	
-	
-	private String handleThaiDate(String fieldNamePrefix, String fieldName, Map<String, Object> model, String rptFormat, int preIndex, Timestamp timestamp, TemplateService templateService, boolean nullNotChange) throws Exception  {
-		
-		String pattern = CommonConstant.REPS_PREFIX
-					   + fieldNamePrefix
-					   + fieldName
-					   + CommonConstant.FMTS_PREFIX
-					   ;
-		
-		log.info("pattern="+pattern);
-		
-		String value;
-		int newFieldIndex = 0;
-		int prePos = rptFormat.indexOf(pattern);
-		while (prePos >= 0) {
-    		int sufPos = rptFormat.indexOf(CommonConstant.FMTS_SUFFIX, prePos);
-    		
-    		if (timestamp==null) {
-//    			value = CommonConstant.REPS_PREFIX+fieldNamePrefix+fieldName+"=null"+CommonConstant.REPS_SUFFIX;
-    			if (nullNotChange) {
-    				value = rptFormat.substring(prePos, sufPos + CommonConstant.FMTS_SUFFIX.length());
-    			} else {
-    				value = "";
-    			}
-    		}
-    		else {
-
-    			// ว d ด ป
-    			// ${d} d ${m} ${y}
-    			
-	    		String format = rptFormat.substring(prePos + pattern.length(), sufPos);
-
-	    		int bePrePos = format.indexOf(CommonConstant.DATE_FORMAT_BUDDHIST_ERA_YEAR);
-	    		int tmPrePos = format.indexOf(CommonConstant.DATE_FORMAT_THAI_MONTH);
-	    		int tdPrePos = format.indexOf(CommonConstant.DATE_FORMAT_THAI_DAY);
-	    		
-	    		if ((bePrePos >= 0) || (tdPrePos>=0) || (tmPrePos>=0)) {
-	    			
-	    			DateFormat df = new SimpleDateFormat(format); 
-	    			format = df.format(timestamp);
-
-	    			Map<String, String> formatMap = new HashMap<String, String>();
-	    			
-	    			df = new SimpleDateFormat("u");
-	    			int date = Integer.parseInt(df.format(timestamp))-1;
-	    			
-	    			String code = CommonConstant.DATE_FORMAT_THAI_DAY + CommonConstant.DATE_FORMAT_THAI_DAY; 
-	    			format = format.replace(code, "${dd}");
-	    			formatMap.put("dd", CommonConstant.THAI_DAY.get(code).get(date));
-	    			
-	    			code = CommonConstant.DATE_FORMAT_THAI_DAY; 
-	    			format = format.replace(code, "${d}");
-	    			formatMap.put("d", CommonConstant.THAI_DAY.get(code).get(date));
-	    			
-	    			df = new SimpleDateFormat("M");
-	    			int month = Integer.parseInt(df.format(timestamp))-1;
-	    			
-	    			code = CommonConstant.DATE_FORMAT_THAI_MONTH + CommonConstant.DATE_FORMAT_THAI_MONTH; 
-	    			format = format.replace(code, "${mm}");
-	    			formatMap.put("mm", CommonConstant.THAI_MONTH.get(code).get(month));
-	    			
-	    			code = CommonConstant.DATE_FORMAT_THAI_MONTH; 
-	    			format = format.replace(code, "${m}");
-	    			formatMap.put("m", CommonConstant.THAI_MONTH.get(code).get(month));
-
-	    			df = new SimpleDateFormat("yyyy");
-	    			String year = String.valueOf(Integer.parseInt(df.format(timestamp)) + CommonConstant.DIFF_BE_AD);
-	    			
-	    			code = CommonConstant.DATE_FORMAT_BUDDHIST_ERA_YEAR + CommonConstant.DATE_FORMAT_BUDDHIST_ERA_YEAR; 
-	    			format = format.replace(code, "${yy}");
-	    			formatMap.put("yy", year);
-	    			
-	    			code = CommonConstant.DATE_FORMAT_BUDDHIST_ERA_YEAR; 
-	    			format = format.replace(code, "${y}");
-	    			formatMap.put("y", year.substring(year.length()-2));
-	    			
-	    			log.info("format:"+format);
-	    			for(Entry<String, String> e:formatMap.entrySet()) {
-	    				log.info(e.getKey() + ":" +e.getValue());
-	    			}
-	    			
-	    			Writer w = new StringWriter();
-	    			
-	    			TemplateProcessor pc = templateService.getTemplateProcessor("freemarker");
-	    			pc.processString(format.replace("&nbsp;", " "), formatMap, w);
-	    			
-	    			value = w.toString();
-	    			log.info("value="+value);
-	        		
-	    		} else {
-	        		SimpleDateFormat dateFormat = new SimpleDateFormat(format.replace("&nbsp;"," "));
-	        		
-	        		value = dateFormat.format(timestamp);
-	    		}
-    		}
-    		
-    		String newFieldName = fieldNamePrefix + "BG__" + preIndex + "_" + newFieldIndex;
-    		model.put(newFieldName, value);
-    		newFieldIndex++;
-    		
-    		rptFormat = rptFormat.substring(0, prePos) 
-    				+ CommonConstant.REPS_PREFIX 
-    				+ newFieldName 
-    				+ CommonConstant.REPS_SUFFIX
-    				+ rptFormat.substring(sufPos + CommonConstant.FMTS_SUFFIX.length())
-    				;
-    		
-    		prePos = rptFormat.indexOf(pattern);
-		}
-		
-		return rptFormat;
-	}
-	
-	private String getDateDefaultFormatValue(Timestamp timestamp) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat(CommonConstant.RDF_DATE);
-		
-		return timestamp == null ? "" : dateFormat.format(timestamp);
-	}
-	
-	private String getFloatDefaultFormatValue(Double doubleValue) {
-		DecimalFormat decFormat = new DecimalFormat(CommonConstant.RDF_FLOAT);
-		
-		return decFormat.format(doubleValue);
-	}
-	
-	private String handleDouble(String fieldNamePrefix, String fieldName, Map<String, Object> model, String rptFormat, Double doubleValue) throws Exception  {
-		
-		String pattern = CommonConstant.REPS_PREFIX
-					   + fieldNamePrefix
-					   + fieldName
-					   + CommonConstant.REPS_SUFFIX
-					   ;
-		
-		String value = getFloatDefaultFormatValue(doubleValue);
-		
-		rptFormat = rptFormat.replace(pattern, value);
-		
-		return rptFormat;
-
-	}
-	
-	private String handleRunningNo(String fieldName, Map<String, Object> model, String rptFormat, int preIndex, Long runningNo) throws Exception  {
-		
-		String pattern = CommonConstant.REPS_PREFIX
-					   + fieldName
-					   + CommonConstant.FMTS_PREFIX
-					   ;
-		
-		String value;
-		int newFieldIndex = 0;
-		int prePos = rptFormat.indexOf(pattern);
-		while (prePos >= 0) {
-    		int sufPos = rptFormat.indexOf(CommonConstant.FMTS_SUFFIX, prePos);
-    		
-    		String format = rptFormat.substring(prePos + pattern.length(), sufPos);
-    		
-    		DecimalFormat df = new DecimalFormat(format);
-    		value = df.format(runningNo);
-    		
-    		String newFieldName = "BG__" + preIndex + "_" + newFieldIndex;
-    		model.put(newFieldName, value);
-    		newFieldIndex++;
-    		
-    		rptFormat = rptFormat.substring(0, prePos) 
-    				+ CommonConstant.REPS_PREFIX 
-    				+ newFieldName 
-    				+ CommonConstant.REPS_SUFFIX
-    				+ rptFormat.substring(sufPos + CommonConstant.FMTS_SUFFIX.length())
-    				;
-    		
-    		prePos = rptFormat.indexOf(pattern);
-		}
-		
-		return rptFormat;
-	}
-	
-	private String deleteRunningNoFromFormat(String fieldName, String rptFormat) throws Exception  {
-		
-		String pattern = CommonConstant.REPS_PREFIX
-					   + fieldName
-					   + CommonConstant.FMTS_PREFIX
-					   ;
-		
-		int prePos = rptFormat.indexOf(pattern);
-		while (prePos >= 0) {
-    		int sufPos = rptFormat.indexOf(CommonConstant.FMTS_SUFFIX, prePos);
-    		
-    		rptFormat = rptFormat.substring(0, prePos) 
-    				+ rptFormat.substring(sufPos + CommonConstant.FMTS_SUFFIX.length())
-    				;
-    		
-    		prePos = rptFormat.indexOf(pattern);
-		}
-		
-		return rptFormat;
-	}
-	
-	private String handleStringFunction(String fieldNamePrefix, String fieldName, Map<String, Object> model, String rptFormat, int preIndex, String srcValue) throws Exception  {
-		
-		String pattern = CommonConstant.REPS_PREFIX
-					   + fieldNamePrefix
-					   + fieldName
-					   + CommonConstant.FMTS_PREFIX
-					   ;
-		
-		log.info("handleStringFunction() : "+pattern);
-		
-		String value;
-		int newFieldIndex = 0;
-		int prePos = rptFormat.indexOf(pattern);
-		while (prePos >= 0) {
-    		int sufPos = rptFormat.indexOf(CommonConstant.FMTS_SUFFIX, prePos);
-    		
-    		if (srcValue==null) {
-    			value = "";
-    		}
-    		else {
-
-    			// fullname()
-    			
-	    		String format = rptFormat.substring(prePos + pattern.length(), sufPos);
-	    		
-	    		PersonUtil personUtil = new PersonUtil();
-	    		personUtil.setNodeService(nodeService);
-
-        		value = srcValue;
-
-        		if (!srcValue.equals("") && srcValue.indexOf(",")<0) {
-		    		if (format.indexOf(CommonConstant.FUNC_FULL_NAME) >= 0) {
-		    			value = personUtil.getFullName(PersonUtil.getPerson(srcValue, personService));
-		    		} else 
-		    		if (format.indexOf(CommonConstant.FUNC_FIRST_NAME) >= 0) {
-		    			value = personUtil.getFirstName(PersonUtil.getPerson(srcValue, personService));
-		    		} else 
-		    		if (format.indexOf(CommonConstant.FUNC_LAST_NAME) >= 0) {
-		    			value = personUtil.getLastName(PersonUtil.getPerson(srcValue, personService));
-		    		} else
-		    		if (format.startsWith("$")) {
-		    			value = model.get(format)!=null ? (model.get(format).equals("1") ? srcValue : "") : "";
-		    		}
-	    		}
-        		else {
-        			value = "";
-        		}
-    		}
-			log.info("  value="+value);
-    		
-    		String newFieldName = fieldNamePrefix + "BG__" + preIndex + "_" + newFieldIndex;
-    		model.put(newFieldName, value);
-    		newFieldIndex++;
-    		
-    		rptFormat = rptFormat.substring(0, prePos) 
-    				+ CommonConstant.REPS_PREFIX 
-    				+ newFieldName 
-    				+ CommonConstant.REPS_SUFFIX
-    				+ rptFormat.substring(sufPos + CommonConstant.FMTS_SUFFIX.length())
-    				;
-    		
-    		prePos = rptFormat.indexOf(pattern);
-		}
-		
-		return rptFormat;
-	}
-	
-	
 	public void update(PcmOrdModel model) throws Exception {
 		
         SqlSession session = PcmUtil.openSession(dataSource);
@@ -1567,12 +628,12 @@ public class PcmOrdService {
 
 	}
 	
-	public void addReviewer(PcmOrdReviewerModel pcmReqReviewerModel) throws Exception {
+	public void addReviewer(MainWorkflowReviewerModel pcmReqReviewerModel) throws Exception {
 		
 		SqlSession session = PcmUtil.openSession(dataSource);
         try {
            
-            PcmOrdReviewerDAO pcmReqReviewerDAO = session.getMapper(PcmOrdReviewerDAO.class);
+            MainWorkflowReviewerDAO pcmReqReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
 
     		pcmReqReviewerDAO.add(pcmReqReviewerModel);
 
@@ -1586,16 +647,16 @@ public class PcmOrdService {
         }
 	}
 	
-	public PcmOrdReviewerModel getReviewer(PcmOrdReviewerModel pcmReqReviewerModel) throws Exception {
+	public MainWorkflowReviewerModel getReviewer(MainWorkflowReviewerModel pcmReqReviewerModel) throws Exception {
 		
-		PcmOrdReviewerModel model = null;
+		MainWorkflowReviewerModel model = null;
 		
 		SqlSession session = PcmUtil.openSession(dataSource);
         try {
            
-            PcmOrdReviewerDAO pcmReqReviewerDAO = session.getMapper(PcmOrdReviewerDAO.class);
+            MainWorkflowReviewerDAO pcmReqReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
 
-    		List<PcmOrdReviewerModel> list = pcmReqReviewerDAO.listByLevel(pcmReqReviewerModel);
+    		List<MainWorkflowReviewerModel> list = pcmReqReviewerDAO.listByLevel(pcmReqReviewerModel);
     		if (list.size()>0) {
     			model = list.get(0);
     		}
@@ -1631,5 +692,169 @@ public class PcmOrdService {
         
         return list;
 	}
+
+	@Override
+	public void update(SubModuleModel subModuleModel) throws Exception {
+		PcmOrdModel model = (PcmOrdModel)subModuleModel;
+		
+        SqlSession session = PcmUtil.openSession(dataSource);
+        
+        try {
+            PcmOrdDAO dao = session.getMapper(PcmOrdDAO.class);
+            
+        	/*
+        	 * Update DB
+        	 */
+            model.setUpdatedTime(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+            
+        	dao.update(model);
+            
+            session.commit();
+        } catch (Exception ex) {
+			log.error("", ex);
+        	session.rollback();
+        	throw ex;
+        } finally {
+        	session.close();
+        }		
+	}
+
+	@Override
+	public String getWorkflowName() throws Exception {
+		return PcmOrdConstant.WF_NAME;
+	}
+
+	@Override
+	public String getWorkflowDescription(SubModuleModel paramModel)
+			throws Exception {
+		PcmOrdModel pcmOrdModel = (PcmOrdModel)paramModel;
+		
+		MainMasterModel descFormatModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ORD_WF_DESC_FORMAT);
+		String descFormat = descFormatModel.getFlag1();
+		
+		JSONObject map = PcmOrdUtil.convertToJSONObject(pcmOrdModel);
+		
+		Writer w = null;
+		TemplateProcessor pc = templateService.getTemplateProcessor("freemarker");
+		w = new StringWriter();
+		pc.processString(descFormat, map, w);
+		
+		return w.toString();
+	}
+
+	@Override
+	public Map<String, Object> convertToMap(SubModuleModel model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSubModuleType() {
+		return CommonConstant.SUB_MODULE_PCM_ORD;	
+	}
+
+	@Override
+	public void setWorkflowParameters(Map<QName, Serializable> parameters, SubModuleModel paramModel, List<NodeRef> docList, List<NodeRef> attachDocList) {
+		PcmOrdModel model = (PcmOrdModel)paramModel;
+		
+		/*
+		 * Common Attribute
+		 */
+        parameters.put(PcmOrdWorkflowConstant.PROP_ID, model.getId());
+        parameters.put(PcmOrdWorkflowConstant.PROP_FOLDER_REF, model.getFolderRef());
+
+        parameters.put(PcmOrdWorkflowConstant.PROP_DOCUMENT, (Serializable)docList);
+        parameters.put(PcmOrdWorkflowConstant.PROP_ATTACH_DOCUMENT, (Serializable)attachDocList);
+        parameters.put(PcmOrdWorkflowConstant.PROP_COMMENT_HISTORY, "");
+        
+        parameters.put(PcmOrdWorkflowConstant.PROP_TASK_HISTORY, "");	
+        
+        /*
+         * Special Attribute
+         */
+		parameters.put(PcmOrdWorkflowConstant.PROP_OBJECTIVE, model.getObjective());
+		parameters.put(PcmOrdWorkflowConstant.PROP_TOTAL, model.getTotal());
+		
+		Map<String, Object> docType = adminWkfConfigService.getDocType(model.getDocType());
+		parameters.put(PcmOrdWorkflowConstant.PROP_METHOD, (String)docType.get(MainWkfConfigDocTypeConstant.TFN_DESCRIPTION));
+		
+		MainHrEmployeeModel empModel = adminHrEmployeeService.get(model.getAppBy());
+		parameters.put(PcmOrdWorkflowConstant.PROP_REQUESTER, empModel.getFirstName()+" "+empModel.getLastName());
+	}
+
+	@Override
+	public String getActionCaption(String action) {
+		Map<String, String> WF_TASK_ACTIONS = new HashMap<String, String>();
+		
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "ขออนุมัติ");
+		
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "อนุมัติ");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "ไม่อนุมัติ");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "ขอคำปรึกษา");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "ให้ความเห็น");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "ขออนุมัติใหม่");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "ยกเลิก");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "PO");
+		
+		return WF_TASK_ACTIONS.get(action);
+	}
+
+	@Override
+	public List<MainWorkflowNextActorModel> listNextActor(SubModuleModel model) {
+		List<MainWorkflowNextActorModel> list = new ArrayList<MainWorkflowNextActorModel>();
+		
+		PcmOrdModel realModel = (PcmOrdModel)model;
+		
+		List<Map<String, Object>> superList = adminWkfConfigService.listSupervisor(realModel.getSectionId());
+		if(superList.size()>0) {
+			Map<String, Object> map = superList.get(0);
+			
+			MainWorkflowNextActorModel actorModel = new MainWorkflowNextActorModel();
+			
+			actorModel.setMasterId(model.getId());
+			actorModel.setLevel(1);
+			actorModel.setActor(PcmReqConstant.NA_BOSS);
+			actorModel.setActorUser(MainUserGroupUtil.code2login((String)map.get(MainHrEmployeeConstant.TFN_EMPLOYEE_CODE)));
+			actorModel.setCreatedBy(model.getUpdatedBy());
+			
+			list.add(actorModel);
+		}
+		
+		return list;
+	}
+
+	@Override
+	public String getFirstComment(SubModuleModel model) {
+		PcmOrdModel realModel = (PcmOrdModel)model;
+		
+		return realModel.getObjective() + " " + realModel.getDocType();
+	}
+
+	@Override
+	public String getNextActionInfo() {
+		return "ฝ่ายพัสดุ";
+	}
+
+	@Override
+	public QName getPropNextReviewers() {
+		return PcmOrdWorkflowConstant.PROP_NEXT_REVIEWERS;
+	}
 	
+	@Override
+	public String getModelUri() {
+		return PcmOrdWorkflowConstant.MODEL_URI;
+	}
+
+	@Override
+	public String getWfUri() {
+		return PcmOrdWorkflowConstant.WF_URI;
+	}
+
+	@Override
+	public String getModelPrefix() {
+		return PcmOrdWorkflowConstant.MODEL_PREFIX;
+	}	
 }

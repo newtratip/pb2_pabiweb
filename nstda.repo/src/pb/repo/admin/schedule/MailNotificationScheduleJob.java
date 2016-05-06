@@ -58,11 +58,11 @@ import pb.common.util.NodeUtil;
 import pb.common.util.PersonUtil;
 import pb.repo.admin.constant.MainCompleteNotificationConstant;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainCompleteNotificationModel;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
-import pb.repo.pcm.constant.PcmWorkflowConstant;
 
 import com.github.dynamicextensionsalfresco.jobs.ScheduledQuartzJob;
 import com.sun.mail.smtp.SMTPMessage;
@@ -77,7 +77,8 @@ public class MailNotificationScheduleJob implements Job {
 	
 	private final Logger log = Logger.getLogger(MailNotificationScheduleJob.class);
 	
-	final String workflowUri = PcmWorkflowConstant.WF_URI;
+//	final String workflowUri = MainWorkflowConstant.WF_URI;
+	final String workflowUri = "";
 
 	@Autowired
 	AuthenticationService authService;
@@ -117,9 +118,9 @@ public class MailNotificationScheduleJob implements Job {
 		
 		try {
 			
-    		MainMasterModel mailNotifyModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_NOTIFY);
+    		MainMasterModel mailNotifyModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_NOTIFY);
     		boolean mailNotify = mailNotifyModel != null && mailNotifyModel.getFlag1().equals(CommonConstant.V_ENABLE);
-    		log.info(MainMasterConstant.SCC_MEMO_MAIL_NOTIFY+" :: " + mailNotify);
+    		log.info(MainMasterConstant.SCC_PCM_REQ_MAIL_NOTIFY+" :: " + mailNotify);
     		
     		if(mailNotify){
     		
@@ -238,13 +239,13 @@ public class MailNotificationScheduleJob implements Job {
 			            
 		    			log.info("userList :: " + userList.toString());
 	
-		    			MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_TEMPLATE);
+		    			MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_TEMPLATE);
 		    			NodeRef emailTemplate = new NodeRef(masterModel.getFlag1());
 		    			
-		    			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_SUBJECT);
+		    			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_SUBJECT);
 		    			String workflowMailSubject = masterModel.getFlag1();
 		    			
-		    			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_FROM);
+		    			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_FROM);
 		    			String workflowMailFromLabel = masterModel.getFlag1();
 		    			
 		    			if(userList.size() > 0){

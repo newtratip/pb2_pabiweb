@@ -11,8 +11,6 @@ import pb.common.constant.JsonConstant;
 import pb.common.util.CommonUtil;
 import pb.repo.pcm.model.PcmReqCmtModel;
 
-import com.alibaba.fastjson.JSON;
-
 public class PcmReqCmtUtil {
 	
 	private static Logger log = Logger.getLogger(PcmReqCmtUtil.class);

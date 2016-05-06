@@ -394,6 +394,9 @@
 	            else if(status.indexOf("WAPPR") > -1){
 	            	desc += '<img src="' + Alfresco.constants.URL_RESCONTEXT + 'components/images/wappr.png" />'
 	            }
+	            else if(status.indexOf("CONSULT") > -1){
+	            	desc += '<img src="' + Alfresco.constants.URL_RESCONTEXT + 'components/images/consult.png" />'
+	            }
             }
             
             
@@ -426,14 +429,29 @@
                type = data.title,
                status = data.properties["bpm_status"],
                assignee = data.owner;
-
+               
             // if there is a property label available for the status use that instead
             if (data.propertyLabels && Alfresco.util.isValueSet(data.propertyLabels["bpm_status"], false))
             {
                status = data.propertyLabels["bpm_status"];
             }
             
-            status ="<b>สถานะ:&nbsp;</b>รอการอนุมัติ";
+            if (status) {
+	            if(status.indexOf("REJECT") > -1){
+	            	status ="ไม่อนุมัติ";
+	            }
+	            else if(status.indexOf("RESUBMIT") > -1){
+	            	status ="รอการอนุมัติ";
+	            }
+	            else if(status.indexOf("WAPPR") > -1){
+	            	status ="รอการอนุมัติ";
+	            }
+	            else if(status.indexOf("CONSULT") > -1){
+	            	status ="ขอคำปรึกษา";
+	            }
+            }            
+//            status ="<b>สถานะ:&nbsp;</b>รอการอนุมัติ";
+			status ="<b>สถานะ:&nbsp;</b>"+ status;
             
             // if message is the same as the task type show the <no message> label
             if (message == type)

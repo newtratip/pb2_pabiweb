@@ -5,7 +5,8 @@
     <resultMap id="result" type="pcmReqCmtDtlModel">
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
-        <result property="committeeman" column="committeeman"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
         <result property="position" column="position"/>
         <result property="createdTime" column="created_time"/>
         <result property="createdBy" column="created_by"/>
@@ -13,30 +14,80 @@
         <result property="updatedBy" column="updated_by"/>
     </resultMap>
     
-    <select id="list" resultMap="result" parameterType="map">
+    <insert
+		id="add"
+		parameterType="pcmReqCmtDtlModel"
+		flushCache="true"
+		statementType="PREPARED"
+		keyProperty="id"
+		useGeneratedKeys="true"
+		>
+	    INSERT INTO pb2_pcm_req_committee_dtl(
+	    	master_id
+	    	,first_name
+	    	,last_name
+	    	,position
+	    	,created_by,updated_by
+	    )VALUES( 
+    		#{masterId}
+    		,#{firstName}
+    		,#{lastName}
+    		,#{position}
+    		,#{createdBy},#{updatedBy}
+    	)
+		
+	</insert>
+    
+    <select id="list" resultType="hashmap" parameterType="map">
+        SELECT
+		    d.*,		    
+		    COUNT(*) OVER() totalRowCount
+		FROM
+		    pb2_pcm_req_committee_dtl d
+		LEFT JOIN
+			pb2_pcm_req_committee_hdr h
+		ON h.id=d.master_id
+		WHERE
+			h.pcm_req_id=#{id}
+		AND
+			h.committee=#{cmt}	
+		ORDER BY id
+    </select>
+    
+    <select id="listByMasterId" resultMap="result" parameterType="map">
         SELECT
 		    *,		    
 		    COUNT(*) OVER() totalRowCount
 		FROM
-		    pb2_ext_pcm_req_committee_dtl
-		ORDER BY ${orderBy}
-		LIMIT #{limit}
-		OFFSET #{start}
-    </select>
+		    pb2_pcm_req_committee_dtl 
+		WHERE
+			master_id=#{id}
+		ORDER BY id
+    </select>    
 	
 	<select id="count"  resultType="long">
         SELECT
 		    count(1)
 		FROM
-		    pb2_ext_pcm_req_committee_dtl
+		    pb2_pcm_req_committee_dtl
     </select>
     
     <select id="get" parameterType="string" resultMap="result">
         SELECT
 		    *
 		FROM
-		    pb2_ext_pcm_req_committee_dtl
+		    pb2_pcm_req_committee_dtl
 		WHERE id=#{id}
     </select>
+    
+	<delete id="deleteByMasterId"
+    		parameterType="string"
+			flushCache="true"
+			statementType="PREPARED"
+			>
+   		DELETE FROM pb2_pcm_req_committee_dtl WHERE master_id in (
+   			select id from pb2_pcm_req_committee_hdr WHERE pcm_req_id=#{masterId}
+   		)
+	</delete>      
     
 </mapper>

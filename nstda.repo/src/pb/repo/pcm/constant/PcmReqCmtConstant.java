@@ -2,7 +2,7 @@ package pb.repo.pcm.constant;
 
 public class PcmReqCmtConstant {
 
-	public static final String TABLE_NAME = "pb2_ext_pcm_req_committee";
+	public static final String TABLE_NAME = "pb2_ext_purchase_request_committee";
 	
     /*
      * Table Field Name

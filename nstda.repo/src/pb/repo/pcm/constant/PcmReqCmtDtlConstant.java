@@ -9,7 +9,8 @@ public class PcmReqCmtDtlConstant {
      */
 	public static final String TFN_ID = "ID";
 	public static final String TFN_MASTER_ID = "MASTER_ID";
-	public static final String TFN_COMMITTEE_MAN = "COMMITTEEMAN";
+	public static final String TFN_FIRST_NAME = "FIRST_NAME";
+	public static final String TFN_LAST_NAME = "LAST_NAME";
 	public static final String TFN_POSITION = "POSITION";
 	
 	public static final String TFN_CREATED_TIME = "CREATED_TIME";
@@ -22,7 +23,8 @@ public class PcmReqCmtDtlConstant {
      */
 	public static final String JFN_ID = "id";
 	public static final String JFN_MASTER_ID = "master_id";
-	public static final String JFN_COMMITTEE_MAN = "commiteeman";
+	public static final String JFN_FIRST_NAME = "first_name";
+	public static final String JFN_LAST_NAME = "last_name";
 	public static final String JFN_POSITION = "position";
 	
 	public static final String JFN_CREATED_TIME = "created_time";

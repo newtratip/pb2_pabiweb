@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
-import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.repo.admin.constant.MainMasterConstant;
@@ -25,11 +24,11 @@ import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminTestSystemService;
 import pb.repo.admin.service.AdminUserGroupService;
+import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmOrdConstant;
 import pb.repo.pcm.model.PcmOrdDtlModel;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.PcmOrdService;
-import pb.repo.pcm.service.PcmOrdWorkflowService;
 import pb.repo.pcm.util.PcmOrdUtil;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
@@ -52,7 +51,7 @@ public class PcmOrdWebScript {
 	TemplateService templateService;
 
 	@Autowired
-	private PcmOrdWorkflowService pcmWorkflowService;
+	private MainWorkflowService mainWorkflowService;
 	
 	@Autowired
 	private AdminMasterService masterService;
@@ -71,6 +70,7 @@ public class PcmOrdWebScript {
 	
   @Uri(URI_PREFIX+"/list")
   public void handleList(@RequestParam(required=false) final String s
+	  	  	  , @RequestParam(required=false) final String fields
 			  , @RequestParam(required=false) final Integer start
 			  , @RequestParam(required=false) final Integer limit
 			  , final WebScriptResponse response)  throws Exception {
@@ -89,6 +89,40 @@ public class PcmOrdWebScript {
 		params.put("start", start);
 		params.put("limit", limit);
 		
+		String curUser = authService.getCurrentUserName();
+		params.put("loginE", curUser);
+//		params.put("loginL", "%,"+curUser+",%");
+		params.put("loginL", curUser);
+		
+		String userRoles = userGroupService.getAuthoritiesForUser(curUser)
+						.replace("GROUP_", "")
+						.replace("','", ",")
+						;
+		if (userRoles.startsWith("'")) {
+			userRoles = userRoles.substring(1);
+		}
+		if (userRoles.endsWith("'")) {
+			userRoles = userRoles.substring(0, userRoles.length()-1);
+		}
+		
+		String[] roles = userRoles.split(",");
+		List<String> roleList = new ArrayList<String>();
+		for(int i=0; i<roles.length; i++) {
+			if (!roles[i].startsWith("site_")) {
+//				roleList.add("%,"+roles[i]+",%");
+				roleList.add(roles[i]);
+			}
+		}
+		params.put("roleList",  roleList);
+		
+		
+		if (fields != null) {
+			JSONObject jsObj = new JSONObject(fields);
+			
+			putOneParam(params, jsObj, PcmOrdConstant.JFN_DOC_TYPE);
+			putOneParam(params, jsObj, PcmOrdConstant.JFN_STATUS);
+		}		
+		
 		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
 	  
 		/*
@@ -98,8 +132,7 @@ public class PcmOrdWebScript {
 		
 		try {
 			List<PcmOrdModel> list = pcmOrdService.list(params);
-			MainMasterModel showDelBtnCfg = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ORD_DELETE_BUTTON);
-			json = PcmOrdUtil.jsonSuccess(list, showDelBtnCfg!=null && showDelBtnCfg.getFlag1()!=null && showDelBtnCfg.getFlag1().equals("1"));
+			json = PcmOrdUtil.jsonSuccess(list);
 			
 		} catch (Exception ex) {
 			log.error("", ex);
@@ -149,31 +182,18 @@ public class PcmOrdWebScript {
 		if (model==null) {
 			model = new PcmOrdModel();
 		}
-		model.setRemark(remark);
-		model.setWaitingLevel(0);
-		model.setReqType(reqType);
-		model.setCostType(costType);
-		model.setReqOu(reqOu);
-		model.setTotal(Double.parseDouble(total));
-		
-		if (requested_time!=null) {
-			model.setRequestedTime(CommonDateTimeUtil.convertSenchaStringToTimestamp(requested_time));
-		}
 
-		if (model.getId() == null || (status!=null && status.equals(PcmOrdConstant.ST_DRAFT))) {
-			model.setStatus(PcmOrdConstant.ST_WAITING);
-			model.setWaitingLevel(1);
-		}
+		model.setTotal(Double.parseDouble(total));
+
 		
 		JSONObject validateResult = pcmOrdService.validateAssignee(model);
 		if (!(Boolean)validateResult.get("valid")) {
 			json = CommonUtil.jsonFail(validateResult);
 		}
 		else {
-			model = pcmOrdService.save(model, dtls, files, true);
+//			model = pcmOrdService.save(model, dtls, files, true);
 			
-			model.setWorkflowId("2");
-			pcmWorkflowService.startWorkflow(model);
+			mainWorkflowService.startWorkflow(model);
 			
 			JSONObject jsObj = new JSONObject();
 			jsObj.put("id", model.getId());
@@ -347,30 +367,14 @@ public class PcmOrdWebScript {
 		if (model==null) {
 			model = new PcmOrdModel();
 		}
-		model.setWorkflowId(workflow_id);
-		
-		Boolean amDirty = (approval_matrix_id != model.getApprovalMatrixId());
-		
-		model.setApprovalMatrixId(approval_matrix_id);
-		model.setRemark(remark);
-		
-		
-		
-		if (requested_time!=null) {
-			model.setRequestedTime(CommonDateTimeUtil.convertSenchaStringToTimestamp(requested_time));
-		}
-
-		if (model.getId() == null || (status!=null && status.equals(PcmOrdConstant.ST_DRAFT))) {
-			model.setStatus(PcmOrdConstant.ST_WAITING);
-		}
 		
 		JSONObject validateResult = pcmOrdService.validateAssignee(model);
 		if (!(Boolean)validateResult.get("valid")) {
 			json = CommonUtil.jsonFail(validateResult);
 		}
 		else {
-			model = pcmOrdService.save(model, dtls, files, true);
-			pcmWorkflowService.updateWorkflow(model, aug, rug, amDirty);
+//			model = pcmOrdService.save(model, dtls, files, true);
+			mainWorkflowService.updateWorkflow(model, aug, rug);
 			
 			JSONObject jsObj = new JSONObject();
 			jsObj.put("id", model.getId());

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainWkfConfigPurchaseUnitResponsibleDAO">
+    <resultMap id="result" type="mainWkfConfigPurchaseUnitResponsibleModel">
+        <result property="id" column="id"/>
+        <result property="level" column="level"/>
+        <result property="empId" column="employee_id"/>
+        <result property="purchasingUnitId" column="purchasing_uni_id"/>
+        <result property="totalRowCount" column="totalRowCount"/>
+        
+    </resultMap>
+
+	<select id="list" resultMap="result">
+		select * from pb2_ext_wkf_config_purchase_unit_responsible order by name
+	</select>
+	
+	<select id="count"  resultType="long">
+        select
+		    count(1)
+		from
+		    pb2_ext_wkf_config_purchase_unit_responsible
+    </select>
+    
+    <select id="listSupervisor" resultType="map" parameterType="int">
+		select p.employee_id ,p.level,e.first_name, e.last_name, e.employee_code
+		from pb2_ext_wkf_config_purchase_unit_responsible p left join pb2_ext_hr_employee e on p.employee_id = e.id
+		where purchasing_unit_id = #{id}
+		order by level desc
+	</select>
+	
+</mapper>

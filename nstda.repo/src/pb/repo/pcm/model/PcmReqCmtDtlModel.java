@@ -7,7 +7,8 @@ public class PcmReqCmtDtlModel {
 	
 	String id;
 	Long masterId;
-	String committeeman;
+	String firstName;
+	String lastName;
 	String position;
 	
 	Timestamp createdTime;
@@ -15,8 +16,6 @@ public class PcmReqCmtDtlModel {
 	Timestamp updatedTime;
 	String updatedBy;
 	
-	List<String> listAttachDoc;
-
 	private Long totalRowCount;
 
 	
@@ -32,11 +31,17 @@ public class PcmReqCmtDtlModel {
 	public void setMasterId(Long masterId) {
 		this.masterId = masterId;
 	}
-	public String getCommitteeman() {
-		return committeeman;
+	public String getFirstName() {
+		return firstName;
 	}
-	public void setCommitteeman(String committeeman) {
-		this.committeeman = committeeman;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 	public String getPosition() {
 		return position;

@@ -1,0 +1,36 @@
+package pb.repo.admin.util;
+
+import org.apache.log4j.Logger;
+import org.json.JSONObject;
+
+import pb.repo.admin.constant.MainWorkflowConstant;
+
+public class MainWorkflowUtil {
+	
+	private static Logger log = Logger.getLogger(MainWorkflowUtil.class);
+	
+	public static JSONObject createAssigneeGridModel(int id, String assignee, String user, String group, Boolean isRqAp)  throws Exception {
+		JSONObject jsObj = new JSONObject();
+		
+		jsObj.put("id", id);
+		jsObj.put("assignee", assignee);
+		jsObj.put("group", MainUtil.trimComma(group));
+		
+		user = (MainUtil.trimComma(user)!=null ? MainUtil.trimComma(user) : "");
+		
+		jsObj.put("user", ((isRqAp!=null && isRqAp) ? "[Requester]"+(!user.equals("") ? "," : "") : "") + user);
+		
+		return jsObj;
+	}
+	
+	public static String getFinalTaskKey(String taskKey,Integer level) {
+		return taskKey + (taskKey.equals(MainWorkflowConstant.TN_REVIEWER) ? (" #"+level) : "");
+	}
+	
+	public static String appendTaskKey(String taskHistory, String taskKey, Integer level) {
+		String finalTaskHistory = taskHistory + "|" + getFinalTaskKey(taskKey, level);
+		log.info("  taskHistory:" + finalTaskHistory);
+		return finalTaskHistory;
+	}
+	
+}

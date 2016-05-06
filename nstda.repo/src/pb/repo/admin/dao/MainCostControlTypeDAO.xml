@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainCostControlTypeDAO">
+    <resultMap id="result" type="mainCostControlTypeModel">
+        <result property="id" column="id"/>
+        <result property="description" column="description"/>
+        <result property="name" column="name"/>
+        <result property="totalRowCount" column="totalRowCount"/>
+        
+    </resultMap>
+
+	<select id="list" resultType="map">
+		SELECT 	*, COUNT(*) OVER() totalRowCount
+		FROM 	pb2_ext_cost_control_type
+		ORDER BY name
+	</select>
+	
+	<select id="count" resultType="long">
+        select
+		    count(1)
+		from
+		    pb2_ext_cost_control_type
+    </select>
+	
+</mapper>

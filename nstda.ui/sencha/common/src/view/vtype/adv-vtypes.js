@@ -44,7 +44,6 @@ Ext.define("PB.vtype.Validation", {
     },
     
 	function() {
-		console.log("registered VTypes");
 		this.daterangeValidation();
 	}
 

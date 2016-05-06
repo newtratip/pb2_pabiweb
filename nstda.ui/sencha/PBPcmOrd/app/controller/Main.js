@@ -40,6 +40,113 @@ Ext.define('PBPcmOrd.controller.Main', {
 	
 	onLaunch:function(app) {
 		var me = this;
+		
+		var mainGrid = me.getMainGrid();
+		if (mainGrid) {
+			var tbar = me.getMainGrid().getDockedComponent(1);
+			
+			Ext.Ajax.request({
+			      url:me.URL+"/criteria/list",
+			      method: "GET",
+			      success: function(response){
+			    	  
+			    	var data = Ext.decode(response.responseText).data;
+			    	
+					for(var i=data.length-1; i>=0; i--) {
+						
+						var d = data[i];
+						
+						var store = Ext.create('PB.store.common.ComboBoxStore');
+						
+						store.getProxy().api.read = ALF_CONTEXT+'/srcUrl/'+PB.Util.getSrcUrl(d.url);
+						if (d.param) {
+							var params = d.param.split(",");
+							
+							store.getProxy().extraParams = {
+								p1 : params[0],
+								orderBy : 'code',
+								all : true
+							}
+							if (params.length>1) {
+								store.getProxy().extraParams.p2 = params[1];
+							}
+							
+						}
+						store.load();
+						
+						var c = {
+							xtype:'combo',
+							itemId:'cri'+i,
+							bgData:d,
+							hideLabel:true,
+					    	displayField:'name',
+					    	valueField:'id',
+					        emptyText : d.emptyText,
+					        store: store,
+					        queryMode: 'local',
+					        typeAhead:true,
+					        multiSelect:false,
+					        forceSelection:true,
+					        listConfig : {
+						    	resizable:true,
+							    getInnerTpl: function () {
+									return '<div>{name}</div>';
+							        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
+							    }
+							},
+					        listeners:{
+								beforequery : function(qe) {
+									qe.query = new RegExp(qe.query, 'i');
+					//				qe.forceAll = true;
+								}
+							}
+						}
+						
+						if (d.listWidth) {
+					        c.matchFieldWidth = false;
+							c.listConfig.width = d.listWidth;
+						}
+						
+						if (d.width) {
+							c.width = d.width;
+						}
+						
+						tbar.insert(0, c);
+	
+					}
+					
+			      },
+			      failure: function(response, opts){
+			          alert("failed");
+			      },
+			      headers: getAlfHeader()
+			}); 
+		}
+		
+		if (ID) {
+			
+			Ext.Ajax.request({
+			      url:me.URL+"/get",
+			      method: "GET",
+			      params: {
+			    	  id : ID
+			      },
+			      success: function(response){
+			    	  
+			    	var data = Ext.decode(response.responseText).data;
+			    	
+			    	var rec = Ext.create("PBPcmOrd.model.GridModel",data[0]);
+
+					me.edit(rec);
+					
+			      },
+			      failure: function(response, opts){
+			          alert("failed");
+			      },
+			      headers: getAlfHeader()
+			});
+
+		}
 	},
 	
 	search:function() {

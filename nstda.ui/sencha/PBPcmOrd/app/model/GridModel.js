@@ -1,11 +1,13 @@
 Ext.define('PBPcmOrd.model.GridModel', {
     extend: 'Ext.data.Model',
     fields : [ {name : 'id'}
-    		 , {name : 'workflow_id'}
+    		 , {name : 'objective'}
+    		 , {name : 'total'}
+    		 , {name : 'pr_id'}
+    		 , {name : 'section_id'}
+    		 , {name : 'doc_type'}
     		 , {name : 'workflow_ins_id'}
-    		 , {name : 'approval_matrix_id'}
-    		 , {name : 'requested_time'}
-    		 , {name : 'reqTimeShow'}
+    		 , {name : 'created_time_show'}
     		 , {name : 'doc_ref'}
     		 , {name : 'folder_ref'}
     		 , {name : 'status'}

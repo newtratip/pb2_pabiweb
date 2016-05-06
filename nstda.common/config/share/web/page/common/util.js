@@ -1,21 +1,12 @@
 function getActionIcon(v, a, i) { 
 	return v.indexOf(a) < 0 ? HIDE_CSS : 'icon_'+i
 }
-
 function getAlfHeader() { 
 	return { 'Alfresco-CSRFToken': Ext.util.Cookies.get(ALF_TOKEN) }
 }
-
 function validForm(form){
-	
-	if(form.getForm().isValid()){
-		return true;
-	}else{
-		return false;
-	}
-	
+	return form.getForm().isValid();
 }
-
 function validateFormAdmin(form) {
 	
 	var fields = form.getForm().getFields();
@@ -99,17 +90,12 @@ function compareDate(from,to){
 	var dateTo = new Date(to.getValue());
 	
     if(to.getValue() == null){
-		
 		to.setMinValue(dateFrom);
 		to.validate();
-		
 	}else{
-		
 		to.setMinValue(dateFrom);
 		to.validate();
-		
 	}
-	
 }
 
 function compareTime(from,to){
@@ -141,17 +127,12 @@ function compareTime(from,to){
 	var minDate = Ext.String.format('{0}:{1} {2}',hour, min, duration);
 
     if(to.getValue() == null){
-		
 		to.setMinValue(minDate);
 		to.validate();
-		
 	}else{
-		
 		to.setMinValue(minDate);
 		to.validate();
-		
 	}
-	
 
 }
 
@@ -165,3 +146,26 @@ function getLanguage() {
 	    return contentLanguage[0].split(":")[1].trim().toUpperCase();
 	}	    
 }
+
+function mandatoryLabel(lbl) {
+	return lbl + '<font color="red">*</font>';
+}
+
+function replaceIfNull(v, dv) {
+	return (v ? v : dv);
+}
+
+function getRadioValue(name) {
+    var el = document.getElementsByName(name);
+    for (var i=0, l=el.length; i<l; i++)
+    {
+        if (el[i].checked)
+        {
+            return el[i].value;
+        }
+    }
+}
+
+function setValue(f,n,v) {
+	f.down('field[name='+n+']').setValue(v);
+}	

@@ -47,12 +47,6 @@
 			<param name="module" value="pcmord"/>
 		</antcall>
    </target>
-	
-   <target name="Module.pcmuse" if="page.pcmuse.dir">
-		<antcall target="module">
-			<param name="module" value="pcmuse"/>
-		</antcall>
-   </target>
 		
    <target name="Module.exp" if="page.exp.dir">
 		<antcall target="module">

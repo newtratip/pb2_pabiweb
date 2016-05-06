@@ -269,39 +269,39 @@ public class PcmSignatureService {
 		String pos0 = String.valueOf(Integer.valueOf(signPos.get(0))+increasePosition);
 		String pos1 = String.valueOf(Integer.valueOf(signPos.get(1))+0);
 		
-		String fontSize = signConfig.get(MainMasterConstant.SCC_MEMO_SIGNATURE_FONT_SIZE).toString();
-		String[] datePosition = signConfig.get(MainMasterConstant.SCC_MEMO_SIGNATURE_DATE_POSITION).toString().split(",");
-		String[] pixel = signConfig.get(MainMasterConstant.SCC_MEMO_SIGNATURE_PIXEL).toString().split(",");
-
-		String basePath = System.getProperty("catalina.base");
-		String fontPath = basePath+"/webapps/alfresco/WEB-INF/classes";
-	
-		BaseFont baseFont = BaseFont.createFont(fontPath+"/angsa.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-		
-		if(Float.parseFloat(pos0) != 0 && Float.parseFloat(pos1) != 0){
-			
-	        ContentReader contentReader = alfrescoService.getContentByNodeRef(signatureNodeRef);
-	        Image signatureImage = Image.getInstance(ImageIO.read(contentReader.getContentInputStream()), null);
-	        
-	        log.info("x::"+Float.parseFloat(pos0));
-	        log.info("y::"+Float.parseFloat(pos1));
-	        
-	        signatureImage.scaleAbsolute(Float.parseFloat(pixel[0]), Float.parseFloat(pixel[1])); 
-	        signatureImage.setAbsolutePosition(Float.parseFloat(pos0), Float.parseFloat(pos1));
-			
-	     	pageContent.addImage(signatureImage);
-	     	
-	     	Integer datePaddingLeft = Integer.valueOf(pos0)+Integer.valueOf(datePosition[0]);
-	     	Integer dateNewLine = Integer.valueOf(pos1)-Integer.valueOf(datePosition[1]);
-	     	
-	     	pageContent.beginText();
-		    pageContent.setFontAndSize(baseFont, Float.parseFloat(fontSize));
-		    pageContent.setTextMatrix(Float.parseFloat(datePaddingLeft.toString()), Float.parseFloat(dateNewLine.toString()));
-		    pageContent.showText(date);
-		    pageContent.endText(); 
-		    
-
-		}
+//		String fontSize = signConfig.get(MainMasterConstant.SCC_MEMO_SIGNATURE_FONT_SIZE).toString();
+//		String[] datePosition = signConfig.get(MainMasterConstant.SCC_MEMO_SIGNATURE_DATE_POSITION).toString().split(",");
+//		String[] pixel = signConfig.get(MainMasterConstant.SCC_MEMO_SIGNATURE_PIXEL).toString().split(",");
+//
+//		String basePath = System.getProperty("catalina.base");
+//		String fontPath = basePath+"/webapps/alfresco/WEB-INF/classes";
+//	
+//		BaseFont baseFont = BaseFont.createFont(fontPath+"/angsa.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+//		
+//		if(Float.parseFloat(pos0) != 0 && Float.parseFloat(pos1) != 0){
+//			
+//	        ContentReader contentReader = alfrescoService.getContentByNodeRef(signatureNodeRef);
+//	        Image signatureImage = Image.getInstance(ImageIO.read(contentReader.getContentInputStream()), null);
+//	        
+//	        log.info("x::"+Float.parseFloat(pos0));
+//	        log.info("y::"+Float.parseFloat(pos1));
+//	        
+//	        signatureImage.scaleAbsolute(Float.parseFloat(pixel[0]), Float.parseFloat(pixel[1])); 
+//	        signatureImage.setAbsolutePosition(Float.parseFloat(pos0), Float.parseFloat(pos1));
+//			
+//	     	pageContent.addImage(signatureImage);
+//	     	
+//	     	Integer datePaddingLeft = Integer.valueOf(pos0)+Integer.valueOf(datePosition[0]);
+//	     	Integer dateNewLine = Integer.valueOf(pos1)-Integer.valueOf(datePosition[1]);
+//	     	
+//	     	pageContent.beginText();
+//		    pageContent.setFontAndSize(baseFont, Float.parseFloat(fontSize));
+//		    pageContent.setTextMatrix(Float.parseFloat(datePaddingLeft.toString()), Float.parseFloat(dateNewLine.toString()));
+//		    pageContent.showText(date);
+//		    pageContent.endText(); 
+//		    
+//
+//		}
 	
 	}
 	
@@ -312,7 +312,8 @@ public class PcmSignatureService {
 				{
 					public List<NodeRef> doWork() throws Exception
 					{
-						List<Map<String, Object>> docSignPatternList = adminMasterService.listByType(MainMasterConstant.TYPE_SYSTEM_CONFIG, MainMasterConstant.SCC_MEMO_DOC_SIGN_PATTERN+"_", null, null, null);
+//						List<Map<String, Object>> docSignPatternList = adminMasterService.listByType(MainMasterConstant.TYPE_SYSTEM_CONFIG, MainMasterConstant.SCC_MEMO_DOC_SIGN_PATTERN+"_", null, null, null);
+						List<Map<String, Object>> docSignPatternList = null;
 						log.info("docSignPatternList :: " + docSignPatternList+ ", "+docSignPatternList.size());
 						
 						List<ActivitiScriptNode> attachDocList = (List<ActivitiScriptNode>)task.getVariable(prefix+"attachDocument");
@@ -466,7 +467,8 @@ public class PcmSignatureService {
 				{
 					public List<NodeRef> doWork() throws Exception
 					{
-						List<Map<String, Object>> docSignPatternList = adminMasterService.listByType(MainMasterConstant.TYPE_SYSTEM_CONFIG, MainMasterConstant.SCC_MEMO_DOC_SIGN_PATTERN+"_", null, null, null);
+//						List<Map<String, Object>> docSignPatternList = adminMasterService.listByType(MainMasterConstant.TYPE_SYSTEM_CONFIG, MainMasterConstant.SCC_MEMO_DOC_SIGN_PATTERN+"_", null, null, null);
+						List<Map<String, Object>> docSignPatternList = null;
 						log.info("docSignPatternList :: " + docSignPatternList+ ", "+docSignPatternList.size());
 						
 						List<ActivitiScriptNode> attachDocList = (List<ActivitiScriptNode>)task.getVariable(prefix+"attachDocument");

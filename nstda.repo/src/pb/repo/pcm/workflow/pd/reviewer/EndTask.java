@@ -1,10 +1,7 @@
 package pb.repo.pcm.workflow.pd.reviewer;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.ExecutionListener;
-import org.activiti.engine.delegate.TaskListener;
-import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -15,10 +12,11 @@ import org.springframework.stereotype.Component;
 
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
-import pb.repo.pcm.constant.PcmWorkflowConstant;
-import pb.repo.pcm.model.PcmWorkflowModel;
+import pb.repo.admin.service.MainWorkflowService;
+import pb.repo.pcm.constant.PcmOrdConstant;
+import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
+import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.PcmOrdService;
-import pb.repo.pcm.service.PcmOrdWorkflowService;
 import pb.repo.pcm.service.PcmSignatureService;
 
 @Component("pb.pcm.workflow.pd.reviewer.EndTask")
@@ -27,7 +25,7 @@ public class EndTask implements ExecutionListener {
 	private static Logger log = Logger.getLogger(EndTask.class);
 
 	@Autowired
-	PcmOrdWorkflowService pcmWorkflowService;
+	MainWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AuthenticationService authenticationService;
@@ -39,7 +37,7 @@ public class EndTask implements ExecutionListener {
 	NodeService nodeService;
 	
 	@Autowired
-	PcmOrdService pcmReqService;
+	PcmOrdService pcmOrdService;
 	
 	@Autowired
 	AdminViewerService viewerService;
@@ -50,25 +48,20 @@ public class EndTask implements ExecutionListener {
 	@Autowired
 	AdminMasterService adminMasterService;
 	
-	private static final String WF_PREFIX = PcmWorkflowConstant.MODEL_PREFIX;
+	private static final String WF_PREFIX = PcmOrdWorkflowConstant.MODEL_PREFIX;
 	
 	@Override
 	public void notify(DelegateExecution execution) throws Exception {
 		
 		log.info("<- pd.reviewer.EndTask ->");
-		String curUser = authenticationService.getCurrentUserName();
+//		String curUser = authenticationService.getCurrentUserName();
 		try {
-		
 			String id = (String)ObjectUtils.defaultIfNull(execution.getVariable(WF_PREFIX+"id"), "");
 			log.info("  id:" + id);
 			
-			String varName = WF_PREFIX+"reviewOutcome";
-			String workflowStatus = (String)execution.getVariable(varName);
-			log.info("  reviewOutcome:" + workflowStatus);
-
-			varName = WF_PREFIX+"nextReviewers";
-			workflowStatus = (String)execution.getVariable(varName);
-			log.info("  nextReviewers:" + workflowStatus);
+			PcmOrdModel model = pcmOrdService.get(id.toString());
+			model.setStatus(PcmOrdConstant.ST_CLOSED_BY_ACT);
+			pcmOrdService.updateStatus(model);
 		} catch (Exception ex) {
 			log.error("", ex);
 		}

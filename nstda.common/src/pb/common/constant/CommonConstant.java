@@ -69,6 +69,14 @@ public class CommonConstant {
     	MODULES.put(MODULE_EXP, "Expenses");
     }
     
+	/*
+	 * Sub Module
+	 */
+	public static final String SUB_MODULE_PCM_REQ = MODULE_PCM + "_" + "REQ"; 
+	public static final String SUB_MODULE_PCM_ORD = MODULE_PCM + "_" + "ORD"; 
+	public static final String SUB_MODULE_EXP_BRW = MODULE_EXP + "_" + "BRW"; 
+	public static final String SUB_MODULE_EXP_USE = MODULE_EXP + "_" + "USE"; 
+    
     public static final String GLOBAL_URI_PREFIX = "/pb";
     
     public static final String SESSION_PAGE_UUID = "SESSION_PAGE_UUID";
@@ -82,8 +90,11 @@ public class CommonConstant {
     
     public static final String SENCHA_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     
-    public static final String GRID_COLUMN_DATE_FORMAT = "dd/MM/yyyy";
-    public static final String GRID_COLUMN_DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm";
+    public static final String ODOO_DATE_FORMAT = "yyyy-MM-dd";
+    public static final String ODOO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    
+    public static final String GRID_COLUMN_DATE_FORMAT = "dd/MM/yy";
+    public static final String GRID_COLUMN_DATE_TIME_FORMAT = "dd/MM/yy HH:mm";
     public static final String SENCHA_DATE_FIELD_DATE_FORMAT = "dd/MM/yyyy";
     
     public static final String DATE_FORMAT_THAI_DAY = "ว";
@@ -91,6 +102,8 @@ public class CommonConstant {
     public static final String DATE_FORMAT_BUDDHIST_ERA_YEAR = "ป";
     
     public static final int DIFF_BE_AD = 543; 
+    
+    public static final String MONEY_FORMAT = "#,##0.00";
     
     /*
      * Replace Signature

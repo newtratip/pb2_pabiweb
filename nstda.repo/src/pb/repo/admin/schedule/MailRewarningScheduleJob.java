@@ -57,9 +57,9 @@ import pb.common.util.CommonUtil;
 import pb.common.util.MailUtil;
 import pb.common.util.PersonUtil;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
-import pb.repo.pcm.constant.PcmWorkflowConstant;
 
 import com.github.dynamicextensionsalfresco.jobs.ScheduledQuartzJob;
 import com.sun.mail.smtp.SMTPMessage;
@@ -74,7 +74,7 @@ public class MailRewarningScheduleJob implements Job {
 	
 	private final Logger log = Logger.getLogger(MailRewarningScheduleJob.class);
 
-	final String workflowUri = PcmWorkflowConstant.WF_URI;
+//	final String workflowUri = MainWorkflowConstant.WF_URI;
 
 	@Autowired
 	AuthenticationService authService;
@@ -110,9 +110,9 @@ public class MailRewarningScheduleJob implements Job {
 		log.info("--- | Mail Rewarning Schedule | ---");
 		
 		try {
-	   		MainMasterModel mailRewarnModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_REWARN);
+	   		MainMasterModel mailRewarnModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_REWARN);
     		boolean memoMailRewarn = mailRewarnModel != null && mailRewarnModel.getFlag1().equals(CommonConstant.V_ENABLE);
-    		log.info(MainMasterConstant.SCC_MEMO_MAIL_REWARN+" :: " + memoMailRewarn);
+    		log.info(MainMasterConstant.SCC_PCM_REQ_MAIL_REWARN+" :: " + memoMailRewarn);
     		
     		if(memoMailRewarn){
     		
@@ -236,13 +236,13 @@ public class MailRewarningScheduleJob implements Job {
 							NodeRef assigneeNodeRef = PersonUtil.getPerson(assignee, personService);
 							userList.add(assigneeNodeRef);
 							
-			    			MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_REWARN_TEMPLATE);
+			    			MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_REWARN_TEMPLATE);
 			    			NodeRef emailTemplate = new NodeRef(masterModel.getFlag1());
 			    			
-			    			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_REWARN_SUBJECT);
+			    			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_REWARN_SUBJECT);
 			    			String workflowMailSubject = masterModel.getFlag1();
 			    			
-			    			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_REWARN_FROM);
+			    			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_REWARN_FROM);
 			    			String workflowMailFromLabel = masterModel.getFlag1();
 
 			    			setMailNotify(task, userList, emailTemplate, workflowMailFromLabel, workflowMailSubject);
@@ -452,16 +452,16 @@ public class MailRewarningScheduleJob implements Job {
 		model.put("hasAspect", new HasAspectMethod());
 		model.put("message", new I18NMessageMethod());
 		model.put("dateCompare", new DateCompareMethod());
-		
-		for (int i=1; i<=CommonConstant.MAX_APPROVER; i++) {
-			Object rewarningString = task.getProperties().get(QName.createQName(workflowUri+"rewarning"+i));
-			if (rewarningString == null) {
-				rewarningString = "0";
-			}
-			
-		    log.debug("rewarningString"+i+"="+rewarningString);
-			model.put("rewarning"+i, rewarningString);
-		}		
+//		
+//		for (int i=1; i<=CommonConstant.MAX_APPROVER; i++) {
+//			Object rewarningString = task.getProperties().get(QName.createQName(workflowUri+"rewarning"+i));
+//			if (rewarningString == null) {
+//				rewarningString = "0";
+//			}
+//			
+//		    log.debug("rewarningString"+i+"="+rewarningString);
+//			model.put("rewarning"+i, rewarningString);
+//		}		
 		
 		return model;
 		

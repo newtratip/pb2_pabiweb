@@ -108,7 +108,7 @@
          <div class="set-panel">
             <div class="set-panel-heading">
             	<div class="p-left" style="display: inline;width:50%">${set.label}</div>
-            	<div id="ext-edit-btn" class="p-right" style="float:right;text-align:right;margin:0px 5px 0px 0px;display:inline;width:50%"></div>
+            	<div id="ext-edit-btn" class="p-right" style="float:right;text-align:right;margin:0px 5px 0px 0px;display:inline;width:16px"></div>
             </div>
             <div class="set-panel-body">           
       <#elseif set.appearance == "title">

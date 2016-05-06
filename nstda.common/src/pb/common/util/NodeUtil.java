@@ -27,4 +27,8 @@ public class NodeUtil {
 					}
 			    }, AuthenticationUtil.getAdminUserName());
 	}
+	
+	public static String trimNodeRef(String nodeRef) {
+		return nodeRef.replace("workspace://SpacesStore/", "");
+	}
 }

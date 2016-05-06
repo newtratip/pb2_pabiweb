@@ -30,7 +30,7 @@
 		AND 
 			description=#{desc}
 		</if>			
-		ORDER BY field_name
+		ORDER BY id
 		
     </select>
     

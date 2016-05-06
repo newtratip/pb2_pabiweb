@@ -222,14 +222,14 @@ public class PcmSrcUrlWebScript {
 	
 	
 	/*
-	 * p1 = where condition : master_id='MEMO-001' and field_name='NAME'
+	 * p1 = where condition : master_id='PR16000001' and description='NAME'
 	 */
 	@Uri(URI_PREFIX + "/dtl/field")
 	public void handleDtlField(@RequestParam final String p1
 								, final WebScriptResponse response)
 			throws Exception {
 
-		log.info("handleViewField:p1:"+p1);
+		log.info("handleDtlField:p1:"+p1);
 		String json = null;
 
 		try {

@@ -20,9 +20,6 @@ Ext.define('PBPcm.controller.Form', {
         ref: 'txtReqBy',     
         selector: 'pcmReqMainForm field[name=reqBy]'
     },{
-        ref: 'txtReqBu',     
-        selector: 'pcmReqMainForm field[name=reqBu]'
-    },{
         ref: 'txtReqOu',     
         selector: 'pcmReqMainForm field[name=reqOu]'
     },{
@@ -41,20 +38,32 @@ Ext.define('PBPcm.controller.Form', {
         ref: 'txtCurrencyRate',
         selector: 'pcmReqMainForm field[name=currencyRate]'
     },{
-        ref: 'txtBudgetCc',
+        ref: 'hidBudgetCcType',
+        selector: 'pcmReqMainForm field[name=budgetCcType]'
+    },{
+        ref: 'hidBudgetCc',
         selector: 'pcmReqMainForm field[name=budgetCc]'
     },{
         ref: 'raStock',
-        selector: 'pcmReqMainForm field[name=toStock]'
+        selector: 'pcmReqMainForm field[name=isStock]'
     },{
         ref: 'cmbStockOu',
         selector: 'pcmReqMainForm field[name=stockOu]'
     },{
         ref: 'raPrototype',
+        selector: 'pcmReqMainForm field[name=isPrototype]'
+    },{
+        ref: 'cmbPrototype',
         selector: 'pcmReqMainForm field[name=prototype]'
     },{
-        ref: 'cmbEvent',
-        selector: 'pcmReqMainForm field[name=event]'
+        ref: 'txtPttContractNo',
+        selector: 'pcmReqMainForm field[name=pttContractNo]'
+    },{
+        ref: 'hidCostControlTypeId',
+        selector: 'pcmReqMainForm field[name=costControlTypeId]'
+    },{
+        ref: 'hidCostControlId',
+        selector: 'pcmReqMainForm field[name=costControlId]'
     },{
         ref: 'cmbPcmOu',
         selector: 'pcmReqMainForm field[name=pcmOu]'
@@ -74,7 +83,7 @@ Ext.define('PBPcm.controller.Form', {
         ref: 'txtRefId',
         selector: 'pcmReqMainForm field[name=refId]'
     },{
-        ref: 'txtTotal',     
+        ref: 'hidTotal',     
         selector: 'pcmReqMainForm field[name=total]'
     },{
         ref: 'cmbMethod',     
@@ -88,6 +97,12 @@ Ext.define('PBPcm.controller.Form', {
     },{
         ref: 'txtMethodCond2Dtl',     
         selector: 'pcmReqMainForm field[name=methodCond2Dtl]'
+    },{
+        ref: 'cmbVatId',
+        selector: 'pcmReqMainForm field[name=vatId]'
+    },{
+        ref: 'hidVat',
+        selector: 'pcmReqMainForm field[name=vat]'
 	},{
     	ref:'fileTab',
 		selector:'pcmReqFileTab'
@@ -97,8 +112,20 @@ Ext.define('PBPcm.controller.Form', {
     },{
         ref: 'btnApprovalMatrix',     
         selector: 'pcmReqMainForm button[action=approvalMatrix]'
+	},{
+    	ref:'itemGrid',
+    	selector:'pcmReqItemTab grid'
+	},{
+    	ref:'cmtTab',
+    	selector:'pcmReqCmtTab tabpanel'
+	},{
+    	ref:'infoTab',
+    	selector:'pcmReqInfoTab'
+	},{
+    	ref:'userTab',
+    	selector:'pcmReqUserTab'
     }],
-    
+
     init:function() {
 		var me = this;
 		
@@ -127,10 +154,22 @@ Ext.define('PBPcm.controller.Form', {
 			'pcmReqMainForm [action=searchPR]': {
 				click : me.searchPR
 			},
-			'pcmReqHdrHireTab':{
+			'pcmReqUserTab':{
+				selectReqBy:me.selectReqBy
+			},
+			'pcmReqInfoTab':{
 				selectObjective:me.selectObjective,
-				selectCurrency:me.selectCurrency
+				selectCurrency:me.selectCurrency,
+				selectBudgetCc:me.selectBudgetCc,
+				selectCostControl:me.selectCostControl,
+				clearCostControl:me.clearCostControl,
+				selectPrototype:me.selectPrototype,
+				notStock:me.notStock,
+				notPrototype:me.notPrototype,
+				isAcrossBudget:me.isAcrossBudget,
+				isRefId:me.isRefId
 			}
+			
 		});
 
 	},
@@ -176,8 +215,9 @@ Ext.define('PBPcm.controller.Form', {
 		var params;
 		
 		try {
-			params = me.prepareParams(true);
+			params = me.prepareParams();
   		} catch (err) {
+  			console.error(err);
   			myMask.hide();
   			return;
   		}
@@ -244,46 +284,58 @@ Ext.define('PBPcm.controller.Form', {
 		});
 	},
 	
-	prepareParams : function(includeContent1) {
+	prepareParams : function() {
 		var me = this;
 		var params = {
   			id:me.getHidId().getValue(),
-  			status:me.getHidStatus().getValue()
+  			status:me.getHidStatus().getValue(),
+  			
+  			reqBy:me.getTxtReqBy().getValue(),
+			reqOu:me.getTxtReqOu().getValue(),
+  			
+			objectiveType:me.getCmbObjectiveType().getValue(),
+			objective:me.getTxtObjective().getValue(),
+			reason:me.getTxtReason().getValue()
   		};
-		
-		params.reqBy = me.getTxtReqBy().getValue();
-		params.reqBu = me.getTxtReqBu().getValue();
-		params.reqOu = me.getTxtReqOu().getValue();
-		
-		params.objectiveType = me.getCmbObjectiveType().getValue();
-		params.objective = me.getTxtObjective().getValue();
-		params.reason = me.getTxtReason().getValue();
 		
 		params.currency = me.getCmbCurrency().getValue();
 		params.currencyRate = me.getTxtCurrencyRate().getValue();
 		
-		params.budgetCc = me.getTxtBudgetCc().getValue();
-		params.stockOu = me.getCmbStockOu().getValue();
+		params.budgetCcType = me.getHidBudgetCcType().getValue();
+		params.budgetCc = me.getHidBudgetCc().getValue();
 		
-		params.prototype = (me.getRaPrototype().getValue() ? "1" : "0");
-		params.event = me.getCmbEvent().getValue();
+//		params.isStock = (me.getRaStock().getValue() ? "1" : "0");
+//		params.stockOu = me.getCmbStockOu().getValue();
+		
+		params.isPrototype = (me.getRaPrototype().getValue() ? "1" : "0");
+		params.prototype = me.getCmbPrototype().getValue();
+		params.pttContractNo = me.getTxtPttContractNo().getValue();
+		
+		params.costControlTypeId = me.getHidCostControlTypeId().getValue();
+		params.costControlId = me.getHidCostControlId().getValue();
 		
 		params.pcmOu = me.getCmbPcmOu().getValue();
 		params.location = me.getTxtLocation().getValue();
 		
+		params.isAcrossBudget = (me.getChkAcrossBudget().getValue() ? "1" : "0");
 		params.acrossBudget = me.getTxtAcrossBudget().getValue();
+		
+		params.isRefId = (me.getChkRefId().getValue() ? "1" : "0");
 		params.refId = me.getTxtRefId().getValue();
 
 		params.method = me.getCmbMethod().getValue();
-		params.methodCond2Rule = me.getHidMethodCond2Rule().getValue();
-		params.methodCond2 = me.getCmbMethodCond2().getValue();
-		params.methodCond2Dtl = me.getTxtMethodCond2Dtl().getValue();
+		params.methodCond2Rule = me.getHidMethodCond2Rule() ? me.getHidMethodCond2Rule().getValue() : "";
+		params.methodCond2 = me.getCmbMethodCond2() ? me.getCmbMethodCond2().getValue() : "";
+		params.methodCond2Dtl = me.getTxtMethodCond2Dtl() ? me.getTxtMethodCond2Dtl().getValue() : "";
 		
-		params.total = me.getTxtTotal().getValue();
+		params.vatId = me.getCmbVatId().getValue();
+		params.vat = me.getHidVat().getValue();
 		
-//		params.dtls = me.getFieldValues();
+		params.total = me.getHidTotal().getValue();
 		
+		params.items = me.getItems();
 		params.files = me.listFiles();
+		params.cmts = me.getCmts();
 		
 		return params;
 	},
@@ -323,8 +375,9 @@ Ext.define('PBPcm.controller.Form', {
 		
 		var params;
 		try {
-			params = me.prepareParams(true);
+			params = me.prepareParams();
   		} catch (err) {
+  			console.error(err);
   			myMask.hide();
   			return;
   		}
@@ -376,33 +429,48 @@ Ext.define('PBPcm.controller.Form', {
 		return v;
 	},
 	
-	getFieldValues:function() {
-		var fields = this.getMainForm().query("field[name^=F_]");
+	getItems:function() {
+	
+		var me = this;
+	
+		var itemStore = me.getItemGrid().getStore();
 		
-		var values = [];
-
-		for(var i=0; i<fields.length; i++) {
-			var f = fields[i];
-			
-			if (f.inputType == "radio") {
-				if (f.checked) {
-					values.push({
-						n:f.name.substring(2),
-						v:f.inputValue
-					});
-				}
-			} else {
-				if (f.bgData.dtype!="B") {
-					values.push({
-						n:f.name.substring(2),
-						v:(f.getValue()==null || f.getValue() == "null") ? "" : f.getValue()
-					});
-				}
-			}
-		}
+		var data = [];
+		itemStore.each(function(rec){
+		   data.push(rec.data);
+		});
 		
-		return Ext.JSON.encode(values);
+		return Ext.JSON.encode(data);
 	},
+	
+	getCmts:function() {
+	
+		var me = this;
+		
+		var panel = me.getCmtTab();
+		
+		var data = [];
+		panel.items.each(function(grid){
+			console.log(grid.xtype);
+			if (grid.xtype == 'grid') {
+			
+				var cmtStore = grid.getStore();
+				
+				var cmt = [];
+				cmtStore.each(function(rec){
+				   cmt.push(rec.data);
+				});
+				
+				data.push({
+					cmt:grid.title,
+					cmts:cmt
+				});
+				
+			}
+		});
+	
+		return Ext.JSON.encode(data);
+	},	
 	
 	listSelectedUserGroup:function(itemId) {
 		var values = [];
@@ -435,60 +503,6 @@ Ext.define('PBPcm.controller.Form', {
 		return Ext.JSON.encode(values);
 	},
 	
-	preview:function() {
-	
-		var me = this;
-		
-		var grid = me.getMainGrid();
-		
-		var myMask = new Ext.LoadMask({
-			target:me.getMain(), 
-			msg:"Please wait..."
-		});
-		
-		myMask.show();
-		
-		var params = {};
-		
-		try {
-			params.content1 = me.getEditor().getValue();
-  		} catch (err) {
-  			myMask.hide();
-  			return;
-  		}
-  		
-		Ext.Ajax.request({
-		    url:me.URL+"/preview",
-		    method: "POST",
-		    params: params,
-		    success: function(response){
-		  	  
-			  	var json = Ext.decode(response.responseText);
-				  
-			   	if (json.success) {
-			   		window.open(me.URL+"/preview?id="+json.data[0].id, "_new");
-			   	} else {
-			   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_PCM);
-			   	}
-			   	 
-		   	 	myMask.hide();
-		
-		    },
-		    failure: function(response, opts){
-		    	try {
-		    		var json = Ext.decode(response.responseText);
-			    	PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY+" ("+json.message+")", MODULE_PCM);
-		    	}
-		    	catch (err) {
-			    	alert(response.responseText);
-		    	}
-			    myMask.hide();
-		    },
-		    headers: getAlfHeader()
-		});
-
-	},
-	
 	activateRptTab:function() {
 		this.getMainForm().down("tabpanel").getLayout().setActiveItem(this.getRptTab());
 	},
@@ -517,7 +531,7 @@ Ext.define('PBPcm.controller.Form', {
 		var params;
 		
 		try {
-			params = me.prepareParams(true);
+			params = me.prepareParams();
   		} catch (err) {
   			myMask.hide();
   			return;
@@ -589,7 +603,7 @@ Ext.define('PBPcm.controller.Form', {
 	},
 	
 	cancelEdit:function() {
-		PB.Dlg.confirm('CONFIRM_CANCEL_MEMO',this,'backToWfForm', MODULE_PCM);
+		PB.Dlg.confirm('CONFIRM_CANCEL_PCM_REQ',this,'backToWfForm', MODULE_PCM);
 	},
 
 	backToWfForm:function() {
@@ -641,7 +655,7 @@ Ext.define('PBPcm.controller.Form', {
 		      	  
 		    	 if(json.success){
 		    	  
-		    		me.getTxtCurrencyRate().setValue(json.data);
+		    		 me.getTxtCurrencyRate().setValue(json.data);
 		    		
 		    	 }else{
 		    		 PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
@@ -655,9 +669,22 @@ Ext.define('PBPcm.controller.Form', {
 		});  
 	},
 	
+	selectPrototype:function(cmb, newV, oldV) {
+		var me = this;
+		
+		me.getTxtPttContractNo().setDisabled(newV != "PTT2");
+	},	
+	
 	preview:function() {
 		
 		var me = this;
+		
+		var form = me.getMainForm();
+		
+		if(!validForm(form)){
+			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM);
+			return;
+		}		
 		
 		var grid = me.getMainGrid();
 		
@@ -668,7 +695,15 @@ Ext.define('PBPcm.controller.Form', {
 		
 		myMask.show();
 		
-		var params = {};
+		var params;
+		
+		try {
+			params = me.prepareParams();
+  		} catch (err) {
+  			console.log(err);
+  			myMask.hide();
+  			return;
+  		}
 			
 		Ext.Ajax.request({
 		    url:me.URL+"/preview",
@@ -679,7 +714,7 @@ Ext.define('PBPcm.controller.Form', {
 			  	var json = Ext.decode(response.responseText);
 				  
 			   	if (json.success) {
-			   		window.open(me.URL+"/preview?id="+json.data[0].id, "_blank");
+					window.open(me.URL+"/preview?id="+json.data[0].id,"_blank");
 			   	} else {
 			   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_PCM);
 			   	}
@@ -700,6 +735,85 @@ Ext.define('PBPcm.controller.Form', {
 		    headers: getAlfHeader()
 		});
 	
+	},
+	
+	notStock:function() {
+		var me = this;
+		
+		me.getCmbStockOu().clearValue();
+	},
+	
+	notPrototype:function() {
+		var me = this;
+		
+		me.getCmbPrototype().clearValue();
+	},
+	
+	selectBudgetCcCallBack:function(ids, type, typeName) {
+		var tab = this.targetPanel;
+		setValue(tab, 'budgetCc', ids[0]);
+		setValue(tab, 'budgetCcName', ids[1]);
+		setValue(tab, 'budgetCcType', type);
+		setValue(tab, 'budgetCcTypeName', typeName);
+	},
+	
+	selectBudgetCc:function() {
+		var me = this;
+
+		var dlg = Ext.create("PB.view.common.SearchSectionProjectDlg",{
+			title:'ค้นหา',
+			targetPanel:this.getInfoTab(),
+			callback:this.selectBudgetCcCallBack
+		});
+		dlg.show();
+	},
+	
+	selectReqByCallBack:function(ids, type, typeName) {
+		var tab = this.targetPanel;
+		setValue(tab, 'reqBy', ids[0]);
+	},	
+
+	selectReqBy:function() {
+		var me = this;
+
+		var dlg = Ext.create("PB.view.common.SearchUserDlg",{
+			title:'ค้นหา',
+			targetPanel:this.getUserTab(),
+			callback:this.selectReqByCallBack
+		});
+		dlg.show();
+	},
+	
+	selectCostControlCallBack:function(ids, type, typeName) {
+		var tab = this.targetPanel;
+		setValue(tab, 'costControlId', ids[0]);
+		setValue(tab, 'costControlName', ids[1]);
+		setValue(tab, 'costControlTypeId', type);
+		setValue(tab, 'costControlTypeName', typeName);
+	},
+	
+	selectCostControl:function() {
+		Ext.create("PB.view.common.SearchCostControlDlg",{
+			title:'ค้นหา',
+			targetPanel:this.getInfoTab(),
+			callback:this.selectCostControlCallBack
+		}).show();
+	},
+	
+	clearCostControl:function() {
+		var tab = this.getInfoTab();
+		setValue(tab, 'costControlId', null);
+		setValue(tab, 'costControlName', '');
+		setValue(tab, 'costControlTypeId', null);
+		setValue(tab, 'costControlTypeName', '');
+	},
+	
+	isAcrossBudget:function(chk) {
+		alert("isAcrossBudget");
+	},
+	
+	isRefId:function(chk) {
+		alert("isRefId");
 	}
 
 });

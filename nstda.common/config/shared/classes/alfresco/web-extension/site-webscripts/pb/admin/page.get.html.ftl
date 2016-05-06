@@ -13,7 +13,6 @@
 	</script>
 	<@script type="text/javascript" src="${url.context}/res/page/common/constant.js"></@script>
 	<@script type="text/javascript" src="${url.context}/res/page/common/util.js"></@script>
-	<@script type="text/javascript" src="${url.context}/res/page/ckeditor/ckeditor.js"></@script>
 	<@script type="text/javascript" src="${url.context}/res/page/PBAdmin/app.js"></@script>
 </@>
 

@@ -3,10 +3,39 @@ package pb.repo.admin.constant;
 public class AdminConstant {
 	public static final StringBuffer CHANGE_LOG = new StringBuffer();
 	
-	public static final String VERSION = "1.0.6";
+	public static final String VERSION = "1.0.10";
 	
     static {
-		CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (03/04/2016)\n");
+		CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (05/05/2016)\n");
+		CHANGE_LOG.append("  - WF Form : Update Task Share UI Data from Edited Data\n");
+		CHANGE_LOG.append("  - Interface : Create PR\n");
+		CHANGE_LOG.append("  - Interface : Update PR Status\n");
+		CHANGE_LOG.append("  - Interface : Create PD\n");
+		CHANGE_LOG.append("  - Main Menu : Change Caption\n");
+		CHANGE_LOG.append("\nV.1.0.9 --- (30/04/2016)\n");
+		CHANGE_LOG.append("  - WF Form : Workflow History : Currenct Task shows 'Procurement' instead of '-'\n");
+		CHANGE_LOG.append("  - WF Form : Update My Task Title from Edited Data\n");
+		CHANGE_LOG.append("  - WF Form : Hide Equipment Radio on Line Item Dialog\n");
+		CHANGE_LOG.append("  - WF Form : Hide Stock Location\n");
+		CHANGE_LOG.append("  - WF Form : Event Clear Button\n");
+		CHANGE_LOG.append("\nV.1.0.8 --- (28/04/2016)\n");
+		CHANGE_LOG.append("  - WF Form : Search Event Dialog\n");
+		CHANGE_LOG.append("  - WF Form : Search Section and Project Dialog\n");
+		CHANGE_LOG.append("\nV.1.0.7 --- (25/04/2016)\n");
+		CHANGE_LOG.append("  - WF Share UI : Edit Button\n");
+		CHANGE_LOG.append("  - PR Workflow : Find Procurement Boss\n");
+		CHANGE_LOG.append("  - PR Form : Remove Field : 'Stock','Pcm Ou'\n");
+		CHANGE_LOG.append("  - PR Form : Tab User : Fill User Information\n");
+		CHANGE_LOG.append("\nV.1.0.6 --- (21/04/2016)\n");
+		CHANGE_LOG.append("  - PR Grid : Workflow History\n");
+		CHANGE_LOG.append("  - PR Form : Add Committee\n");
+		CHANGE_LOG.append("  - PR : Gen ID from DB sequence and Fiscal Year\n");
+		CHANGE_LOG.append("  - PR Form : Add Line Item\n");
+		CHANGE_LOG.append("  - PR Form : Add Field prototype_contract_no\n");
+		CHANGE_LOG.append("  - PR Form : Download Middle Price Document\n");
+		CHANGE_LOG.append("  - PR Search : Show Grid Field Value\n");
+		CHANGE_LOG.append("  - PR Form : Prototype Combo Box\n");
+		CHANGE_LOG.append("  - WF Share UI : Remove 'Reassign' Button\n");
 		CHANGE_LOG.append("  - PR Form : Tab Committee\n");
 		CHANGE_LOG.append("  - PR Form : Currency Combo Box\n");
 		CHANGE_LOG.append("  - PR Form : Line Item : Product Uom Combo Box\n");

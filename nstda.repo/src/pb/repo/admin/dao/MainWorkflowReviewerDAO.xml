@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainWorkflowReviewerDAO">
+    <resultMap id="result" type="mainWorkflowReviewerModel">
+        <result property="masterId" column="master_id"/>
+        <result property="level" column="level"/>
+        <result property="reviewerGroup" column="reviewer_group"/>
+        <result property="reviewerUser" column="reviewer_user"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="createdBy" column="created_by"/>
+     
+    </resultMap>
+    
+    <delete id="deleteByMasterId"
+    		parameterType="string"
+			flushCache="true"
+			statementType="PREPARED"
+			>
+   		DELETE FROM pb2_main_workflow_reviewer WHERE master_id=#{masterId}
+	</delete>
+	
+	 <insert
+		id="add"
+		parameterType="mainWorkflowReviewerModel"
+		flushCache="true"
+		statementType="PREPARED"
+		keyProperty="id"
+		useGeneratedKeys="true"
+		>
+	    INSERT INTO pb2_main_workflow_reviewer(
+	    	
+	    	master_id,level,reviewer_group,reviewer_user,percent
+	    	,rewarning,hint,created_time
+	    	,created_by
+	    ) VALUES (
+	    	#{masterId},#{level},#{reviewerGroup},#{reviewerUser}
+	    	,#{percent},#{rewarning},#{hint}
+    		,Now(),#{createdBy}
+    	)
+		
+	</insert>
+	
+    <select id="getLastLevel" resultType="int" parameterType="string">
+        SELECT max(level)
+        FROM pb2_main_workflow_reviewer
+        WHERE master_id=#{id} 
+    </select>
+	
+    <select id="listByLevel" resultMap="result">
+        SELECT *, COUNT(*) OVER() totalRowCount
+        FROM pb2_main_workflow_reviewer
+        WHERE master_id=#{masterId} 
+        AND level=#{level}
+    </select>
+
+    
+	<select id="listWorkflowPath" resultType="map" parameterType="string">    
+	    SELECT CONCAT('ผู้อนุมัติขั้นที่ ',LEVEL) AS LEVEL,TRIM(BOTH ',' FROM REVIEWER_USER) AS U,TRIM(BOTH ',' FROM REVIEWER_GROUP) AS G,LEVEL AS ORDERVAL
+		FROM pb2_main_workflow_reviewer
+		WHERE master_id=#{id}
+		ORDER BY ORDERVAL
+    </select>
+    
+</mapper>

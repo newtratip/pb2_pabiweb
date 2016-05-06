@@ -1,11 +1,12 @@
 package pb.repo.pcm.model;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PcmReqCmtHdrModel {
 	
-	String id;
+	Long id;
 	String pcmReqId;
 	String committee;
 	
@@ -14,15 +15,15 @@ public class PcmReqCmtHdrModel {
 	Timestamp updatedTime;
 	String updatedBy;
 	
-	List<String> listAttachDoc;
+	List<PcmReqCmtDtlModel> dtlList;
 
 	private Long totalRowCount;
 
 	
-	public String getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getPcmReqId() {
@@ -66,6 +67,13 @@ public class PcmReqCmtHdrModel {
 	}
 	public void setTotalRowCount(Long totalRowCount) {
 		this.totalRowCount = totalRowCount;
+	}
+	public List<PcmReqCmtDtlModel> getDtlList() {
+		if (dtlList==null) dtlList = new ArrayList<PcmReqCmtDtlModel>();
+		return dtlList;
+	}
+	public void setDtlList(List<PcmReqCmtDtlModel> dtlList) {
+		this.dtlList = dtlList;
 	}
 	
 }

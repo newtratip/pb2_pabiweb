@@ -2,7 +2,9 @@ package pb.repo.pcm.model;
 
 import java.sql.Timestamp;
 
-public class PcmReqDtlModel {
+import pb.common.model.BaseDataModel;
+
+public class PcmReqDtlModel extends BaseDataModel {
 	
 	Long id;
 	String masterId;
@@ -12,6 +14,7 @@ public class PcmReqDtlModel {
 	Double price;
 	Double priceCnv;
 	Double total;
+	String isEquipment;
 	
 	Timestamp createdTime;
 	String createdBy;
@@ -82,6 +85,14 @@ public class PcmReqDtlModel {
 
 	public void setTotal(Double total) {
 		this.total = total;
+	}
+
+	public String getIsEquipment() {
+		return isEquipment;
+	}
+
+	public void setIsEquipment(String isEquipment) {
+		this.isEquipment = isEquipment;
 	}
 
 	public Timestamp getCreatedTime() {

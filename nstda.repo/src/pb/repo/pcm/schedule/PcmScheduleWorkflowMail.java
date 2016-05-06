@@ -56,8 +56,8 @@ import org.mortbay.log.Log;
 
 import pb.common.constant.CommonConstant;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.common.jdbc.JdbcService;
-import pb.repo.pcm.constant.PcmWorkflowConstant;
 import pb.repo.pcm.util.PcmConfigUtil;
 
 import com.sun.mail.smtp.SMTPMessage;
@@ -68,7 +68,8 @@ public class PcmScheduleWorkflowMail  extends ActionExecuterAbstractBase {
 
 	public final static String NAME = "schedule_workflow_mail";
 	public final static String PARAM_ACTIVE = "active";
-	final String workflowUri = PcmWorkflowConstant.WF_URI;
+//	final String workflowUri = MainWorkflowConstant.WF_URI;
+	final String workflowUri = "";
 	
 	protected NodeService nodeService;
 	private SearchService searchService;

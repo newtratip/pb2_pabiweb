@@ -16,7 +16,9 @@
          <#if field.mandatory && !(field.value?is_number) && field.value == "">
             <span class="incomplete-warning"><img src="${url.context}/res/components/form/images/warning-16.png" title="${msg("form.field.incomplete")}" /><span>
          </#if>
-         <span class="viewmode-label">${field.label?html}:</span>
+         <#if field.control.params.showLabel?? && field.control.params.showLabel == "true">
+         	<span class="viewmode-label">${field.label?html}:</span>
+         </#if>
          <#if field.control.params.activateLinks?? && field.control.params.activateLinks == "true">
             <#assign fieldValue=field.value?html?replace("((http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?\\^=%&:\\/~\\+#]*[\\w\\-\\@?\\^=%&\\/~\\+#])?)", "<a href=\"$1\" target=\"_blank\">$1</a>", "r")>
          <#else>
@@ -35,7 +37,9 @@
          </#if></span>
       </div>
    <#else>
-      <label for="${fieldHtmlId}">${field.label?html}:<#if field.mandatory><span class="mandatory-indicator">${msg("form.required.fields.marker")}</span></#if></label>
+      <#if field.control.params.showLabel?? && field.control.params.showLabel == "true">
+      	<label for="${fieldHtmlId}">${field.label?html}:<#if field.mandatory><span class="mandatory-indicator">${msg("form.required.fields.marker")}</span></#if></label>
+      </#if>	
       <#if field.value == ""><!--empty--><#else>
       <span class="viewmode-value">
 		      <div class="details form-field" id="${controlId}">
@@ -76,8 +80,16 @@ YAHOO.util.Event.onDOMReady(function(){
 		oImg.style.height= '15px';
 		oImg.style.width= '15px';
 			oImg.onclick = function () {
-				var hid = document.getElementsByName("prop_memwf_memoId")[0];
-	    		window.location = "${url.context}/page/memo?id="+hid.value+"&tid=${taskId}";
+				var hid = document.getElementsByName("prop_pcmreqwf_id")[0];
+				if (!hid) alert("Test");
+				var pf = hid.value.substring(0,2);
+				var u = {
+					"PR":"pcm-req",
+					"PD":"pcm-ord",
+					"AV":"exp-brw",
+					"AP":"exp-use"
+				}
+	    		window.location = "${url.context}/page/"+u[pf]+"?id="+hid.value+"&tid=${taskId}";
 			};
 		div.appendChild(oImg);                    // Append <button> to <body>
 		

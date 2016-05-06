@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainWorkflowNextActorDAO">
+    <resultMap id="result" type="mainWorkflowNextActorModel">
+        <result property="masterId" column="master_id"/>
+        <result property="level" column="level"/>
+        <result property="actorGroup" column="actor_group"/>
+        <result property="actorUser" column="actor_user"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="createdBy" column="created_by"/>
+     
+    </resultMap>
+    
+    <delete id="deleteByMasterId"
+    		parameterType="string"
+			flushCache="true"
+			statementType="PREPARED"
+			>
+   		DELETE FROM pb2_main_workflow_next_actor WHERE master_id=#{masterId}
+	</delete>
+	
+	 <insert
+		id="add"
+		parameterType="mainWorkflowNextActorModel"
+		flushCache="true"
+		statementType="PREPARED"
+		keyProperty="id"
+		useGeneratedKeys="true"
+		>
+	    INSERT INTO pb2_main_workflow_next_actor (
+	    	master_id
+	    	,level
+	    	,actor
+	    	,actor_group
+	    	,actor_user
+	    	,created_time
+	    	,created_by
+	    ) VALUES (
+	    	#{masterId}
+	    	,#{level}
+	    	,#{actor}
+	    	,#{actorGroup}
+	    	,#{actorUser}
+    		,Now()
+    		,#{createdBy}
+    	)
+		
+	</insert>
+	
+    <select id="getLastLevel" resultType="int" parameterType="string">
+        SELECT max(level)
+        FROM pb2_main_workflow_next_actor
+        WHERE master_id=#{id} 
+    </select>
+	
+    <select id="listByLevel" resultMap="result">
+        SELECT *, COUNT(*) OVER() totalRowCount
+        FROM pb2_main_workflow_next_actor
+        WHERE master_id=#{masterId} 
+        AND level=#{level}
+    </select>
+
+    
+	<select id="listWorkflowPath" resultType="map" parameterType="string">    
+	    SELECT actor as LEVEL,TRIM(BOTH ',' FROM actor_user) AS U,TRIM(BOTH ',' FROM actor_group) AS G,LEVEL AS ORDERVAL
+		FROM pb2_main_workflow_next_actor
+		WHERE master_id=#{id}
+		ORDER BY ORDERVAL
+    </select>
+    
+</mapper>

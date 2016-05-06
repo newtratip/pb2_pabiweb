@@ -74,10 +74,6 @@
 		<sencha module="pcmord"/>
    </target>
 		
-   <target name="Module.pcmuse" if="page.pcmuse.dir">
-		<sencha module="pcmuse"/>
-   </target>
-	
    <target name="Module.exp" if="page.exp.dir">
 		<sencha module="exp"/>
    </target>

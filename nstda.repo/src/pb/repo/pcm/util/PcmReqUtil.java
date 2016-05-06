@@ -5,11 +5,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,19 +13,9 @@ import pb.common.constant.CommonConstant;
 import pb.common.constant.JsonConstant;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
-import pb.repo.common.mybatis.DbConnectionFactory;
 import pb.repo.pcm.constant.PcmReqConstant;
-import pb.repo.pcm.dao.PcmFunctionDAO;
-import pb.repo.pcm.dao.PcmReqDAO;
-import pb.repo.pcm.dao.PcmReqDtlDAO;
-import pb.repo.pcm.dao.PcmReqReviewerDAO;
-import pb.repo.pcm.dao.PcmReqWorkflowDAO;
-import pb.repo.pcm.dao.PcmReqWorkflowHistoryDAO;
 import pb.repo.pcm.model.PcmReqDtlModel;
 import pb.repo.pcm.model.PcmReqModel;
-import pb.repo.pcm.model.PcmReqReviewerModel;
-import pb.repo.pcm.model.PcmWorkflowHistoryModel;
-import pb.repo.pcm.model.PcmWorkflowModel;
 
 public class PcmReqUtil {
 	
@@ -46,8 +31,7 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_ID, model.getId());
 		
 		jsObj.put(PcmReqConstant.JFN_REQ_BY, model.getReqBy());
-		jsObj.put(PcmReqConstant.JFN_REQ_BU, model.getReqBu());
-		jsObj.put(PcmReqConstant.JFN_REQ_OU, model.getReqOu());
+		jsObj.put(PcmReqConstant.JFN_REQ_SECTION_ID, model.getReqSectionId());
 		
 		jsObj.put(PcmReqConstant.JFN_OBJECTIVE_TYPE, model.getObjectiveType());
 		jsObj.put(PcmReqConstant.JFN_OBJECTIVE, model.getObjective());
@@ -57,15 +41,29 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_CURRENCY_RATE, model.getCurrencyRate());
 		
 		jsObj.put(PcmReqConstant.JFN_BUDGET_CC, model.getBudgetCc());
-		jsObj.put(PcmReqConstant.JFN_STOCK_OU, model.getStockOu());
+		jsObj.put(PcmReqConstant.JFN_BUDGET_CC_NAME, model.getBudgetCcName());
+		jsObj.put(PcmReqConstant.JFN_BUDGET_CC_TYPE, model.getBudgetCcType());
+		jsObj.put(PcmReqConstant.JFN_BUDGET_CC_TYPE_NAME, model.getBudgetCcTypeName());
 		
+		jsObj.put(PcmReqConstant.JFN_IS_STOCK, model.getIsStock());
+		jsObj.put(PcmReqConstant.JFN_STOCK_SECTION_ID, model.getStockSectionId());
+		
+		jsObj.put(PcmReqConstant.JFN_IS_PROTOTYPE, model.getIsPrototype());
 		jsObj.put(PcmReqConstant.JFN_PROTOTYPE, model.getPrototype());
-		jsObj.put(PcmReqConstant.JFN_EVENT, model.getEvent());
+		jsObj.put(PcmReqConstant.JFN_PROTOTYPE_CONTRACT_NO, model.getPrototypeContractNo());
 		
-		jsObj.put(PcmReqConstant.JFN_PCM_OU, model.getPcmOu());
+		jsObj.put(PcmReqConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
+		jsObj.put(PcmReqConstant.JFN_COST_CONTROL_NAME, model.getCostControlName());
+		jsObj.put(PcmReqConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
+		jsObj.put(PcmReqConstant.JFN_COST_CONTROL_TYPE_NAME, model.getCostControlTypeName());
+		
+		jsObj.put(PcmReqConstant.JFN_PCM_SECTION_ID, model.getPcmSectionId());
 		jsObj.put(PcmReqConstant.JFN_LOCATION, model.getLocation());
 		
+		jsObj.put(PcmReqConstant.JFN_IS_ACROSS_BUDGET, model.getIsAcrossBudget());
 		jsObj.put(PcmReqConstant.JFN_ACROSS_BUDGET, model.getAcrossBudget());
+		
+		jsObj.put(PcmReqConstant.JFN_IS_REF_ID, model.getIsRefId());
 		jsObj.put(PcmReqConstant.JFN_REF_ID, model.getRefId());
 		
 		jsObj.put(PcmReqConstant.JFN_METHOD, model.getMethod());
@@ -73,7 +71,10 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_METHOD_COND2, model.getMethodCond2());
 		jsObj.put(PcmReqConstant.JFN_METHOD_COND2_DTL, model.getMethodCond2Dtl());
 		
-		jsObj.put(PcmReqConstant.JFN_TOTAL, String.valueOf(model.getTotal()));
+		jsObj.put(PcmReqConstant.JFN_VAT, model.getVat());
+		jsObj.put(PcmReqConstant.JFN_VAT_ID, model.getVatId());
+		
+		jsObj.put(PcmReqConstant.JFN_TOTAL, model.getTotal());
 		jsObj.put(PcmReqConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
 		jsObj.put(PcmReqConstant.JFN_DOC_REF, model.getDocRef());
 		jsObj.put(PcmReqConstant.JFN_FOLDER_REF, model.getFolderRef());
@@ -81,8 +82,8 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_STATUS, model.getStatus());
 		jsObj.put(PcmReqConstant.JFN_WF_STATUS, model.getWfStatus());
 		jsObj.put(PcmReqConstant.JFN_OVER_DUE, model.getOverDue());
-		jsObj.put(PcmReqConstant.JFN_REQUESTED_TIME_SHOW, CommonDateTimeUtil.convertToGridDate(model.getCreatedTime()));
-		jsObj.put(PcmReqConstant.JFN_CREATED_TIME, model.getCreatedTime());
+		jsObj.put(PcmReqConstant.JFN_CREATED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()));
+		jsObj.put(PcmReqConstant.JFN_CREATED_TIME, CommonDateTimeUtil.convertToSenchaFieldDateTime(model.getCreatedTime()));
 		jsObj.put(PcmReqConstant.JFN_CREATED_BY, model.getCreatedBy());
 		jsObj.put(PcmReqConstant.JFN_UPDATED_TIME, CommonDateTimeUtil.convertToGridDate(model.getUpdatedTime()));
 		jsObj.put(PcmReqConstant.JFN_UPDATED_BY, model.getUpdatedBy());
@@ -91,9 +92,65 @@ public class PcmReqUtil {
 		return jsObj;
 	}
 	
+	public static Map<String, Object> convertToMap(PcmReqModel model, Boolean showDelBtn) {
+		if (model == null) {
+			return null;
+		}
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		map.put(PcmReqConstant.JFN_ID, model.getId());
+		
+		map.put(PcmReqConstant.JFN_REQ_BY, model.getReqBy());
+		map.put(PcmReqConstant.JFN_REQ_SECTION_ID, model.getReqSectionId());
+		
+		map.put(PcmReqConstant.JFN_OBJECTIVE_TYPE, model.getObjectiveType());
+		map.put(PcmReqConstant.JFN_OBJECTIVE, model.getObjective());
+		map.put(PcmReqConstant.JFN_REASON, model.getReason());
+		
+		map.put(PcmReqConstant.JFN_CURRENCY, model.getCurrency());
+		map.put(PcmReqConstant.JFN_CURRENCY_RATE, model.getCurrencyRate());
+		
+		map.put(PcmReqConstant.JFN_BUDGET_CC, model.getBudgetCc());
+		map.put(PcmReqConstant.JFN_STOCK_SECTION_ID, model.getStockSectionId());
+		
+		map.put(PcmReqConstant.JFN_PROTOTYPE, model.getPrototype());
+		map.put(PcmReqConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
+		map.put(PcmReqConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
+		
+		map.put(PcmReqConstant.JFN_PCM_SECTION_ID, model.getPcmSectionId());
+		map.put(PcmReqConstant.JFN_LOCATION, model.getLocation());
+		
+		map.put(PcmReqConstant.JFN_ACROSS_BUDGET, model.getAcrossBudget());
+		map.put(PcmReqConstant.JFN_REF_ID, model.getRefId());
+		
+		map.put(PcmReqConstant.JFN_METHOD, model.getMethod());
+		map.put(PcmReqConstant.JFN_METHOD_COND2_RULE, model.getMethodCond2Rule());
+		map.put(PcmReqConstant.JFN_METHOD_COND2, model.getMethodCond2());
+		map.put(PcmReqConstant.JFN_METHOD_COND2_DTL, model.getMethodCond2Dtl());
+		
+		map.put(PcmReqConstant.JFN_TOTAL, model.getTotal());
+		map.put(PcmReqConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
+		map.put(PcmReqConstant.JFN_DOC_REF, model.getDocRef());
+		map.put(PcmReqConstant.JFN_FOLDER_REF, model.getFolderRef());
+		map.put(PcmReqConstant.JFN_WAITING_LEVEL, String.valueOf(model.getWaitingLevel()));
+		map.put(PcmReqConstant.JFN_STATUS, model.getStatus());
+		map.put(PcmReqConstant.JFN_WF_STATUS, model.getWfStatus());
+		map.put(PcmReqConstant.JFN_OVER_DUE, model.getOverDue());
+		map.put(PcmReqConstant.JFN_CREATED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()));
+		map.put(PcmReqConstant.JFN_CREATED_TIME, model.getCreatedTime());
+		map.put(PcmReqConstant.JFN_CREATED_BY, model.getCreatedBy());
+		map.put(PcmReqConstant.JFN_UPDATED_TIME, CommonDateTimeUtil.convertToGridDate(model.getUpdatedTime()));
+		map.put(PcmReqConstant.JFN_UPDATED_BY, model.getUpdatedBy());
+		map.put(PcmReqConstant.JFN_ACTION, getAction(model, showDelBtn));
+		
+		return map;
+	}	
+	
 	private static String getAction(PcmReqModel model, Boolean showDelBtn) {
 		StringBuffer action = new StringBuffer();
 		
+		action.append(PcmReqConstant.ACTION_COPY);
 		if (model.getStatus().equals(PcmReqConstant.ST_DRAFT)) {
 			action.append(PcmReqConstant.ACTION_EDIT);
 			action.append(PcmReqConstant.ACTION_DELETE);
@@ -212,5 +269,6 @@ public class PcmReqUtil {
 		return sb;
 		
 	}
+
 
 }

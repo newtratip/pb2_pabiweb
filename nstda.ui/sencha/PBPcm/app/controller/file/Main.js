@@ -4,6 +4,9 @@ Ext.define('PBPcm.controller.file.Main', {
 	refs:[{
 	    ref: 'main',
 	    selector:'pcmReqMain'
+	},{
+	    ref: 'cmbMp',
+	    selector:'pcmReqFileTab uploadGrid field[name=mp]'
 	}],
 	
 	init:function() {
@@ -12,6 +15,9 @@ Ext.define('PBPcm.controller.file.Main', {
 		me.control({
 			'grid [action=download]': {
 				click : me.download
+			},
+			'combo': {
+				selectMiddlePrice : me.selectMiddlePrice
 			}
 		});
 	
@@ -24,8 +30,15 @@ Ext.define('PBPcm.controller.file.Main', {
 	
 	download:function() {
 		var me = this;
+
+		var nodeRef = me.rec.data.FLAG1;
+		var pos = nodeRef.lastIndexOf("/");
+		var id = nodeRef.substring(pos+1);
+		window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/workspace/SpacesStore/"+id+"/a.odt?a=true");
+	},
 	
-		alert("download");
+	selectMiddlePrice:function(cmb, rec) {
+		this.rec = rec[0].data;
 	}
 
 });

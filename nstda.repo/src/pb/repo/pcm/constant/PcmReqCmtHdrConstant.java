@@ -23,7 +23,7 @@ public class PcmReqCmtHdrConstant {
 	public static final String JFN_PCM_REQ_ID = "prId";
 	public static final String JFN_COMMITTEE = "cmt";
 	
-	public static final String JFN_COMMITTEE_NAME = "cmtName";
+	public static final String JFN_COMMITTEES = "cmts";
 	
 	public static final String JFN_CREATED_TIME = "created_time";
 	public static final String JFN_CREATED_BY = "created_by";

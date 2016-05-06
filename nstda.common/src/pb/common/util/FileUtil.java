@@ -1,10 +1,17 @@
 package pb.common.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.util.FileCopyUtils;
 
 import pb.common.constant.FileConstant;
 import pb.common.constant.JsonConstant;
@@ -52,4 +59,22 @@ public class FileUtil {
 		return jsObj.toString();
 	}
 	
+	public InputStream base64InputStream(String base64String)throws IOException {
+	    if (base64String!=null) {
+	        return new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(base64String));
+	    }
+
+	    return null;
+	}
+	
+	public String inputStreamToBase64(InputStream inputStream) throws IOException{
+	    if (inputStream!=null) {
+	        ByteArrayOutputStream output = new ByteArrayOutputStream();
+	        FileCopyUtils.copy(inputStream, output);
+	        //TODO retrieve content type from file, & replace png below with it
+	        return "data:image/png;base64," + DatatypeConverter.printBase64Binary(output.toByteArray());
+	    }
+
+	    return null;
+	}
 }

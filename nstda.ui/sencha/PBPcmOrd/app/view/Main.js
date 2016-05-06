@@ -22,11 +22,12 @@ Ext.define('PBPcmOrd.view.Main', {
 				title:'Search',
 				store:store
 			});
-			
+			/*
 			items.push({
 				xtype:'pcmOrdReportForm',
 				title:'Report'
 			});
+			*/
 		}
 		
 		Ext.applyIf(me, {

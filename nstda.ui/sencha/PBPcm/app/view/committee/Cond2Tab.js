@@ -8,11 +8,13 @@ Ext.define('PBPcm.view.committee.cond2Tab', {
 	initComponent: function(config) {
 		var me = this;
 		
+		var rec = me.rec ? me.rec : {};
+		
 		Ext.applyIf(me, {
 			items:[{
 				xtype:'hidden',
 				name:'methodCond2Rule',
-				value:me.preCond2
+		    	value:replaceIfNull(rec.method_cond2_rule, me.preCond2) 
 			},{
 				xtype:'combo',
 				name:'methodCond2',
@@ -42,14 +44,16 @@ Ext.define('PBPcm.view.committee.cond2Tab', {
 						qe.query = new RegExp(qe.query, 'i');
 		//				qe.forceAll = true;
 					}
-				}			    	
+				},
+		    	value:replaceIfNull(rec.method_cond2, null) 
 		    },{
 		    	xtype:'textarea',
 		    	name:'methodCond2Dtl',
 		    	fieldLabel:'รายละเอียดเพิ่มเติม (ให้ต่อเนื่องกับเงื่อนไขที่เลือก)',
 		    	labelWidth:160,
 		    	anchor:"-10 -35",
-		    	margin:'5 0 0 10'
+		    	margin:'5 0 0 10',
+		    	value:replaceIfNull(rec.method_cond2_dtl, null)
 		    }]
 		});		
 		

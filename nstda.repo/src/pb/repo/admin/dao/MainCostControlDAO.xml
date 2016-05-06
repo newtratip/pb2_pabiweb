@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainCostControlDAO">
+    <resultMap id="result" type="mainCostControlModel">
+        <result property="id" column="id"/>
+        <result property="costControlTypeId" column="cost_control_type_id"/>
+        <result property="description" column="description"/>
+        <result property="name" column="name"/>
+        <result property="totalRowCount" column="totalRowCount"/>
+        
+    </resultMap>
+
+	<select id="list" resultType="map" parameterType="map">
+		SELECT 	c.id, t.name, c.name description
+		FROM 	pb2_ext_cost_control c left join pb2_ext_cost_control_type t on c.cost_control_type_id = t.id
+		WHERE 1=1
+		<if test="searchTerm != null">
+			AND (
+				t.name LIKE '%'||#{searchTerm}||'%'
+				OR c.name LIKE '%'||#{searchTerm}||'%'
+				OR c.description LIKE '%'||#{searchTerm}||'%'
+			)
+		</if>
+		<if test="type != null">
+			AND t.id=#{type}
+		</if>
+		ORDER BY t.name, c.name
+	</select>
+	
+	<select id="count"  resultType="long">
+        select
+		    count(1)
+		from
+		    pb2_ext_cost_control
+    </select>
+	
+</mapper>

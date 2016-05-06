@@ -64,7 +64,7 @@
             <template-instance>dashboard-3-columns</template-instance>
             <authentication>user</authentication>
             <properties>
-               <sitePages>[{"pageId":"admin"},{"pageId":"pcm-req"},{"pageId":"exp-brw"},{"pageId":"pcm-ord"},{"pageId":"pcm-use"},{"pageId":"exp-use"},{"pageId":"wiki-page"}, {"pageId":"blog-postlist"}, {"pageId":"documentlibrary"}, {"pageId":"calendar"},{"pageId":"links"},{"pageId":"discussions-topiclist"}]</sitePages>
+               <sitePages>[{"pageId":"admin"},{"pageId":"pcm-req"},{"pageId":"exp-brw"},{"pageId":"pcm-ord"},{"pageId":"exp-use"},{"pageId":"wiki-page"}, {"pageId":"blog-postlist"}, {"pageId":"documentlibrary"}, {"pageId":"calendar"},{"pageId":"links"},{"pageId":"discussions-topiclist"}]</sitePages>
             </properties>
          </page>
       </pages>

@@ -14,11 +14,11 @@ Ext.define('PBPcm.controller.Main', {
 		ref:'mainForm',
 		selector:'pcmReqMainForm'
 	},{
-    	ref:'hdrTab',
-		selector:'pcmReqHdrTab'
+    	ref:'userTab',
+		selector:'pcmReqUserTab'
 	},{
-    	ref:'hdrHireTab',
-		selector:'pcmReqHdrHireTab'
+    	ref:'infoTab',
+		selector:'pcmReqInfoTab'
 	},{
     	ref:'fileTab',
 		selector:'pcmReqFileTab'
@@ -50,6 +50,7 @@ Ext.define('PBPcm.controller.Main', {
 				click : me.search
 			},
 			'pcmReqMainGrid':{
+				copy : me.copy,
 				edit : me.edit,
 				del : me.del,
 				search : me.search,
@@ -62,7 +63,8 @@ Ext.define('PBPcm.controller.Main', {
 	
 	},
 	
-	MSG_KEY : 'DELETE_REQ',
+	COPY_MSG_KEY : 'COPY_PCM_REQ',
+	MSG_KEY : 'DELETE_PCM_REQ',
     URL : ALF_CONTEXT+'/pcm/req',
     ADMIN_URL : ALF_CONTEXT+'/admin/pcm/req',
     MSG_URL : ALF_CONTEXT+'/pcm/message',
@@ -208,7 +210,7 @@ Ext.define('PBPcm.controller.Main', {
 		this.getMain().getLayout().setActiveItem(1);
 	},
 	
-	createForm:function(header, formatId, title, rec) {
+	createForm:function(title, rec) {
 		var me = this;
 	
 		me.getMain().insert(1, {
@@ -220,25 +222,25 @@ Ext.define('PBPcm.controller.Main', {
 
 		form.removeAll(true);
 		
-		form.down("field[name=hId]").setValue(header.id);
+//		form.down("field[name=hId]").setValue(header.id);
 		
 		Ext.Ajax.request({
 		      url:me.MSG_URL+"/list",
 		      method: "GET",
 		      params: {
-		    	  keys : "TAB_TITLE_HEADER,TAB_TITLE_OTHER"
+		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ITEM,TAB_TITLE_FILE,TAB_TITLE_CMT"
 		      },
 		      success: function(response){
 		    	  
 		    	var data = Ext.decode(response.responseText).data;
 		    	
-		    	var firstTab = form.add({ xtype:'pcmReqHdrTab', title:"ผู้ขอ" });
+		    	var firstTab = form.add({ xtype:'pcmReqUserTab', title:data[0].message, rec:rec });
 		    	form.setActiveTab(firstTab);
 		    	
-		    	form.add({ xtype:'pcmReqHdrHireTab', title:"ข้อมูลเพื่อการจัดซื้อ / จัดจ้าง" });
-    			form.add({ xtype:'pcmReqDtlTab', title:"ข้อมูลรายการ"});
-    			form.add({ xtype:'pcmReqFileTab', title:"แนบหลักฐานเพิ่มเติม" , rec:rec });
-    			form.add({ xtype:'pcmReqCmtTab', title:"ข้อมูลคณะกรรมการ"});
+		    	form.add({ xtype:'pcmReqInfoTab', title:data[1].message, rec:rec });
+    			form.add({ xtype:'pcmReqItemTab', title:data[2].message, rec:rec });
+    			form.add({ xtype:'pcmReqFileTab', title:data[3].message, rec:rec });
+    			form.add({ xtype:'pcmReqCmtTab', title:data[4].message, rec:rec });
 		      },
 		      failure: function(response, opts){
 		          alert("failed");
@@ -823,14 +825,30 @@ Ext.define('PBPcm.controller.Main', {
 		}
 		
 		delete me.data; // Form Add Mode
-		delete me.formatId; // show form detail
-		
-    	var header = {id:1}
-    	
-		me.createForm(header, null, "Create");
-		me.activateForm();
-		me.getHidId().setValue(null);
-		me.getHidStatus().setValue(null);
+
+		Ext.Ajax.request({
+		      url:me.URL+"/userDtl",
+		      method: "GET",
+		      success: function(response){
+		    	  
+		    	var json = Ext.decode(response.responseText);
+		    	
+		    	var data = json.data[0];
+		    	data.created_time = new Date();
+		    	
+				me.createForm("Create", data);
+				
+				me.activateForm();
+				
+				me.getHidId().setValue(null);
+				me.getHidStatus().setValue(null);
+		      },
+		      failure: function(response, opts){
+		          alert("failed");
+		      },
+		      headers: getAlfHeader()
+		});		
+
 	},
 	
 	edit: function(rec) {
@@ -845,15 +863,6 @@ Ext.define('PBPcm.controller.Main', {
 			me.getMainGrid().getView().getSelectionModel().select(rec);
 		}
 		
-		delete me.formatId; // show form detail
-	
-
-//    	var json = Ext.decode(response.responseText);
-//		var header = json.data[0];
-//		var formatId = rec.get("format_id");
-		var header = 1;
-		var formatId = 1;
-		
 		Ext.Ajax.request({
 		      url:me.URL+"/get",
 		      method: "GET",
@@ -865,23 +874,44 @@ Ext.define('PBPcm.controller.Main', {
 		    	var json = Ext.decode(response.responseText);
 		    	
 		    	me.data = json.data[0]; // Form Edit Mode
-		    	me.data.dtls = json.dtls;
+		    	me.data.items = json.items;
 		    	
-				me.createForm(header, formatId, 'Edit : <font color="red">'+rec.get("id")+"</font>", rec);
-				if (ID) {
-					var form = me.getMainForm(); 
-					form.down("button[action=send]").hide();
-					form.down("button[action=saveDraft]").hide();
-					form.down("button[action=cancel]").hide();
-					form.down("button[action=finish]").show();
-					form.down("button[action=cancelEdit]").show();
-				}
-				else {
-					me.activateForm();
-				}
-				
-				me.getHidId().setValue(rec.get("id"));
-				me.getHidStatus().setValue(rec.get("status"));
+		    	Ext.Ajax.request({
+			      url:me.URL+"/userDtl",
+			      method: "GET",
+			      params:{
+		    		 r:me.data.req_by,
+		    	     c:me.data.created_by
+		    	  },
+			      success: function(response){
+			    	  
+			    	var json = Ext.decode(response.responseText);
+			    	
+			    	var data = json.data[0];
+			    	
+			    	Ext.merge(me.data, data);
+			    	
+					me.createForm('Edit : <font color="red">'+rec.get("id")+"</font>", me.data);
+					if (ID) {
+						var form = me.getMainForm(); 
+						form.down("button[action=send]").hide();
+						form.down("button[action=saveDraft]").hide();
+						form.down("button[action=cancel]").hide();
+						form.down("button[action=finish]").show();
+						form.down("button[action=cancelEdit]").show();
+					}
+					else {
+						me.activateForm();
+					}
+					
+					me.getHidId().setValue(rec.get("id"));
+					me.getHidStatus().setValue(rec.get("status"));					
+			      },
+			      failure: function(response, opts){
+			          alert("failed");
+			      },
+			      headers: getAlfHeader()
+		    	});	
 				
 		      },
 		      failure: function(response, opts){
@@ -1156,24 +1186,46 @@ Ext.define('PBPcm.controller.Main', {
 		var dlg = Ext.create("PBPcm.view.workflow.DtlDlg");
 		var id = r.get("id");
 
-		var store = dlg.items.items[0].getStore(); 
+		// Current Task
+		Ext.Ajax.request({
+		      url:ALF_CONTEXT+'/pcm/wf/task/list',
+		      method: "GET",
+		      params: {
+		    	  id : id
+		      },
+		      success: function(response) {
+				  var data = Ext.decode(response.responseText).data[0];
+				  var curTask;
+				  if (data) {
+					  curTask = data.type+(data.assignedTo ? " : " : "")+data.assignedTo;
+				  } else {
+					  curTask = "-";
+				  }
+				  dlg.items.items[0].items.items[0].items.items[0].setText('<font color="blue">'+curTask+'</font>',false);
+				  
+			  },
+		      failure: function(response, opts){
+		          alert("failed");
+		      },
+		      headers: getAlfHeader()
+		});
+		
+		
+		// Path
+		var store = dlg.items.items[0].items.items[1].getStore(); 
 		store.getProxy().extraParams = {
 			id : id
 		}
 		store.load();
 		
-		store = dlg.items.items[1].items.items[0].getStore();
+		// History
+		store = dlg.items.items[1].getStore();
 		store.getProxy().extraParams = {
 		   	id : id
 		};
 		store.load();
 		
-		store = dlg.items.items[1].items.items[1].getStore();
-		store.getProxy().extraParams = {
-		   	id : id
-		};
-		store.load();
-		
+		// Show
 		dlg.show();
 	},
 
@@ -1216,6 +1268,47 @@ Ext.define('PBPcm.controller.Main', {
 		     headers: getAlfHeader()
 		});        	
 	
+	},
+
+	copy : function(r) {
+		
+		this.getMainGrid().getView().getSelectionModel().select(r);
+		
+		this.selectedRec = r;
+		PB.Dlg.confirm('CONFIRM_'+this.COPY_MSG_KEY,this,'doCopy', MODULE_PCM);
+	},
+	
+	doCopy : function(){
+		var me = this;
+		
+		Ext.Ajax.request({
+		     url:me.URL+"/copy",
+		     method: "POST",
+		     params: {
+		         id: me.selectedRec.get("id")
+		     },
+		     success: function(res){
+		    	 
+		    	 var json = Ext.decode(res.responseText);
+		      	  
+		    	 if(json.success){
+			   		var id = json.data;
+			   		PB.Dlg.info('SUCC_'+me.COPY_MSG_KEY, MODULE_PCM, {msg:'ID:'+id, fn:me.closeForm, scope:me});
+		    	 }else{
+		    		PB.Dlg.error('ERR_'+me.COPY_MSG_KEY, MODULE_PCM);
+		    	 }
+		    	 
+		     },
+		     failure: function(response, opts){
+		    	 PB.Dlg.error('ERR_'+me.COPY_MSG_KEY, MODULE_PCM);
+		     },
+		     headers: getAlfHeader()
+		});        	
+	
+	},
+	
+	closeForm:function() {
+		this.getMainGrid().getStore().load();
 	}	
 	
 });

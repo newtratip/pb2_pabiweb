@@ -6,6 +6,7 @@ Ext.define('PBPcmOrd.Application', {
     requires: [
         'Ext.util.Cookies',
         'Ext.grid.Panel',
+        'Ext.grid.column.Number',
         'Ext.MessageBox',
         'Ext.tip.QuickTipManager',
         'Ext.picker.Color',

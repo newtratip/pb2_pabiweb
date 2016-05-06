@@ -79,6 +79,7 @@ Import-Package: com.github.dynamicextensionsalfresco.actions.annotations
  ,org.json
  ,org.json.simple
  ,sun.reflect
+ ,pb.repo.admin.constant
  ,pb.repo.admin.model
  ,pb.repo.admin.dao
  ,pb.repo.admin.service
@@ -89,20 +90,26 @@ Import-Package: com.github.dynamicextensionsalfresco.actions.annotations
  ,pb.common.util
  ,pb.common.wscript
  ,org.apache.commons.logging
- ,org.xml.sax
  ,javax.xml.parsers
+ ,javax.xml.bind
  ,org.apache.commons.digester
  ,org.apache.commons.collections.map
  ,org.apache.commons.beanutils
  ,org.apache.log4j
  ,org.w3c.dom
  ,org.apache.chemistry.opencmis.commons.impl
+ ,org.apache.xerces.parsers
+ ,org.xml.sax
+ ,org.xml.sax.helpers
 Bundle-SymbolicName: pb-pcm-repo-dyna
 Bundle-ClassPath: .
  ,lib/sun.misc.BASE64Decoder.jar
  ,lib/itextpdf-5.5.0.jar
  ,lib/jasperreports-5.6.0.jar
  ,lib/jasperreports-fonts-5.6.0.jar
+ ,lib/PrintUtil-0.99.jar
  ,lib/jasper-compiler-jdt-5.5.23.jar
  ,lib/com.lowagie.text-2.1.7.jar
  ,lib/fastjson-1.2.5.jar
+ ,lib/xmlrpc-1.1.1.jar
+ ,lib/xmlrpc-client-1.1.1.jar

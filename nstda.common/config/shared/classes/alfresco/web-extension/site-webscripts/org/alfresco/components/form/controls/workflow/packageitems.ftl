@@ -23,8 +23,8 @@
    </#if>
    
    <#assign targetFolder="">
-   <#if form.data['prop_memwf_targetFolderNodeRef']??>
-   		<#assign targetFolder=form.fields["prop_memwf_targetFolderNodeRef"].value>
+   <#if form.data['prop_pcmreqwf_folderRef']??>
+   		<#assign targetFolder=form.fields["prop_pcmreqwf_folderRef"].value>
    </#if>
    <#if form.data['prop_cpwf_folderRef']??>
    		<#assign targetFolder=form.fields["prop_cpwf_folderRef"].value>

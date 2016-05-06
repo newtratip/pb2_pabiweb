@@ -8,10 +8,7 @@
    <#-- JavaScript Dependencies -->
 	<@script type="text/javascript" src="${url.context}/res/page/common/constant.js"></@script>
 	<@script type="text/javascript" src="${url.context}/res/page/common/util.js"></@script>
-	<@script type="text/javascript" src="${url.context}/res/page/ckeditor/ckeditor.js"></@script>
 	<@script type="text/javascript" src="${url.context}/res/page/PBAdmin/app.js"></@script>
-	
-
 </@>
 <style>
 #oImg:hover {
@@ -66,34 +63,32 @@
 
 YAHOO.util.Event.onDOMReady(function(){
    new Alfresco.UserDataTable("${controlId}", "${fieldHtmlId}-h").setMessages(${messages});
-   			/*
-   		var divs = document.getElementsByTagName("div");
-    	for(var i = 0; i < divs.length; i++){
-    		if(divs[i].className.indexOf('ext-edit-btn') >-1){
-    			var element = document.createElement("input");
-    			element.type = "button";
-				element.value = "Edit";
-				//element.appendChild(document.createTextNode('The man who mistook his wife for a hat'));
-				//divs[i].getElementsByClassName("bar")[0]
-				//divs[i].style.width = "50%";
-				divs[i].appendChild(element);
-    			//divs[i].style.width=(WIDTH-W_OFFSET)+'px';
-    			break;
-    		}
-    	}
-    	*/
+   			
     	var div = document.getElementById('ext-edit-btn');
-    	var oImg=document.createElement("img");
-		oImg.setAttribute('src', '../res/page/img/icon/edit.png');
+    	var oImg=document.createElement("div");
 		oImg.setAttribute('id','oImg');
 		oImg.setAttribute('alt', 'edit');
 		oImg.style.height= '15px';
 		oImg.style.width= '15px';
-			oImg.onclick = function () {
-				var hid = document.getElementsByName("prop_memwf_memoId")[0];
-	    		window.location = "${url.context}/page/memo?id="+hid.value+"&tid=${taskId}";
-			};
-		div.appendChild(oImg);                    // Append <button> to <body>
+		oImg.style.backgroundImage = "url('../res/page/img/icon/edit.png')";
+    	div.appendChild(oImg);
+    	
+    	Ext.widget('linkbutton', {
+                renderTo: 'oImg',
+                handler: function () { 
+                	console.log("TEST TEST TEST");
+                	var hid = document.getElementsByName("prop_pcmreqwf_id")[0];
+					if (!hid) alert("Test");
+					var pf = hid.value.substring(0,2);
+					var u = {
+						"PR":"pcm-req",
+						"PD":"pcm-ord",
+						"AV":"exp-brw",
+						"AP":"exp-use"
+					}
+                	window.location = "${url.context}/page/"+u[pf]+"?id="+hid.value+"&tid=${taskId}";
+                }
+        });
 		
    		var myReferrer = window.location.origin+Alfresco.constants.URL_PAGECONTEXT+"user/"+Alfresco.constants.USERNAME+"/dashboard";
 		window.document.__defineGetter__('referrer', function () {

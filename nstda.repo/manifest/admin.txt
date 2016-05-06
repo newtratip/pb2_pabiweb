@@ -1,4 +1,5 @@
 Export-Package: pb.repo.admin;
+ pb.repo.admin.constant;
  pb.repo.admin.model;
  pb.repo.admin.dao;
  pb.repo.admin.service;
@@ -45,10 +46,14 @@ Import-Package: com.github.dynamicextensionsalfresco.actions.annotations
  ,javax.mail
  ,javax.sql
  ,org.activiti.engine.delegate;version="[5.7,6)"
- ,org.alfresco.model,org.alfresco.repo.bulkimport
+ ,org.alfresco.model
+ ,org.alfresco.repo.bulkimport
  ,org.alfresco.repo.dictionary
- ,org.alfresco.repo.node,org.alfresco.repo.transaction
+ ,org.alfresco.repo.node
+ ,org.alfresco.repo.template
+ ,org.alfresco.repo.transaction
  ,org.alfresco.repo.security.authentication
+ ,org.alfresco.repo.workflow
  ,org.alfresco.service.cmr.action
  ,org.alfresco.service.cmr.repository
  ,org.alfresco.service.cmr.model
@@ -58,7 +63,6 @@ Import-Package: com.github.dynamicextensionsalfresco.actions.annotations
  ,org.alfresco.service.cmr.workflow
  ,org.alfresco.service.namespace
  ,org.alfresco.query
- ,org.alfresco.repo.template
  ,org.springframework.beans.factory.annotation
  ,org.springframework.extensions.webscripts
  ,org.springframework.stereotype
@@ -90,6 +94,7 @@ Import-Package: com.github.dynamicextensionsalfresco.actions.annotations
  ,org.apache.xerces.parsers
  ,org.xml.sax
  ,org.xml.sax.helpers
+ ,javax.xml.bind
 Bundle-SymbolicName: pb-admin-repo-dyna
 Bundle-ClassPath: .
  ,lib/sun.misc.BASE64Decoder.jar

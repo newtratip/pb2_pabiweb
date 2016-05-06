@@ -4,13 +4,15 @@ Ext.define('PBPcmOrd.view.MainGrid', {
     
 	initComponent: function(config) {
 		var me = this;
+		
+		me.lang = getLanguage().split("-")[0].toLowerCase();
 	
 		var columns = [
 		      {
 	        	xtype: 'actioncolumn',
 	        	dataIndex: 'action',
 	        	text: '', 
-	            width: 130,
+	            width: 80,
 	            items: [{
 	                tooltip: 'Detail', 
 	                action : 'viewDetail',
@@ -35,18 +37,28 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 		    	  
 		    	var data = Ext.decode(response.responseText).data;
 		    	
-				for(var i=0; i<data.length; i++) {
+		    	for(var i=0; i<data.length; i++) {
 					var d = data[i];
 					
 					var col = {
 						text: d.label,  
-						dataIndex: d.field 
+						dataIndex: d.field,
+						align:d.align
+					}
+					
+					if (d.wrap) {
+						col.tdCls = 'wrap';
 					}
 					
 					if (d.width) {
 						col.width = parseInt(d.width);
 					} else {
 						col.flex = 1;
+					}
+					
+					if (d.type) {
+						col.xtype = d.type+"column";
+						col.format = DEFAULT_MONEY_FORMAT;
 					}
 					
 					columns.push(col); 
@@ -60,7 +72,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 		      async:false
 		}); 
 		
-		columns.push({ text: 'Requested Time',  dataIndex: 'reqTimeShow', width:130});
+		columns.push({ text: 'Requested Time',  dataIndex: 'created_time_show', width:130});
 		columns.push({ text: 'Status',  dataIndex: 'wfStatus', width:300,
 		  	  renderer: function (v, m, r) {
 			
@@ -75,10 +87,10 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 			            Ext.defer(function () {
 			            	me.createIconViewHistory(id, v, r);
 			            }, 50);
-			            return Ext.String.format('<div><div style="float:left;margin:0;padding:0;width:12px;height:20px" class="icon_bar_{2}" id="{1}"></div><div id="{0}"></div></div>', id, id1, me.iconColor(status));
+			            return Ext.String.format('<div><div style="float:left;margin:0;padding:0;width:12px;height:20px" class="icon_bar_{2}" id="{1}"></div><div id="{0}"></div></div>', id, id1, me.indicator[status].color);
                     } else {
 			            var id = Ext.id();
-			            return Ext.String.format('<div style="float:left;margin:0;padding:0;width:12px;height:20px" class="icon_bar_{1}" id="{0}"></div>', id, me.iconColor(status));
+			            return Ext.String.format('<div style="float:left;margin:0;padding:0;width:12px;height:20px" class="icon_bar_{1}" id="{0}"></div>', id, me.indicator[status].color);
                     }
 		      }
 		 });
@@ -106,13 +118,6 @@ Ext.define('PBPcmOrd.view.MainGrid', {
                 text: "Search",
                 iconCls: "icon_search",                
                 action: "search"
-            },
-                "->"
-            ,{ 
-            	xtype: 'button',
-                text: "New Order",
-                iconCls: "icon_add",
-                action: "add"
             }],
             
 			bbar : {
@@ -130,29 +135,29 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 		me.store.load();	    
 	},
 	
-	iconColor:function(v) {
-	
-		var c = {
-			"D":"gray",
-			"W":"yellow",
-			"X":"red",
-			"C":"green"
-		}
-		
-		return c[v];
+	indicator:{
+		"W1":{color:"yellow", text_th:"รอการอนุมัติ", text_en:"Wait for Approval"},
+		"W2":{color:"red", text_th:"ไม่อนุมัติ", text_en:"Rejected"},
+		"C1":{color:"green", text_th:"ออก PO", text_en:"PO"},
+		"X1":{color:"darkgray", text_th:"พัสดุยกเลิก", text_en:"Cancelled By Procurement"},
+		"S":{color:"purple", text_th:"ขอคำปรึกษา", text_en:"Consulting"}
 	},
 	
 	createIconViewHistory:function(id, v, r) {
 		var me = this;
+		
+		var s = eval('me.indicator[r.get("status")].text_' +me.lang);
+
 		if (Ext.get(id)) {
             Ext.widget('linkbutton', {
                 renderTo: id,
-                text: '(' + r.get("wfStatus") + ')',
+                text: s+'(' + r.get("wfStatus") + ')',
                 iconCls:'icon_postpone',
                 width: 75,
                 handler: function () { 
                 	me.fireEvent("viewHistory",r);
-                }
+                },
+                tooltip: 'Workflow Detail'
             });
 	    }
 	    else {

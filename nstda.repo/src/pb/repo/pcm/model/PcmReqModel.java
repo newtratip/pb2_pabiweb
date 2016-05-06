@@ -1,16 +1,11 @@
 package pb.repo.pcm.model;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import pb.repo.admin.model.SubModuleModel;
 
-public class PcmReqModel {
-	
-	String id;
+public class PcmReqModel extends SubModuleModel {
 	
 	String reqBy;
-	String reqBu;
-	String reqOu;
+	Integer reqSectionId;
 	
 	String objectiveType;
 	String objective;
@@ -19,16 +14,30 @@ public class PcmReqModel {
 	String currency;
 	Double currencyRate;
 
-	String budgetCc;
-	String stockOu;
+	Integer budgetCc;
+	String budgetCcType;
+	String budgetCcName;
+	String budgetCcTypeName;
 	
+	String isStock;
+	Integer stockSectionId;
+	
+	String isPrototype;
 	String prototype;
-	String event;
+	String prototypeContractNo;
 	
-	String pcmOu;
+	Integer costControlTypeId;
+	String costControlTypeName;
+	Integer costControlId;
+	String costControlName;
+	
+	Integer pcmSectionId;
 	String location;
 
+	String isAcrossBudget;
 	Double acrossBudget;
+	
+	String isRefId;
 	String refId;
 
 	String method;
@@ -36,112 +45,27 @@ public class PcmReqModel {
 	String methodCond2;
 	String methodCond2Dtl;
 	
-	Double total;
+	Double vat;
+	Integer vatId;
 	
-	String docRef;
-	String folderRef;
+	Double total;
 	
 	Integer rewarning;
 	Integer waitingDay;
-	Integer waitingLevel;
 	String status;
 	String wfStatus;
 	
-	String workflowInsId;
-	
-	Timestamp createdTime;
-	String createdBy;
-	Timestamp updatedTime;
-	String updatedBy;
-	
-	List<String> listAttachDoc;
-
-	private Long totalRowCount;
-
-	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	public String getDocRef() {
-		return docRef;
-	}
-	public void setDocRef(String docRef) {
-		this.docRef = docRef;
-	}
-	public String getFolderRef() {
-		return folderRef;
-	}
-	public void setFolderRef(String folderRef) {
-		this.folderRef = folderRef;
-	}
-	public Integer getWaitingLevel() {
-		return waitingLevel;
-	}
-	public void setWaitingLevel(Integer waitingLevel) {
-		this.waitingLevel = waitingLevel;
-	}
 	public String getStatus() {
 		return status;
 	}
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	public String getWorkflowInsId() {
-		return workflowInsId;
-	}
-	public void setWorkflowInsId(String workflowInsId) {
-		this.workflowInsId = workflowInsId;
-	}
-	public Timestamp getCreatedTime() {
-		return createdTime;
-	}
-	public void setCreatedTime(Timestamp createdTime) {
-		this.createdTime = createdTime;
-	}
-	public String getCreatedBy() {
-		return createdBy;
-	}
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
-	public Timestamp getUpdatedTime() {
-		return updatedTime;
-	}
-	public void setUpdatedTime(Timestamp updatedTime) {
-		this.updatedTime = updatedTime;
-	}
-	public String getUpdatedBy() {
-		return updatedBy;
-	}
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
-	}
-	public Long getTotalRowCount() {
-		return totalRowCount;
-	}
-	public void setTotalRowCount(Long totalRowCount) {
-		this.totalRowCount = totalRowCount;
-	}
 	public String getWfStatus() {
 		return wfStatus;
 	}
 	public void setWfStatus(String wfStatus) {
 		this.wfStatus = wfStatus;
-	}
-	public List<String> getListAttachDoc() {
-		return listAttachDoc;
-	}
-	public void setListAttachDoc(List<String> listAttachDoc) {
-		this.listAttachDoc = listAttachDoc;
-	}
-	public void setAttachDoc(String doc) {
-		if(this.listAttachDoc == null) {
-			this.listAttachDoc = new ArrayList<String>();
-		}
-		this.listAttachDoc.add(doc);
 	}
 	public Integer getRewarning() {
 		return rewarning;
@@ -169,18 +93,6 @@ public class PcmReqModel {
 	}
 	public void setReqBy(String reqBy) {
 		this.reqBy = reqBy;
-	}
-	public String getReqBu() {
-		return reqBu;
-	}
-	public void setReqBu(String reqBu) {
-		this.reqBu = reqBu;
-	}
-	public String getReqOu() {
-		return reqOu;
-	}
-	public void setReqOu(String reqOu) {
-		this.reqOu = reqOu;
 	}
 	public String getObjectiveType() {
 		return objectiveType;
@@ -212,17 +124,29 @@ public class PcmReqModel {
 	public void setCurrencyRate(Double currencyRate) {
 		this.currencyRate = currencyRate;
 	}
-	public String getBudgetCc() {
+	public String getBudgetCcType() {
+		return budgetCcType;
+	}
+	public void setBudgetCcType(String budgetCcType) {
+		this.budgetCcType = budgetCcType;
+	}
+	public Integer getBudgetCc() {
 		return budgetCc;
 	}
-	public void setBudgetCc(String budgetCc) {
+	public void setBudgetCc(Integer budgetCc) {
 		this.budgetCc = budgetCc;
 	}
-	public String getStockOu() {
-		return stockOu;
+	public String getBudgetCcName() {
+		return budgetCcName;
 	}
-	public void setStockOu(String stockOu) {
-		this.stockOu = stockOu;
+	public void setBudgetCcName(String budgetCcName) {
+		this.budgetCcName = budgetCcName;
+	}
+	public String getBudgetCcTypeName() {
+		return budgetCcTypeName;
+	}
+	public void setBudgetCcTypeName(String budgetCcTypeName) {
+		this.budgetCcTypeName = budgetCcTypeName;
 	}
 	public String getPrototype() {
 		return prototype;
@@ -230,17 +154,11 @@ public class PcmReqModel {
 	public void setPrototype(String prototype) {
 		this.prototype = prototype;
 	}
-	public String getEvent() {
-		return event;
+	public String getPrototypeContractNo() {
+		return prototypeContractNo;
 	}
-	public void setEvent(String event) {
-		this.event = event;
-	}
-	public String getPcmOu() {
-		return pcmOu;
-	}
-	public void setPcmOu(String pcmOu) {
-		this.pcmOu = pcmOu;
+	public void setPrototypeContractNo(String prototypeContractNo) {
+		this.prototypeContractNo = prototypeContractNo;
 	}
 	public String getLocation() {
 		return location;
@@ -283,6 +201,84 @@ public class PcmReqModel {
 	}
 	public void setTotal(Double total) {
 		this.total = total;
+	}
+	public Double getVat() {
+		return vat;
+	}
+	public void setVat(Double vat) {
+		this.vat = vat;
+	}
+	public String getIsStock() {
+		return isStock;
+	}
+	public void setIsStock(String isStock) {
+		this.isStock = isStock;
+	}
+	public String getIsPrototype() {
+		return isPrototype;
+	}
+	public void setIsPrototype(String isPrototype) {
+		this.isPrototype = isPrototype;
+	}
+	public String getIsAcrossBudget() {
+		return isAcrossBudget;
+	}
+	public void setIsAcrossBudget(String isAcrossBudget) {
+		this.isAcrossBudget = isAcrossBudget;
+	}
+	public String getIsRefId() {
+		return isRefId;
+	}
+	public void setIsRefId(String isRefId) {
+		this.isRefId = isRefId;
+	}
+	public Integer getVatId() {
+		return vatId;
+	}
+	public void setVatId(Integer vatId) {
+		this.vatId = vatId;
+	}
+	public Integer getReqSectionId() {
+		return reqSectionId;
+	}
+	public void setReqSectionId(Integer reqSectionId) {
+		this.reqSectionId = reqSectionId;
+	}
+	public Integer getStockSectionId() {
+		return stockSectionId;
+	}
+	public void setStockSectionId(Integer stockSectionId) {
+		this.stockSectionId = stockSectionId;
+	}
+	public Integer getPcmSectionId() {
+		return pcmSectionId;
+	}
+	public void setPcmSectionId(Integer pcmSectionId) {
+		this.pcmSectionId = pcmSectionId;
+	}
+	public Integer getCostControlTypeId() {
+		return costControlTypeId;
+	}
+	public void setCostControlTypeId(Integer costControlTypeId) {
+		this.costControlTypeId = costControlTypeId;
+	}
+	public String getCostControlTypeName() {
+		return costControlTypeName;
+	}
+	public void setCostControlTypeName(String costControlTypeName) {
+		this.costControlTypeName = costControlTypeName;
+	}
+	public Integer getCostControlId() {
+		return costControlId;
+	}
+	public void setCostControlId(Integer costControlId) {
+		this.costControlId = costControlId;
+	}
+	public String getCostControlName() {
+		return costControlName;
+	}
+	public void setCostControlName(String costControlName) {
+		this.costControlName = costControlName;
 	}
 	
 }

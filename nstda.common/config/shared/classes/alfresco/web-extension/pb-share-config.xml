@@ -9,7 +9,10 @@
 	      <page id="blog-postlist">blog-postlist</page>
 	      <page id="links">links</page>
 	      <page id="admin">admin</page>
-	      <page id="pcm">pcm</page>
+	      <page id="pcm-req">pcm-req</page>
+	      <page id="pcm-ord">pcm-ord</page>
+	      <page id="exp-brw">exp-brw</page>
+	      <page id="exp-use">exp-use</page>
 	    </pages>
   	</config>
 	

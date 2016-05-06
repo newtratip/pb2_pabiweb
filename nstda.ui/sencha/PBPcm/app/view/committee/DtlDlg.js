@@ -24,7 +24,7 @@ Ext.define('PBPcm.view.committee.DtlDlg', {
 					    fieldLabel : 'ชื่อ', 
 					    labelWidth: 70,
 					    anchor:"-10",
-					    name : 'fname',
+					    name : 'first_name',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10'
 					},{
@@ -32,7 +32,7 @@ Ext.define('PBPcm.view.committee.DtlDlg', {
 					    fieldLabel : 'นามสกุล', 
 					    labelWidth: 70,
 					    anchor:"-10",
-					    name : 'sname',
+					    name : 'last_name',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10'
 					},{

@@ -1,6 +1,6 @@
 Ext.define('PBPcm.view.workflow.AssigneeGrid', {
 	extend : 'Ext.grid.Panel',
-	alias : 'widget.memoWfAssigneeGrid',
+	alias : 'widget.pcmWfAssigneeGrid',
 	anchor : '100%',
 	initComponent: function(config) {
 		
@@ -9,9 +9,8 @@ Ext.define('PBPcm.view.workflow.AssigneeGrid', {
 		Ext.applyIf(me, {
 			
 			   columns: [ 
-			      { text: 'Level', dataIndex: 'assignee', width:120},
-			      { text: 'User', dataIndex: 'user', width:95},
-			      { text: 'Group', dataIndex: 'group', flex:1}
+			      { text: 'Task', dataIndex: 'assignee', width:120},
+			      { text: 'User', dataIndex: 'user', flex:1}
 			   ]
 		});
 				

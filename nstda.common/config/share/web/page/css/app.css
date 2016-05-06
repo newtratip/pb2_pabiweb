@@ -183,6 +183,18 @@
 	background-image: url(../img/icon/bar_gray.png) !important;
 }
 
+.icon_bar_orange {
+	background-image: url(../img/icon/bar_orange.png) !important;
+}
+
+.icon_bar_purple {
+	background-image: url(../img/icon/bar_purple.png) !important;
+}
+
+.icon_bar_darkgray {
+	background-image: url(../img/icon/bar_darkgray.png) !important;
+}
+
 .text_red_linkbutton-inner {
 	color: red !important;
 	text-decoration:underline !important;  

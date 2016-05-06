@@ -26,7 +26,7 @@ import pb.repo.admin.model.MainMsgModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminMsgService;
 import pb.repo.admin.service.AlfrescoService;
-import pb.repo.admin.xmlrpc.PcmInvocationHandler;
+import pb.repo.pcm.model.PcmReqModel;
 import redstone.xmlrpc.XmlRpcArray;
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcDispatcher;
@@ -61,15 +61,11 @@ public class MainXmlRpcWebScript {
 	
 	@Uri(URI_PREFIX+"/start")
 	public void handleOdooStart(final WebScriptResponse response) throws Exception {
-		log.info("pass 1");
 //		XmlRpcParser.setDriver("org.apache.xerces.parsers.SAXParser");
-		log.info("pass 2");
 //		XmlRpc.setDriver("org.apache.xerces.parsers.SAXParser");
 
 		final XmlRpcClient client = new XmlRpcClient(new URL("http://128.199.255.252:8069/xmlrpc/2/common"), true);
 		
-		log.info("pass 3");
-
 		List arguments = new ArrayList();
 		arguments.add("PABI");
 		arguments.add("admin");
@@ -211,7 +207,7 @@ public class MainXmlRpcWebScript {
 			log.info("  content="+request.getContent().getContent());
 			
 			XmlRpcServer server = new XmlRpcServer();
-			server.addInvocationHandler("pcm", new PcmInvocationHandler());
+//			server.addInvocationHandler("pcm", new PcmInvocationHandler());
 			
 			XmlRpcDispatcher dispatcher = new XmlRpcDispatcher(server, "");
 			
@@ -466,4 +462,184 @@ public class MainXmlRpcWebScript {
 		}
 	}
 	
+	@Uri(URI_PREFIX+"/pr3")
+	public void createPR(@RequestParam(required=false) String t,
+			final WebScriptResponse response) throws Exception {
+		log.info("interface : createPR");
+		
+		String host = "http://10.226.202.133:8069";
+		String db = "odoo";
+		
+		final XmlRpcClient client = new XmlRpcClient(new URL(host+"/xmlrpc/2/object"), true);
+		
+		t = (t!=null) ? t : "purchase.request";
+		
+		List arguments = new ArrayList();
+		arguments.add(db); // db name
+		arguments.add(1); // uid 1='admin'
+		arguments.add("admin"); // password
+		arguments.add(t);
+		arguments.add("generate_purchase_request");
+		
+		List a = new ArrayList();
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+        map.put("name", "PR16000002");
+        map.put("requested_by.id","10");
+        map.put("responsible_user_id.id","27");
+        map.put("assigned_to.id","1");
+        map.put("date_approved","2016-01-31");
+        map.put("total_budget_value","240000");
+        map.put("purchase_prototype_id.id","1");
+        map.put("purchase_type_id.id","1");
+        map.put("purchase_method_id.id","1");
+        map.put("purchase_unit_id.id","1");
+        map.put("description","เพื่อเป็น Spare Part เนื่องจากใกล้หมดอายุ");
+        map.put("currency_id.id","140");
+        map.put("currency_rate","1");
+        map.put("delivery_address","คุณพสินีภรณ์ ห้อง 507 เบอร์ต่อ 2376");
+        map.put("date_start","2016-01-31");
+        map.put("operating_unit_id.id","2");
+        
+        
+        List orderLine = new ArrayList();
+        
+        Map<String, Object> line = new HashMap<String, Object>();
+        line.put("product_id.id","");
+        line.put("name","Computer"); 
+        line.put("product_qty","20"); 
+        line.put("price_unit","10000"); 
+        line.put("product_uom_id.id","1"); 
+        line.put("activity_id.id","59");
+        line.put("date_required","2016-01-31"); 
+        line.put("section_id.id","2");
+        line.put("cost_control_id.id","");         
+        line.put("fixed_asset","False");
+        line.put("tax_ids","VAT 7%");
+        orderLine.add(line);
+        
+        line = new HashMap<String, Object>();
+        line.put("product_id","");
+        line.put("name","HDD"); 
+        line.put("product_qty","20"); 
+        line.put("price_unit","1030"); 
+        line.put("product_uom_id.id","1"); 
+        line.put("activity_id.id","1");
+        line.put("date_required","2016-01-31"); 
+        line.put("section_id.id","2");
+        line.put("cost_control_id.id","");         
+        line.put("fixed_asset","False");
+        line.put("tax_ids","VAT 7%");
+        
+        orderLine.add(line);
+        
+        map.put("line_ids", orderLine);
+
+        
+        List committee = new ArrayList();
+
+        Map<String, Object> cmt = new HashMap<String, Object>();
+        cmt.put("name","Mr. Steve Roger"); 
+        cmt.put("position","Manager");
+        cmt.put("responsible","Responsible"); 
+        cmt.put("committee_type","tor"); 
+        cmt.put("sequence","1");
+        committee.add(cmt);
+        
+        cmt = new HashMap<String, Object>();
+        cmt.put("name","Mr. Samuel Jackson"); 
+        cmt.put("position","Staff");
+        cmt.put("responsible","Responsible"); 
+        cmt.put("committee_type","tor"); 
+        cmt.put("sequence","2");
+        committee.add(cmt);
+        
+        cmt = new HashMap<String, Object>();
+        cmt.put("name","Mr. Steve Roger"); 
+        cmt.put("position","Manager");
+        cmt.put("responsible","Responsible"); 
+        cmt.put("committee_type","receipt"); 
+        cmt.put("sequence","1");
+        committee.add(cmt);
+        
+        cmt = new HashMap<String, Object>();
+        cmt.put("name","Mr. Samuel Jackson"); 
+        cmt.put("position","Staff");
+        cmt.put("responsible","Responsible"); 
+        cmt.put("committee_type","std price"); 
+        cmt.put("sequence","1");
+        committee.add(cmt);
+        
+        map.put("committee_ids", committee);
+
+        List attachment = new ArrayList();
+        
+        Map<String, Object> att = new HashMap<String, Object>();
+        att.put("name","PD Form ไทย"); 
+        att.put("file_url","http://google.com");
+        attachment.add(att);
+        
+        att = new HashMap<String, Object>();
+        att.put("name","PD Form 2 ไทย"); 
+        att.put("file_url","http://google.com");
+        attachment.add(att);
+        
+        att = new HashMap<String, Object>();
+        att.put("name","PD Form 3 ไทย"); 
+        att.put("file_url","http://google.com");
+        attachment.add(att);
+        
+        map.put("attachment_ids", attachment);
+		
+		a.add(map);
+		
+		arguments.add(a);
+
+		List ids = null;
+		XmlRpcArray array = null;
+		
+		Object obj = client.invoke("execute_kw", arguments);
+		log.info("** exec 1");
+		
+		if (obj.getClass().getName().indexOf("List") >= 0) {
+			ids = (List)obj;
+			for (Object o : ids) {
+				log.info(" -"+o+":"+o.getClass().getName());
+			}
+		} else {
+			array = (XmlRpcArray)obj;
+			ids = new ArrayList();
+			for(Object o : array) {
+				log.info(o+":"+o.getClass().getName());
+				ids.add(o);
+			}
+//			map = (Map)obj;
+//			for (Entry<Object,Object> e : map.entrySet()) {
+//				log.info(" -"+e.getKey()+":"+e.getValue());
+//			}
+		}
+		
+		for(Object o : ids) {
+			log.info(o+":"+o.getClass().getName());
+		}
+		
+		String json = null;
+		
+		try {
+			JSONObject jsObj = new JSONObject();
+			
+			jsObj.put("data", array!=null ? array : ids);
+			
+			json = CommonUtil.jsonSuccess(jsObj);
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}		
+		
+	}
+	
+
 }

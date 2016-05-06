@@ -4,19 +4,21 @@ Ext.define('PBPcm.view.MainGrid', {
     
 	initComponent: function(config) {
 		var me = this;
+		
+		me.lang = getLanguage().split("-")[0].toLowerCase();
 	
 		var columns = [
 		      {
 	        	xtype: 'actioncolumn',
 	        	dataIndex: 'action',
 	        	text: '', 
-	            width: 130,
+	            width: 100,
 	            items: [{
-	                tooltip: 'Detail', 
-	                action : 'viewDetail',
+	                tooltip: 'Copy', 
+	                action : 'copy',
 	        	    getClass: function(v) {
-	        	    	return getActionIcon(v, "V", 'view');
-	                }
+	        	    	return getActionIcon(v, "C", 'copy');
+                	}
 //	        	}, {
 //	                tooltip: 'Diagram', 
 //	                action : 'showDiagram',
@@ -24,6 +26,12 @@ Ext.define('PBPcm.view.MainGrid', {
 //	        	    	return getActionIcon(v, "S", 'diagram');
 //	                }
 	            }, {
+	                tooltip: 'Detail', 
+	                action : 'viewDetail',
+	        	    getClass: function(v) {
+	        	    	return getActionIcon(v, "V", 'view');
+	        	    }
+                },{
 	                tooltip: 'Edit', 
 	                action : 'edit',
 	        	    getClass: function(v) {
@@ -57,13 +65,23 @@ Ext.define('PBPcm.view.MainGrid', {
 					
 					var col = {
 						text: d.label,  
-						dataIndex: d.field 
+						dataIndex: d.field,
+						align:d.align
+					}
+					
+					if (d.wrap) {
+						col.tdCls = 'wrap';
 					}
 					
 					if (d.width) {
 						col.width = parseInt(d.width);
 					} else {
 						col.flex = 1;
+					}
+					
+					if (d.type) {
+						col.xtype = d.type+"column";
+						col.format = DEFAULT_MONEY_FORMAT;
 					}
 					
 					columns.push(col); 
@@ -77,8 +95,8 @@ Ext.define('PBPcm.view.MainGrid', {
 		      async:false
 		}); 
 		
-		columns.push({ text: 'Requested Time',  dataIndex: 'reqTimeShow', width:80});
-		columns.push({ text: 'Status',  dataIndex: 'wfStatus', width:300,
+		columns.push({ text: 'วันที่ขอ',  dataIndex: 'created_time_show', width:110});
+		columns.push({ text: 'สถานะ',  dataIndex: 'wfStatus', width:370,
 		  	  renderer: function (v, m, r) {
 			
 					if (r.get("overDue")) {
@@ -92,10 +110,10 @@ Ext.define('PBPcm.view.MainGrid', {
 			            Ext.defer(function () {
 			            	me.createIconViewHistory(id, v, r);
 			            }, 50);
-			            return Ext.String.format('<div><div style="float:left;margin:0;padding:0;width:12px;height:20px" class="icon_bar_{2}" id="{1}"></div><div id="{0}"></div></div>', id, id1, me.iconColor(status));
+			            return Ext.String.format('<div><div style="float:left;margin:0;padding:0;width:12px;height:20px" class="icon_bar_{2}" id="{1}"></div><div id="{0}"></div></div>', id, id1, me.indicator[status].color);
                     } else {
 			            var id = Ext.id();
-			            return Ext.String.format('<div style="float:left;margin:0;padding:0;width:12px;height:20px" class="icon_bar_{1}" id="{0}"></div>', id, me.iconColor(status));
+			            return Ext.String.format('<div style="float:left;margin:0;padding:0;width:12px;height:20px" class="icon_bar_{1}" id="{0}"></div>', id, me.indicator[status].color);
                     }
 		      }
 		 });
@@ -147,29 +165,32 @@ Ext.define('PBPcm.view.MainGrid', {
 		me.store.load();	    
 	},
 	
-	iconColor:function(v) {
-	
-		var c = {
-			"D":"gray",
-			"W":"yellow",
-			"X":"red",
-			"C":"green"
-		}
-		
-		return c[v];
+	indicator:{
+		"D":{color:"gray", text_th:"Draft", text_en:"Draft"},
+		"W1":{color:"yellow", text_th:"รอการอนุมัติ", text_en:"Wait for Approval"},
+		"W2":{color:"red", text_th:"ไม่อนุมัติ", text_en:"Rejected"},
+		"C1":{color:"green", text_th:"รอพัสดุรับงาน", text_en:"Wait for Acceptance"},
+		"C2":{color:"green", text_th:"พัสดุรับงาน", text_en:"Accepted"},
+		"X1":{color:"darkgray", text_th:"ผู้ขอยกเลิก", text_en:"Cancelled By Requester"},
+		"X2":{color:"darkgray", text_th:"พัสดุยกเลิก", text_en:"Cancelled By Procurement"},
+		"S":{color:"purple", text_th:"ขอคำปรึกษา", text_en:"Consulting"}
 	},
 	
 	createIconViewHistory:function(id, v, r) {
 		var me = this;
+		
+		var s = eval('me.indicator[r.get("status")].text_' +me.lang);
+		
 		if (Ext.get(id)) {
             Ext.widget('linkbutton', {
                 renderTo: id,
-                text: '(' + r.get("wfStatus") + ')',
+                text: s+' (' + r.get("wfStatus") + ')',
                 iconCls:'icon_postpone',
                 width: 75,
                 handler: function () { 
                 	me.fireEvent("viewHistory",r);
-                }
+                },
+                tooltip: 'Workflow Detail'
             });
 	    }
 	    else {
@@ -178,4 +199,5 @@ Ext.define('PBPcm.view.MainGrid', {
 		    }, 50);
 	    }
 	}
+	
 });

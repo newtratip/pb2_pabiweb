@@ -744,7 +744,7 @@
 		 //<show id="purwf:targetFolderNodeRef"/>
          
          var targetFolderNodeRef = this.options.targetFolder;
-   
+
          var folderNodeRef = targetFolderNodeRef;
 		 var multiUploadConfig =
          {

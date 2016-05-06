@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainSectionDAO">
+    <resultMap id="result" type="mainSectionModel">
+        <result property="id" column="id"/>
+        <result property="description" column="description"/>
+        <result property="name" column="name"/>
+        <result property="divisionId" column="division_id"/>
+        <result property="sectorId" column="sector_id"/>
+        <result property="orgId" column="org_id"/>
+        <result property="costcenterId" column="costcenter_id"/>
+        <result property="totalRowCount" column="totalRowCount"/>
+        
+    </resultMap>
+
+	<select id="list" resultType="map" parameterType="map">
+		SELECT 	s.id, o.name, s.description
+		FROM 	pb2_ext_res_section s left join pb2_ext_res_org o on s.org_id = o.id
+		<if test="searchTerm != null">
+			WHERE o.name LIKE '%'||#{searchTerm}||'%'
+			OR s.name LIKE '%'||#{searchTerm}||'%'
+			OR s.description LIKE '%'||#{searchTerm}||'%'
+		</if>
+		ORDER BY o.name, s.name
+	</select>
+	
+	<select id="count"  resultType="long">
+        select
+		    count(1)
+		from
+		    pb2_ext_res_section
+    </select>
+    
+    <select id="get" resultType="map" parameterType="int">
+        select * from pb2_ext_res_section
+        where id=#{id}
+    </select>
+
+	<select id="listWarehouse" resultType="map" parameterType="map">
+		select w.name warehouse, p.id as picking_type_id, p.name as picking_type_name
+		from pb2_ext_res_section s join pb2_ext_res_org o on s.org_id = o.id
+		join pb2_ext_stock_warehouse w on o.operating_unit_id = w.operating_unit_id
+		join pb2_ext_stock_picking_type p on p.id = w.in_type_id
+		where s.id = #{id}
+	</select>
+	
+</mapper>

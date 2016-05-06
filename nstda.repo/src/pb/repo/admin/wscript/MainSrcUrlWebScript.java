@@ -85,7 +85,7 @@ public class MainSrcUrlWebScript {
 								, final WebScriptResponse response)
 			throws Exception {
 
-		log.info("handleMainMaster:p1:"+p1+",p2:"+p2+",orderBy:"+orderBy+",all:"+all);
+		log.info("handleMainMaster2:p1:"+p1+",p2:"+p2+",orderBy:"+orderBy+",all:"+all);
 		String json = null;
 
 		try {

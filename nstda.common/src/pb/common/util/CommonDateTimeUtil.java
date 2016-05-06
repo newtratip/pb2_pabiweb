@@ -6,6 +6,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.mortbay.log.Log;
+
 import pb.common.constant.CommonConstant;
 
 public class CommonDateTimeUtil {
@@ -34,7 +36,6 @@ public class CommonDateTimeUtil {
 	 * Convert Timestamp to String Format 'dd-MM-yyyy HH:mm'
 	 */
 	public static String convertToGridDateTime(Timestamp timestamp) {
-		
 		if (timestamp==null) {
 			return null;
 		}
@@ -71,6 +72,20 @@ public class CommonDateTimeUtil {
 		
 		return dateFormat.format(timestamp);
 	}
+	
+	/*
+	 * Convert Timestamp to String Format 'dd-MM-yyyy'T'HH:mm:ss.SSS'
+	 */
+	public static String convertToSenchaFieldDateTime(Timestamp timestamp) {
+		
+		if (timestamp==null) {
+			return null;
+		}
+		
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.SENCHA_DATE_TIME_FORMAT);
+		
+		return dateFormat.format(timestamp);
+	}	
 
 	/*
 	 * Convert Date to String Format 'dd-MM-yyyy'
@@ -96,4 +111,33 @@ public class CommonDateTimeUtil {
 		return new Timestamp(System.currentTimeMillis());
 	}
 
+	/*
+	 * Convert Timestamp to String Format 'dd-MM-yyyy'
+	 */
+	public static String convertToOdooFieldDate(Timestamp timestamp) {
+		
+		if (timestamp==null) {
+			return null;
+		}
+		
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.ODOO_DATE_FORMAT);
+		
+		return dateFormat.format(timestamp);
+	}	
+
+	/*
+	 * Convert Timestamp to String Format 'dd-MM-yyyy'T'HH:mm:ss.SSS'
+	 */
+	public static String convertToOdooFieldDateTime(Timestamp timestamp) {
+		
+		if (timestamp==null) {
+			return null;
+		}
+		
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.ODOO_DATE_TIME_FORMAT);
+		
+		return dateFormat.format(timestamp);
+	}	
+	
+	
 }

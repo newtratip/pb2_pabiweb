@@ -91,6 +91,7 @@ Import-Package: com.github.dynamicextensionsalfresco.actions.annotations
  ,org.apache.commons.logging
  ,org.xml.sax
  ,javax.xml.parsers
+ ,javax.xml.bind
  ,org.apache.commons.digester
  ,org.apache.commons.collections.map
  ,org.apache.commons.beanutils
@@ -106,3 +107,5 @@ Bundle-ClassPath: .
  ,lib/jasper-compiler-jdt-5.5.23.jar
  ,lib/com.lowagie.text-2.1.7.jar
  ,lib/fastjson-1.2.5.jar
+ ,lib/xmlrpc-1.1.1.jar
+ ,lib/xmlrpc-client-1.1.1.jar

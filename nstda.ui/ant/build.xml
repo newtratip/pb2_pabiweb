@@ -53,12 +53,6 @@
 					<isset property="page.@{module}.dir2"/>
 				</and>
 			</condition>
-			<condition property="page.dir3" value="${page.@{module}.dir3}">
-				<and>
-	   				<equals arg1="${module.@{module}}" arg2="true"/>
-					<isset property="page.@{module}.dir3"/>
-				</and>
-			</condition>
 			<condition property="pkg.name" value="${pkg.@{module}}">
 				<and>
 	   				<equals arg1="${module.@{module}}" arg2="true"/>
@@ -71,7 +65,6 @@
 				<param name="module.name" value="${module.name}"/>
 				<param name="page.dir" value="${page.dir}"/>
 				<param name="page.dir2" value="${page.dir2}"/>
-				<param name="page.dir3" value="${page.dir3}"/>
 				<param name="pkg.name" value="${pkg.name}"/>
 			</antcall>
 	    	
@@ -114,7 +107,6 @@
 	    <copy todir="${jar.dir}/META-INF/page" includeEmptyDirs="false">
 	    	<fileset dir="${sencha.prd.dir}" includes="${page.dir}/**/*"/>
 	    	<fileset dir="${sencha.prd.dir}" includes="${page.dir2}/**/*"/>
-	    	<fileset dir="${sencha.prd.dir}" includes="${page.dir3}/**/*"/>
     	</copy>
    	
 	    <jar destfile="${dist.dir}/${jar.name}">
@@ -148,10 +140,6 @@
 		<deploy module="pcmord"/>
    </target>
 		
-   <target name="Deploy.pcmuse">
-		<deploy module="pcmuse"/>
-   </target>
-	
    <target name="Deploy.exp">
 		<deploy module="exp"/>
    </target>

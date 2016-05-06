@@ -12,9 +12,4 @@
 	      parent="webscript">
 	</bean>
 	
-	<bean id="webscript.pb.pcm.use.page.get" 
-	      class="pb.ui.pcm.wscript.page.PcmUsePageWebScript"
-	      parent="webscript">
-	</bean>	
-
 </beans>

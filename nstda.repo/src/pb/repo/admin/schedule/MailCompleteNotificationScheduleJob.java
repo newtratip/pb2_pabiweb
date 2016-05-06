@@ -52,11 +52,11 @@ import pb.common.util.MailUtil;
 import pb.common.util.PersonUtil;
 import pb.repo.admin.constant.MainCompleteNotificationConstant;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainCompleteNotificationModel;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
-import pb.repo.pcm.constant.PcmWorkflowConstant;
 
 import com.github.dynamicextensionsalfresco.jobs.ScheduledQuartzJob;
 import com.sun.mail.smtp.SMTPMessage;
@@ -71,8 +71,6 @@ public class MailCompleteNotificationScheduleJob implements Job {
 	
 	private final Logger log = Logger.getLogger(MailCompleteNotificationScheduleJob.class);
 	
-	final String workflowUri = PcmWorkflowConstant.WF_URI;
-
 	@Autowired
 	AuthenticationService authService;
 	
@@ -110,13 +108,13 @@ public class MailCompleteNotificationScheduleJob implements Job {
 		log.info("--- | Mail Complete Notification Schedule | ---");
 		
 		try {
-    		MainMasterModel mailCompleteModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_COMPLETE);
+    		MainMasterModel mailCompleteModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_COMPLETE);
     		boolean mailComplete = mailCompleteModel != null && mailCompleteModel.getFlag1().equals(CommonConstant.V_ENABLE);
-    		log.info(MainMasterConstant.SCC_MEMO_MAIL_COMPLETE+" :: " + mailComplete);
+    		log.info(MainMasterConstant.SCC_PCM_REQ_MAIL_COMPLETE+" :: " + mailComplete);
 			
-    		MainMasterModel mailNotifyModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_NOTIFY);
+    		MainMasterModel mailNotifyModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_NOTIFY);
     		boolean mailNotify = mailNotifyModel != null && mailNotifyModel.getFlag1().equals(CommonConstant.V_ENABLE);
-    		log.info(MainMasterConstant.SCC_MEMO_MAIL_NOTIFY+" :: " + mailNotify);
+    		log.info(MainMasterConstant.SCC_PCM_REQ_MAIL_NOTIFY+" :: " + mailNotify);
     		
     		if(mailComplete && mailNotify) {
     			List<MainCompleteNotificationModel> list = completeNotificationService.list();
@@ -157,22 +155,22 @@ public class MailCompleteNotificationScheduleJob implements Job {
 			String workflowMailFromLabel = null;
 			
 			if (template.equals(MainCompleteNotificationConstant.TEMPLATE_COMPLETE)) {
-				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_COMPLETE_TEMPLATE);
+				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_COMPLETE_TEMPLATE);
 				emailTemplate = new NodeRef(masterModel.getFlag1());
 				
-				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_COMPLETE_SUBJECT);
+				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_COMPLETE_SUBJECT);
 				workflowMailSubject = masterModel.getFlag1();
 				
-				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_COMPLETE_FROM);
+				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_COMPLETE_FROM);
 				workflowMailFromLabel = masterModel.getFlag1();
 			} else {
-				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_RELATED_TEMPLATE);
+				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_RELATED_TEMPLATE);
 				emailTemplate = new NodeRef(masterModel.getFlag1());
 				
-				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_RELATED_SUBJECT);
+				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_RELATED_SUBJECT);
 				workflowMailSubject = masterModel.getFlag1();
 				
-				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MAIL_RELATED_FROM);
+				masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_MAIL_RELATED_FROM);
 				workflowMailFromLabel = masterModel.getFlag1();
 			}
 			

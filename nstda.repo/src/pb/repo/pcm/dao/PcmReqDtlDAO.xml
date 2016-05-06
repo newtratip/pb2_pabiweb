@@ -5,9 +5,13 @@
     <resultMap id="result" type="pcmReqDtlModel">
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
+        <result property="isEquipment" column="is_equipment"/>
         <result property="description" column="description"/>
-        <result property="amount" column="amount"/>
-        <result property="currency" column="currency"/>
+        <result property="quantity" column="quantity"/>
+        <result property="unit" column="unit"/>
+        <result property="price" column="price"/>
+        <result property="priceCnv" column="price_cnv"/>
+        <result property="total" column="total"/>
         <result property="createdTime" column="created_time"/>
         <result property="createdBy" column="created_by"/>
         <result property="updatedTime" column="updated_time"/>
@@ -20,17 +24,14 @@
 		    *, COUNT(*) OVER() totalRowCount
 		FROM
 		    pb2_pcm_req_dtl
-		WHERE
-			1=1
+		WHERE 1=1
 		<if test="masterId != null">
-		AND 
-			master_id=#{masterId}
+			AND master_id=#{masterId}
 		</if>			
 		<if test="desc != null">
-		AND 
-			description=#{desc}
+			AND description=#{desc}
 		</if>			
-		ORDER BY field_name
+		ORDER BY id
 		
     </select>
     
@@ -44,15 +45,23 @@
 		>
 	    INSERT INTO pb2_pcm_req_dtl(
 	    	master_id
+	    	,is_equipment
 	    	,description
-	    	,amount
-	    	,currency
+	    	,quantity
+	    	,unit
+	    	,price
+	    	,price_cnv
+	    	,total
 	    	,created_by,updated_by
 	    )VALUES( 
     		#{masterId}
-    		,#{desc}
-    		,#{amt}
-    		,#{cur}
+    		,#{isEquipment}
+    		,#{description}
+    		,#{quantity}
+    		,#{unit}
+    		,#{price}
+    		,#{priceCnv}
+    		,#{total}
     		,#{createdBy},#{updatedBy}
     	)
 		
@@ -88,6 +97,23 @@
 		FROM
 		    pb2_pcm_req_dtl
 		WHERE id=#{id}
+    </select>
+    
+    <select id="listForInf" resultType="map" parameterType="map">
+		select 
+			d.description, 
+			d.quantity, 
+			u.id unit_id,
+			r.budget_cc,
+			r.cost_control_id,
+			t.name vat_name,
+			price_cnv,
+			d.updated_time
+		from pb2_pcm_req_dtl d left join pb2_ext_product_uom u on d.unit = u.name
+		left join pb2_pcm_req r on r.id = d.master_id
+		left join pb2_ext_account_tax t on r.vat_id = t.id
+		where master_id = #{id}
+		ORDER BY d.id
     </select>
     
 </mapper>

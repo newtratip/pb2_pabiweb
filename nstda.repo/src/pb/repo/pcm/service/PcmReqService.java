@@ -1,18 +1,11 @@
 package pb.repo.pcm.service;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -24,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -31,8 +25,6 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.sql.DataSource;
 
-import net.sf.jasperreports.engine.JRRuntimeException;
-import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -69,33 +61,55 @@ import pb.common.constant.CommonConstant;
 import pb.common.constant.FileConstant;
 import pb.common.model.FileModel;
 import pb.common.util.DocUtil;
+import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
 import pb.common.util.ImageUtil;
 import pb.common.util.PersonUtil;
+import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.dao.MainWorkflowDAO;
+import pb.repo.admin.dao.MainWorkflowHistoryDAO;
+import pb.repo.admin.dao.MainWorkflowNextActorDAO;
+import pb.repo.admin.dao.MainWorkflowReviewerDAO;
+import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.admin.model.MainMasterModel;
+import pb.repo.admin.model.MainWorkflowHistoryModel;
+import pb.repo.admin.model.MainWorkflowModel;
+import pb.repo.admin.model.MainWorkflowNextActorModel;
+import pb.repo.admin.model.SubModuleModel;
+import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
+import pb.repo.admin.service.AdminProjectService;
+import pb.repo.admin.service.AdminSectionService;
 import pb.repo.admin.service.AdminUserGroupService;
+import pb.repo.admin.service.AdminWkfConfigService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.service.MainSrcUrlService;
+import pb.repo.admin.service.MainWorkflowService;
+import pb.repo.admin.service.SubModuleService;
+import pb.repo.admin.util.MainUserGroupUtil;
+import pb.repo.common.mybatis.DbConnectionFactory;
+import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
 import pb.repo.pcm.constant.PcmReqConstant;
+import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.dao.PcmReqCmtDAO;
+import pb.repo.pcm.dao.PcmReqCmtDtlDAO;
+import pb.repo.pcm.dao.PcmReqCmtHdrDAO;
 import pb.repo.pcm.dao.PcmReqDAO;
 import pb.repo.pcm.dao.PcmReqDtlDAO;
-import pb.repo.pcm.dao.PcmReqReviewerDAO;
-import pb.repo.pcm.dao.PcmReqWorkflowDAO;
-import pb.repo.pcm.dao.PcmReqWorkflowHistoryDAO;
+import pb.repo.pcm.model.PcmReqCmtDtlModel;
+import pb.repo.pcm.model.PcmReqCmtHdrModel;
 import pb.repo.pcm.model.PcmReqCmtModel;
 import pb.repo.pcm.model.PcmReqDtlModel;
 import pb.repo.pcm.model.PcmReqModel;
-import pb.repo.pcm.model.PcmReqReviewerModel;
-import pb.repo.pcm.model.PcmWorkflowHistoryModel;
+import pb.repo.pcm.util.PcmReqCmtHdrUtil;
 import pb.repo.pcm.util.PcmReqDtlUtil;
 import pb.repo.pcm.util.PcmReqUtil;
 import pb.repo.pcm.util.PcmUtil;
 
 @Service
-public class PcmReqService {
+public class PcmReqService implements SubModuleService {
 
 	private static Logger log = Logger.getLogger(PcmReqService.class);
 
@@ -145,19 +159,35 @@ public class PcmReqService {
 	MainSrcUrlService mainSrcUrlService;
 	
 	@Autowired
-	PcmReqWorkflowService pcmReqWorkflowService;
+	MainWorkflowService mainWorkflowService;
 	
-	public PcmReqModel save(PcmReqModel model, String dtls, String files, boolean genDoc) throws Exception {
+	@Autowired
+	AdminHrEmployeeService adminHrEmployeeService;
+	
+	@Autowired
+	AdminWkfConfigService adminWkfConfigService;
+	
+	@Autowired
+	AdminSectionService adminSectionService;
+	
+	@Autowired
+	AdminProjectService adminProjectService;
+	
+	
+	public PcmReqModel save(PcmReqModel model, String dtls, String files, String cmts, boolean genDoc) throws Exception {
 		
         SqlSession session = PcmUtil.openSession(dataSource);
         
         try {
             PcmReqDAO pcmReqDAO = session.getMapper(PcmReqDAO.class);
             PcmReqDtlDAO pcmReqDtlDAO = session.getMapper(PcmReqDtlDAO.class);
+            PcmReqCmtHdrDAO pcmReqCmtHdrDAO = session.getMapper(PcmReqCmtHdrDAO.class);
+            PcmReqCmtDtlDAO pcmReqCmtDtlDAO = session.getMapper(PcmReqCmtDtlDAO.class);
             
             setUserGroupFields(model);
             
     		model.setUpdatedBy(authService.getCurrentUserName());
+    		model = lookupOtherFields(model);
     		
             if (model.getId() == null) {
         		model.setCreatedBy(model.getUpdatedBy());
@@ -168,33 +198,13 @@ public class PcmReqService {
         		MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_ID_FORMAT);
         		String idFormat = masterModel.getFlag1();
 
-        		String idPrefix = genNewId(model, idFormat, 1l, true); // genPrefix=true -> BY201508-
-        		log.info("idPrefix:"+idPrefix);
-        		
-        		Map<String, Object> params = new HashMap<String, Object>();
-        		params.put("idPrefix", idPrefix+"%");
-        		
-//        		Map<String, Object> params = new HashMap<String, Object>();
-//        		params.put("f2", model.getField2()); // Supalai : f2=project
-//        		String newId = pcmReqDAO.genNewId(params);
-        		String newId = null;
-        		String rawLastId = pcmReqDAO.getLastId(params);
-        		log.info("rawLastId:"+rawLastId);
-        		if (rawLastId == null) {
-//        			SimpleDateFormat df = new SimpleDateFormat("YYYYMM");
-//        			newId = model.getField2() + df.format(new Date()) + "-001";
-        			
-            		newId = genNewId(model, idFormat, 1l, false); // genPrefix=false -> BY201508-001
-        		}
-        		else {
-            		String lastId = rawLastId.replace(idPrefix, "");
-            		Long id = Long.parseLong(lastId)+1;
-            		
-            		newId = genNewId(model, idFormat, id, false); // genPrefix=false -> BY201508-(lastId+1)
-        		}
+            	Long id = pcmReqDAO.getNewRunningNo();
+            	
+            	String newId = genNewId(model, idFormat, id); // PR16000001
+            	
         		model.setId(newId);
         		log.info("new id:"+newId);
-            	doCommonSaveProcess(model, genDoc, files, dtls);
+            	doCommonSaveProcess(model, genDoc, files);
             	
         		/*
         		 * Add DB
@@ -202,7 +212,7 @@ public class PcmReqService {
             	pcmReqDAO.add(model);
             }
             else {
-            	doCommonSaveProcess(model, genDoc, files, dtls);
+            	doCommonSaveProcess(model, genDoc, files);
             	
             	/*
             	 * Update DB
@@ -210,6 +220,8 @@ public class PcmReqService {
             	pcmReqDAO.update(model);
             	
             	pcmReqDtlDAO.deleteByMasterId(model.getId());
+            	pcmReqCmtDtlDAO.deleteByMasterId(model.getId());
+            	pcmReqCmtHdrDAO.deleteByMasterId(model.getId());
             }
             
             List<PcmReqDtlModel> dtlList = PcmReqDtlUtil.convertJsonToList(dtls, model.getId());
@@ -219,6 +231,25 @@ public class PcmReqService {
 	        	
             	pcmReqDtlDAO.add(dtlModel);
             }
+            
+            List<PcmReqCmtHdrModel> cmtHdrList = PcmReqCmtHdrUtil.convertJsonToList(cmts, model.getId());
+            for(PcmReqCmtHdrModel cmtHdrModel : cmtHdrList) {
+	        	cmtHdrModel.setCreatedBy(model.getUpdatedBy());
+	        	cmtHdrModel.setUpdatedBy(model.getUpdatedBy());
+	        	
+            	pcmReqCmtHdrDAO.add(cmtHdrModel);
+            	
+                for(PcmReqCmtDtlModel cmtDtlModel : cmtHdrModel.getDtlList()) {
+                	
+                	cmtDtlModel.setMasterId(cmtHdrModel.getId());
+                	
+                	cmtDtlModel.setCreatedBy(model.getUpdatedBy());
+                	cmtDtlModel.setUpdatedBy(model.getUpdatedBy());
+    	        	
+                	pcmReqCmtDtlDAO.add(cmtDtlModel);
+                }
+            }
+            
             
             session.commit();
         } catch (Exception ex) {
@@ -230,6 +261,17 @@ public class PcmReqService {
         }
 
         return model;
+	}
+	
+	private PcmReqModel lookupOtherFields(PcmReqModel model) {
+		List<Map<String, Object>> list = adminWkfConfigService.listPurchasingUnit(model.getBudgetCc());
+		if (list!=null && list.size()>0) {
+			Map<String, Object> map = list.get(0);
+			
+			model.setPcmSectionId((Integer)map.get("id"));
+		}
+		
+		return model;
 	}
 	
 	public String save(PcmReqModel model) throws Exception {
@@ -261,7 +303,7 @@ public class PcmReqService {
         return model.getId();
 	}
 	
-	private String genNewId(PcmReqModel pcmReqModel, String oriFormat, Long runningNo, boolean genPrefix) throws Exception {
+	private String genNewId(PcmReqModel pcmReqModel, String oriFormat, Long runningNo) throws Exception {
 		
 		Map<String, Object> model = new HashMap<String, Object>();
 
@@ -286,12 +328,8 @@ public class PcmReqService {
     		}
     		else
     		if (oriFormat.indexOf(PcmReqConstant.JFN_RUNNING_NO) >= 0) {
-    			if (genPrefix) {
-    				oriFormat = deleteRunningNoFromFormat(PcmReqConstant.JFN_RUNNING_NO, oriFormat);
-    			} else {
-    				oriFormat = handleRunningNo(PcmReqConstant.JFN_RUNNING_NO, model, oriFormat, newFieldIndex, runningNo);
-    				model.put(PcmReqConstant.JFN_RUNNING_NO,  runningNo);
-    			}
+				oriFormat = handleRunningNo(PcmReqConstant.JFN_RUNNING_NO, model, oriFormat, newFieldIndex, runningNo);
+				model.put(PcmReqConstant.JFN_RUNNING_NO,  runningNo);
     		}
     		else
     		if (oriFormat.indexOf(PcmReqConstant.JFN_FISCAL_YEAR) >= 0) {
@@ -330,9 +368,9 @@ public class PcmReqService {
         SqlSession session = PcmUtil.openSession(dataSource);
         
         try {
-            PcmReqDAO pcmReqDAO = session.getMapper(PcmReqDAO.class);
+            PcmReqDAO dao = session.getMapper(PcmReqDAO.class);
           
-            pcmReqDAO.updateStatus(model);
+            dao.updateStatus(model);
             
             session.commit();
         } catch (Exception ex) {
@@ -381,7 +419,32 @@ public class PcmReqService {
         return result;
 	}
 	
-	private void doCommonSaveProcess(PcmReqModel model, boolean genDoc, String files, String dtls) throws Exception {
+	private PcmReqModel doCommonSaveProcess(PcmReqModel model, boolean genDoc, String files) throws Exception {
+		
+		/*
+		 * Find Pcm Section Id
+		 */
+		Integer pcmSectionId = null;
+		
+		Integer sectionId = null;
+		
+		if (model.getBudgetCcType().equals(PcmReqConstant.BCCT_PROJECT)) {
+			 List<Map<String, Object>> list = adminProjectService.listProjectManager(model.getBudgetCc());
+			 for(Map<String, Object> map : list) {
+				 sectionId = (Integer)map.get("section_id");
+			 }
+		} else {
+			sectionId = model.getBudgetCc();
+		}
+		
+		List<Map<String, Object>> pcmSectionList = adminWkfConfigService.listPurchasingUnit(sectionId);
+		if (pcmSectionList != null) {
+			for(Map<String, Object>  map : pcmSectionList) {
+				pcmSectionId = (Integer)map.get("id");
+			}
+		}
+		
+		model.setPcmSectionId(pcmSectionId);
 		
     	/*
     	 * Create ECM Folder
@@ -391,7 +454,7 @@ public class PcmReqService {
 		NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
 		
 		/*
-		 * Gen Memo Doc
+		 * Gen Doc
 		 */
 		if (genDoc) {
 			model = genDoc(model, folderNodeRef);
@@ -477,16 +540,18 @@ public class PcmReqService {
 		    	model.setAttachDoc(docRef.toString());
 	    	}
     	}
+    	
+    	return model;
 	}
 	
 	public PcmReqModel genDoc(PcmReqModel model, NodeRef folderNodeRef) throws Exception {
 		/*
 		 * Gen Doc in tmp folder
 		 */
-    	String fileName =  doGenDoc("pr");
+    	String fileName =  doGenDoc("pr", model);
 		String tmpDir = FolderUtil.getTmpDir();
-//    	String fullName = tmpDir + File.separator + fileName+".pdf"; // real code
-    	String fullName = tmpDir + File.separator + "PR_FORM.pdf"; // for Demo
+    	String fullName = tmpDir + File.separator + fileName+".pdf"; // real code
+//    	String fullName = tmpDir + File.separator + "PR_FORM.pdf"; // for Demo
     	File file = new File(fullName);
     	String ecmFileName = model.getId()+".pdf";
     	
@@ -522,9 +587,9 @@ public class PcmReqService {
     	/*
     	 * Delete File from tmp folder 
     	 */
-//    	if (file.exists()) {
-//    		file.delete();
-//    	}
+    	if (file.exists()) {
+    		file.delete();
+    	}
     	
     	/*
     	 * Update docRef field
@@ -534,30 +599,58 @@ public class PcmReqService {
     	return model;
 	}
 	
-	public String doGenDoc(String name) throws Exception {
-		
-//		List<Map<String, Object>> rptConfigList = masterService.listByType(MainMasterConstant.TYPE_REPORT, type , true, null, null);
-//		Map<String, Object> rptConfigModel = rptConfigList.get(0); 
-		
-		String rptName = CommonConstant.GP_REPORT_PATH + "/" + CommonConstant.MODULE_PCM.toLowerCase() + "/" + name + ".jasper";
-		InputStream is = getClass().getResourceAsStream(rptName);
-		  
-		Map<String, Object> map = new HashMap<>();
-		List<Map<String, Object>> listData = new ArrayList<Map<String,Object>>();
-//		  map.put("data", list);
-//		  map.put("fromDate", from);
-//		  map.put("toDate", to);
-//		  map.put("type", type);
-//		  map.put("typeName", rptConfigModel.get(MainMasterConstant.TFN_FLAG2));
-//		  map.put("criteria", criteria);
-		listData.add(map);
-
+	public String doGenDoc(String name, PcmReqModel model) throws Exception {
+		/*
+		 * Parameters
+		 */
 		Map parameters = new HashMap();
 		parameters.put("imgPath", CommonConstant.GP_REPORT_IMG_PATH);
+		  
+		/*
+		 * Data
+		 */
+		List<Map<String, Object>> listData = new ArrayList<Map<String,Object>>();
+		
+		Map<String, Object> map = new HashMap<>();
+		map.put("id", model.getId() != null ? model.getId() : "");
+		map.put("reqBy", model.getReqBy());
+		map.put("reqOu", model.getReqSectionId());
+		
+		map.put("createdBy", model.getReqBy());
+		map.put("createdTime", model.getReqBy());
+		map.put("telNo", model.getReqBy());
+		
+		map.put("objectiveType", model.getObjectiveType());
+		map.put("objective", model.getObjective());
+		map.put("reason", model.getReason());
+		
+		map.put("currency", model.getCurrency());
+		map.put("currencyRate", String.valueOf(model.getCurrencyRate()));
+		map.put("budgetCc", model.getBudgetCc());
+		
+		map.put("stockOu", model.getStockSectionId());
+		map.put("prototype", model.getPrototype());
+		
+		map.put("event", String.valueOf(model.getCostControlId()));
+		map.put("pcmOu", model.getPcmSectionId());
+		map.put("location", model.getLocation());
+		
+		map.put("acrossBudget", String.valueOf(model.getAcrossBudget()));
+		map.put("refId", model.getRefId());
+		
+		map.put("method", model.getMethod());
+		
+		listData.add(map);
 
 		Collection<Map<String, ?>> collection = new ArrayList<Map<String,?>>(listData);
 		JRMapCollectionDataSource data = new JRMapCollectionDataSource(collection);
 		  
+		/*
+		 * Gen PDF 
+		 */
+		String rptName = CommonConstant.GP_REPORT_PATH + "/" + CommonConstant.MODULE_PCM.toLowerCase() + "/" + name + ".jasper";
+		InputStream is = getClass().getResourceAsStream(rptName);
+
 		JasperReport jasperReport = (JasperReport)JRLoader.loadObject(is);
 		JasperPrint jasperPrint = JasperFillManager.fillReport(
 															jasperReport, 
@@ -577,81 +670,7 @@ public class PcmReqService {
 		return fileName;
 	}
 	
-	public String _doGenDoc() throws Exception {
-		DocUtil docUtil = new DocUtil();
-		String tmpDir = FolderUtil.getTmpDir();
-		String fileName = docUtil.genUniqueFileName();
-		String fullName = tmpDir + File.separator + fileName;
-		
-		log.info("fullName="+fullName);
-		
-		Path outputPath = Paths.get(fullName + ".html");
-		try (BufferedWriter writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-			writer.write("<html><head><meta charset=\"UTF-8\"><head><body>");
-
-			writer.write("Preview");
-			
-			writer.write("</body><html>");
-			writer.flush();
-			writer.close();
-			/*
-			 * Convert html to pdf
-			 */
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("fullName", fullName);
-			
-			MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_PAGE_MARGIN_T);
-			params.put("top", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_PAGE_MARGIN_B);
-			params.put("bottom", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_PAGE_MARGIN_L);
-			params.put("left", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_PAGE_MARGIN_R);
-			params.put("right", masterModel!=null ? masterModel.getFlag1() : null);
-			
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_LEFT);
-			params.put("h_left", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_RIGHT);
-			params.put("h_right", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_CENTER);
-			params.put("h_center", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_SPACING);
-			params.put("h_spacing", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_FONT_NAME);
-			params.put("h_font_name", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_HEADER_FONT_SIZE);
-			params.put("h_font_size", masterModel!=null ? masterModel.getFlag1() : null);
-			
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_LEFT);
-			params.put("f_left", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_RIGHT);
-			params.put("f_right", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_CENTER);
-			params.put("f_center", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_SPACING);
-			params.put("f_spacing", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_FONT_NAME);
-			params.put("f_font_name", masterModel!=null ? masterModel.getFlag1() : null);
-			masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_FOOTER_FONT_SIZE);
-			params.put("f_font_size", masterModel!=null ? masterModel.getFlag1() : null);
-			
-			docUtil.convertHtmlToPdf(params);
-			
-			/*
-			 * Delete html file
-			 */
-			File file = new File(fullName+".html");
-			file.delete();
-		}
-		catch (Exception ex) {
-			log.error("", ex);
-			throw ex;
-		}
-		
-		return fileName;
-	}
-	
-	public List<FileModel> listFile(String id) throws Exception {
+	public List<FileModel> listFile(String id,final Boolean allFile) throws Exception {
 
 		final PcmReqModel model = get(id);
 		log.info("list file : id:"+model.getId());
@@ -673,7 +692,7 @@ public class PcmReqService {
 		    		log.info("   childRef:"+doc.getChildRef().toString());
 		    		log.info("   qname:"+doc.getQName().getLocalName());
 		    		
-		    		if (!doc.getQName().getLocalName().equals(model.getId()+".pdf")) {
+		    		if (!doc.getQName().getLocalName().equals(model.getId()+".pdf") || allFile) {
 		    			FileModel fileModel = new FileModel();
 		    			fileModel.setName(doc.getQName().getLocalName());
 		    			fileModel.setNodeRef(doc.getChildRef().toString());
@@ -733,6 +752,16 @@ public class PcmReqService {
 			jsObj.put("field", fields[0]);
 			if (fields.length > 1) {
 				jsObj.put("width", fields[1]);
+				if(fields.length > 2) {
+					jsObj.put("align", fields[2]);
+					if(fields.length > 3) {
+						jsObj.put("wrap", fields[3]);
+					}
+				}
+			}
+			
+			if (model.getFlag3()!=null && !model.getFlag3().equals("")) {
+				jsObj.put("type", model.getFlag3());
 			}
 			
 			jsArr.put(jsObj);
@@ -741,21 +770,21 @@ public class PcmReqService {
 		return jsArr;
 	}
 	
-	private void createEcmFolder(PcmReqModel memoModel) throws Exception {
+	private void createEcmFolder(PcmReqModel model) throws Exception {
 		
-		boolean exists = (memoModel.getFolderRef()!=null) && fileFolderService.exists(new NodeRef(memoModel.getFolderRef()));
+		boolean exists = (model.getFolderRef()!=null) && fileFolderService.exists(new NodeRef(model.getFolderRef()));
 		
 		if (!exists) {
-			JSONObject memoMap = PcmReqUtil.convertToJSONObject(memoModel,false);
+			JSONObject map = PcmReqUtil.convertToJSONObject(model,false);
 			Calendar cal = Calendar.getInstance();
     		if (cal.get(Calendar.MONTH) >= 9) { // >= October (Thai Start Budget Year)
     			cal.add(Calendar.YEAR, 1);
     		}
     		Timestamp timestampValue = new Timestamp(cal.getTimeInMillis());
-    		memoMap.put(PcmReqConstant.JFN_FISCAL_YEAR, timestampValue);
+    		map.put(PcmReqConstant.JFN_FISCAL_YEAR, timestampValue);
 			
 			
-			Iterator it = memoMap.keys();
+			Iterator it = map.keys();
 			while(it.hasNext()) {
 				Object obj = it.next();
 				log.info("--"+obj.toString());
@@ -793,7 +822,7 @@ public class PcmReqService {
 					String fieldName = format.substring(rpos+CommonConstant.REPS_PREFIX.length(), rpos2);
 					
 					SimpleDateFormat df = new SimpleDateFormat(dFormat);
-					folderMap.put("name", df.format(memoMap.get(fieldName)));
+					folderMap.put("name", df.format(map.get(fieldName)));
 				}	
 				else {
 					pos = format.indexOf("[");
@@ -802,7 +831,7 @@ public class PcmReqService {
 						
 						String descFieldName = format.substring(pos+1, pos2);
 						w = new StringWriter();
-						pc.processString("${"+descFieldName+"}", memoMap, w);
+						pc.processString("${"+descFieldName+"}", map, w);
 						folderMap.put("desc", w.toString());
 						w.close();
 						
@@ -810,7 +839,7 @@ public class PcmReqService {
 					}
 					
 					w = new StringWriter();
-					pc.processString(format, memoMap, w);
+					pc.processString(format, map, w);
 					folderMap.put("name", FolderUtil.getValidFolderName(w.toString()));
 					w.close();
 				}
@@ -829,8 +858,8 @@ public class PcmReqService {
 			
 			NodeRef folderRef = folderUtil.createFolderStructure(paths, siteId);
 			
-			if (!folderRef.toString().equals(memoModel.getFolderRef())) {
-				memoModel.setFolderRef(folderRef.toString());
+			if (!folderRef.toString().equals(model.getFolderRef())) {
+				model.setFolderRef(folderRef.toString());
 			}
 		}
 	}
@@ -866,36 +895,26 @@ public class PcmReqService {
         return list;
 	}
 	
-	public void deleteReviewerByMasterId(String id) throws Exception {
-		SqlSession session = PcmUtil.openSession(dataSource);
-        try {
-            PcmReqReviewerDAO pcmReqReviewerDAO = session.getMapper(PcmReqReviewerDAO.class);
-            pcmReqReviewerDAO.deleteByMasterId(id);
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
-        } finally {
-        	session.close();
-        }
-	}
-	
 	public void delete(String id) throws Exception {
 		
 		SqlSession session = PcmUtil.openSession(dataSource);
         try {
             PcmReqDAO pcmReqDAO = session.getMapper(PcmReqDAO.class);
-            PcmReqReviewerDAO pcmReqReviewerDAO = session.getMapper(PcmReqReviewerDAO.class);
+            MainWorkflowReviewerDAO workflowReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
             PcmReqDtlDAO pcmReqDtlDAO = session.getMapper(PcmReqDtlDAO.class);
-            PcmReqWorkflowDAO memoWorkflowDAO = session.getMapper(PcmReqWorkflowDAO.class);
-            PcmReqWorkflowHistoryDAO memoWorkflowHistoryDAO = session.getMapper(PcmReqWorkflowHistoryDAO.class);
+            MainWorkflowDAO workflowDAO = session.getMapper(MainWorkflowDAO.class);
+            MainWorkflowHistoryDAO workflowHistoryDAO = session.getMapper(MainWorkflowHistoryDAO.class);
+            PcmReqCmtHdrDAO pcmReqCmtHdrDAO = session.getMapper(PcmReqCmtHdrDAO.class);
+            PcmReqCmtDtlDAO pcmReqCmtDtlDAO = session.getMapper(PcmReqCmtDtlDAO.class);
 
-    		PcmReqModel memoModel = get(id);
-    		alfrescoService.deleteFileFolder(memoModel.getFolderRef());
-    		
-    		memoWorkflowHistoryDAO.deleteByPcmReqId(id);
-    		memoWorkflowDAO.deleteByMasterId(id);
-    		pcmReqReviewerDAO.deleteByMasterId(id);
+    		PcmReqModel model = get(id);
+    		alfrescoService.deleteFileFolder(model.getFolderRef());
+
+    		workflowHistoryDAO.deleteByPcmReqId(id);
+    		workflowReviewerDAO.deleteByMasterId(id);
+    		workflowDAO.deleteByMasterId(id);
+    		pcmReqCmtDtlDAO.deleteByMasterId(id);
+    		pcmReqCmtHdrDAO.deleteByMasterId(id);
     		pcmReqDtlDAO.deleteByMasterId(id);
     		pcmReqDAO.delete(id);
             
@@ -1034,7 +1053,7 @@ public class PcmReqService {
 			Map<String,Object> params = new HashMap<String, Object>();
 			params.put("masterId", id);
 			params.put("orderDesc", "");
-			List<PcmWorkflowHistoryModel> hList = pcmReqWorkflowService.listHistory(params);
+			List<MainWorkflowHistoryModel> hList = mainWorkflowService.listHistory(params);
 
 			
 			
@@ -1045,7 +1064,7 @@ public class PcmReqService {
 			
 			if (hList!=null) {
 				boolean wfClosed = false;
-				for (PcmWorkflowHistoryModel hModel : hList) {
+				for (MainWorkflowHistoryModel hModel : hList) {
 					if (hModel.getAction().indexOf("ปิดงาน") >= 0) {
 						wfClosed = true;
 						break;
@@ -1053,7 +1072,7 @@ public class PcmReqService {
 				}
 				
 				if (wfClosed) {
-					for (PcmWorkflowHistoryModel hModel : hList) {
+					for (MainWorkflowHistoryModel hModel : hList) {
 						Integer lvl = hModel.getLevel();
 						if ((hModel.getAction().indexOf("อนุมัติ") >= 0 || hModel.getAction().indexOf("ปิดงาน") >= 0)
 								&& !lvlSet.contains(lvl)
@@ -1101,89 +1120,6 @@ public class PcmReqService {
 		model.put("S_ID", id!=null ? id : "${S_ID}");
 	}
 	
-	private String handleSystemImage(String rptFormat) throws Exception  {
-		/*
-		 * Expected : ${S_IMAGE_1}
-		 * 			: ${S_IMAGE_1?["100,100"]} 
-		 */
-		
-		/*
-		 * prefix
-		 */
-		String prefix = CommonConstant.REPS_PREFIX
-				   + PcmReqConstant.RPTSV_IMAGE
-				   + "_"
-				   ; // prefix = ${S_IMAGE_
-		int prePos = rptFormat.indexOf(prefix);
-		
-		/*
-		 * While found prefix or prefixF in rptFormat , replace pattern with image
-		 */
-		String displayFormat = null;
-		String pattern = null;
-		String suffix = null;
-		int sufPos;
-		int imgNo;
-		
-		while (prePos >= 0) {
-			displayFormat = null;
-			
-    		sufPos = rptFormat.indexOf(CommonConstant.REPS_SUFFIX, prePos);
-    		
-    		pattern = rptFormat.substring(prePos, sufPos + CommonConstant.REPS_SUFFIX.length());
-    		suffix = rptFormat.substring(prePos + prefix.length(), sufPos + CommonConstant.REPS_SUFFIX.length());
-    		
-    		int formatPos = suffix.indexOf(CommonConstant.FMTS_PREFIX);
-    		if (formatPos >= 0) {
-    			prePos = suffix.indexOf(CommonConstant.FMTS_PREFIX);
-    			imgNo = Integer.parseInt(suffix.substring(0, prePos));
-    			
-    			sufPos = suffix.indexOf(CommonConstant.FMTS_SUFFIX);
-    			displayFormat = suffix.substring(prePos + CommonConstant.FMTS_PREFIX.length(), sufPos);
-    		} else {
-    			sufPos = suffix.indexOf(CommonConstant.REPS_SUFFIX);
-    			imgNo = Integer.parseInt(suffix.substring(0, sufPos));
-    		}
-    		
-    		MainMasterModel imgModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_IMAGE+"_"+imgNo);
-
-    		boolean hasValue = imgModel!=null;
-    		String value = null;
-    		if (hasValue) {
-        		value = imgModel.getFlag1();
-    			hasValue = (value != null) && !value.toString().equals("");
-    		}
-    		
-    		/*
-    		 * Prepare imgStr if found pattern in rptFormat
-    		 */
-			StringBuffer imgTag = new StringBuffer();
-			
-    		if (hasValue) {
-    			NodeRef imgNodeRef = new NodeRef(value.toString());
-    			ContentReader reader = alfrescoService.getContentByNodeRef(imgNodeRef);
-    			BufferedImage img = ImageIO.read(reader.getContentInputStream());
-    			imgTag.append("<img src=\"data:image/png;base64,"+ImageUtil.encodeToString(img, "png")+"\"");
-    			
-    			if (displayFormat!=null && !displayFormat.equals("")) {
-    				String[] pos = displayFormat.trim().split(","); 
-    				
-    				imgTag.append(" style=\"position:fixed;");
-    				imgTag.append("left:"+pos[0]+"px;");
-    				imgTag.append("top:"+pos[1]+"px\"");
-    			}
-    			
-    			imgTag.append("/>");
-    		}
-			
-    		rptFormat = rptFormat.replace(pattern, imgTag.toString());
-    		
-			prePos = rptFormat.indexOf(prefix);
-		}
-		
-		return rptFormat;
-	}	
-
 	private String handleSignatureImage(String rptFormat, JSONObject dataMap, Map<String, String> prefixMap) throws Exception  {
 		/*
 		 * Expected : ${S_SIGN_REQ}
@@ -1442,7 +1378,7 @@ public class PcmReqService {
 	    			log.info("value="+value);
 	        		
 	    		} else {
-	        		SimpleDateFormat dateFormat = new SimpleDateFormat(format.replace("&nbsp;"," "));
+	        		SimpleDateFormat dateFormat = new SimpleDateFormat(format.replace("&nbsp;"," "), Locale.US);
 	        		
 	        		value = dateFormat.format(timestamp);
 	    		}
@@ -1528,27 +1464,6 @@ public class PcmReqService {
 		return rptFormat;
 	}
 	
-	private String deleteRunningNoFromFormat(String fieldName, String rptFormat) throws Exception  {
-		
-		String pattern = CommonConstant.REPS_PREFIX
-					   + fieldName
-					   + CommonConstant.FMTS_PREFIX
-					   ;
-		
-		int prePos = rptFormat.indexOf(pattern);
-		while (prePos >= 0) {
-    		int sufPos = rptFormat.indexOf(CommonConstant.FMTS_SUFFIX, prePos);
-    		
-    		rptFormat = rptFormat.substring(0, prePos) 
-    				+ rptFormat.substring(sufPos + CommonConstant.FMTS_SUFFIX.length())
-    				;
-    		
-    		prePos = rptFormat.indexOf(pattern);
-		}
-		
-		return rptFormat;
-	}
-	
 	private String handleStringFunction(String fieldNamePrefix, String fieldName, Map<String, Object> model, String rptFormat, int preIndex, String srcValue) throws Exception  {
 		
 		String pattern = CommonConstant.REPS_PREFIX
@@ -1616,20 +1531,22 @@ public class PcmReqService {
 		return rptFormat;
 	}
 	
-	
-	public void update(PcmReqModel model) throws Exception {
+	@Override
+	public void update(SubModuleModel subModuleModel) throws Exception {
+		
+		PcmReqModel model = (PcmReqModel)subModuleModel;
 		
         SqlSession session = PcmUtil.openSession(dataSource);
         
         try {
-            PcmReqDAO pcmReqDAO = session.getMapper(PcmReqDAO.class);
+            PcmReqDAO dao = session.getMapper(PcmReqDAO.class);
             
         	/*
         	 * Update DB
         	 */
             model.setUpdatedTime(new Timestamp(Calendar.getInstance().getTimeInMillis()));
             
-        	pcmReqDAO.update(model);
+        	dao.update(model);
             
             session.commit();
         } catch (Exception ex) {
@@ -1642,69 +1559,54 @@ public class PcmReqService {
 
 	}
 	
-	public void addReviewer(PcmReqReviewerModel pcmReqReviewerModel) throws Exception {
-		
-		SqlSession session = PcmUtil.openSession(dataSource);
-        try {
-           
-            PcmReqReviewerDAO pcmReqReviewerDAO = session.getMapper(PcmReqReviewerDAO.class);
-
-    		pcmReqReviewerDAO.add(pcmReqReviewerModel);
-
-            
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
-        } finally {
-        	session.close();
-        }
-	}
-	
-	public PcmReqReviewerModel getReviewer(PcmReqReviewerModel pcmReqReviewerModel) throws Exception {
-		
-		PcmReqReviewerModel model = null;
-		
-		SqlSession session = PcmUtil.openSession(dataSource);
-        try {
-           
-            PcmReqReviewerDAO pcmReqReviewerDAO = session.getMapper(PcmReqReviewerDAO.class);
-
-    		List<PcmReqReviewerModel> list = pcmReqReviewerDAO.listByLevel(pcmReqReviewerModel);
-    		if (list.size()>0) {
-    			model = list.get(0);
-    		}
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
-        } finally {
-        	session.close();
-        }
-        
-        return model;
-	}	
-	
 	public List<Map<String, Object>> listWorkflowPath(String id) {
 		
-		List<Map<String, Object>> list = null;
+		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id);
 		
-		SqlSession session = PcmUtil.openSession(dataSource);
+		/*
+		 * Add Requester
+		 */
+		PcmReqModel model = get(id);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("LEVEL", "ผู้ขออนุมัติ");
+		map.put("U", model.getCreatedBy());
+		map.put("G", "");
+		map.put("IRA", false);
+		
+		list.add(0, map);
+		
+		/*
+		 * Add Next Actor
+		 */
+		List<Map<String, Object>> actorList = null;
+		SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
-           
-            PcmReqDAO dao = session.getMapper(PcmReqDAO.class);
-
-    		list = dao.listWorkflowPath(id);
             
-            session.commit();
+            MainWorkflowNextActorDAO dao = session.getMapper(MainWorkflowNextActorDAO.class);
+
+    		actorList = dao.listWorkflowPath(id);
+    		
+    		list.addAll(actorList);
+            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
-        
-        return list;
+		
+        /*
+         * Convert Employeee Code to Name
+         */
+		for(Map<String, Object> rec:list) {
+			String empCode = (String)rec.get("U");
+			MainHrEmployeeModel empModel = adminHrEmployeeService.get(empCode);
+			if (empModel!=null) {
+				rec.put("U", empCode + " - " + empModel.getFirstName());
+			}
+		}
+		
+		return list;
 	}
 
 	public List<PcmReqCmtModel> listCmt(String objType) throws Exception {
@@ -1732,4 +1634,444 @@ public class PcmReqService {
         return list;
 	}
 	
+	public List<Map<String,Object>> listCmtDtl(String id, String cmt) throws Exception {
+		
+		List<Map<String,Object>> list = null;
+		
+		SqlSession session = PcmUtil.openSession(dataSource);
+        try {
+           
+            PcmReqCmtDtlDAO dao = session.getMapper(PcmReqCmtDtlDAO.class);
+
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("id", id);
+            params.put("cmt", cmt);
+            
+    		list = dao.list(params);
+            
+            session.commit();
+        } catch (Exception ex) {
+			log.error("", ex);
+        	session.rollback();
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}
+	
+	public List<PcmReqCmtDtlModel> listCmtDtlByMasterId(Long masterId) throws Exception {
+		
+		List<PcmReqCmtDtlModel> list = null;
+		
+		SqlSession session = PcmUtil.openSession(dataSource);
+        try {
+           
+            PcmReqCmtDtlDAO dao = session.getMapper(PcmReqCmtDtlDAO.class);
+
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("id", masterId);
+            
+    		list = dao.listByMasterId(params);
+            
+            session.commit();
+        } catch (Exception ex) {
+			log.error("", ex);
+        	session.rollback();
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}	
+	
+	@Override
+	public String getWorkflowDescription(SubModuleModel paramModel) throws Exception {
+		
+		PcmReqModel pcmReqModel = (PcmReqModel)paramModel;
+		
+		MainMasterModel descFormatModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_WF_DESC_FORMAT);
+		String descFormat = descFormatModel.getFlag1();
+		
+		JSONObject map = PcmReqUtil.convertToJSONObject(pcmReqModel,false);
+		
+		Writer w = null;
+		TemplateProcessor pc = templateService.getTemplateProcessor("freemarker");
+		w = new StringWriter();
+		pc.processString(descFormat, map, w);
+		
+		return w.toString();
+	}
+
+	@Override
+	public Map<String, Object> convertToMap(SubModuleModel model) {
+		return PcmReqUtil.convertToMap((PcmReqModel)model, false);
+	}
+
+	@Override
+	public String getWorkflowName() {
+		return PcmReqConstant.WF_NAME;
+	}
+	
+	@Override
+	public String getSubModuleType() {
+		return CommonConstant.SUB_MODULE_PCM_REQ;
+	}
+	
+	public String copy(String id) throws Exception {
+		
+        SqlSession session = PcmUtil.openSession(dataSource);
+        
+        PcmReqModel model = new PcmReqModel();
+        
+        try {
+            PcmReqDAO pcmReqDAO = session.getMapper(PcmReqDAO.class);
+            PcmReqDtlDAO pcmReqDtlDAO = session.getMapper(PcmReqDtlDAO.class);
+            PcmReqCmtHdrDAO pcmReqCmtHdrDAO = session.getMapper(PcmReqCmtHdrDAO.class);
+            PcmReqCmtDtlDAO pcmReqCmtDtlDAO = session.getMapper(PcmReqCmtDtlDAO.class);
+            
+            /*
+             * Get Old Pcm Req
+             */
+            PcmReqModel oModel = get(id);
+            
+            /*
+             * Prepare New Pcm Req
+             */
+            model.setStatus(PcmReqConstant.ST_DRAFT);
+            
+        	model.setReqBy(oModel.getReqBy());
+        	model.setReqSectionId(oModel.getReqSectionId());
+        	
+        	model.setObjectiveType(oModel.getObjectiveType());
+        	model.setObjective(oModel.getObjective());
+        	model.setReason(oModel.getReason());
+        	
+        	model.setCurrency(oModel.getCurrency());
+        	model.setCurrencyRate(oModel.getCurrencyRate());
+
+        	model.setBudgetCcType(oModel.getBudgetCcType());
+        	model.setBudgetCc(oModel.getBudgetCc());
+        	
+        	model.setIsStock(oModel.getIsStock());
+        	model.setStockSectionId(oModel.getStockSectionId());
+        	
+        	model.setIsPrototype(oModel.getIsPrototype());
+        	model.setPrototype(oModel.getPrototype());
+        	model.setPrototypeContractNo(oModel.getPrototypeContractNo());
+        	
+        	model.setCostControlTypeId(oModel.getCostControlTypeId());
+        	model.setCostControlId(oModel.getCostControlId());
+        	
+        	model.setPcmSectionId(oModel.getPcmSectionId());
+        	model.setLocation(oModel.getLocation());
+
+        	model.setIsAcrossBudget(oModel.getIsAcrossBudget());
+        	model.setAcrossBudget(oModel.getAcrossBudget());
+        	
+        	model.setIsRefId(oModel.getIsRefId());
+        	model.setRefId(oModel.getRefId());
+
+        	model.setMethod(oModel.getMethod());
+        	model.setMethodCond2Rule(oModel.getMethodCond2Rule());
+        	model.setMethodCond2(oModel.getMethodCond2());
+        	model.setMethodCond2Dtl(oModel.getMethodCond2Dtl());
+        	
+        	model.setVat(oModel.getVat());
+        	model.setVatId(oModel.getVatId());
+        	
+        	model.setTotal(oModel.getTotal());
+        	
+        	model.setRewarning(oModel.getRewarning());
+        	model.setWaitingDay(oModel.getWaitingDay());
+        	model.setWfStatus(oModel.getWfStatus());
+            
+    		model.setUpdatedBy(authService.getCurrentUserName());
+    		model.setCreatedBy(model.getUpdatedBy());
+    		
+			/*
+			 * Gen New ID
+			 */
+    		MainMasterModel masterModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_ID_FORMAT);
+    		String idFormat = masterModel.getFlag1();
+
+        	Long runningNo = pcmReqDAO.getNewRunningNo();
+        	
+        	String newId = genNewId(model, idFormat, runningNo); // PR16000001
+        	
+    		model.setId(newId);
+    		log.info("new id:"+newId);
+    		
+            /*
+             * Create New Folder
+             */
+    		createEcmFolder(model);
+    		
+    		/*
+    		 * Create New Pcm Req 
+    		 */
+    		pcmReqDAO.add(model);
+            
+            /*
+             * Create New Items
+             */
+    		List<PcmReqDtlModel> dtlList = listDtlByMasterId(oModel.getId());
+            for(PcmReqDtlModel dtlModel : dtlList) {
+            	dtlModel.setMasterId(model.getId());
+	        	dtlModel.setCreatedBy(model.getUpdatedBy());
+	        	dtlModel.setUpdatedBy(model.getUpdatedBy());
+	        	
+            	pcmReqDtlDAO.add(dtlModel);
+            }
+            
+            /*
+             * Create New Committee
+             */
+            List<PcmReqCmtHdrModel> cmtHdrList = listCmtHdrByMasterId(oModel.getId());
+            for(PcmReqCmtHdrModel cmtHdrModel : cmtHdrList) {
+            	
+            	List<PcmReqCmtDtlModel> cmtDtlList = listCmtDtlByMasterId(cmtHdrModel.getId());
+            	
+            	cmtHdrModel.setPcmReqId(model.getId());
+	        	cmtHdrModel.setCreatedBy(model.getUpdatedBy());
+	        	cmtHdrModel.setUpdatedBy(model.getUpdatedBy());
+	        	
+            	pcmReqCmtHdrDAO.add(cmtHdrModel);
+            	
+                for(PcmReqCmtDtlModel cmtDtlModel : cmtDtlList) {
+                	
+                	cmtDtlModel.setMasterId(cmtHdrModel.getId());
+                	
+                	cmtDtlModel.setCreatedBy(model.getUpdatedBy());
+                	cmtDtlModel.setUpdatedBy(model.getUpdatedBy());
+    	        	
+                	pcmReqCmtDtlDAO.add(cmtDtlModel);
+                }
+            }
+            
+            /*
+             * Create New Attach File
+             */
+            
+            
+            session.commit();
+        } catch (Exception ex) {
+			log.error("", ex);
+        	session.rollback();
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+
+        return model.getId();
+	}	
+
+	public List<PcmReqCmtHdrModel> listCmtHdrByMasterId(String masterId) {
+		
+		List<PcmReqCmtHdrModel> list = null;
+		
+		SqlSession session = PcmUtil.openSession(dataSource);
+        try {
+            PcmReqCmtHdrDAO dao = session.getMapper(PcmReqCmtHdrDAO.class);
+            
+    		Map<String, Object> map = new HashMap<String, Object>();
+    		map.put("masterId", masterId);
+
+    		list = dao.list(map);
+            
+            session.commit();
+        } catch (Exception ex) {
+			log.error("", ex);
+        	session.rollback();
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}
+
+	@Override
+	public void setWorkflowParameters(Map<QName, Serializable> parameters, SubModuleModel paramModel, List<NodeRef> docList, List<NodeRef> attachDocList) {
+		
+		PcmReqModel model = (PcmReqModel)paramModel;
+		
+		/*
+		 * Common Attribute
+		 */
+        parameters.put(PcmReqWorkflowConstant.PROP_ID, model.getId());
+        parameters.put(PcmReqWorkflowConstant.PROP_FOLDER_REF, model.getFolderRef());
+
+        parameters.put(PcmReqWorkflowConstant.PROP_DOCUMENT, (Serializable)docList);
+        parameters.put(PcmReqWorkflowConstant.PROP_ATTACH_DOCUMENT, (Serializable)attachDocList);
+        parameters.put(PcmReqWorkflowConstant.PROP_COMMENT_HISTORY, "");
+        
+        parameters.put(PcmReqWorkflowConstant.PROP_TASK_HISTORY, "");
+        
+		/*
+		 * Special Attribute
+		 */
+		parameters.put(PcmReqWorkflowConstant.PROP_OBJECTIVE_TYPE, model.getObjectiveType());
+		parameters.put(PcmReqWorkflowConstant.PROP_OBJECTIVE, model.getObjective());
+		parameters.put(PcmReqWorkflowConstant.PROP_REASON, model.getReason());
+		parameters.put(PcmReqWorkflowConstant.PROP_TOTAL, model.getTotal());
+		
+		Map<String, Object> map = null;
+		if (model.getBudgetCcType().equals(PcmReqConstant.BCCT_UNIT)) {
+			map = adminSectionService.get(model.getBudgetCc());
+			model.setBudgetCcName((String)map.get("description"));
+		} else {
+			map = adminProjectService.get(model.getBudgetCc());
+			model.setBudgetCcName((String)map.get("name")+" - "+(String)map.get("description"));
+		}
+		
+		parameters.put(PcmReqWorkflowConstant.PROP_BUDGET_CC, model.getBudgetCcName());
+		
+	}
+
+	@Override
+	public String getActionCaption(String action) {
+		
+		Map<String, String> WF_TASK_ACTIONS = new HashMap<String, String>();
+		
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "ขออนุมัติ");
+		
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "อนุมัติ");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "ไม่อนุมัติ");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "ขอคำปรึกษา");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "ให้ความเห็น");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "ขออนุมัติใหม่");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "ยกเลิก");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "ส่งงานให้พัสดุ");
+		
+		return WF_TASK_ACTIONS.get(action);
+	}
+
+	@Override
+	public List<MainWorkflowNextActorModel> listNextActor(SubModuleModel model) {
+		List<MainWorkflowNextActorModel> list = new ArrayList<MainWorkflowNextActorModel>();
+		
+		PcmReqModel realModel = (PcmReqModel)model;
+		
+		List<Map<String, Object>> superList = adminWkfConfigService.listSupervisor(realModel.getPcmSectionId());
+		if(superList.size()>0) {
+			Map<String, Object> map = superList.get(0);
+			
+			MainWorkflowNextActorModel actorModel = new MainWorkflowNextActorModel();
+			
+			actorModel.setMasterId(model.getId());
+			actorModel.setLevel(1);
+			actorModel.setActor(PcmReqConstant.NA_BOSS);
+			actorModel.setActorUser(MainUserGroupUtil.code2login((String)map.get(MainHrEmployeeConstant.TFN_EMPLOYEE_CODE)));
+			actorModel.setCreatedBy(model.getUpdatedBy());
+			
+			list.add(actorModel);
+		}
+		
+		return list;
+	}
+
+	@Override
+	public String getFirstComment(SubModuleModel model) {
+		PcmReqModel realModel = (PcmReqModel)model;
+		
+		return realModel.getObjectiveType() + " " + realModel.getObjective() + " " + realModel.getReason();
+	}
+
+	@Override
+	public String getNextActionInfo() {
+		return "ฝ่ายพัสดุ";
+	}
+	
+	public List<Map<String, Object>> listForInf(String id) {
+		
+		List<Map<String, Object>> list = null;
+		
+		SqlSession session = PcmUtil.openSession(dataSource);
+        try {
+            PcmReqDAO dao = session.getMapper(PcmReqDAO.class);
+            
+    		Map<String, Object> map = new HashMap<String, Object>();
+    		map.put("id", id);
+
+    		list = dao.listForInf(map);
+            
+        } catch (Exception ex) {
+			log.error("", ex);
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}
+	
+	public List<Map<String, Object>> listDtlForInf(String id) {
+		
+		List<Map<String, Object>> list = null;
+		
+		SqlSession session = PcmUtil.openSession(dataSource);
+        try {
+            PcmReqDtlDAO dao = session.getMapper(PcmReqDtlDAO.class);
+            
+    		Map<String, Object> map = new HashMap<String, Object>();
+    		map.put("id", id);
+
+    		list = dao.listForInf(map);
+            
+        } catch (Exception ex) {
+			log.error("", ex);
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}	
+	
+	public List<Map<String, Object>> listCmtForInf(String id) {
+		
+		List<Map<String, Object>> list = null;
+		
+		SqlSession session = PcmUtil.openSession(dataSource);
+        try {
+        	PcmReqCmtHdrDAO dao = session.getMapper(PcmReqCmtHdrDAO.class);
+            
+    		Map<String, Object> map = new HashMap<String, Object>();
+    		map.put("id", id);
+
+    		list = dao.listForInf(map);
+            
+        } catch (Exception ex) {
+			log.error("", ex);
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}
+
+	@Override
+	public QName getPropNextReviewers() {
+		return PcmReqWorkflowConstant.PROP_NEXT_REVIEWERS;
+	}
+
+	@Override
+	public String getModelUri() {
+		return PcmReqWorkflowConstant.MODEL_URI;
+	}
+
+	@Override
+	public String getWfUri() {
+		return PcmReqWorkflowConstant.WF_URI;
+	}
+
+	@Override
+	public String getModelPrefix() {
+		return PcmReqWorkflowConstant.MODEL_PREFIX;
+	}	
 }

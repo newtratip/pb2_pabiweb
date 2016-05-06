@@ -6,11 +6,9 @@
  * 				- CurTaskGrid
  * 				- DtlGrid
  * - MainForm
- * 		- HdrTab
- * 		- HdrStockTab
- * 		- HdrHireTab
- * 		- HdrAssetTab
- * 		- DtlTab
+ * 		- UserTab
+ * 		- InfoTab
+ * 		- ItemTab
  * 		- FileTab
  * 		- CmtTab
  */
@@ -37,12 +35,12 @@ Ext.define('PBPcm.view.Main', {
 				store:store
 			});
 			
-		//if (me.tasks.pcmReqRptTab) {
+			if (me.tasks.pcmReqRptTab) {
 				items.push({
 					xtype:'reportForm',
 					title:'Report'
 				});
-		//	}
+			}
 		}
 		
 		Ext.applyIf(me, {

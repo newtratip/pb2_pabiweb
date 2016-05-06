@@ -1,5 +1,5 @@
 <#if field.value?is_number>
-   <#assign displayValue=field.value?c />
+   <#assign displayValue=field.value?string['#,##0.00'] />
 <#elseif field.value?is_boolean>
    <#if field.value>
       <#assign displayValue=msg("form.control.checkbox.yes") />

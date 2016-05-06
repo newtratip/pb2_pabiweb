@@ -25,7 +25,7 @@
 		    *,		    
 		    COUNT(*) OVER() totalRowCount
 		FROM
-		    pb2_ext_pcm_req_committee
+		    pb2_ext_purchase_request_committee
 		WHERE
 			obj like #{objType} || '%'
 		ORDER BY id
@@ -35,14 +35,14 @@
         SELECT
 		    count(1)
 		FROM
-		    pb2_ext_pcm_req_committee
+		    pb2_ext_purchase_request_committee
     </select>
     
     <select id="get" parameterType="string" resultMap="result">
         SELECT
 		    *
 		FROM
-		    pb2_ext_pcm_req_committee
+		    pb2_ext_purchase_request_committee
 		WHERE id=#{id}
     </select>
     

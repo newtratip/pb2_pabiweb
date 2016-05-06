@@ -143,7 +143,26 @@ public class CommonUtil {
 	}
 	
 	public static String jsonSuccess(Object data) {
-		ResultModel resultModel = new ResultModel(true, data);
+
+		Long total = null;
+		
+		if(data instanceof List) {
+			List list = (List)data;
+			if (list.size()>0) {
+				Object obj = list.get(0);
+				if (obj instanceof Map) {
+					Map map = (Map)obj;
+					total = (Long)map.get("totalrowcount");
+				}
+			}
+		}
+		
+		ResultModel resultModel;
+		if(total!=null) {
+			resultModel = new ResultModel(true, data, total);
+		} else {
+			resultModel = new ResultModel(true, data);
+		}
 		
 		return JSON.toJSONString(resultModel);
 	}	

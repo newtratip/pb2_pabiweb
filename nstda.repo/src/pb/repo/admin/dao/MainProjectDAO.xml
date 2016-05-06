@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainProjectDAO">
+    <resultMap id="result" type="mainProjectModel">
+        <result property="id" column="id"/>
+        <result property="description" column="description"/>
+        <result property="name" column="name"/>
+        <result property="orgId" column="org_id"/>
+        <result property="costcenterId" column="costcenter_id"/>
+        <result property="totalRowCount" column="totalRowCount"/>
+        
+    </resultMap>
+
+	<select id="list" resultType="map" parameterType="map">
+		SELECT * FROM pb2_ext_res_project
+		<if test="searchTerm != null">
+			WHERE description like '%'||#{searchTerm}||'%'
+			OR name like '%'||#{searchTerm}||'%'
+		</if>
+		ORDER BY name
+	</select>
+	
+	<select id="count" resultType="long">
+        select
+		    count(1)
+		from
+		    pb2_ext_res_project
+    </select>
+    
+    <select id="get" resultType="map" parameterType="int">
+        select * from pb2_ext_res_project
+        where id=#{id}
+    </select>
+	
+</mapper>

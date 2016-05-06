@@ -87,21 +87,36 @@ public class AlfrescoService {
 
 	}
     
-    public NodeRef createDoc(NodeRef parentFolder, File file, String ecmFileName) throws Exception {
+    public NodeRef createDoc(NodeRef parentFolder, Object obj, String ecmFileName) throws Exception {
 //		byte[] fileContent = IOUtils.toByteArray(new FileInputStream(file));
 //		
 //		InputStream inputStream = new ByteArrayInputStream(fileContent);
 		FileInfo fileInfo = fileFolderService.create(parentFolder, ecmFileName, ContentModel.TYPE_CONTENT);
 	    NodeRef newNode = fileInfo.getNodeRef();
+
+	    String fileName = null;
+        if (obj instanceof File) {
+        	fileName = ((File)obj).getName();
+        } else {
+            fileName = ecmFileName;
+        }
 	    
-	    String ext = FilenameUtils.getExtension(file.getName());
+	    String ext = FilenameUtils.getExtension(fileName);
 	    String mimeType = mimeTypeService.getMimetypesByExtension().get(ext);
         log.info("Mimetype : "+mimeType);
 
         ContentWriter contentWriter = contentService.getWriter(newNode, ContentModel.PROP_CONTENT, true);
         contentWriter.setEncoding("UTF-8");
         contentWriter.setMimetype(mimeType);
-        contentWriter.putContent(new FileInputStream(file));
+        
+        InputStream is = null;
+        if (obj instanceof File) {
+        	is = new FileInputStream((File)obj);
+        } else {
+            is = (InputStream)obj;
+        }
+        
+        contentWriter.putContent(is);
 
         return newNode;
     }

@@ -12,30 +12,74 @@
         <result property="updatedBy" column="updated_by"/>
     </resultMap>
     
+    <insert
+		id="add"
+		parameterType="pcmReqCmtHdrModel"
+		flushCache="true"
+		statementType="PREPARED"
+		keyProperty="id"
+		useGeneratedKeys="true"
+		>
+	    INSERT INTO pb2_pcm_req_committee_hdr(
+	    	pcm_req_id
+	    	,committee
+	    	,created_by,updated_by
+	    )VALUES( 
+    		#{pcmReqId}
+    		,#{committee}
+    		,#{createdBy},#{updatedBy}
+    	)
+		
+	</insert>
+    
     <select id="list" resultMap="result" parameterType="map">
         SELECT
 		    *,		    
 		    COUNT(*) OVER() totalRowCount
 		FROM
-		    pb2_ext_pcm_req_committee_hdr
-		ORDER BY ${orderBy}
-		LIMIT #{limit}
-		OFFSET #{start}
+		    pb2_pcm_req_committee_hdr
+		WHERE
+			pcm_req_id=#{masterId}
+		ORDER BY id
     </select>
 	
 	<select id="count"  resultType="long">
         SELECT
 		    count(1)
 		FROM
-		    pb2_ext_pcm_req_committee_hdr
+		    pb2_pcm_req_committee_hdr
     </select>
     
     <select id="get" parameterType="string" resultMap="result">
         SELECT
 		    *
 		FROM
-		    pb2_ext_pcm_req_committee_hdr
+		    pb2_pcm_req_committee_hdr
 		WHERE id=#{id}
     </select>
+    
+	<delete id="deleteByMasterId"
+    		parameterType="string"
+			flushCache="true"
+			statementType="PREPARED"
+			>
+   		DELETE FROM pb2_pcm_req_committee_hdr WHERE pcm_req_id=#{masterId}
+	</delete>   
+	
+    <select id="listForInf" resultType="map" parameterType="map">
+		select	
+			r.id, 
+			(m.method || ' ' || m.cond1) method,
+			h.committee,
+			d.first_name,
+			d.last_name,
+			d.position
+			
+		from  pb2_pcm_req_committee_dtl d left join pb2_pcm_req_committee_hdr h on h.id = d.master_id
+		left join pb2_pcm_req r on r.id = h.pcm_req_id
+		left join pb2_ext_purchase_request_committee m on r.method = cast(m.id as text)			
+		where 	r.id = #{id}
+		order by	h.committee,d.id
+    </select>	 
     
 </mapper>

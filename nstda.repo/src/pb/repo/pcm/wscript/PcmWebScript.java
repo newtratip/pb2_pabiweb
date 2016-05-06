@@ -21,31 +21,37 @@ import net.sf.jasperreports.engine.JasperPrint;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.TemplateService;
 import org.alfresco.service.cmr.security.AuthenticationService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
+import pb.common.model.ResultModel;
 import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.model.MainMasterModel;
+import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminTestSystemService;
 import pb.repo.admin.service.AdminUserGroupService;
+import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmReqConstant;
+import pb.repo.pcm.model.PcmReqCmtDtlModel;
 import pb.repo.pcm.model.PcmReqCmtModel;
 import pb.repo.pcm.model.PcmReqDtlModel;
 import pb.repo.pcm.model.PcmReqModel;
+import pb.repo.pcm.service.InterfaceService;
 import pb.repo.pcm.service.PcmReqService;
-import pb.repo.pcm.service.PcmReqWorkflowService;
+import pb.repo.pcm.util.PcmReqCmtDtlUtil;
 import pb.repo.pcm.util.PcmReqCmtUtil;
+import pb.repo.pcm.util.PcmReqDtlUtil;
 import pb.repo.pcm.util.PcmReqUtil;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
@@ -68,7 +74,7 @@ public class PcmWebScript {
 	TemplateService templateService;
 
 	@Autowired
-	private PcmReqWorkflowService pcmWorkflowService;
+	private MainWorkflowService mainWorkflowService;
 	
 	@Autowired
 	private AdminMasterService masterService;
@@ -85,8 +91,15 @@ public class PcmWebScript {
 	@Autowired
 	private AdminTestSystemService adminTestSystemService;
 	
+	@Autowired
+	private AdminHrEmployeeService adminHrEmployeeService;
+	
+	@Autowired
+	InterfaceService interfaceService;
+	
   @Uri(URI_PREFIX+"/req/list")
   public void handleList(@RequestParam(required=false) final String s
+		  	  , @RequestParam(required=false) final String fields
 			  , @RequestParam(required=false) final Integer start
 			  , @RequestParam(required=false) final Integer limit
 			  , final WebScriptResponse response)  throws Exception {
@@ -104,6 +117,40 @@ public class PcmWebScript {
 		params.put("searchTerm", searchTerm);
 		params.put("start", start);
 		params.put("limit", limit);
+		
+		String curUser = authService.getCurrentUserName();
+		params.put("loginE", curUser);
+//		params.put("loginL", "%,"+curUser+",%");
+		params.put("loginL", curUser);
+		
+		String userRoles = userGroupService.getAuthoritiesForUser(curUser)
+						.replace("GROUP_", "")
+						.replace("','", ",")
+						;
+		if (userRoles.startsWith("'")) {
+			userRoles = userRoles.substring(1);
+		}
+		if (userRoles.endsWith("'")) {
+			userRoles = userRoles.substring(0, userRoles.length()-1);
+		}
+		
+		String[] roles = userRoles.split(",");
+		List<String> roleList = new ArrayList<String>();
+		for(int i=0; i<roles.length; i++) {
+			if (!roles[i].startsWith("site_")) {
+//				roleList.add("%,"+roles[i]+",%");
+				roleList.add(roles[i]);
+			}
+		}
+		params.put("roleList",  roleList);
+		
+		
+		if (fields != null) {
+			JSONObject jsObj = new JSONObject(fields);
+			
+			putOneParam(params, jsObj, PcmReqConstant.JFN_STATUS);
+			putOneParam(params, jsObj, PcmReqConstant.JFN_OBJECTIVE_TYPE);
+		}		
 		
 		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
 	  
@@ -128,158 +175,6 @@ public class PcmWebScript {
 		}
 	  
   }
-	
-	
-  /**
-   * Handles the "list" request. Note the use of Spring MVC-style annotations to map the Web Script URI configuration
-   * and request handling objects.
-   * 
-   * @param s : searchTerm
-   * @param response
-   * @throws Exception
-   */
-//  @Uri(URI_PREFIX+"/list")
-  public void _handleList(@RequestParam(required=false) final String s
-		  , @RequestParam(required=false) final String fields
-		  , @RequestParam(required=false) final Integer start
-		  , @RequestParam(required=false) final Integer limit
-		  , final WebScriptResponse response)  throws Exception {
-    
-	    /*
-	     * Prepare Search Params
-	     */
-		Map<String, Object> params = new HashMap<String, Object>();
-		
-		String searchTerm = null;
-		
-		if (s != null && !s.equals("")) {
-			searchTerm = "%" + s + "%";
-		}
-		params.put("searchTerm", searchTerm);
-		params.put("start", start);
-		params.put("limit", limit);
-		
-		if (fields != null) {
-			JSONObject jsObj = new JSONObject(fields);
-			
-			putOneParam(params, jsObj, "status");
-		}
-		
-		String curUser = authService.getCurrentUserName();
-		params.put("loginE", curUser);
-		params.put("loginL", "%,"+curUser+",%");
-		
-		String userRoles = userGroupService.getAuthoritiesForUser(curUser)
-						.replace("GROUP_", "")
-						.replace("','", ",")
-						;
-		if (userRoles.startsWith("'")) {
-			userRoles = userRoles.substring(1);
-		}
-		if (userRoles.endsWith("'")) {
-			userRoles = userRoles.substring(0, userRoles.length()-1);
-		}
-		
-		String[] roles = userRoles.split(",");
-		List<String> roleList = new ArrayList<String>();
-		for(int i=0; i<roles.length; i++) {
-			if (!roles[i].startsWith("site_")) {
-				roleList.add("%,"+roles[i]+",%");
-			}
-		}
-		params.put("roleList",  roleList);
-		
-		/*
-		 * Lookup Fields
-		 */
-		List<MainMasterModel> criList = masterService.listSystemConfig(MainMasterConstant.SCC_PCM_REQ_CRITERIA);
-
-		StringBuffer lookup = new StringBuffer();
-		StringBuffer lookupS = new StringBuffer();
-		int lookupIndex = 1;
-		
-		for(MainMasterModel model : criList) {
-			
-			if (model.getFlag3().equals("mainMaster") || model.getFlag3().equals("memo/master")) {
-				String cond = model.getFlag4();
-				String[] conds = cond.split(",");
-				String flag2 = model.getFlag2();
-				String[] field = flag2.split(",");
-				
-				String alias = "L"+lookupIndex++;
-				
-				lookup.append("LEFT JOIN ");
-				lookup.append("(SELECT "+MainMasterConstant.TFN_CODE+","+MainMasterConstant.TFN_NAME+" FROM "+MainMasterConstant.TABLE_NAME+" WHERE "+conds[0]+") "+alias+" ");
-				lookup.append("ON MEMO."+field[0]+" = "+alias+"."+MainMasterConstant.TFN_CODE+" ");
-			}
-		}
-		
-		List<MainMasterModel> colList = masterService.listSystemConfig(MainMasterConstant.SCC_MEMO_GRID_FIELD);
-		
-		for(MainMasterModel model : colList) {
-			
-			String flag2 = model.getFlag2();
-			if (flag2 != null && !flag2.trim().equals("")) {
-				String[] field = flag2.split(",");
-				
-				if (field[0].equalsIgnoreCase(PcmReqConstant.TFN_CREATED_TIME) 
-				 || field[0].equalsIgnoreCase(PcmReqConstant.TFN_UPDATED_TIME))
-				{
-					lookupS.append("OR to_char("+field[0]+", 'DD/MM/YY') LIKE '"+searchTerm+"' ");
-				} else {
-					lookupS.append("OR "+field[0]+" LIKE '"+searchTerm+"' ");
-				}
-			}
-		}
-		
-		params.put("lookup", lookup.toString());
-		params.put("lookupS", lookupS.toString());
-		
-		MainMasterModel searchGridOrderByModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_SEARCH_GRID_ORDER_BY);
-		if (searchGridOrderByModel!=null && searchGridOrderByModel.getFlag1()!=null) {
-			params.put("orderBy", searchGridOrderByModel.getFlag1());
-		} else {
-			params.put("orderBy", "ORDER_FIELD, updated_time DESC");
-		}
-		
-		MainMasterModel reqShowGrpModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_REQ_SHOW_GROUP);
-		if (reqShowGrpModel!=null && reqShowGrpModel.getFlag1()!=null && reqShowGrpModel.getFlag1().equals("1")) {
-			params.put("reqShowGrp", reqShowGrpModel.getFlag1());
-		}
-		
-		MainMasterModel monitorUserModel = masterService.getSystemConfig(MainMasterConstant.SCC_MEMO_MONITOR_USER);
-		if (monitorUserModel!=null && monitorUserModel.getFlag1()!=null) {
-			String mu = ","+monitorUserModel.getFlag1()+",";
-			if (mu.indexOf(","+curUser+",") >= 0) {
-				params.put("monitorUser", "1");
-			}
-		}
-		
-		for(Entry<String, Object> e : params.entrySet()) {
-			log.info("params : "+e.getKey()+":"+e.getValue());
-		}
-
-		/*
-		 * Search
-		 */
-		String json = null;
-		
-		try {
-			List<PcmReqModel> list = pcmReqService.list(params);
-			MainMasterModel showDelBtnCfg = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_DELETE_BUTTON);
-			json = PcmReqUtil.jsonSuccess(list, showDelBtnCfg.getFlag1().equals("1"));
-			
-		} catch (Exception ex) {
-			log.error("", ex);
-			json = CommonUtil.jsonFail(ex.toString());
-			throw ex;
-			
-		} finally {
-			CommonUtil.responseWrite(response, json);
-			
-		}
-    
-  }
   
   private void putOneParam(Map<String, Object> params, JSONObject jsObj, String fieldName) {
 	  try {
@@ -295,7 +190,6 @@ public class PcmWebScript {
   @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/save")
   public void handleSave(@RequestParam(required=false) final String id
 						,@RequestParam(required=false) final String reqBy
-						,@RequestParam(required=false) final String reqBu
 		  				,@RequestParam(required=false) final String reqOu
 		  				,@RequestParam(required=false) final String objectiveType
 		  				,@RequestParam(required=false) final String objective
@@ -303,21 +197,30 @@ public class PcmWebScript {
 		  				,@RequestParam(required=false) final String currency
 		  				,@RequestParam(required=false) final String currencyRate
 						,@RequestParam(required=false) final String budgetCc
-		  				,@RequestParam(required=false) final String stockOu
+						,@RequestParam(required=false) final String budgetCcType
+						,@RequestParam(required=false) final String isStock
+						,@RequestParam(required=false) final String stockOu
+						,@RequestParam(required=false) final String isPrototype
 						,@RequestParam(required=false) final String prototype
-		  				,@RequestParam(required=false) final String event
+						,@RequestParam(required=false) final String pttContractNo
+						,@RequestParam(required=false) final String costControlTypeId
+						,@RequestParam(required=false) final String costControlId
 						,@RequestParam(required=false) final String pcmOu
-		  				,@RequestParam(required=false) final String location
+						,@RequestParam(required=false) final String location
+						,@RequestParam(required=false) final String isAcrossBudget
 						,@RequestParam(required=false) final String acrossBudget
-		  				,@RequestParam(required=false) final String refId
-		  				,@RequestParam(required=false) final String method
-		  				,@RequestParam(required=false) final String methodCond2Rule
-		  				,@RequestParam(required=false) final String methodCond2
-		  				,@RequestParam(required=false) final String methodCond2Dtl
-		  				,@RequestParam(required=false) final String total
-		  				,@RequestParam(required=false) final String status
-		  				,@RequestParam(required=false) final String dtls
+						,@RequestParam(required=false) final String isRefId
+						,@RequestParam(required=false) final String refId
+						,@RequestParam(required=false) final String method
+						,@RequestParam(required=false) final String methodCond2Rule
+						,@RequestParam(required=false) final String methodCond2
+						,@RequestParam(required=false) final String methodCond2Dtl
+						,@RequestParam(required=false) final String vat
+						,@RequestParam(required=false) final String vatId
+						,@RequestParam(required=false) final String total
+		  				,@RequestParam(required=false) final String items
 		  				,@RequestParam(required=false) final String files
+		  				,@RequestParam(required=false) final String cmts
 		  				,final WebScriptResponse response) throws Exception {
 	
 	String json = null;
@@ -338,29 +241,47 @@ public class PcmWebScript {
 		}
 		
 		model.setReqBy(reqBy);
-		model.setReqBu(reqBu);
-		model.setReqOu(reqOu);
+		if (reqOu != null && !reqOu.equals("")) {
+			model.setReqSectionId(Integer.parseInt(reqOu));
+		}
 		model.setObjectiveType(objectiveType);
 		model.setObjective(objective);
 		model.setReason(reason);
 		model.setCurrency(currency);
 		model.setCurrencyRate(Double.parseDouble(currencyRate));
-		model.setBudgetCc(budgetCc);
-		model.setStockOu(stockOu);
+		if (budgetCc != null && !budgetCc.equals("")) {
+			model.setBudgetCc(Integer.parseInt(budgetCc));
+		}
+		model.setBudgetCcType(budgetCcType);
+		model.setIsStock(isStock);
+		if (stockOu != null && !stockOu.equals("")) {
+			model.setStockSectionId(Integer.parseInt(stockOu));
+		}
+		model.setIsPrototype(isPrototype);
 		model.setPrototype(prototype);
-		model.setEvent(event);
-		model.setPcmOu(pcmOu);
+		model.setPrototypeContractNo(pttContractNo);
+		model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
+		model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
+		if (pcmOu != null && !pcmOu.equals("")) {
+			model.setPcmSectionId(Integer.parseInt(pcmOu));
+		}
 		model.setLocation(location);
-		model.setAcrossBudget(Double.parseDouble(acrossBudget));
+		model.setIsAcrossBudget(isAcrossBudget);
+		if (acrossBudget != null && !acrossBudget.equals("")) {
+			model.setAcrossBudget(Double.parseDouble(acrossBudget));
+		}
+		model.setIsRefId(isRefId);
 		model.setRefId(refId);
 		model.setMethod(method);
 		model.setMethodCond2Rule(methodCond2Rule);
-		model.setMethodCond2(methodCond2Dtl);
+		model.setMethodCond2(methodCond2);
 		model.setMethodCond2Dtl(methodCond2Dtl);
+		model.setVat(Double.parseDouble(vat));
+		model.setVatId(Integer.parseInt(vatId));
 		model.setTotal(Double.parseDouble(total));
-		model.setStatus(status);		
+		model.setStatus(PcmReqConstant.ST_DRAFT);
 		
-		model = pcmReqService.save(model, dtls, files, false);
+		model = pcmReqService.save(model, items, files, cmts, false);
 		
 		JSONObject jsObj = new JSONObject();
 		jsObj.put("id", model.getId());
@@ -380,7 +301,6 @@ public class PcmWebScript {
   @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/send")
   public void handleSendToReview(@RequestParam(required=false) final String id
 								,@RequestParam(required=false) final String reqBy
-								,@RequestParam(required=false) final String reqBu
 								,@RequestParam(required=false) final String reqOu
 								,@RequestParam(required=false) final String objectiveType
 								,@RequestParam(required=false) final String objective
@@ -388,21 +308,31 @@ public class PcmWebScript {
 								,@RequestParam(required=false) final String currency
 								,@RequestParam(required=false) final String currencyRate
 								,@RequestParam(required=false) final String budgetCc
+								,@RequestParam(required=false) final String budgetCcType
+								,@RequestParam(required=false) final String isStock
 								,@RequestParam(required=false) final String stockOu
+								,@RequestParam(required=false) final String isPrototype
 								,@RequestParam(required=false) final String prototype
-								,@RequestParam(required=false) final String event
+								,@RequestParam(required=false) final String pttContractNo
+								,@RequestParam(required=false) final String costControlTypeId
+								,@RequestParam(required=false) final String costControlId
 								,@RequestParam(required=false) final String pcmOu
 								,@RequestParam(required=false) final String location
+								,@RequestParam(required=false) final String isAcrossBudget
 								,@RequestParam(required=false) final String acrossBudget
+								,@RequestParam(required=false) final String isRefId
 								,@RequestParam(required=false) final String refId
 								,@RequestParam(required=false) final String method
 								,@RequestParam(required=false) final String methodCond2Rule
 								,@RequestParam(required=false) final String methodCond2
 								,@RequestParam(required=false) final String methodCond2Dtl
+								,@RequestParam(required=false) final String vat
+								,@RequestParam(required=false) final String vatId
 								,@RequestParam(required=false) final String total
 								,@RequestParam(required=false) final String status
-								,@RequestParam(required=false) final String dtls
+								,@RequestParam(required=false) final String items
 								,@RequestParam(required=false) final String files
+				  				,@RequestParam(required=false) final String cmts
 		  				,final WebScriptResponse response) throws Exception {
 
 	String json = null;
@@ -420,25 +350,43 @@ public class PcmWebScript {
 		model.setWaitingLevel(0);
 		
 		model.setReqBy(reqBy);
-		model.setReqBu(reqBu);
-		model.setReqOu(reqOu);
+		if (reqOu != null && !reqOu.equals("")) {
+			model.setReqSectionId(Integer.parseInt(reqOu));
+		}
 		model.setObjectiveType(objectiveType);
 		model.setObjective(objective);
 		model.setReason(reason);
 		model.setCurrency(currency);
 		model.setCurrencyRate(Double.parseDouble(currencyRate));
-		model.setBudgetCc(budgetCc);
-		model.setStockOu(stockOu);
+		if (budgetCc!=null && !budgetCc.equals("")) {
+			model.setBudgetCc(Integer.parseInt(budgetCc));
+		}
+		model.setBudgetCcType(budgetCcType);
+		model.setIsStock(isStock);
+		if (stockOu != null && !stockOu.equals("")) {
+			model.setStockSectionId(Integer.parseInt(stockOu));
+		}
+		model.setIsPrototype(isPrototype);
 		model.setPrototype(prototype);
-		model.setEvent(event);
-		model.setPcmOu(pcmOu);
+		model.setPrototypeContractNo(pttContractNo);
+		model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
+		model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
+		if (pcmOu!=null && !pcmOu.equals("")) {
+			model.setPcmSectionId(Integer.parseInt(pcmOu));
+		}
 		model.setLocation(location);
-		model.setAcrossBudget(Double.parseDouble(acrossBudget));
+		model.setIsAcrossBudget(isAcrossBudget);
+		if (acrossBudget!=null && !acrossBudget.equals("")) {
+			model.setAcrossBudget(Double.parseDouble(acrossBudget));
+		}
+		model.setIsRefId(isRefId);
 		model.setRefId(refId);
 		model.setMethod(method);
 		model.setMethodCond2Rule(methodCond2Rule);
 		model.setMethodCond2(methodCond2Dtl);
 		model.setMethodCond2Dtl(methodCond2Dtl);
+		model.setVat(Double.parseDouble(vat));
+		model.setVatId(Integer.parseInt(vatId));
 		model.setTotal(Double.parseDouble(total));
 		model.setStatus(status);	
 		
@@ -452,9 +400,10 @@ public class PcmWebScript {
 			json = CommonUtil.jsonFail(validateResult);
 		}
 		else {
-			model = pcmReqService.save(model, dtls, files, true);
+			model = pcmReqService.save(model, items, files, cmts, true);
 			
-			pcmWorkflowService.startWorkflow(model);
+			mainWorkflowService.setModuleService(pcmReqService);
+			mainWorkflowService.startWorkflow(model);
 			
 			JSONObject jsObj = new JSONObject();
 			jsObj.put("id", model.getId());
@@ -473,7 +422,7 @@ public class PcmWebScript {
   }
 
 
-  @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/delete")
+  @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/req/delete")
   public void handleDelete(@RequestParam final String id, final WebScriptResponse response) throws Exception {
 	String json = null;
 	
@@ -517,6 +466,66 @@ public class PcmWebScript {
 	
   }
   
+  @Uri(URI_PREFIX+"/req/userDtl")
+  public void handleInitForm(@RequestParam(required=false) final String r,
+		  					 @RequestParam(required=false) final String c,
+		  					final WebScriptResponse response)
+      throws Exception {
+		
+	String json = null;
+
+	try {
+	  List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+
+	  Map<String, Object> map = new HashMap<String, Object>();
+	  
+	  String reqUser = (r!=null) ? r : authService.getCurrentUserName();
+	  
+	  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser);
+	  
+	  map.put(PcmReqConstant.JFN_REQ_BY, reqUser);
+	  
+	  String ename = dtl.get("first_name") + " " + dtl.get("last_name");
+	  
+	  map.put(PcmReqConstant.JFN_REQ_BY_NAME, ename);
+	  map.put(PcmReqConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"));
+	  
+	  map.put(PcmReqConstant.JFN_REQ_BU, dtl.get("org_desc"));
+	  
+	  map.put(PcmReqConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
+	  map.put(PcmReqConstant.JFN_REQ_SECTION_NAME, dtl.get("section_name"));
+	  
+	  
+	  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
+	  if (!createdUser.equals(reqUser)) {
+		  dtl = adminHrEmployeeService.getWithDtl(createdUser);
+		  ename = dtl.get("first_name") + " " + dtl.get("last_name");
+	  }
+	  
+	  map.put(PcmReqConstant.JFN_CREATED_BY_SHOW, ename);
+	  
+	  String mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
+	  String wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
+	  String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+	  
+	  map.put(PcmReqConstant.JFN_TEL_NO, wphone+comma+mphone);
+	  
+	  list.add(map);
+
+	  json = CommonUtil.jsonSuccess(list);
+
+	} catch (Exception ex) {
+		log.error("", ex);
+		json = CommonUtil.jsonFail(ex.toString());
+		throw ex;
+		
+	} finally {
+		CommonUtil.responseWrite(response, json);
+	}
+	
+  }
+  
+  
   @Uri(URI_PREFIX+"/file/list")
   public void handleFileList(@RequestParam final String id, final WebScriptResponse response)
       throws Exception {
@@ -525,7 +534,7 @@ public class PcmWebScript {
 	 
 	try {
 		
-	  List<FileModel> files = pcmReqService.listFile(id);
+	  List<FileModel> files = pcmReqService.listFile(id, false);
 		
 	  json = FileUtil.jsonSuccess(files);
 		
@@ -540,20 +549,17 @@ public class PcmWebScript {
 	
   }
   
-  @Uri(URI_PREFIX+"/req/dtl/list")
-  public void handleDetailList(@RequestParam final String id, final WebScriptResponse response)
+  @Uri(URI_PREFIX+"/req/item/list")
+  public void handleItemList(@RequestParam final String id, final WebScriptResponse response)
       throws Exception {
 		
 	String json = null;
 	 
 	try {
+		List<PcmReqDtlModel> list = pcmReqService.listDtlByMasterId(id);
+		PcmReqDtlUtil.addAction(list);
 		
-//	  json = "{\"success\":true,\"data\":[{\"id\":1,\"type\":\"ครุภัณฑ์\",\"desc\":\"จัดพิมพ์สื่อการเรียนรู้\",\"amt\":14000,\"unit\":\"SET\",\"price\":\"16.05\",\"priceBaht\":\"16.05\",\"total\":\"224,700\",\"action\":\"ED\"}"
-//			  +"]}";
-	  json = "{\"success\":true,\"data\":["
-			  +"]}";
-	  
-	  
+		json = CommonUtil.jsonSuccess(list);
 	} catch (Exception ex) {
 		log.error("", ex);
 		json = CommonUtil.jsonFail(ex.toString());
@@ -586,17 +592,113 @@ public class PcmWebScript {
   }
   
   @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/preview")
-  public void handlePreviewGen(final WebScriptRequest request, final WebScriptResponse response) throws Exception {
+  public void handlePreviewGen(@RequestParam(required=false) final String id
+							,@RequestParam(required=false) final String reqBy
+							,@RequestParam(required=false) final String reqOu
+							,@RequestParam(required=false) final String objectiveType
+							,@RequestParam(required=false) final String objective
+							,@RequestParam(required=false) final String reason
+							,@RequestParam(required=false) final String currency
+							,@RequestParam(required=false) final String currencyRate
+							,@RequestParam(required=false) final String budgetCcType
+							,@RequestParam(required=false) final String budgetCc
+							,@RequestParam(required=false) final String isStock
+							,@RequestParam(required=false) final String stockOu
+							,@RequestParam(required=false) final String isPrototype
+							,@RequestParam(required=false) final String prototype
+							,@RequestParam(required=false) final String pttContractNo
+							,@RequestParam(required=false) final String costControlTypeId
+							,@RequestParam(required=false) final String costControlId
+							,@RequestParam(required=false) final String pcmOu
+							,@RequestParam(required=false) final String location
+							,@RequestParam(required=false) final String isAcrossBudget
+							,@RequestParam(required=false) final String acrossBudget
+							,@RequestParam(required=false) final String isRefId
+							,@RequestParam(required=false) final String refId
+							,@RequestParam(required=false) final String method
+							,@RequestParam(required=false) final String methodCond2Rule
+							,@RequestParam(required=false) final String methodCond2
+							,@RequestParam(required=false) final String methodCond2Dtl
+							,@RequestParam(required=false) final String vat
+							,@RequestParam(required=false) final String vatId
+							,@RequestParam(required=false) final String total
+							,@RequestParam(required=false) final String status
+							,@RequestParam(required=false) final String dtls
+							,@RequestParam(required=false) final String files,
+							final WebScriptResponse response) throws Exception {
 	
 	String json = null;
 	
 	try {
-		String fileName = pcmReqService.doGenDoc("pr");
+		PcmReqModel model = null;
 		
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(fileName, "");
+		if (CommonUtil.isValidId(id)) {
+			model = pcmReqService.get(id);
+		}
 		
-		json = CommonUtil.jsonSuccess(map);
+		if (model==null) {
+			model = new PcmReqModel();
+		}
+		model.setWaitingLevel(0);
+		
+		model.setReqBy(reqBy);
+		if (reqOu != null && !reqOu.equals("")) {
+			model.setReqSectionId(Integer.parseInt(reqOu));
+		}
+		model.setObjectiveType(objectiveType);
+		model.setObjective(objective);
+		model.setReason(reason);
+		model.setCurrency(currency);
+		model.setCurrencyRate(Double.parseDouble(currencyRate));
+		model.setBudgetCcType(budgetCcType);
+		if (budgetCc != null && !budgetCc.equals("")) {
+			model.setBudgetCc(Integer.parseInt(budgetCc));
+		}
+		model.setIsStock(isStock);
+		if (stockOu != null && !stockOu.equals("")) {
+			model.setStockSectionId(Integer.parseInt(stockOu));
+		}
+		model.setIsPrototype(isPrototype);
+		model.setPrototype(prototype);
+		model.setPrototypeContractNo(pttContractNo);
+		model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
+		model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
+		if (pcmOu != null && !pcmOu.equals("")) {
+			model.setPcmSectionId(Integer.parseInt(pcmOu));
+		}
+		model.setLocation(location);
+		model.setIsAcrossBudget(isAcrossBudget);
+		if (acrossBudget!=null && !acrossBudget.equals("")) {
+			model.setAcrossBudget(Double.parseDouble(acrossBudget));
+		}
+		model.setIsRefId(isRefId);
+		model.setRefId(refId);
+		model.setMethod(method);
+		model.setMethodCond2Rule(methodCond2Rule);
+		model.setMethodCond2(methodCond2Dtl);
+		model.setMethodCond2Dtl(methodCond2Dtl);
+		model.setVat(Double.parseDouble(vat));
+		model.setVatId(Integer.parseInt(vatId));
+		model.setTotal(Double.parseDouble(total));
+		model.setStatus(status);
+		
+		if (model.getId() == null || (status!=null && status.equals(PcmReqConstant.ST_DRAFT))) {
+			model.setStatus(PcmReqConstant.ST_WAITING);
+			model.setWaitingLevel(1);
+		}
+		
+		JSONObject validateResult = pcmReqService.validateAssignee(model);
+		if (!(Boolean)validateResult.get("valid")) {
+			json = CommonUtil.jsonFail(validateResult);
+		}
+		else {		
+			String fileName = pcmReqService.doGenDoc("pr", model);
+			
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put(fileName, "");
+			
+			json = CommonUtil.jsonSuccess(map);
+		}
 	} catch (Exception ex) {
 		log.error("", ex);
 		json = CommonUtil.jsonFail(ex.toString());
@@ -652,18 +754,39 @@ public class PcmWebScript {
   
   @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/finish")
   public void handleFinish(@RequestParam(required=false) final String id
-		  				,@RequestParam(required=false) final String remark
-		  				,@RequestParam(required=false) final String requested_time
-		  				,@RequestParam(required=false) final String status
-		  				,@RequestParam final String content1
-		  				,@RequestParam final Long hId
-		  				,@RequestParam final Long format_id
-		  				,@RequestParam final String workflow_id
-		  				,@RequestParam final Long approval_matrix_id
-		  				,@RequestParam final String dtls
-		  				,@RequestParam(required=false) final String aug
-		  				,@RequestParam(required=false) final String rug
-		  				,@RequestParam(required=false) final String files
+						,@RequestParam(required=false) final String reqBy
+						,@RequestParam(required=false) final String reqOu
+						,@RequestParam(required=false) final String objectiveType
+						,@RequestParam(required=false) final String objective
+						,@RequestParam(required=false) final String reason
+						,@RequestParam(required=false) final String currency
+						,@RequestParam(required=false) final String currencyRate
+						,@RequestParam(required=false) final String budgetCc
+						,@RequestParam(required=false) final String budgetCcType
+						,@RequestParam(required=false) final String isStock
+						,@RequestParam(required=false) final String stockOu
+						,@RequestParam(required=false) final String isPrototype
+						,@RequestParam(required=false) final String prototype
+						,@RequestParam(required=false) final String pttContractNo
+						,@RequestParam(required=false) final String costControlTypeId
+						,@RequestParam(required=false) final String costControlId
+						,@RequestParam(required=false) final String pcmOu
+						,@RequestParam(required=false) final String location
+						,@RequestParam(required=false) final String isAcrossBudget
+						,@RequestParam(required=false) final String acrossBudget
+						,@RequestParam(required=false) final String isRefId
+						,@RequestParam(required=false) final String refId
+						,@RequestParam(required=false) final String method
+						,@RequestParam(required=false) final String methodCond2Rule
+						,@RequestParam(required=false) final String methodCond2
+						,@RequestParam(required=false) final String methodCond2Dtl
+						,@RequestParam(required=false) final String vat
+						,@RequestParam(required=false) final String vatId
+						,@RequestParam(required=false) final String total
+						,@RequestParam(required=false) final String status
+						,@RequestParam(required=false) final String items
+						,@RequestParam(required=false) final String files
+						,@RequestParam(required=false) final String cmts
 		  				,final WebScriptResponse response) throws Exception {
 	
 	String json = null;
@@ -678,9 +801,52 @@ public class PcmWebScript {
 		if (model==null) {
 			model = new PcmReqModel();
 		}
+		model.setWaitingLevel(0);
+		
+		model.setReqBy(reqBy);
+		if (reqOu != null && !reqOu.equals("")) {
+			model.setReqSectionId(Integer.parseInt(reqOu));
+		}
+		model.setObjectiveType(objectiveType);
+		model.setObjective(objective);
+		model.setReason(reason);
+		model.setCurrency(currency);
+		model.setCurrencyRate(Double.parseDouble(currencyRate));
+		if (budgetCc!=null && !budgetCc.equals("")) {
+			model.setBudgetCc(Integer.parseInt(budgetCc));
+		}
+		model.setBudgetCcType(budgetCcType);
+		model.setIsStock(isStock);
+		if (stockOu != null && !stockOu.equals("")) {
+			model.setStockSectionId(Integer.parseInt(stockOu));
+		}
+		model.setIsPrototype(isPrototype);
+		model.setPrototype(prototype);
+		model.setPrototypeContractNo(pttContractNo);
+		model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
+		model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
+		if (pcmOu!=null && !pcmOu.equals("")) {
+			model.setPcmSectionId(Integer.parseInt(pcmOu));
+		}
+		model.setLocation(location);
+		model.setIsAcrossBudget(isAcrossBudget);
+		if (acrossBudget!=null && !acrossBudget.equals("")) {
+			model.setAcrossBudget(Double.parseDouble(acrossBudget));
+		}
+		model.setIsRefId(isRefId);
+		model.setRefId(refId);
+		model.setMethod(method);
+		model.setMethodCond2Rule(methodCond2Rule);
+		model.setMethodCond2(methodCond2Dtl);
+		model.setMethodCond2Dtl(methodCond2Dtl);
+		model.setVat(Double.parseDouble(vat));
+		model.setVatId(Integer.parseInt(vatId));
+		model.setTotal(Double.parseDouble(total));
+		model.setStatus(status);	
 		
 		if (model.getId() == null || (status!=null && status.equals(PcmReqConstant.ST_DRAFT))) {
 			model.setStatus(PcmReqConstant.ST_WAITING);
+			model.setWaitingLevel(1);
 		}
 		
 		JSONObject validateResult = pcmReqService.validateAssignee(model);
@@ -688,8 +854,9 @@ public class PcmWebScript {
 			json = CommonUtil.jsonFail(validateResult);
 		}
 		else {
-			model = pcmReqService.save(model, dtls, files, true);
-			pcmWorkflowService.updateWorkflow(model, aug, rug);
+			model = pcmReqService.save(model, items, files, cmts, true);
+			mainWorkflowService.setModuleService(pcmReqService);
+			mainWorkflowService.updateWorkflow(model, files, cmts);
 			
 			JSONObject jsObj = new JSONObject();
 			jsObj.put("id", model.getId());
@@ -731,26 +898,50 @@ public class PcmWebScript {
 		}
 	}
 	
-	  @Uri(URI_PREFIX+"/req/cmt/list")
-	  public void handleCmtList(@RequestParam final String objType,
+	@Uri(URI_PREFIX+"/req/cmt/list")
+	public void handleCmtList(@RequestParam final String objType,
 			  					final WebScriptResponse response)  throws Exception {
 	
-			String json = null;
+		String json = null;
 			
-			try {
-				List<PcmReqCmtModel> list = pcmReqService.listCmt(objType);
+		try {
+			List<PcmReqCmtModel> list = pcmReqService.listCmt(objType);
 				
-				json = PcmReqCmtUtil.jsonSuccess(list);
-			} catch (Exception ex) {
-				log.error("", ex);
-				json = CommonUtil.jsonFail(ex.toString());
-				throw ex;
+			json = PcmReqCmtUtil.jsonSuccess(list);
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
 				
-			} finally {
-				CommonUtil.responseWrite(response, json);
-			}
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
 	    
-	  }	
+	}
+	
+	
+	@Uri(URI_PREFIX+"/req/cmt/dtl/list")
+	public void handleCmtHdrList(@RequestParam final String id,
+								 @RequestParam final String cmt,
+			  					final WebScriptResponse response)  throws Exception {
+	
+		String json = null;
+			
+		try {
+			List<Map<String,Object>> list = pcmReqService.listCmtDtl(id, cmt);
+			PcmReqCmtDtlUtil.addAction(list);
+				
+			json = CommonUtil.jsonSuccess(list);
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+				
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+	    
+	}	
 	  
 	public void genRpt(byte[] file, String fileName, WebScriptResponse response, JasperPrint jasperPrint) throws IOException, JRException {
 		
@@ -769,6 +960,28 @@ public class PcmWebScript {
         is.close();
         out.flush();	
         out.close();
-	}	  
+	}
+	
+	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/req/copy")
+	public void handleCopy(@RequestParam final String id, final WebScriptResponse response)
+	      throws Exception {
+			
+		String json = null;
+	
+		try {
+		  String newId = pcmReqService.copy(id);
+	
+		  json = CommonUtil.jsonSuccess(newId);
+	
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+			
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		
+	}	
   
 }

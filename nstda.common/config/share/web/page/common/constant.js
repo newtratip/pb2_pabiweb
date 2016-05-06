@@ -27,8 +27,9 @@ var MAIN_ID="mainClient"
 ,REGEX = /^((?![']).)*$/
 ,REGEX_TEXT = "Not allowed special characters: '"	
 ,MAX_APPROVER = 15
-,CKEDITOR_BASEPATH=MAIN_CONTEXT+"/res/page/ckeditor/"
+,DEFAULT_MONEY_FORMAT='0,000.00'
 ,MODULE_ADMIN="admin"
 ,MODULE_PCM="pcm"
 ,MODULE_EXP="exp"
+,READ_ONLY='background-color:#ddd;background-image:none'
 ;

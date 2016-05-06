@@ -5,11 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import pb.repo.pcm.model.PcmWorkflowHistoryModel;
+import pb.repo.admin.model.MainWorkflowHistoryModel;
 
 public class PcmWorkflowUtil {
 
-	 public static String genWorkflowCommentHistory(String user, String action, String stateTask, String taskComment, PcmWorkflowHistoryModel memoWorkflowHistoryModel){
+	 public static String genWorkflowCommentHistory(String user, String action, String stateTask, String taskComment, MainWorkflowHistoryModel memoWorkflowHistoryModel){
 			
 			SimpleDateFormat formatter = new SimpleDateFormat("EEE d MMM yyyy HH:mm", Locale.ENGLISH);
 			Date today = new Date();

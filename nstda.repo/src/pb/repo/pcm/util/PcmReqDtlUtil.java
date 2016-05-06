@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import pb.repo.pcm.constant.PcmReqDtlConstant;
 import pb.repo.pcm.model.PcmReqDtlModel;
+import pb.repo.pcm.model.PcmReqModel;
 
 public class PcmReqDtlUtil {
 	
@@ -60,6 +61,7 @@ public class PcmReqDtlUtil {
 				
 				PcmReqDtlModel model = new PcmReqDtlModel();
 				model.setMasterId(masterId);
+				model.setIsEquipment(jsonObj.getString(PcmReqDtlConstant.JFN_IS_EQUIPMENT));
 				model.setDescription(jsonObj.getString(PcmReqDtlConstant.JFN_DESCRIPTION));
 				model.setQuantity(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_QUANTITY)));
 				model.setUnit(jsonObj.getString(PcmReqDtlConstant.JFN_UNIT));
@@ -73,4 +75,10 @@ public class PcmReqDtlUtil {
 		
 		return list;
 	}
+	
+	public static void addAction(List<PcmReqDtlModel> list) {
+		for (PcmReqDtlModel model : list) {
+			model.setAction("ED");
+		}
+	}	
 }

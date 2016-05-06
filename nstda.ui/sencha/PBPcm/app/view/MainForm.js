@@ -2,11 +2,11 @@ Ext.define('PBPcm.view.MainForm', {
     extend: 'Ext.form.Panel',
     alias:'widget.pcmReqMainForm',
     requires: [
-        'PBPcm.view.HdrTab',
-        'PBPcm.view.HdrHireTab',
-        'PBPcm.view.DtlTab',
-        'PBPcm.view.FileTab',
-        'PBPcm.view.CmtTab'
+        'PBPcm.view.MainFormUserTab',
+        'PBPcm.view.MainFormInfoTab',
+        'PBPcm.view.MainFormItemTab',
+        'PBPcm.view.MainFormFileTab',
+        'PBPcm.view.MainFormCmtTab'
     ],
     
 	layout:'fit',
