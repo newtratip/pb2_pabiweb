@@ -9,9 +9,8 @@ Ext.define('PBPcmOrd.view.workflow.AssigneeGrid', {
 		Ext.applyIf(me, {
 			
 			   columns: [ 
-			      { text: 'Level', dataIndex: 'assignee', width:120},
-			      { text: 'User', dataIndex: 'user', width:95},
-			      { text: 'Group', dataIndex: 'group', flex:1}
+			      { text: 'Task', dataIndex: 'assignee', width:120},
+			      { text: 'User', dataIndex: 'user', flex:1}
 			   ]
 		});
 				

@@ -40,7 +40,10 @@ Ext.define('PBAdmin.controller.main.SettingsForm', {
     },{
         ref: 'chkActive',     
         selector: '#formSettings> field[name=active]'
-    }],
+ 	},{
+    	ref:'txtSearch',
+		selector:'adminMainSettingsMain [itemId=txtSearchSettings]'
+   }],
  
     init : function() {
 	
@@ -104,7 +107,8 @@ Ext.define('PBAdmin.controller.main.SettingsForm', {
   	    		  var store = me.getGrid().getStore();
             	
   	    		  store.getProxy().extraParams = {
-  	    			  t : me.getHidType().getValue()
+  	    			  t : me.getHidType().getValue(),
+  	    			  s : me.getTxtSearch().getValue()  	    			  
   	    		  };
   	    		  store.load();
   	    	  } else {

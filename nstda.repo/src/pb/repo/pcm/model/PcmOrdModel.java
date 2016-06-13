@@ -14,6 +14,7 @@ public class PcmOrdModel extends SubModuleModel {
 	
 	String status;
 	String wfStatus;
+	String orgName;
 	
 	public Integer getSectionId() {
 		return sectionId;
@@ -62,6 +63,12 @@ public class PcmOrdModel extends SubModuleModel {
 	}
 	public void setAppBy(String appBy) {
 		this.appBy = appBy;
+	}
+	public String getOrgName() {
+		return orgName;
+	}
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
 	}
 	
 }

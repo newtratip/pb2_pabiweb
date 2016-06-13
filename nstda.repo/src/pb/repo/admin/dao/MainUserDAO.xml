@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainUserDAO">
+
+	<select id="list" resultType="map" parameterType="map">
+		select	e.id,
+				lpad(e.employee_code, 6 ,'0') emp_id,
+				e.first_name, 
+				e.last_name, 
+				o.name org_name,
+				o.description org_desc,
+				s.name section_name,
+				s.description section_desc,
+				e.section_id, 
+				e.org_id, 
+				p.name pos_name
+		from 	pb2_ext_hr_employee e left join pb2_ext_res_org o on e.org_id = o.id
+		left join 	pb2_ext_res_section s on e.section_id = s.id
+		left join 	pb2_ext_hr_position p on e.position_id = p.id
+		<if test="searchTerm != null">
+			WHERE (e.first_name ILIKE '%'||#{searchTerm}||'%'
+			or e.last_name ILIKE '%'||#{searchTerm}||'%'
+			or lpad(e.employee_code, 6 ,'0') ILIKE '%'||#{searchTerm}||'%'
+			or p.name ILIKE '%'||#{searchTerm}||'%'
+			or s.name ILIKE '%'||#{searchTerm}||'%'
+			or o.name ILIKE '%'||#{searchTerm}||'%')
+		</if>
+		ORDER BY o.name, s.name, e.first_name, e.last_name
+	</select>
+	
+</mapper>

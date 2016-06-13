@@ -4,6 +4,7 @@ package pb.repo.pcm.workflow.pr.consultant;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -15,12 +16,10 @@ import org.springframework.stereotype.Component;
 import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainWorkflowModel;
 import pb.repo.admin.service.AdminMasterService;
-import pb.repo.admin.service.AdminViewerService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
-import pb.repo.pcm.service.PcmSignatureService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 
 @Component("pb.pcm.workflow.pr.consultant.CreateTask")
 public class CreateTask implements TaskListener {
@@ -28,7 +27,7 @@ public class CreateTask implements TaskListener {
 	private static Logger log = Logger.getLogger(CreateTask.class);
 
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmReqWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AuthenticationService authenticationService;
@@ -41,12 +40,6 @@ public class CreateTask implements TaskListener {
 	
 	@Autowired
 	PcmReqService pcmReqService;
-	
-	@Autowired
-	AdminViewerService viewerService;
-	
-	@Autowired
-	PcmSignatureService memoSignatureService;
 	
 	@Autowired
 	AdminMasterService adminMasterService;
@@ -75,6 +68,8 @@ public class CreateTask implements TaskListener {
 			
 			task.setName(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_CONSULTANT));
 			
+			log.info("consultant assignee:"+task.getAssignee());
+			mainWorkflowService.setFolderPermission(new NodeRef(model.getFolderRef()), task.getAssignee());
 			/*
 			 * Update DB
 			 */

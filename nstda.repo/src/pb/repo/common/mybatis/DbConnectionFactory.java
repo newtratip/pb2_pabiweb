@@ -13,19 +13,18 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.log4j.Logger;
 
+import pb.repo.admin.dao.MainAccountActivityDAO;
 import pb.repo.admin.dao.MainAccountTaxDAO;
+import pb.repo.admin.dao.MainBankMasterDAO;
 import pb.repo.admin.dao.MainCompleteNotificationDAO;
 import pb.repo.admin.dao.MainCostCenterDAO;
-import pb.repo.admin.dao.MainCostCenterOrgRelDAO;
+import pb.repo.admin.dao.MainCostControlDAO;
+import pb.repo.admin.dao.MainCostControlTypeDAO;
 import pb.repo.admin.dao.MainCurrencyDAO;
 import pb.repo.admin.dao.MainCurrencyRateDAO;
 import pb.repo.admin.dao.MainDivisionDAO;
-import pb.repo.admin.dao.MainEmployeeBossDAO;
-import pb.repo.admin.dao.MainEmployeeDAO;
-import pb.repo.admin.dao.MainEmployeeLevelDAO;
-import pb.repo.admin.dao.MainCostControlDAO;
-import pb.repo.admin.dao.MainCostControlTypeDAO;
 import pb.repo.admin.dao.MainHrEmployeeDAO;
+import pb.repo.admin.dao.MainHrExpenseRuleDAO;
 import pb.repo.admin.dao.MainHrPositionDAO;
 import pb.repo.admin.dao.MainMasterDAO;
 import pb.repo.admin.dao.MainMsgDAO;
@@ -36,6 +35,7 @@ import pb.repo.admin.dao.MainProjectDAO;
 import pb.repo.admin.dao.MainProjectMemberDAO;
 import pb.repo.admin.dao.MainPurchasingUnitSectionRelDAO;
 import pb.repo.admin.dao.MainSectionDAO;
+import pb.repo.admin.dao.MainUserDAO;
 import pb.repo.admin.dao.MainWkfCmdApprovalAmountDAO;
 import pb.repo.admin.dao.MainWkfCmdBossLevelApprovalDAO;
 import pb.repo.admin.dao.MainWkfCmdBossSpecialLevelDAO;
@@ -49,19 +49,18 @@ import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
+import pb.repo.admin.model.MainAccountActivityModel;
 import pb.repo.admin.model.MainAccountTaxModel;
+import pb.repo.admin.model.MainBankMasterModel;
 import pb.repo.admin.model.MainCompleteNotificationModel;
 import pb.repo.admin.model.MainCostCenterModel;
-import pb.repo.admin.model.MainCostCenterOrgRelModel;
+import pb.repo.admin.model.MainCostControlModel;
+import pb.repo.admin.model.MainCostControlTypeModel;
 import pb.repo.admin.model.MainCurrencyModel;
 import pb.repo.admin.model.MainCurrencyRateModel;
 import pb.repo.admin.model.MainDivisionModel;
-import pb.repo.admin.model.MainEmployeeBossModel;
-import pb.repo.admin.model.MainEmployeeLevelModel;
-import pb.repo.admin.model.MainEmployeeModel;
-import pb.repo.admin.model.MainCostControlModel;
-import pb.repo.admin.model.MainCostControlTypeModel;
 import pb.repo.admin.model.MainHrEmployeeModel;
+import pb.repo.admin.model.MainHrExpenseRuleModel;
 import pb.repo.admin.model.MainHrPositionModel;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainMsgModel;
@@ -133,10 +132,8 @@ public class DbConnectionFactory {
         config.getTypeAliasRegistry().registerAlias("mainMsgModel", MainMsgModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCompleteNotificationModel", MainCompleteNotificationModel.class);
         config.getTypeAliasRegistry().registerAlias("mainAccountTaxModel", MainAccountTaxModel.class);
-        config.getTypeAliasRegistry().registerAlias("mainEmployeeModel", MainEmployeeModel.class);
-        config.getTypeAliasRegistry().registerAlias("mainEmployeeBossModel", MainEmployeeBossModel.class);
-        config.getTypeAliasRegistry().registerAlias("mainEmployeeLevelModel", MainEmployeeLevelModel.class);
-        config.getTypeAliasRegistry().registerAlias("mainCostCenterOrgRelModel", MainCostCenterOrgRelModel.class);
+        config.getTypeAliasRegistry().registerAlias("mainAccountActivityModel", MainAccountActivityModel.class);
+        config.getTypeAliasRegistry().registerAlias("mainBankMasterModel", MainBankMasterModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCurrencyModel", MainCurrencyModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCurrencyRateModel", MainCurrencyRateModel.class);
         config.getTypeAliasRegistry().registerAlias("mainProductUomModel", MainProductUomModel.class);
@@ -161,6 +158,7 @@ public class DbConnectionFactory {
         config.getTypeAliasRegistry().registerAlias("mainWkfCmdSectionAssignModel", MainWkfCmdSectionAssignModel.class);
         config.getTypeAliasRegistry().registerAlias("mainWkfCmdSpecialAmountProjectApprovalModel", MainWkfCmdSpecialAmountProjectApprovalModel.class);
         config.getTypeAliasRegistry().registerAlias("mainHrEmployeeModel", MainHrEmployeeModel.class);
+        config.getTypeAliasRegistry().registerAlias("mainHrExpenseRuleModel", MainHrExpenseRuleModel.class);
         config.getTypeAliasRegistry().registerAlias("mainHrPositionModel", MainHrPositionModel.class);
         config.getTypeAliasRegistry().registerAlias("mainPurchasingUnitSectionRelModel", MainPurchasingUnitSectionRelModel.class);
         config.getTypeAliasRegistry().registerAlias("mainProjectModel", MainProjectModel.class);
@@ -172,10 +170,8 @@ public class DbConnectionFactory {
         config.addMapper(MainMsgDAO.class);
         config.addMapper(MainCompleteNotificationDAO.class);
         config.addMapper(MainAccountTaxDAO.class);
-        config.addMapper(MainEmployeeDAO.class);
-        config.addMapper(MainEmployeeBossDAO.class);
-        config.addMapper(MainEmployeeLevelDAO.class);
-        config.addMapper(MainCostCenterOrgRelDAO.class);
+        config.addMapper(MainAccountActivityDAO.class);
+        config.addMapper(MainBankMasterDAO.class);
         config.addMapper(MainCurrencyDAO.class);
         config.addMapper(MainCurrencyRateDAO.class);
         config.addMapper(MainProductUomDAO.class);
@@ -200,6 +196,7 @@ public class DbConnectionFactory {
         config.addMapper(MainWkfCmdSectionAssignDAO.class);
         config.addMapper(MainWkfCmdSpecialAmountProjectApprovalDAO.class);
         config.addMapper(MainHrEmployeeDAO.class);
+        config.addMapper(MainHrExpenseRuleDAO.class);
         config.addMapper(MainHrPositionDAO.class);
         config.addMapper(MainPurchasingUnitSectionRelDAO.class);
 		if (!config.hasMapper(MainProjectDAO.class)) {
@@ -214,7 +211,9 @@ public class DbConnectionFactory {
 		if (!config.hasMapper(MainCostControlTypeDAO.class)) {
 			config.addMapper(MainCostControlTypeDAO.class);
 		}
-        
+		if (!config.hasMapper(MainUserDAO.class)) {
+			config.addMapper(MainUserDAO.class);
+		}
     }
     
 }

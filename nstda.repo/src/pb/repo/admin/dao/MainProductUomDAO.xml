@@ -10,7 +10,10 @@
     </resultMap>
     
 	<select id="list" resultMap="result">
-		select * from pb2_ext_product_uom order by name
+		SELECT * 
+		FROM pb2_ext_product_uom
+		WHERE active=true 
+		ORDER BY name
 	</select>
 	
 	<select id="count" resultType="long">
@@ -19,6 +22,14 @@
 		from
 		    pb2_ext_product_uom
 	
+    </select>
+    
+    <select id="get" resultType="map" parameterType="int">
+        select
+		    *
+		from
+		    pb2_ext_product_uom
+		WHERE id=#{id}
     </select>
     
 </mapper>

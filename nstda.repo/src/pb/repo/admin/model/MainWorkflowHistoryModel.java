@@ -9,7 +9,7 @@ public class MainWorkflowHistoryModel {
 	Long id;
 	Long masterId;
 	Timestamp time;
-	String user_;
+	String by;
 	String action;
 	String task;
 	String comment;
@@ -20,7 +20,7 @@ public class MainWorkflowHistoryModel {
 	
     public MainWorkflowHistoryModel(JSONObject jobj) throws Exception {
         time = (Timestamp)jobj.get("time");
-        user_ = jobj.getString("user");
+        by = jobj.getString("by");
         action = jobj.getString("action");
         task = jobj.getString("task");
         comment = jobj.getString("comment");
@@ -44,11 +44,11 @@ public class MainWorkflowHistoryModel {
 	public void setTime(Timestamp time) {
 		this.time = time;
 	}
-	public String getUser_() {
-		return user_;
+	public String getBy() {
+		return by;
 	}
-	public void setUser_(String user_) {
-		this.user_ = user_;
+	public void setBy(String by) {
+		this.by = by;
 	}
 	public String getAction() {
 		return action;

@@ -15,8 +15,10 @@ Ext.define('PBAdmin.Application', {
         'Ext.util.Format',
         'Ext.layout.container.Card',
         'Ext.layout.container.Form',
+        'Ext.layout.container.HBox',
         'Ext.form.field.Hidden',
         'Ext.form.field.Text',
+        'Ext.form.field.Trigger',
         'Ext.tab.Panel',
         'Ext.grid.column.CheckColumn',
         'Ext.form.field.Checkbox',
@@ -26,16 +28,20 @@ Ext.define('PBAdmin.Application', {
         'PB.Util',
         'PB.Dlg',
         'PB.button.LinkButton',
+        'PB.model.common.UserModel',
+        'PB.store.common.UserStore',
+        'PB.view.common.SearchUserDlg',
         
         'PBAdmin.view.Main',
         'PBAdmin.view.main.settings.Main',
         'PBAdmin.view.main.testSystem.Main',
         
         'PBAdmin.controller.Main',
+        'PBAdmin.controller.common.User',
         'PBAdmin.controller.main.Settings',
         'PBAdmin.controller.main.SettingsForm',
         'PBAdmin.controller.main.TestSystem',
-        
+
         'PBAdmin.store.main.SettingsGridStore',
         'PBAdmin.store.main.AuthMasterTypeCmbStore',
         'PBAdmin.store.main.ModuleCmbStore'
@@ -46,6 +52,7 @@ Ext.define('PBAdmin.Application', {
     ],
 
     controllers: [
+        'common.User',
         'Main',
         'main.Settings',
         'main.SettingsForm',

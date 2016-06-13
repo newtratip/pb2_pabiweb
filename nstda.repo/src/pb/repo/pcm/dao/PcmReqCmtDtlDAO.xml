@@ -50,7 +50,7 @@
 		WHERE
 			h.pcm_req_id=#{id}
 		AND
-			h.committee=#{cmt}	
+			h.committee_id=#{cmt}	
 		ORDER BY id
     </select>
     
@@ -89,5 +89,5 @@
    			select id from pb2_pcm_req_committee_hdr WHERE pcm_req_id=#{masterId}
    		)
 	</delete>      
-    
+
 </mapper>

@@ -51,6 +51,7 @@ public class MainMasterConstant {
 	public static final String TYPE_STATUS = "S";
 	public static final String TYPE_WORKFLOW = "W";
 	public static final String TYPE_REPORT = "R";
+	public static final String TYPE_PROTOTYPE = "PTT";
 
 	/*
 	 * System Configuration Code
@@ -60,7 +61,11 @@ public class MainMasterConstant {
     public static final String SCC_MAIN_PAGING_SIZE    = "MAIN_PAGING_SIZE";  // Main Grid Paging Size
     public static final String SCC_MAIN_ADMIN_AM       = "MAIN_ADMIN_AM";  // Show Admin Approval Matrix Tab : '0' or '1'
     public static final String SCC_MAIN_ODOO_URL       = "MAIN_ODOO_URL";  
-    public static final String SCC_MAIN_ODOO_DB        = "MAIN_ODOO_DB";  
+    public static final String SCC_MAIN_ODOO_DB        = "MAIN_ODOO_DB";
+    
+    public static final String SCC_MAIN_RESET_SEQUENCE        = "MAIN_RESET_SEQUENCE"; // DB Sequence names : comma delimited
+    
+    public static final String SCC_MAIN_INF_CHECK_BUDGET 	    = "MAIN_INF_CHECK_BUDGET";  // Check Budget
     
 	// PCM
     public static final String SCC_PCM_REQ_SITE_ID 	    		= "PCM_REQ_SITE_ID";  // Site ID for Store Files
@@ -77,9 +82,6 @@ public class MainMasterConstant {
     
 	public static final String SCC_PCM_REQ_RPT_TAB				= "PCM_REQ_RPT_TAB"; // 0=off , 1=on
 	public static final String SCC_PCM_ORD_RPT_TAB				= "PCM_ORD_RPT_TAB"; // 0=off , 1=on
-	
-	public static final String SCC_PCM_REQ_DELETE_BUTTON		= "PCM_REQ_DELETE_BUTTON"; // 0=off , 1=on
-	public static final String SCC_PCM_ORD_DELETE_BUTTON		= "PCM_ORD_DELETE_BUTTON"; // 0=off , 1=on
 	
     public static final String SCC_PCM_REQ_CRITERIA 			= "PCM_REQ_CRITERIA";  // Pcm Req Criteria Combo Box
     public static final String SCC_PCM_ORD_CRITERIA 			= "PCM_ORD_CRITERIA";  // Pcm Ord Criteria Combo Box
@@ -122,12 +124,28 @@ public class MainMasterConstant {
 	public static final String SCC_PCM_REQ_MAIL_COMPLETE_FROM		= "PCM_REQ_MAIL_COMPLETE_FROM";
 	
 	// EXP
+    public static final String SCC_EXP_BRW_SITE_ID 	    		= "EXP_BRW_SITE_ID";  // Site ID for Store Files
+    public static final String SCC_EXP_USE_SITE_ID 	    		= "EXP_USE_SITE_ID";  // Site ID for Store Files
+    
+    public static final String SCC_EXP_BRW_PATH_FORMAT     		= "EXP_BRW_PATH_FORMAT";  // Path Format
+    public static final String SCC_EXP_USE_PATH_FORMAT     		= "EXP_USE_PATH_FORMAT";  // Path Format
+    
+    public static final String SCC_EXP_BRW_ID_FORMAT     		= "EXP_BRW_ID_FORMAT";  // ID Format
+    public static final String SCC_EXP_USE_ID_FORMAT     		= "EXP_USE_ID_FORMAT";  // ID Format
+    
 	public static final String SCC_EXP_BRW_RPT_TAB				= "EXP_BRW_RPT_TAB"; // 0=off , 1=on
 	public static final String SCC_EXP_USE_RPT_TAB				= "EXP_USE_RPT_TAB"; // 0=off , 1=on
 	
-	public static final String SCC_EXP_BRW_DELETE_BUTTON		= "EXP_BRW_DELETE_BUTTON"; // 0=off , 1=on
-	public static final String SCC_EXP_USE_DELETE_BUTTON		= "EXP_USE_DELETE_BUTTON"; // 0=off , 1=on
-	
-    public static final String SCC_EXP_BRW_CRITERIA 			= "EXP_BRW_CRITERIA";  // Exp Req Criteria Combo Box
-    public static final String SCC_EXP_USE_CRITERIA 			= "EXP_USE_CRITERIA";  // Exp Use Criteria Combo Box
+    public static final String SCC_EXP_BRW_CRITERIA 			= "EXP_BRW_CRITERIA";  // Pcm Req Criteria Combo Box
+    public static final String SCC_EXP_USE_CRITERIA 			= "EXP_USE_CRITERIA";  // Pcm Ord Criteria Combo Box
+    
+    public static final String SCC_EXP_BRW_WF_DESC_FORMAT 		= "EXP_BRW_WF_DESC_FORMAT";  // Workflow Description Format
+    public static final String SCC_EXP_USE_WF_DESC_FORMAT 		= "EXP_USE_WF_DESC_FORMAT";  // Workflow Description Format
+    
+    public static final String SCC_EXP_BRW_GRID_FIELD 			= "EXP_BRW_GRID_FIELD";  // Grid Field
+    public static final String SCC_EXP_USE_GRID_FIELD 			= "EXP_USE_GRID_FIELD";  // Grid Field
+    
+	public static final String SCC_EXP_BRW_SEARCH_GRID_ORDER_BY	= "EXP_BRW_SEARCH_GRID_ORDER_BY";
+	public static final String SCC_EXP_USE_SEARCH_GRID_ORDER_BY	= "EXP_USE_SEARCH_GRID_ORDER_BY";
+
 }

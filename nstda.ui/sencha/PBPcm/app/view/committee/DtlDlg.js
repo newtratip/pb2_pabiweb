@@ -47,11 +47,13 @@ Ext.define('PBPcm.view.committee.DtlDlg', {
 			          text: 'บันทึก', 
 //			          disabled : true,
 			          action : 'ok',
-			          itemId: 'okButton'
+			          itemId: 'okButton',
+			          iconCls:'icon_ok'
 			        },{
 			          text: 'ยกเลิก',
 			          handler:this.destroy,
-			          scope:this
+			          scope:this,
+			          iconCls:'icon_no'
 			        }]
 	            }]
 		});

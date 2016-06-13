@@ -6,6 +6,8 @@ Ext.define('PBExpUse.Application', {
     requires: [
         'Ext.util.Cookies',
         'Ext.grid.Panel',
+        'Ext.grid.column.Number',
+        'Ext.grid.column.CheckColumn',
         'Ext.MessageBox',
         'Ext.tip.QuickTipManager',
         'Ext.picker.Color',
@@ -27,15 +29,34 @@ Ext.define('PBExpUse.Application', {
         'Ext.ux.DateTimePicker',
         'Ext.ux.form.DateTimeField',
         'Ext.ux.DateTimeMenu',
+        'Ext.EventManager',
         
         'PB.Util',
         'PB.Dlg',
         'PB.button.LinkButton',
+        'PB.store.common.UserStore',
+        'PB.model.common.UserModel',
+        'PB.store.common.CostControlStore',
+        'PB.model.common.CostControlModel',
         'PB.store.common.ComboBoxStore',
         'PB.model.common.ComboBoxModel',
         'PB.vtype.Validation',
 
-        'PBExpUse.view.Main'
+        'PBExpUse.view.Main',
+
+        'PBExpUse.controller.Main',
+        'PBExpUse.controller.Form',
+        'PBExpUse.controller.common.User',
+        'PBExpUse.controller.common.SectionProject',
+        'PBExpUse.controller.common.SectionProjectUser',
+        'PBExpUse.controller.common.OtherUser',
+        'PBExpUse.controller.common.CostControl',
+        'PBExpUse.controller.common.Upload',
+        'PBExpUse.controller.voyager.Form',
+        'PBExpUse.controller.item.Form',
+        'PBExpUse.controller.file.Main',
+        
+        'PBExpUse.Label'
 	],
 	
     views: [
@@ -43,7 +64,17 @@ Ext.define('PBExpUse.Application', {
     ],
 
     controllers: [
-        // TODO: add controllers here
+        'Main',
+        'Form',
+        'common.User',
+        'common.SectionProject',
+        'common.SectionProjectUser',
+        'common.OtherUser',
+        'common.CostControl',
+        'common.Upload',
+        'voyager.Form',
+        'item.Form',
+        'file.Main'    
     ],
 
     stores: [
@@ -83,7 +114,24 @@ Ext.define('PBExpUse.Application', {
 		      },
 		      headers: getAlfHeader(),
 		      async:false
+		});
+	 	
+	 	Ext.Ajax.request({
+		      url:ALF_CONTEXT+"/exp/message/use",
+		      method: "GET",
+		      success: function(response){
+		    	  
+		    	var data = Ext.decode(response.responseText);
+			 	Ext.apply(PBExpUse.Label, data);
+			 	//alert(PBExpUse.Label.a);
+		      },
+		      failure: function(response, opts){
+		          // do nothing
+		      },
+		      headers: getAlfHeader(),
+		      async:false
 		});	
+		
 	
 		HEIGHT = Ext.get(HTML_ID).getHeight();
 		WIDTH = Ext.get(HTML_ID).getWidth();
@@ -93,6 +141,14 @@ Ext.define('PBExpUse.Application', {
 	 	  height:(HEIGHT-H_OFFSET)+'px',
 	 	  width:(WIDTH-W_OFFSET)+'px',
 	 	  tasks:TASKS
+	 	});
+	 	
+	 	Ext.EventManager.onWindowResize(function() {
+			HEIGHT = Ext.get(HTML_ID).getHeight();
+			WIDTH = Ext.get(HTML_ID).getWidth();
+	 		view.setHeight(HEIGHT-H_OFFSET);
+	 		view.setWidth(WIDTH-W_OFFSET);
+	 		view.doLayout();
 	 	});
 	
 	}

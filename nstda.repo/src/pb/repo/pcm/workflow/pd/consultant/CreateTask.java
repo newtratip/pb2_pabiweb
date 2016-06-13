@@ -4,6 +4,7 @@ package pb.repo.pcm.workflow.pd.consultant;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -16,10 +17,10 @@ import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainWorkflowModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.PcmOrdService;
+import pb.repo.pcm.service.PcmOrdWorkflowService;
 import pb.repo.pcm.service.PcmSignatureService;
 
 @Component("pb.pcm.workflow.pd.consultant.CreateTask")
@@ -28,7 +29,7 @@ public class CreateTask implements TaskListener {
 	private static Logger log = Logger.getLogger(CreateTask.class);
 
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmOrdWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AuthenticationService authenticationService;
@@ -74,6 +75,9 @@ public class CreateTask implements TaskListener {
 			task.setVariable("bpm_reassignable", Boolean.FALSE);
 			
 			task.setName(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_CONSULTANT));
+			
+			log.info("consultant assignee:"+task.getAssignee());
+			mainWorkflowService.setFolderPermission(new NodeRef(model.getFolderRef()), task.getAssignee());
 			
 			/*
 			 * Update DB

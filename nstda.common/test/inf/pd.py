@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import xmlrpclib
 import base64
 
@@ -19,9 +21,9 @@ arg = {
 	'sectionId':'1',
 	'prNo':'PR16000001,PR16000002',
 	'docType':'PD1',
-	'objective':'Buy Something 1 piece',
-	'total':'100000.00',
-	'reqBy':'002648',
+	'objective':u'Buy Something 1 piece ทดสอบ',
+	'total':'15000.00',
+	'reqBy':'000511',
 	'appBy':'001509',
 	'doc':{'name':'PD16000002.pdf','content':doc},
 	'attachments':[{'name':'A.pdf','content':att1},{'name':'B.pdf','content':att2}]

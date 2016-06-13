@@ -25,12 +25,10 @@ import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
-import pb.repo.admin.service.MainWorkflowService;
-import pb.repo.admin.util.MainWorkflowUtil;
-import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 import pb.repo.pcm.service.PcmSignatureService;
 
 @Component("pb.pcm.workflow.pr.start.CompleteTask")
@@ -67,7 +65,7 @@ public class CompleteTask implements ExecutionListener {
 	PcmReqService pcmReqService;
 	
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmReqWorkflowService mainWorkflowService;
 
 	@Autowired
 	PcmSignatureService signatureService;
@@ -183,7 +181,7 @@ public class CompleteTask implements ExecutionListener {
 //					ExecutionEntity executionEntity = ((ExecutionEntity)task.getExecution()).getProcessInstance();
 					
 					String curUser = authenticationService.getCurrentUserName();
-					String taskKey = "ผู้ขออนุมัติ";
+					String taskKey = MainWorkflowConstant.TN_REQUESTER_CAPTION;
 					String finalAction = MainWorkflowConstant.TA_START;
 					
 //					log.info("  level:"+level);

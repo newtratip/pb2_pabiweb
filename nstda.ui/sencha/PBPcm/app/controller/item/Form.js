@@ -91,7 +91,7 @@ Ext.define('PBPcm.controller.item.Form', {
 		var me = this;
 		
 		if (validForm(me.getForm())) {
-
+			
 			var rec; 
 			
 			var id = me.getHidId().getValue();

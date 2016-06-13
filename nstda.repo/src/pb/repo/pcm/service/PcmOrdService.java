@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,13 +46,14 @@ import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
-import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
 import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.admin.model.MainMasterModel;
+import pb.repo.admin.model.MainWorkflowHistoryModel;
 import pb.repo.admin.model.MainWorkflowNextActorModel;
 import pb.repo.admin.model.MainWorkflowReviewerModel;
 import pb.repo.admin.model.SubModuleModel;
@@ -63,13 +65,11 @@ import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.service.MainSrcUrlService;
 import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.service.SubModuleService;
-import pb.repo.admin.util.MainUserGroupUtil;
+import pb.repo.common.mybatis.DbConnectionFactory;
 import pb.repo.pcm.constant.PcmOrdConstant;
 import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
 import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.dao.PcmOrdDAO;
-import pb.repo.pcm.dao.PcmOrdDtlDAO;
-import pb.repo.pcm.model.PcmOrdDtlModel;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.util.PcmOrdUtil;
 import pb.repo.pcm.util.PcmUtil;
@@ -265,28 +265,10 @@ public class PcmOrdService implements SubModuleService {
     	 */
     	NodeRef oldDocRef = alfrescoService.searchSimple(folderNodeRef, ecmFileName);
     	if (oldDocRef != null) {
-	    	log.info("  is checked out:"+oldDocRef.toString());
-		    if (checkOutCheckInService.isCheckedOut(oldDocRef)) {
-		    	log.info("    true");
-		    	final NodeRef wNodeRef = alfrescoService.getWorkingCopyNodeRef(oldDocRef.toString());
-		    	log.info("    cancel check out:"+wNodeRef);
-				AuthenticationUtil.runAs(new RunAsWork<String>()
-				{
-					public String doWork() throws Exception
-					{
-
-				    	checkOutCheckInService.cancelCheckout(wNodeRef);
-						return null;
-					}
-				}, AuthenticationUtil.getAdminUserName());
-		    }
-		    else {
-		    	log.info("    false");
-		    }
-
+    		alfrescoService.cancelCheckout(oldDocRef);
     		alfrescoService.deleteFileFolder(oldDocRef.toString());
     	}
-    	NodeRef docRef = alfrescoService.createDoc(folderNodeRef, is, ecmFileName);
+    	NodeRef docRef = alfrescoService.createDoc(folderNodeRef, is, ecmFileName, getDocDesc());
     	
     	return docRef.toString();
 	}
@@ -504,10 +486,8 @@ public class PcmOrdService implements SubModuleService {
             log.info("pcm req list param:"+params);
     		list = dao.list(params);
             
-            session.commit();
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -540,67 +520,13 @@ public class PcmOrdService implements SubModuleService {
             
     		model = pcmOrdDAO.get(id);
     		model.setTotalRowCount(1l);
-            
-            session.commit();
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
         
         return model;
-	}
-	
-	public List<PcmOrdDtlModel> listDtlByMasterId(String masterId) {
-		
-		List<PcmOrdDtlModel> list = null;
-		
-		SqlSession session = PcmUtil.openSession(dataSource);
-        try {
-            PcmOrdDtlDAO dtlDAO = session.getMapper(PcmOrdDtlDAO.class);
-            
-    		Map<String, Object> map = new HashMap<String, Object>();
-    		map.put("masterId", masterId);
-
-    		list = dtlDAO.list(map);
-            
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
-        	throw ex;
-        } finally {
-        	session.close();
-        }
-        
-        return list;
-	}
-	
-	public List<PcmOrdDtlModel> listDtlByMasterIdAndFieldName(String masterId, String fieldName) {
-		
-		List<PcmOrdDtlModel> list = null;
-		
-		SqlSession session = PcmUtil.openSession(dataSource);
-        try {
-            PcmOrdDtlDAO dtlDAO = session.getMapper(PcmOrdDtlDAO.class);
-            
-    		Map<String, Object> map = new HashMap<String, Object>();
-    		map.put("masterId", masterId);
-    		map.put("fieldName", fieldName);
-
-    		list = dtlDAO.list(map);
-            
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
-        	throw ex;
-        } finally {
-        	session.close();
-        }
-        
-        return list;
 	}
 	
 	public void update(PcmOrdModel model) throws Exception {
@@ -660,10 +586,8 @@ public class PcmOrdService implements SubModuleService {
     		if (list.size()>0) {
     			model = list.get(0);
     		}
-            session.commit();
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
@@ -673,24 +597,60 @@ public class PcmOrdService implements SubModuleService {
 	
 	public List<Map<String, Object>> listWorkflowPath(String id) {
 		
-		List<Map<String, Object>> list = null;
+		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id);
 		
-		SqlSession session = PcmUtil.openSession(dataSource);
+		/*
+		 * Add Requester
+		 */
+		PcmOrdModel model = get(id);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("LEVEL", "ผู้ตรวจสอบ");
+		map.put("U", model.getAppBy());
+		map.put("G", "");
+		map.put("IRA", false);
+		
+		list.add(0, map);
+		
+		map = new HashMap<String, Object>();
+		map.put("LEVEL", MainWorkflowConstant.TN_REQUESTER_CAPTION);
+		map.put("U", model.getCreatedBy());
+		map.put("G", "");
+		map.put("IRA", false);
+		
+		list.add(0, map);
+		
+		/*
+		 * Add Next Actor
+		 */
+		List<Map<String, Object>> actorList = null;
+		SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
-           
-            PcmOrdDAO dao = session.getMapper(PcmOrdDAO.class);
-
-    		list = dao.listWorkflowPath(id);
             
-            session.commit();
+            MainWorkflowNextActorDAO dao = session.getMapper(MainWorkflowNextActorDAO.class);
+
+    		actorList = dao.listWorkflowPath(id);
+    		
+    		list.addAll(actorList);
+            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
-        
-        return list;
+		
+        /*
+         * Convert Employeee Code to Name
+         */
+		for(Map<String, Object> rec:list) {
+			String empCode = (String)rec.get("U");
+			MainHrEmployeeModel empModel = adminHrEmployeeService.get(empCode);
+			if (empModel!=null) {
+				rec.put("U", empCode + " - " + empModel.getFirstName());
+			}
+		}
+		
+		return list;
 	}
 
 	@Override
@@ -765,7 +725,7 @@ public class PcmOrdService implements SubModuleService {
 
         parameters.put(PcmOrdWorkflowConstant.PROP_DOCUMENT, (Serializable)docList);
         parameters.put(PcmOrdWorkflowConstant.PROP_ATTACH_DOCUMENT, (Serializable)attachDocList);
-        parameters.put(PcmOrdWorkflowConstant.PROP_COMMENT_HISTORY, "");
+//        parameters.put(PcmOrdWorkflowConstant.PROP_COMMENT_HISTORY, "");
         
         parameters.put(PcmOrdWorkflowConstant.PROP_TASK_HISTORY, "");	
         
@@ -806,22 +766,22 @@ public class PcmOrdService implements SubModuleService {
 	public List<MainWorkflowNextActorModel> listNextActor(SubModuleModel model) {
 		List<MainWorkflowNextActorModel> list = new ArrayList<MainWorkflowNextActorModel>();
 		
-		PcmOrdModel realModel = (PcmOrdModel)model;
-		
-		List<Map<String, Object>> superList = adminWkfConfigService.listSupervisor(realModel.getSectionId());
-		if(superList.size()>0) {
-			Map<String, Object> map = superList.get(0);
-			
-			MainWorkflowNextActorModel actorModel = new MainWorkflowNextActorModel();
-			
-			actorModel.setMasterId(model.getId());
-			actorModel.setLevel(1);
-			actorModel.setActor(PcmReqConstant.NA_BOSS);
-			actorModel.setActorUser(MainUserGroupUtil.code2login((String)map.get(MainHrEmployeeConstant.TFN_EMPLOYEE_CODE)));
-			actorModel.setCreatedBy(model.getUpdatedBy());
-			
-			list.add(actorModel);
-		}
+//		PcmOrdModel realModel = (PcmOrdModel)model;
+//		
+//		List<Map<String, Object>> superList = adminWkfConfigService.listSupervisor(realModel.getSectionId());
+//		if(superList.size()>0) {
+//			Map<String, Object> map = superList.get(0);
+//			
+//			MainWorkflowNextActorModel actorModel = new MainWorkflowNextActorModel();
+//			
+//			actorModel.setMasterId(model.getId());
+//			actorModel.setLevel(1);
+//			actorModel.setActor(PcmReqConstant.NA_BOSS);
+//			actorModel.setActorUser(MainUserGroupUtil.code2login((String)map.get(MainHrEmployeeConstant.TFN_EMPLOYEE_CODE)));
+//			actorModel.setCreatedBy(model.getUpdatedBy());
+//			
+//			list.add(actorModel);
+//		}
 		
 		return list;
 	}
@@ -856,5 +816,30 @@ public class PcmOrdService implements SubModuleService {
 	@Override
 	public String getModelPrefix() {
 		return PcmOrdWorkflowConstant.MODEL_PREFIX;
-	}	
+	}
+
+	@Override
+	public Map<String, String> getBossMap(String docType, SubModuleModel model) {
+    	Map<String, String> bossMap = new LinkedHashMap<String, String>();
+    	bossMap.put("L01", "001509");
+//    	bossMap.put("L02", "000511");
+		
+		return bossMap;
+	}
+
+	@Override
+	public List<String> listRelatedUser(SubModuleModel model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public String getDocDesc() {
+		return "ใบ พด.";
+	}
+	
+	@Override
+	public MainWorkflowHistoryModel getReqByWorkflowHistory(SubModuleModel subModuleModel) {
+		return null;
+	}
 }

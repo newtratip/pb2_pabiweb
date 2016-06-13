@@ -6,6 +6,7 @@
         <result property="id" column="id"/>
         <result property="pcmReqId" column="pcm_req_id"/>
         <result property="committee" column="committee"/>
+        <result property="committeeId" column="committee_id"/>
         <result property="createdTime" column="created_time"/>
         <result property="createdBy" column="created_by"/>
         <result property="updatedTime" column="updated_time"/>
@@ -23,10 +24,12 @@
 	    INSERT INTO pb2_pcm_req_committee_hdr(
 	    	pcm_req_id
 	    	,committee
+	    	,committee_id
 	    	,created_by,updated_by
 	    )VALUES( 
     		#{pcmReqId}
     		,#{committee}
+    		,#{committeeId}
     		,#{createdBy},#{updatedBy}
     	)
 		
@@ -69,15 +72,15 @@
     <select id="listForInf" resultType="map" parameterType="map">
 		select	
 			r.id, 
-			(m.method || ' ' || m.cond1) method,
 			h.committee,
+			h.committee_id,
 			d.first_name,
 			d.last_name,
 			d.position
 			
 		from  pb2_pcm_req_committee_dtl d left join pb2_pcm_req_committee_hdr h on h.id = d.master_id
 		left join pb2_pcm_req r on r.id = h.pcm_req_id
-		left join pb2_ext_purchase_request_committee m on r.method = cast(m.id as text)			
+		left join pb2_ext_pr_method_view m on r.prweb_method_id = m.id			
 		where 	r.id = #{id}
 		order by	h.committee,d.id
     </select>	 

@@ -39,7 +39,12 @@ Ext.define('PB.view.common.SearchSectionProjectDlg', {
 						boxLabel:'หน่วยงาน',
 						inputValue:'U',
 						margin:'0 0 0 5',
-						checked:true
+						checked:true,
+						listeners:{
+							change:function(rad, newV, oldV) {
+								me.fireEvent("selectRadio",rad,newV);
+							}
+						}
 					},{
 						xtype:'radio',
 						name:'type',
@@ -68,7 +73,12 @@ Ext.define('PB.view.common.SearchSectionProjectDlg', {
 			 	 				if(e.getKey() == e.ENTER){
 			 	 					this.fireEvent("searchSectionProject",this);
 			 	 				}
-			 	 			}
+			 	 			},
+							afterrender:function(txt) {
+								Ext.defer(function(){
+									txt.focus();
+								},100);
+							}
 			           	}			        		
 					},{
 			        	xtype:'button',
@@ -93,8 +103,8 @@ Ext.define('PB.view.common.SearchSectionProjectDlg', {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:'Org', dataIndex: 'type', width: 150 },
-	        	     { text:'Name', dataIndex: 'name', flex:1 }
+	        	     { text:'ศูนย์', dataIndex: 'type', width: 150 },
+	        	     { text:'หน่วยงาน', dataIndex: 'name', flex:1 }
 	        	],
 	        	store:store
 	        }],
@@ -116,6 +126,5 @@ Ext.define('PB.view.common.SearchSectionProjectDlg', {
 		});
 		
         this.callParent(arguments);
-		
 	}
 });

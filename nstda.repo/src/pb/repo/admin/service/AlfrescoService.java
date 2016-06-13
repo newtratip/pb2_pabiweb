@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.repository.AssociationRef;
@@ -59,6 +60,9 @@ public class AlfrescoService {
 	@Autowired
 	VersionService versionService;
 	
+	@Autowired
+	CheckOutCheckInService checkOutCheckInService;
+	
     public ContentReader getContentByNodeRef(final NodeRef nodeRef) {
 		
 		ContentReader contentReader = AuthenticationUtil.runAs(new RunAsWork<ContentReader>()
@@ -87,7 +91,7 @@ public class AlfrescoService {
 
 	}
     
-    public NodeRef createDoc(NodeRef parentFolder, Object obj, String ecmFileName) throws Exception {
+    public NodeRef createDoc(NodeRef parentFolder, Object obj, String ecmFileName, String desc) throws Exception {
 //		byte[] fileContent = IOUtils.toByteArray(new FileInputStream(file));
 //		
 //		InputStream inputStream = new ByteArrayInputStream(fileContent);
@@ -117,8 +121,38 @@ public class AlfrescoService {
         }
         
         contentWriter.putContent(is);
+        
+        if (desc!=null) {
+        	nodeService.setProperty(newNode, ContentModel.PROP_DESCRIPTION, desc);
+        }
 
         return newNode;
+    }
+    
+    public void updateDoc(NodeRef docRef, Object obj) throws Exception {
+	    String fileName = null;
+        if (obj instanceof File) {
+        	fileName = ((File)obj).getName();
+        } else {
+            throw new Exception("Invalid Parameter obj:"+obj);
+        }
+	    
+	    String ext = FilenameUtils.getExtension(fileName);
+	    String mimeType = mimeTypeService.getMimetypesByExtension().get(ext);
+        log.info("Mimetype : "+mimeType);
+
+        ContentWriter contentWriter = contentService.getWriter(docRef, ContentModel.PROP_CONTENT, true);
+        contentWriter.setEncoding("UTF-8");
+        contentWriter.setMimetype(mimeType);
+        
+        InputStream is = null;
+        if (obj instanceof File) {
+        	is = new FileInputStream((File)obj);
+        } else {
+            is = (InputStream)obj;
+        }
+        
+        contentWriter.putContent(is);
     }
     
     public String getFolderPath(NodeRef folderRef) throws Exception {
@@ -260,5 +294,26 @@ public class AlfrescoService {
 						return version!=null ? version.getVersionLabel() : null;
 					}
 			    }, AuthenticationUtil.getAdminUserName());
+	}
+	
+	public void cancelCheckout(NodeRef docRef) {
+    	log.info("  is checked out:"+docRef.toString());
+	    if (checkOutCheckInService.isCheckedOut(docRef)) {
+	    	log.info("    true");
+	    	final NodeRef wNodeRef = getWorkingCopyNodeRef(docRef.toString());
+	    	log.info("    cancel check out:"+wNodeRef);
+			AuthenticationUtil.runAs(new RunAsWork<String>()
+			{
+				public String doWork() throws Exception
+				{
+
+			    	checkOutCheckInService.cancelCheckout(wNodeRef);
+					return null;
+				}
+			}, AuthenticationUtil.getAdminUserName());
+	    }
+	    else {
+	    	log.info("    false");
+	    }
 	}
 }

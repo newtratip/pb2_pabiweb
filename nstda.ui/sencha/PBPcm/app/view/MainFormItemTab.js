@@ -125,7 +125,7 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 				    	       		   me.fireEvent("selectVat",combo, rec);
 				    	       	    }
 								},
-								value:replaceIfNull(me.rec.vat_id, null)
+								value:me.rec.vat_id!=null ? me.rec.vat_id : null
 							},{
 								xtype:'label',
 								name:'vatAmt',

@@ -17,6 +17,7 @@ public interface PcmReqDAO {
 	public PcmReqModel get(String id);
 
 	public List<PcmReqModel> list(Map<String, Object> params);
+	public List<PcmReqModel> listForSearch(Map<String, Object> params);
 	public List<Map<String, Object>> listForInf(Map<String, Object> params);
 	
 	public String genNewId(Map<String, Object> params);
@@ -24,4 +25,7 @@ public interface PcmReqDAO {
 	
 	public Long getNewRunningNo();
 	public Long resetRunningNo();
+	
+	public Map<String, Object> getFirstApprover(String id);
+	public Map<String, Object> getLastApprover(String id);
 }

@@ -52,7 +52,10 @@ Ext.define('PBPcm.controller.committee.Form', {
 			},
 			'pcmReqCmtTab field[name=method]': {
 				select : me.methodSelect
-			}			
+			},	
+			'pcmReqCmtTab': {
+				selectCmb : me.methodSelect
+			}
 		});
 
 	},
@@ -195,36 +198,38 @@ Ext.define('PBPcm.controller.committee.Form', {
 		
 		var id = me.getMainForm().down("field[name=id]");
 
-		for(var i=1;i <= 4; i++) {
-			var cmtTitle = data["committee"+i];
-			if (cmtTitle) {
-				var store = Ext.create("PBPcm.store.CmtGridStore", {autoLoad:false});
-				if (id.getValue()) {
-					store.getProxy().extraParams = {
-	    				id:id.getValue(),
-	    				cmt:cmtTitle
-	    			}
-					store.load();
-				}
-				
-				var tab = cmtTab.add({
-								xtype:'grid',
-								title:cmtTitle,
-								columns : columns,
-								store:store,
-								tbar:[{
-									xtype : 'tbfill'
-							    },{
-					        		xtype: 'button',
-					                text: "Add",
-					                iconCls: "icon_add",
-					                action:'addCmt'
-					        	}]
-							});
-				
-				if (i==1) {
-					cmtTab.setActiveTab(tab);
-				}
+		var cmts = data["cmts"];
+		for(var i=0;i < cmts.length; i++) {
+			var cmt = cmts[i];
+
+			var store = Ext.create("PBPcm.store.CmtGridStore", {autoLoad:false});
+			if (id.getValue()) {
+				store.getProxy().extraParams = {
+    				id:id.getValue(),
+    				cmt:cmt.id
+    			}
+				store.load();
+			}
+			
+			var tab = cmtTab.add({
+							xtype:'grid',
+							title:cmt.title,
+							cmtId:cmt.id,
+							columns : columns,
+							store:store,
+							tbar:[{
+								xtype : 'tbfill'
+						    },{
+				        		xtype: 'button',
+				                text: "Add",
+				                iconCls: "icon_add",
+				                action:'addCmt'
+				        	}],
+				        	cmt:cmt
+						});
+			
+			if (i==0) {
+				cmtTab.setActiveTab(tab);
 			}
 		}
 		
@@ -232,7 +237,7 @@ Ext.define('PBPcm.controller.committee.Form', {
 			
 			var store = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
 			
-			var conds = data.cond2.split("\r\n");
+			var conds = data.cond2.split("\n");
 			
 			var cond2Title = conds[0];
 			

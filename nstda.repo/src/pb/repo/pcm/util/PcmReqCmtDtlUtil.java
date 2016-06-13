@@ -14,8 +14,10 @@ import pb.repo.pcm.model.PcmReqCmtDtlModel;
 public class PcmReqCmtDtlUtil {
 	
 	public static void addAction(List<Map<String, Object>> list) {
-		for (Map<String, Object> map : list) {
-			map.put("action", "ED");
+		if (list!=null) {
+			for (Map<String, Object> map : list) {
+				map.put("action", "ED");
+			}
 		}
 	}
 	

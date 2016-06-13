@@ -93,8 +93,8 @@ public class CommonConstant {
     public static final String ODOO_DATE_FORMAT = "yyyy-MM-dd";
     public static final String ODOO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     
-    public static final String GRID_COLUMN_DATE_FORMAT = "dd/MM/yy";
-    public static final String GRID_COLUMN_DATE_TIME_FORMAT = "dd/MM/yy HH:mm";
+    public static final String GRID_COLUMN_DATE_FORMAT = "dd/MM/yyyy";
+    public static final String GRID_COLUMN_DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm";
     public static final String SENCHA_DATE_FIELD_DATE_FORMAT = "dd/MM/yyyy";
     
     public static final String DATE_FORMAT_THAI_DAY = "ว";
@@ -216,4 +216,9 @@ public class CommonConstant {
     public static final String FUNC_FULL_NAME = "fullName()";
     public static final String FUNC_FIRST_NAME = "firstName()";
     public static final String FUNC_LAST_NAME = "lastName()";
+    
+    /*
+     * Error
+     */
+    public static final String FORM_ERR = "|PB_ERR|"; 
 }

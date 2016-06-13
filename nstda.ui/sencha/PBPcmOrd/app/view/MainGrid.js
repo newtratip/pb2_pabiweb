@@ -26,8 +26,8 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 	        	    	return getActionIcon(v, "F", 'detail');
 	                }
 	            }]
-	          },
-			  { text: 'PD NO.', dataIndex:'id', width:150}
+	          }
+//			  { text: 'PD NO.', dataIndex:'id', width:150}
 		];
 		
 		Ext.Ajax.request({
@@ -72,7 +72,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 		      async:false
 		}); 
 		
-		columns.push({ text: 'Requested Time',  dataIndex: 'created_time_show', width:130});
+		//columns.push({ text: 'Requested Time',  dataIndex: 'created_time_show', width:130});
 		columns.push({ text: 'Status',  dataIndex: 'wfStatus', width:300,
 		  	  renderer: function (v, m, r) {
 			
@@ -138,7 +138,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 	indicator:{
 		"W1":{color:"yellow", text_th:"รอการอนุมัติ", text_en:"Wait for Approval"},
 		"W2":{color:"red", text_th:"ไม่อนุมัติ", text_en:"Rejected"},
-		"C1":{color:"green", text_th:"ออก PO", text_en:"PO"},
+		"C1":{color:"green", text_th:"ออก PO", text_en:"PO Created"},
 		"X1":{color:"darkgray", text_th:"พัสดุยกเลิก", text_en:"Cancelled By Procurement"},
 		"S":{color:"purple", text_th:"ขอคำปรึกษา", text_en:"Consulting"}
 	},
@@ -151,7 +151,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 		if (Ext.get(id)) {
             Ext.widget('linkbutton', {
                 renderTo: id,
-                text: s+'(' + r.get("wfStatus") + ')',
+                text: s+' (' + r.get("wfStatus") + ')',
                 iconCls:'icon_postpone',
                 width: 75,
                 handler: function () { 

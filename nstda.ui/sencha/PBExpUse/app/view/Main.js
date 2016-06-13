@@ -1,26 +1,42 @@
 Ext.define('PBExpUse.view.Main', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.tab.Panel',
     requires:[
-        'Ext.tab.Panel',
-        'Ext.layout.container.Border'
+        'PBExpUse.view.MainGrid',
+        'PBExpUse.view.MainForm'
     ],
     
-    xtype: 'app-main',
+    alias : 'widget.expUseMain',
 
-    layout: {
-        type: 'border'
-    },
-
-    items: [{
-        region: 'west',
-        xtype: 'panel',
-        title: 'west',
-        width: 150
-    },{
-        region: 'center',
-        xtype: 'tabpanel',
-        items:[{
-            title: 'Center Tab 1'
-        }]
-    }]
+	initComponent: function(config) {
+		var me = this;
+		
+		var items = [];
+		
+		var store = Ext.create('PBExpUse.store.GridStore',{storeId:'expUseGridStore',autoLoad:true});
+		
+		if (!ID) {
+			items.push({
+				xtype:'expUseMainGrid',
+				title:'Search',
+				store:store
+			});
+			
+//			if (me.tasks.expUseRptTab) {
+//				items.push({
+//					xtype:'reportForm',
+//					title:'Report'
+//				});
+//			}
+		}
+		
+		Ext.applyIf(me, {
+			
+			border : 0,
+	
+			items:items
+				
+		});		
+		
+	    this.callParent(arguments);
+	}
 });

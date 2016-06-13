@@ -23,7 +23,8 @@
     </select>
     
 	<select id="listProjectManager" resultType="map" parameterType="map">
-		select project_id, employee_id, e.section_id
+		select project_id, employee_id, e.section_id, 
+		lpad(e.employee_code, 6 ,'0') employee_code
 		from pb2_ext_res_project_member m, pb2_ext_hr_employee e
 		where m.employee_id = e.id
 		and  m.project_id =  #{projectId}

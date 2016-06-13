@@ -16,14 +16,10 @@ var MAIN_ID="mainClient"
 ,TEXT_REGX_ADMIN_JOB = /^[^\{\}\[\]\<\>\=\%\'\"\|]?[^\{\}\[\]\<\>\=\%\'\"\|]+$/
 ,TEXT_REGX_TEXT_ADMIN = "Not allowed special characters: { } ? [ ] < > = % * ' \" |"
 ,EMTY_TEXT_COMBO = '--- Please Select ---'
-,PAGE_SIZE = 20
-,ADMIN_PAGE_SIZE = 20
-,MEETING_INCREMENT_TIME = 15
-,START_MEETING_TIME = '7:00 AM'  // format 'h:mm A'
-,END_MEETING_TIME = '8:00 PM'  // format 'h:mm A'
-,TEXT_REGX = /^[^\'\"\,]?[^\'\"\,]+$/
-,TEXT_REGX_TEXT = "Not allowed special characters: ' \" \,"	
-,MAIN_PR_ID = "ext-pr-form"
+,PAGE_SIZE=20
+,ADMIN_PAGE_SIZE=20
+,TEXT_REGX= /^[^\'\"\,]?[^\'\"\,]+$/
+,TEXT_REGX_TEXT="Not allowed special characters: ' \" \,"	
 ,REGEX = /^((?![']).)*$/
 ,REGEX_TEXT = "Not allowed special characters: '"	
 ,MAX_APPROVER = 15

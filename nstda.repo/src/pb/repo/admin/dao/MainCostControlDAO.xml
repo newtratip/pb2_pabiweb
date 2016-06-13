@@ -17,9 +17,9 @@
 		WHERE 1=1
 		<if test="searchTerm != null">
 			AND (
-				t.name LIKE '%'||#{searchTerm}||'%'
-				OR c.name LIKE '%'||#{searchTerm}||'%'
-				OR c.description LIKE '%'||#{searchTerm}||'%'
+				t.name ILIKE '%'||#{searchTerm}||'%'
+				OR c.name ILIKE '%'||#{searchTerm}||'%'
+				OR c.description ILIKE '%'||#{searchTerm}||'%'
 			)
 		</if>
 		<if test="type != null">
@@ -34,5 +34,13 @@
 		from
 		    pb2_ext_cost_control
     </select>
+    
+    <select id="get" parameterType="int" resultType="map">
+        select
+		    *
+		from
+		    pb2_ext_cost_control
+		where id=#{id}
+    </select>  
 	
 </mapper>

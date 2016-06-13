@@ -119,10 +119,6 @@ public class MainSrcUrlService {
 	    		map.put((String)tmpMap.get(codeField), (String)tmpMap.get(MainMasterConstant.TFN_NAME));
     		}
 
-    		conn.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	conn.rollback();
         } finally {
         	conn.close();
         }
@@ -161,10 +157,6 @@ public class MainSrcUrlService {
     			list.add(0,map);
     		}
 
-    		conn.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	conn.rollback();
         } finally {
         	conn.close();
         }
@@ -191,10 +183,6 @@ public class MainSrcUrlService {
     		
 	    	map.put((String)tmpMap.get(resultField.toUpperCase()), "");
 
-    		conn.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	conn.rollback();
         } finally {
         	conn.close();
         }

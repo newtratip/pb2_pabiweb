@@ -50,6 +50,11 @@ public class MainUtil {
 		return CommonUtil.getMessage(CommonConstant.MODULE_ADMIN, key, locale);
 	}
 	
+	public static String getMessageWithOutCode(String key, Locale locale) {
+		String msg = getMessage(key, locale);
+		return msg.substring(msg.indexOf(",")+1);
+	}
+	
 	public static String trimComma(String s) {
 		
 		if (s != null) {

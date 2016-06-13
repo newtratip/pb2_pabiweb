@@ -10,6 +10,8 @@ Ext.define('PB.Dlg', {
 		        },
 		        success: function(response){
 		        	
+		        	Ext.MessageBox.buttonText = {ok: 'OK', yes: 'Yes', no: 'No', cancel: 'Cancel'};
+		        	
 		        	var json = Ext.decode(response.responseText);
 		        	Ext.MessageBox.confirm(json.data[0].code, json.data[0].message , function(btn){
 		        	
@@ -65,22 +67,29 @@ Ext.define('PB.Dlg', {
 		        		
 		        		msg += opts.msg;
 		        	}
-
+		        	
+		        	if (opts.buttonText) {
+		        		Ext.MessageBox.buttonText = opts.buttonText;
+		        	} else {
+		        		Ext.MessageBox.buttonText = {ok: 'OK', yes: 'Yes', no: 'No', cancel: 'Cancel'};
+		        	}
+		        	
 		        	Ext.MessageBox.show({
 		        		title:json.data[0].code, 
 		        		msg:msg,
 		        		icon: opts.icon,
-		        		buttons:Ext.MessageBox.OK,
+		        		buttons:(opts.buttons ? opts.buttons : Ext.MessageBox.OK),
 		        		modal:opts.modal,
 		        		fn:opts.fn,
-		        		scope:opts.scope
+		        		scope:opts.scope,
+		        		animateTarget:opts.animateTarget 
 		        	});
-		        	
 		        },
 		        failure: function(response, opts){
 		            //console.log("failed");
 		        },
-		        headers: getAlfHeader()
+		        headers: getAlfHeader(),
+		        async:false
 		    });  
 		},
 		

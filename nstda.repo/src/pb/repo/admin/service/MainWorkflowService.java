@@ -2,14 +2,10 @@ package pb.repo.admin.service;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -22,8 +18,6 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.workflow.WorkflowModel;
-import org.alfresco.repo.workflow.activiti.ActivitiScriptNode;
-import org.alfresco.repo.workflow.activiti.ActivitiScriptNodeList;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.ContentService;
@@ -120,10 +114,10 @@ public class MainWorkflowService {
 	AlfrescoService alfrescoService;
 	
 	@Autowired
-	AdminEmployeeBossService employeeBossService;
+	AdminHrEmployeeService adminHrEmployeeService;
 	
 	@Autowired
-	AdminHrEmployeeService adminHrEmployeeService;
+	AdminWkfConfigService adminWkfConfigService;
 	
 	SubModuleService moduleService;
 	
@@ -139,7 +133,7 @@ public class MainWorkflowService {
 		WF_PREFIX = moduleService.getModelPrefix();
 	}
 	
-	public String startWorkflow(SubModuleModel model) throws Exception {
+	public String startWorkflow(SubModuleModel model, String docType) throws Exception {
 		
 		//Map<String, Object> map = moduleService.convertToMap(model);
 		
@@ -149,7 +143,7 @@ public class MainWorkflowService {
 		
 		try {
 			String action = moduleService.getActionCaption(MainWorkflowConstant.TA_START);
-	        String stateTask = "ผู้ขออนุมัติ";
+	        String stateTask = MainWorkflowConstant.TN_REQUESTER_CAPTION;
 			String wfName = moduleService.getWorkflowName();
 			log.info("  WF Name:"+wfName);
 			WorkflowDefinition workflow = workflowService.getDefinitionByName("activiti$"+wfName);
@@ -178,10 +172,12 @@ public class MainWorkflowService {
 		    }, AuthenticationUtil.getAdminUserName());
 	        
 	        setRequesterPermission(folderNodeRef, model);
-			
-	        setReviewer(parameters, model, folderNodeRef);
 	        
-	        setNextActor(model);
+	        setRelatedUserPermission(folderNodeRef, model);
+			
+	        setReviewer(parameters, model, folderNodeRef, docType);
+	        
+	        setNextActor(model, folderNodeRef);
 	        
 	        MainWorkflowReviewerModel paramModel = new MainWorkflowReviewerModel();
 	        paramModel.setMasterId(model.getId());
@@ -232,11 +228,17 @@ public class MainWorkflowService {
 	        
 	        addWorkflow(workflowModel);
 	        
-			MainWorkflowHistoryModel workflowHistoryModel = new MainWorkflowHistoryModel();
+	        MainWorkflowHistoryModel workflowHistoryModel = moduleService.getReqByWorkflowHistory(model);
+	        if (workflowHistoryModel != null) {
+		        workflowHistoryModel.setMasterId(wfKey);
+		        addWorkflowHistory(workflowHistoryModel);
+	        }
+	        
+			workflowHistoryModel = new MainWorkflowHistoryModel();
 	        workflowHistoryModel.setMasterId(wfKey);
 			workflowHistoryModel.setLevel(0);
 			workflowHistoryModel.setAction(action);
-			workflowHistoryModel.setUser_(model.getCreatedBy());
+			workflowHistoryModel.setBy(model.getCreatedBy());
 			workflowHistoryModel.setTask(stateTask);
 			workflowHistoryModel.setComment(moduleService.getFirstComment(model));
 	        addWorkflowHistory(workflowHistoryModel);
@@ -253,6 +255,19 @@ public class MainWorkflowService {
 		return instanceId;
 	}
 	
+	public void setFolderPermission(final NodeRef folderNodeRef, final String user) {
+		
+		// add permission to current user
+        AuthenticationUtil.runAs(new RunAsWork<String>()
+	    {
+			public String doWork() throws Exception
+			{
+				permissionService.setPermission(folderNodeRef, user, "SiteCollaborator", true);
+		    	return null;
+			}
+	    }, AuthenticationUtil.getAdminUserName());
+	}	
+	
 	private void setRequesterPermission(final NodeRef folderNodeRef, Object model) {
 		
 		// add permission to requester
@@ -265,6 +280,24 @@ public class MainWorkflowService {
 			}
 	    }, AuthenticationUtil.getAdminUserName());
 	}
+	
+	private void setRelatedUserPermission(final NodeRef folderNodeRef, Object model) {
+		
+		final List<String> list = moduleService.listRelatedUser((SubModuleModel)model); 
+		if (list!=null) {
+			// add permission to related user
+	        AuthenticationUtil.runAs(new RunAsWork<String>()
+		    {
+				public String doWork() throws Exception
+				{
+					for(String u : list) {
+						permissionService.setPermission(folderNodeRef, u, "SiteCollaborator", true);
+					}
+			    	return null;
+				}
+		    }, AuthenticationUtil.getAdminUserName());
+		}
+	}	
 	
     private void setRelatedAssignee(Map<QName, Serializable> parameters, String relatedUserGroups, final NodeRef folderNodeRef) throws Exception {
        	List<NodeRef> userList = new ArrayList<NodeRef>();
@@ -306,23 +339,36 @@ public class MainWorkflowService {
 		
     }
 
-    private void setNextActor(SubModuleModel model) throws Exception {
-    	List<MainWorkflowNextActorModel> list = moduleService.listNextActor(model);
-    	for(MainWorkflowNextActorModel actorModel : list) {
-    		addNextActor(actorModel);
-    	}
+    private void setNextActor(final SubModuleModel model, final NodeRef folderNodeRef) throws Exception {
+    	    		
+	        AuthenticationUtil.runAs(new RunAsWork<String>()
+    	    {
+    			public String doWork() throws Exception
+    			{
+    		    	List<MainWorkflowNextActorModel> list = moduleService.listNextActor(model);
+    		    	for(MainWorkflowNextActorModel actorModel : list) {
+    		    		addNextActor(actorModel);
+
+    		    		String u = MainUserGroupUtil.code2login(actorModel.getActorUser());
+		        		if(!permissionService.getPermissions(folderNodeRef).contains(u)) {
+		        			permissionService.setPermission(folderNodeRef, u, "SiteCollaborator", true);
+		        		}
+    		    	}
+
+    	        	return "A";
+    			}
+    	    }, AuthenticationUtil.getAdminUserName());    		
     }
     
-    private void setReviewer(Map<QName, Serializable> parameters, SubModuleModel model, final NodeRef folderNodeRef) {
+    private void setReviewer(Map<QName, Serializable> parameters, SubModuleModel model, final NodeRef folderNodeRef, String docType) {
     	
          try {
-        	 
-//        	Map<String, String> bossMap = employeeBossService.getBossMap(MainEmployeeConstant.BM_PR, pcmReqModel.getCostType(), pcmReqModel.getReqOu(), pcmReqModel.getCreatedBy(), pcmReqModel.getTotal());
+        	Map<String, String> bossMap = moduleService.getBossMap(docType, model);
         	
-        	Map<String, String> bossMap = new LinkedHashMap<String, String>();
-        	bossMap.put("L01", "001509");
-        	bossMap.put("L02", "000511");
-        	bossMap.put("L03", "000090");
+//        	Map<String, String> bossMap = new LinkedHashMap<String, String>();
+//        	bossMap.put("L01", "001509");
+//        	bossMap.put("L02", "000511");
+//        	bossMap.put("L03", "000090");
         	
     		log.info("setReviewer :");
         	for(Entry e : bossMap.entrySet()) {
@@ -396,31 +442,11 @@ public class MainWorkflowService {
         			
         		}
         		log.info("user collection:"+userCollectionList.toString());
-//        		Double percent = dtl.getPercent();
         		
         		lvl.put(level, userCollectionList);
-        		//parameters.put(QName.createQName(wfUri + "reviewer"+i+"Group"), appGroup);
-//        		parameters.put(QName.createQName(WF_URI + "reviewer"+dtl.getLevel()+"RequirePercentComplete"), percent);
-        		//parameters.put(QName.createQName(WF_URI + "reviewer"+dtl.getLevel()+"List"), (Serializable) userCollectionList);
-//        		parameters.put(QName.createQName(WF_URI + "rewarning"+dtl.getLevel()), dtl.getRewarning());
-//        		parameters.put(QName.createQName(WF_URI + "hint"+dtl.getLevel()), dtl.getHint());
+
         		level++;
         	}
-        	
-//        	for(int i=1; i<=CommonConstant.MAX_APPROVER;i++) {
-//        		log.info("  reviewer"+i);
-//        		if(lvl.containsKey(i)) {
-//        			log.info(i);
-//        			parameters.put(QName.createQName(WF_URI + "reviewer"+i+"Group"), "true");
-////            		parameters.put(QName.createQName(WF_URI + "reviewer"+i+"List"), (Serializable) lvl.get(i));
-//           		}else {
-//        			log.info(WF_URI + "reviewer"+i+"List");
-//        			List<String> emptyCollectionList = new ArrayList<String>(); 
-//        			parameters.put(QName.createQName(WF_URI + "reviewer"+i+"Group"), "");
-////            		parameters.put(QName.createQName(WF_URI + "reviewer"+i+"List"), (Serializable) emptyCollectionList);
-//        		}
-//        		
-//        	}
         	
 	        AuthenticationUtil.runAs(new RunAsWork<String>()
     	    {
@@ -460,11 +486,6 @@ public class MainWorkflowService {
             
             key = dao.getKey();
             
-            session.commit();
-            
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
@@ -589,11 +610,6 @@ public class MainWorkflowService {
             
             list =  dao.listHistory(params);
             
-            session.commit();
-            
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
@@ -615,9 +631,9 @@ public class MainWorkflowService {
 		if (tasks.size() > 0) {
 		     Map<QName, Serializable> params = new HashMap<QName, Serializable>();
 		     
-	         NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
+//	         NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
 	        
-	         setRelatedAssignee(params, relatedUserGroups, folderNodeRef);
+	         //setRelatedAssignee(params, relatedUserGroups, folderNodeRef);
 			
 	         List<NodeRef> docList = new ArrayList<NodeRef>();
 	         docList.add(new NodeRef(model.getDocRef()));
@@ -666,7 +682,7 @@ public class MainWorkflowService {
 		     
 	         NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
 	        
-	         setReviewer(params, model, folderNodeRef);
+	         setReviewer(params, model, folderNodeRef, null);
 	         
 //	         for(Entry<QName, Serializable> e : params.entrySet()) {
 //	        	 log.info("params:"+e.getKey().toString());
@@ -711,18 +727,17 @@ public class MainWorkflowService {
 	 * For NBTC
 	 */
 	public String updateWorkflow(SubModuleModel model, DelegateTask task) throws Exception {
-
 	     Map<QName, Serializable> params = new HashMap<QName, Serializable>();
 
-         List<NodeRef> docList = new ArrayList<NodeRef>();
-         docList.add(new NodeRef(model.getDocRef()));
-
-         List<NodeRef> attachDocList = new ArrayList<NodeRef>();
-         if( model.getListAttachDoc()!=null) {
-         	for(String nodeRef : model.getListAttachDoc()) {
-         		attachDocList.add(new NodeRef(nodeRef));
-             }
-         }
+//         List<NodeRef> docList = new ArrayList<NodeRef>();
+//         docList.add(new NodeRef(model.getDocRef()));
+//
+//         List<NodeRef> attachDocList = new ArrayList<NodeRef>();
+//         if( model.getListAttachDoc()!=null) {
+//         	for(String nodeRef : model.getListAttachDoc()) {
+//         		attachDocList.add(new NodeRef(nodeRef));
+//             }
+//         }
          
          String desc = moduleService.getWorkflowDescription(model);
          params.put(WorkflowModel.PROP_DESCRIPTION, desc);
@@ -734,10 +749,14 @@ public class MainWorkflowService {
 		 task.getExecution().setVariable("bpm_"+WorkflowModel.PROP_DESCRIPTION.getLocalName(), desc);
 		 task.getExecution().setVariable("bpm_"+WorkflowModel.PROP_WORKFLOW_DESCRIPTION.getLocalName(), desc);
 		 
-		 ActivitiScriptNodeList l = new ActivitiScriptNodeList();
-		 ActivitiScriptNode n = new ActivitiScriptNode(new NodeRef(model.getDocRef()), services);
-		 l.add(n);
-		 task.getExecution().setVariable(WF_PREFIX + "document", l);
+//		 ActivitiScriptNodeList l = new ActivitiScriptNodeList();
+//			log.info("pass 17.1 "+model.getDocRef()+","+services);
+//		 ActivitiScriptNode n = new ActivitiScriptNode(new NodeRef(model.getDocRef()), services);
+//			log.info("pass 17.2 "+n);
+//		 l.add(n);
+//			log.info("pass 17.3 "+WF_PREFIX);
+//		 task.getExecution().setVariable(WF_PREFIX + "document", l);
+//			log.info("pass 18");
 		 
 //		 for (int i=1; i<=PcmReqConstant.MAX_DUMMY_FIELD; i++) {
 //			 updateExecutionVariable(params, task, "field"+i);
@@ -899,19 +918,20 @@ public class MainWorkflowService {
 		}
 		  
 		List<MainWorkflowHistoryModel> hList = listWorkflowHistory(workflowIds);
-
-		if (hList.isEmpty()) {
-			for (MainWorkflowModel wfModel : list) {
-				hList = listWorkflowHistory(wfModel.getTaskId());
-				break;
-			}
-			Collections.reverse(hList);
-		}
+		
+//
+//		if (hList.isEmpty()) {
+//			for (MainWorkflowModel wfModel : list) {
+//				hList = listWorkflowHistory(wfModel.getTaskId());
+//				break;
+//			}
+//			Collections.reverse(hList);
+//		}
 		
 		for (MainWorkflowHistoryModel model : hList) {
-			MainHrEmployeeModel empModel = adminHrEmployeeService.get(model.getUser_());
+			MainHrEmployeeModel empModel = adminHrEmployeeService.get(model.getBy());
 
-			jsArr.put(createDetailGridModel(index++, model.getTime(), empModel!=null ? empModel.getFirstName() : model.getUser_(), model.getAction(), model.getTask(), StringUtils.defaultIfBlank(model.getComment(),"").replace("\\n", "<br>").replace("'", "\\'")));
+			jsArr.put(createDetailGridModel(index++, model.getTime(), empModel!=null ? empModel.getFirstName() : model.getBy(), model.getAction(), model.getTask(), StringUtils.defaultIfBlank(model.getComment(),"").replace("\\n", "<br>").replace("'", "\\'")));
 		}
 
 		return jsArr;
@@ -941,11 +961,6 @@ public class MainWorkflowService {
             
     		list = dao.listByMasterId(id);
             
-            session.commit();
-            
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
@@ -967,11 +982,6 @@ public class MainWorkflowService {
     		
     		list = dao.listByMasterId(params);
             
-            session.commit();
-            
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
@@ -979,28 +989,28 @@ public class MainWorkflowService {
 		return list;
 	}
 	
-	public List<MainWorkflowHistoryModel> listWorkflowHistory(String taskId) {
-
-		List<MainWorkflowHistoryModel> list = new ArrayList<MainWorkflowHistoryModel>();
-		try {
-			WorkflowTask task = workflowService.getTaskById(taskId);
-			String historyStr = (String)task.getProperties().get("pcmwf_commentHistory");
-			
-			JSONArray history = new JSONArray("["+historyStr.replaceAll("/", "")+"]");
-			 
-			log.info("history.length="+history.length());
-			
-			for(int i=0; i < history.length(); i++) {
-				 JSONObject h = history.getJSONObject(i);
-				 
-				 list.add(new MainWorkflowHistoryModel(h));
-			}
-		} catch (Exception ex) {
-			log.error("", ex);
-		}
-		
-		return list;
-	}
+//	public List<MainWorkflowHistoryModel> listWorkflowHistory(String taskId) {
+//
+//		List<MainWorkflowHistoryModel> list = new ArrayList<MainWorkflowHistoryModel>();
+//		try {
+//			WorkflowTask task = workflowService.getTaskById(taskId);
+//			String historyStr = (String)task.getProperties().get("pcmwf_commentHistory");
+//			
+//			JSONArray history = new JSONArray("["+historyStr.replaceAll("/", "")+"]");
+//			 
+//			log.info("history.length="+history.length());
+//			
+//			for(int i=0; i < history.length(); i++) {
+//				 JSONObject h = history.getJSONObject(i);
+//				 
+//				 list.add(new MainWorkflowHistoryModel(h));
+//			}
+//		} catch (Exception ex) {
+//			log.error("", ex);
+//		}
+//		
+//		return list;
+//	}
 	
 	private Object updateExecutionVariable(Map<QName, Serializable> params, DelegateTask task, String varName) {
 		Object obj = ObjectUtils.defaultIfNull(params.get(QName.createQName(WF_URI + varName)), "");
@@ -1059,10 +1069,6 @@ public class MainWorkflowService {
     		if (list.size()>0) {
     			model = list.get(0);
     		}
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
@@ -1106,36 +1112,36 @@ public class MainWorkflowService {
 		
 		action = moduleService.getActionCaption(action);
 		
-		if (execution!=null) {
-		
-			String commentHistoryAttr = WF_PREFIX+"commentHistory";
-	
-			String allComment = execution.getVariable(commentHistoryAttr)!= null?
-						 execution.getVariable(commentHistoryAttr).toString():"";
-			
-			if(!allComment.equals("")){
-				allComment += ",";
-			}
-			
-			SimpleDateFormat formatter = new SimpleDateFormat("EEE d MMM yyyy HH:mm", Locale.ENGLISH);
-			String timeAction = formatter.format(now);
-			
-			// Build JSON string
-			String currentComment = "";
-			
-			currentComment +="{";
-			currentComment += "\"time\":\""+timeAction+"\",";
-			currentComment += "\"user\":\""+user+"\",";
-			currentComment += "\"action\":\""+action+"\",";
-			currentComment += "\"task\":\""+stateTask+"\",";
-			currentComment += "\"comment\":\""+org.json.simple.JSONObject.escape(taskComment)+"\" ";
-			currentComment += "}";
-			
-			execution.setVariable(commentHistoryAttr, allComment + currentComment);
-			if (task!=null) {
-				task.setVariable(commentHistoryAttr, allComment + currentComment);
-			}
-		}
+//		if (execution!=null) {
+//		
+//			String commentHistoryAttr = WF_PREFIX+"commentHistory";
+//	
+//			String allComment = execution.getVariable(commentHistoryAttr)!= null?
+//						 execution.getVariable(commentHistoryAttr).toString():"";
+//			
+//			if(!allComment.equals("")){
+//				allComment += ",";
+//			}
+//			
+//			SimpleDateFormat formatter = new SimpleDateFormat("EEE d MMM yyyy HH:mm", Locale.ENGLISH);
+//			String timeAction = formatter.format(now);
+//			
+//			// Build JSON string
+//			String currentComment = "";
+//			
+//			currentComment +="{";
+//			currentComment += "\"time\":\""+timeAction+"\",";
+//			currentComment += "\"user\":\""+user+"\",";
+//			currentComment += "\"action\":\""+action+"\",";
+//			currentComment += "\"task\":\""+stateTask+"\",";
+//			currentComment += "\"comment\":\""+org.json.simple.JSONObject.escape(taskComment)+"\" ";
+//			currentComment += "}";
+//			
+//			execution.setVariable(commentHistoryAttr, allComment + currentComment);
+//			if (task!=null) {
+//				task.setVariable(commentHistoryAttr, allComment + currentComment);
+//			}
+//		}
 		
 		MainWorkflowModel workflowModel = new MainWorkflowModel();
 		workflowModel.setMasterId(id.toString());
@@ -1144,7 +1150,7 @@ public class MainWorkflowService {
 		if (workflowModel!=null) {
 			MainWorkflowHistoryModel workflowHistoryModel = new MainWorkflowHistoryModel();
 			workflowHistoryModel.setTime(now);
-			workflowHistoryModel.setUser_(user);
+			workflowHistoryModel.setBy(user);
 			workflowHistoryModel.setAction(action);
 			workflowHistoryModel.setTask(stateTask);
 			workflowHistoryModel.setComment((taskComment!=null && !taskComment.equalsIgnoreCase(""))?taskComment:null);
@@ -1180,7 +1186,7 @@ public class MainWorkflowService {
 
 		log.info("  workflowStatus:" + workflowStatus);
 		
-		if(workflowStatus == null || !workflowStatus.toUpperCase().equals("REJECT")){
+		if(workflowStatus == null || !(workflowStatus.toUpperCase().equals("REJECT") || workflowStatus.toUpperCase().equals("CONSULT"))){
 			workflowStatus = "WAPPR";
 			
 			//Check current task is in taskHistory?

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -31,25 +30,24 @@ import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
-import pb.common.model.ResultModel;
 import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminTestSystemService;
 import pb.repo.admin.service.AdminUserGroupService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmReqConstant;
-import pb.repo.pcm.model.PcmReqCmtDtlModel;
-import pb.repo.pcm.model.PcmReqCmtModel;
 import pb.repo.pcm.model.PcmReqDtlModel;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.InterfaceService;
 import pb.repo.pcm.service.PcmReqService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 import pb.repo.pcm.util.PcmReqCmtDtlUtil;
+import pb.repo.pcm.util.PcmReqCmtHdrUtil;
 import pb.repo.pcm.util.PcmReqCmtUtil;
 import pb.repo.pcm.util.PcmReqDtlUtil;
 import pb.repo.pcm.util.PcmReqUtil;
@@ -74,7 +72,7 @@ public class PcmWebScript {
 	TemplateService templateService;
 
 	@Autowired
-	private MainWorkflowService mainWorkflowService;
+	private PcmReqWorkflowService mainWorkflowService;
 	
 	@Autowired
 	private AdminMasterService masterService;
@@ -161,8 +159,7 @@ public class PcmWebScript {
 		
 		try {
 			List<PcmReqModel> list = pcmReqService.list(params);
-			MainMasterModel showDelBtnCfg = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_DELETE_BUTTON);
-			json = PcmReqUtil.jsonSuccess(list, showDelBtnCfg!=null && showDelBtnCfg.getFlag1()!=null && showDelBtnCfg.getFlag1().equals("1"));
+			json = PcmReqUtil.jsonSuccess(list, false);
 			
 		} catch (Exception ex) {
 			log.error("", ex);
@@ -171,10 +168,86 @@ public class PcmWebScript {
 			
 		} finally {
 			CommonUtil.responseWrite(response, json);
-			
 		}
 	  
   }
+  
+  @Uri(URI_PREFIX+"/req/listForSearch")
+  public void handleListForSearch(@RequestParam(required=false) final String s
+		  	  , @RequestParam(required=false) final String fields
+			  , @RequestParam(required=false) final Integer start
+			  , @RequestParam(required=false) final Integer limit
+			  , final WebScriptResponse response)  throws Exception {
+
+	  	/*
+	  	 * Prepare Criteria
+	  	 */
+		Map<String, Object> params = new HashMap<String, Object>();
+		
+		String searchTerm = null;
+		
+		if (s != null && !s.equals("")) {
+			searchTerm = "%" + s + "%";
+		}
+		params.put("searchTerm", searchTerm);
+		params.put("start", start);
+		params.put("limit", limit);
+		
+		String curUser = authService.getCurrentUserName();
+		params.put("loginE", curUser);
+//		params.put("loginL", "%,"+curUser+",%");
+		params.put("loginL", curUser);
+		
+		String userRoles = userGroupService.getAuthoritiesForUser(curUser)
+						.replace("GROUP_", "")
+						.replace("','", ",")
+						;
+		if (userRoles.startsWith("'")) {
+			userRoles = userRoles.substring(1);
+		}
+		if (userRoles.endsWith("'")) {
+			userRoles = userRoles.substring(0, userRoles.length()-1);
+		}
+		
+		String[] roles = userRoles.split(",");
+		List<String> roleList = new ArrayList<String>();
+		for(int i=0; i<roles.length; i++) {
+			if (!roles[i].startsWith("site_")) {
+//				roleList.add("%,"+roles[i]+",%");
+				roleList.add(roles[i]);
+			}
+		}
+		params.put("roleList",  roleList);
+		
+		
+		if (fields != null) {
+			JSONObject jsObj = new JSONObject(fields);
+			
+			putOneParam(params, jsObj, PcmReqConstant.JFN_STATUS);
+			putOneParam(params, jsObj, PcmReqConstant.JFN_OBJECTIVE_TYPE);
+		}		
+		
+		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
+	  
+		/*
+		 * Search
+		 */
+		String json = null;
+		
+		try {
+			List<PcmReqModel> list = pcmReqService.listForSearch(params);
+			json = PcmReqUtil.jsonSuccess(list, false);
+			
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+			
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+	  
+  }  
   
   private void putOneParam(Map<String, Object> params, JSONObject jsObj, String fieldName) {
 	  try {
@@ -272,7 +345,9 @@ public class PcmWebScript {
 		}
 		model.setIsRefId(isRefId);
 		model.setRefId(refId);
-		model.setMethod(method);
+		if (method!=null && !method.equals("")) {
+			model.setPrWebMethodId(Long.parseLong(method));
+		}
 		model.setMethodCond2Rule(methodCond2Rule);
 		model.setMethodCond2(methodCond2);
 		model.setMethodCond2Dtl(methodCond2Dtl);
@@ -281,6 +356,7 @@ public class PcmWebScript {
 		model.setTotal(Double.parseDouble(total));
 		model.setStatus(PcmReqConstant.ST_DRAFT);
 		
+		log.info("model="+model);
 		model = pcmReqService.save(model, items, files, cmts, false);
 		
 		JSONObject jsObj = new JSONObject();
@@ -381,9 +457,11 @@ public class PcmWebScript {
 		}
 		model.setIsRefId(isRefId);
 		model.setRefId(refId);
-		model.setMethod(method);
+		if (method!=null && !method.equals("")) {
+			model.setPrWebMethodId(Long.parseLong(method));
+		}
 		model.setMethodCond2Rule(methodCond2Rule);
-		model.setMethodCond2(methodCond2Dtl);
+		model.setMethodCond2(methodCond2);
 		model.setMethodCond2Dtl(methodCond2Dtl);
 		model.setVat(Double.parseDouble(vat));
 		model.setVatId(Integer.parseInt(vatId));
@@ -395,19 +473,46 @@ public class PcmWebScript {
 			model.setWaitingLevel(1);
 		}
 		
+		JSONObject jobj = new JSONObject(model); 
+		log.info("model="+jobj.toString());
+		
 		JSONObject validateResult = pcmReqService.validateAssignee(model);
 		if (!(Boolean)validateResult.get("valid")) {
 			json = CommonUtil.jsonFail(validateResult);
 		}
 		else {
-			model = pcmReqService.save(model, items, files, cmts, true);
-			
-			mainWorkflowService.setModuleService(pcmReqService);
-			mainWorkflowService.startWorkflow(model);
-			
-			JSONObject jsObj = new JSONObject();
-			jsObj.put("id", model.getId());
-			json = CommonUtil.jsonSuccess(jsObj);
+			JSONObject validateWfPath = pcmReqService.validateWfPath(model);
+			if (!(Boolean)validateWfPath.get("valid")) {
+				json = CommonUtil.jsonFail(validateWfPath);
+			}
+			else {
+				MainMasterModel chkBudgetModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_INF_CHECK_BUDGET);
+				
+				Boolean checkBudget = chkBudgetModel.getFlag1().equals(CommonConstant.V_ENABLE);
+				Boolean budgetOk = false;
+				Map<String, Object> budgetResult = null;
+				if (checkBudget) {
+					budgetResult = interfaceService.checkBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getTotal());
+					log.info("Budget Result:"+budgetResult);
+					budgetOk = (Boolean)budgetResult.get("budget_ok");
+				}
+				
+				if (checkBudget && !budgetOk) {
+					JSONObject data = new JSONObject();
+					data.put("valid", false);
+					data.put("msg", budgetResult.get("message"));
+					json = CommonUtil.jsonFail(data);
+				} else {
+					model = pcmReqService.save(model, items, files, cmts, true);
+					
+					mainWorkflowService.setModuleService(pcmReqService);
+					mainWorkflowService.startWorkflow(model, MainWkfConfigDocTypeConstant.DT_PR);
+					
+					JSONObject jsObj = new JSONObject();
+					jsObj.put("id", model.getId());
+					json = CommonUtil.jsonSuccess(jsObj);
+				}
+			}
 		}
 		
 	} catch (Exception ex) {
@@ -417,7 +522,6 @@ public class PcmWebScript {
 	} finally {
 		CommonUtil.responseWrite(response, json);
 	}
-
 	  
   }
 
@@ -493,7 +597,7 @@ public class PcmWebScript {
 	  map.put(PcmReqConstant.JFN_REQ_BU, dtl.get("org_desc"));
 	  
 	  map.put(PcmReqConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
-	  map.put(PcmReqConstant.JFN_REQ_SECTION_NAME, dtl.get("section_name"));
+	  map.put(PcmReqConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"));
 	  
 	  
 	  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
@@ -623,9 +727,10 @@ public class PcmWebScript {
 							,@RequestParam(required=false) final String vatId
 							,@RequestParam(required=false) final String total
 							,@RequestParam(required=false) final String status
-							,@RequestParam(required=false) final String dtls
-							,@RequestParam(required=false) final String files,
-							final WebScriptResponse response) throws Exception {
+							,@RequestParam(required=false) final String items
+							,@RequestParam(required=false) final String files
+							,@RequestParam(required=false) final String cmts
+							,final WebScriptResponse response) throws Exception {
 	
 	String json = null;
 	
@@ -673,9 +778,11 @@ public class PcmWebScript {
 		}
 		model.setIsRefId(isRefId);
 		model.setRefId(refId);
-		model.setMethod(method);
+		if (method!=null && !method.equals("")) {
+			model.setPrWebMethodId(Long.parseLong(method));
+		}
 		model.setMethodCond2Rule(methodCond2Rule);
-		model.setMethodCond2(methodCond2Dtl);
+		model.setMethodCond2(methodCond2);
 		model.setMethodCond2Dtl(methodCond2Dtl);
 		model.setVat(Double.parseDouble(vat));
 		model.setVatId(Integer.parseInt(vatId));
@@ -687,11 +794,16 @@ public class PcmWebScript {
 			model.setWaitingLevel(1);
 		}
 		
+		log.info("model="+model);
+		
 		JSONObject validateResult = pcmReqService.validateAssignee(model);
 		if (!(Boolean)validateResult.get("valid")) {
 			json = CommonUtil.jsonFail(validateResult);
 		}
 		else {		
+			
+			model.setDtlList(PcmReqDtlUtil.convertJsonToList(items, model.getId()));
+			model.setCmtList(PcmReqCmtHdrUtil.convertJsonToList(cmts, model.getId()));
 			String fileName = pcmReqService.doGenDoc("pr", model);
 			
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -835,9 +947,11 @@ public class PcmWebScript {
 		}
 		model.setIsRefId(isRefId);
 		model.setRefId(refId);
-		model.setMethod(method);
+		if (method!=null && !method.equals("")) {
+			model.setPrWebMethodId(Long.parseLong(method));
+		}
 		model.setMethodCond2Rule(methodCond2Rule);
-		model.setMethodCond2(methodCond2Dtl);
+		model.setMethodCond2(methodCond2);
 		model.setMethodCond2Dtl(methodCond2Dtl);
 		model.setVat(Double.parseDouble(vat));
 		model.setVatId(Integer.parseInt(vatId));
@@ -848,6 +962,8 @@ public class PcmWebScript {
 			model.setStatus(PcmReqConstant.ST_WAITING);
 			model.setWaitingLevel(1);
 		}
+		
+		log.info("model="+model);
 		
 		JSONObject validateResult = pcmReqService.validateAssignee(model);
 		if (!(Boolean)validateResult.get("valid")) {
@@ -905,7 +1021,7 @@ public class PcmWebScript {
 		String json = null;
 			
 		try {
-			List<PcmReqCmtModel> list = pcmReqService.listCmt(objType);
+			List<Map<String, Object>> list = pcmReqService.listCmt(objType);
 				
 			json = PcmReqCmtUtil.jsonSuccess(list);
 		} catch (Exception ex) {
@@ -921,14 +1037,14 @@ public class PcmWebScript {
 	
 	
 	@Uri(URI_PREFIX+"/req/cmt/dtl/list")
-	public void handleCmtHdrList(@RequestParam final String id,
+	public void handleCmtDtlList(@RequestParam final String id,
 								 @RequestParam final String cmt,
 			  					final WebScriptResponse response)  throws Exception {
 	
 		String json = null;
 			
 		try {
-			List<Map<String,Object>> list = pcmReqService.listCmtDtl(id, cmt);
+			List<Map<String,Object>> list = pcmReqService.listCmtDtl(id, Integer.parseInt(cmt));
 			PcmReqCmtDtlUtil.addAction(list);
 				
 			json = CommonUtil.jsonSuccess(list);

@@ -53,7 +53,14 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					    name : 'desc',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
-					    allowBlank:false
+					    allowBlank:false,
+					    listeners:{
+							afterrender:function(txt) {
+								Ext.defer(function(){
+									txt.focus();
+								},100);
+							}
+						}
 					},{
 					    xtype: 'numericfield',
 					    fieldLabel : mandatoryLabel('จำนวน'), 
@@ -81,7 +88,6 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 						margin: '10 0 0 10',
 						allowBlank:false,
 				        listConfig : {
-					    	resizable:true,
 						    getInnerTpl: function () {
 								return '<div>{name}</div>';
 						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
@@ -108,11 +114,13 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 			          text: 'บันทึก', 
 //			          disabled : true,
 			          action : 'ok',
-			          itemId: 'okButton'
+			          itemId: 'okButton',
+			          iconCls:'icon_ok'
 			        },{
 			          text: 'ยกเลิก',
 			          handler:this.destroy,
-			          scope:this
+			          scope:this,
+			          iconCls:'icon_no'
 			        }]
 	            }]
 		});

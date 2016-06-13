@@ -1,5 +1,7 @@
 package pb.repo.pcm.model;
 
+import java.util.List;
+
 import pb.repo.admin.model.SubModuleModel;
 
 public class PcmReqModel extends SubModuleModel {
@@ -40,7 +42,7 @@ public class PcmReqModel extends SubModuleModel {
 	String isRefId;
 	String refId;
 
-	String method;
+	Long prWebMethodId;
 	String methodCond2Rule;
 	String methodCond2;
 	String methodCond2Dtl;
@@ -54,6 +56,9 @@ public class PcmReqModel extends SubModuleModel {
 	Integer waitingDay;
 	String status;
 	String wfStatus;
+	
+	List<PcmReqDtlModel> dtlList;
+	List<PcmReqCmtHdrModel> cmtList;
 	
 	public String getStatus() {
 		return status;
@@ -172,11 +177,11 @@ public class PcmReqModel extends SubModuleModel {
 	public void setAcrossBudget(Double acrossBudget) {
 		this.acrossBudget = acrossBudget;
 	}
-	public String getMethod() {
-		return method;
+	public Long getPrWebMethodId() {
+		return prWebMethodId;
 	}
-	public void setMethod(String method) {
-		this.method = method;
+	public void setPrWebMethodId(Long prWebMethodId) {
+		this.prWebMethodId = prWebMethodId;
 	}
 	public String getMethodCond2Rule() {
 		return methodCond2Rule;
@@ -279,6 +284,18 @@ public class PcmReqModel extends SubModuleModel {
 	}
 	public void setCostControlName(String costControlName) {
 		this.costControlName = costControlName;
+	}
+	public List<PcmReqDtlModel> getDtlList() {
+		return dtlList;
+	}
+	public void setDtlList(List<PcmReqDtlModel> dtlList) {
+		this.dtlList = dtlList;
+	}
+	public List<PcmReqCmtHdrModel> getCmtList() {
+		return cmtList;
+	}
+	public void setCmtList(List<PcmReqCmtHdrModel> cmtList) {
+		this.cmtList = cmtList;
 	}
 	
 }

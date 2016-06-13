@@ -30,7 +30,7 @@
         <result property="refId" column="ref_id"/>
         <result property="isAcrossBudget" column="is_across_budget"/>
         <result property="acrossBudget" column="across_budget"/>
-        <result property="method" column="method"/>
+        <result property="prWebMethodId" column="prweb_method_id"/>
         <result property="methodCond2Rule" column="method_cond2_rule"/>
         <result property="methodCond2" column="method_cond2"/>
         <result property="methodCond2Dtl" column="method_cond2_dtl"/>
@@ -56,7 +56,7 @@
 				WF_STATUS, STATUS, reason, 
 				cost_control_id, cost_control_type_id, 
 				location, 
-				method, method_cond2, method_cond2_rule, method_cond2_dtl,
+				prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				WORKFLOW_INS_ID, TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, 
 				FOLDER_REF, DOC_REF,
@@ -76,7 +76,7 @@
 		    COUNT(*) OVER() totalRowCount
 		FROM
 		    (SELECT ID, total, objective_type, objective, budget_cc, budget_cc_type,
-				NULL WF_STATUS, STATUS, reason, cost_control_id, cost_control_type_id, location, method, method_cond2, method_cond2_rule, method_cond2_dtl,
+				NULL WF_STATUS, STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				WORKFLOW_INS_ID, NULL TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
 				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = pb2_pcm_req.created_by) CBY,
@@ -87,8 +87,8 @@
  			UNION
 			SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type,
 				CASE WHEN (W.STATUS IS NULL) THEN ''
-				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YY HH24:MI')) 
-				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, location, method, method_cond2, method_cond2_rule, method_cond2_dtl,
+				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
+				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				M.WORKFLOW_INS_ID, TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
 				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.created_by) CBY,
@@ -116,7 +116,9 @@
 				    </foreach>
 					GROUP BY master_id
 				)
+				OR id IN (SELECT master_id FROM pb2_main_workflow_next_actor WHERE actor_user LIKE #{loginE} GROUP BY master_id)
 				OR CREATED_BY = #{loginE} 
+				OR REQ_BY = #{loginE}
 			)
 		) REQ
 		LEFT JOIN
@@ -124,21 +126,20 @@
 			select 'U' _type,id,name
 			from pb2_ext_res_section
 			union
-			select 'P' _type,id,name
-			from pb2_ext_res_project
+			select 'P' _type,id,p.name||' - '||p.description
+			from pb2_ext_res_project p
 		) b on (REQ.budget_cc_type = b._type and REQ.budget_cc = b.id)
 		
 		WHERE
 			1=1
 		<if test="searchTerm != null">
-		AND (REQ.id like #{searchTerm}
-		OR objective like #{searchTerm}
-		OR reason like #{searchTerm}
-		OR location like #{searchTerm}
-		OR method like #{searchTerm}
-		OR method_cond2_rule like #{searchTerm}
-		OR method_cond2 like #{searchTerm}
-		OR method_cond2_dtl like #{searchTerm}
+		AND (REQ.id ilike #{searchTerm}
+		OR objective ilike #{searchTerm}
+		OR reason ilike #{searchTerm}
+		OR location ilike #{searchTerm}
+		OR method_cond2_rule ilike #{searchTerm}
+		OR method_cond2 ilike #{searchTerm}
+		OR method_cond2_dtl ilike #{searchTerm}
 		)			
 		</if>
 		<if test="status != null">
@@ -151,6 +152,80 @@
 		LIMIT #{limit}
 		OFFSET #{start}
     </select>
+    
+    <select id="listForSearch" resultMap="result" parameterType="map">
+        SELECT
+		    REQ.ID, total, objective_type, objective, 
+		    	budget_cc, budget_cc_type, b.name budget_cc_name,
+				WF_STATUS, STATUS, reason, 
+				cost_control_id, cost_control_type_id, 
+				location, 
+				prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
+				WORKFLOW_INS_ID, TASK_ID,
+				UPDATED_TIME, UPDATED_BY, CREATED_TIME, 
+				FOLDER_REF, DOC_REF,
+  			CASE 
+  				WHEN STATUS='D' THEN '1'
+            	WHEN STATUS='W2' THEN '2'
+            	WHEN STATUS='W1' THEN '3'
+            	WHEN STATUS='S' THEN '4'
+            	WHEN STATUS='C1' THEN '5'
+            	WHEN STATUS='C2' THEN '6'
+            	WHEN STATUS='X1' THEN '7'
+            	WHEN STATUS='X2' THEN '8'
+            	ELSE STATUS
+       		END ORDER_FIELD,
+	      	COALESCE(CBY ,CREATED_BY) CREATED_BY,
+	      	COALESCE(RBY ,REQ_BY) REQ_BY,
+		    COUNT(*) OVER() totalRowCount
+		FROM
+		    (SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type,
+				CASE WHEN (W.STATUS IS NULL) THEN ''
+				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
+				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
+				M.WORKFLOW_INS_ID, TASK_ID,
+				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
+				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.created_by) CBY,
+				FOLDER_REF, DOC_REF, REQ_BY,
+				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.req_by) RBY 
+			FROM pb2_pcm_req M LEFT JOIN 
+			(
+			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
+			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
+			WHERE TYPE='PCM_REQ' AND 
+			w.ID IN (
+				SELECT MAX(ID)
+				FROM pb2_main_workflow 
+				GROUP BY MASTER_ID
+			)) AS W ON M.ID = W.MASTER_ID 
+			WHERE M.STATUS not in ('D','X1','X2')
+		) REQ
+		LEFT JOIN
+		(
+			select 'U' _type,id,name
+			from pb2_ext_res_section
+			union
+			select 'P' _type,id,p.name||' - '||p.description
+			from pb2_ext_res_project p
+		) b on (REQ.budget_cc_type = b._type and REQ.budget_cc = b.id)
+		
+		WHERE
+			1=1
+		<if test="searchTerm != null">
+		AND (REQ.id ilike #{searchTerm}
+			OR objective_type ilike #{searchTerm}
+			OR objective ilike #{searchTerm}
+			OR reason ilike #{searchTerm}
+			OR location ilike #{searchTerm}
+			OR method_cond2_rule ilike #{searchTerm}
+			OR method_cond2 ilike #{searchTerm}
+			OR method_cond2_dtl ilike #{searchTerm}
+			)			
+		</if>
+		ORDER BY ${orderBy}
+		LIMIT #{limit}
+		OFFSET #{start}
+    </select>    
     
     <insert
 		id="add"
@@ -172,7 +247,7 @@
 	    	,pcm_section_id,location
 	    	,is_across_budget,across_budget
 	    	,is_ref_id,ref_id
-	    	,method
+	    	,prweb_method_id
 	    	,method_cond2_rule,method_cond2,method_cond2_dtl
 	    	,vat,vat_id
 	    	,total
@@ -191,7 +266,7 @@
 	    	,#{pcmSectionId},#{location}
 	    	,#{isAcrossBudget},#{acrossBudget}
 	    	,#{isRefId},#{refId}
-	    	,#{method}
+	    	,#{prWebMethodId}
 	    	,#{methodCond2Rule},#{methodCond2},#{methodCond2Dtl}
 	    	,#{vat},#{vatId}
     		,#{total}
@@ -249,7 +324,7 @@
 	    ,across_budget =#{acrossBudget}
 	    ,is_ref_id =#{isRefId}
 	    ,ref_id =#{refId}
-	    ,method =#{method}
+	    ,prweb_method_id =#{prWebMethodId}
 	    ,method_cond2_rule =#{methodCond2Rule}
 	    ,method_cond2 =#{methodCond2}
 	    ,method_cond2_dtl =#{methodCond2Dtl}
@@ -279,8 +354,8 @@
 		select 'U' _type,id,name
 		from pb2_ext_res_section
 		union
-		select 'P' _type,id,name
-		from pb2_ext_res_project
+		select 'P' _type,id,p.name||' - '||p.description as name
+		from pb2_ext_res_project p
 		) b on (r.budget_cc_type = b._type and r.budget_cc = b.id)
 		
 		LEFT JOIN pb2_ext_cost_control c on (r.cost_control_id = c.id)
@@ -346,21 +421,53 @@
 			location, 
 			r.updated_time,
 			r.created_time,
-			o.operating_unit_id, 
+			pur_org_id, 
 			r.is_prototype,
 			budget_cc, 
-			method, 
+			prweb_method_id, 
+			method_cond2_dtl,
+			method_id,
 			w.by last_approver,
 			w.by_time,
-			case when (r.is_ref_id = '1') then ref_id else '' end ref_id
+			case when (r.is_ref_id = '1') then ref_id else '' end ref_id,
+			pm.price_range_id,pm.condition_id,pm.confidential_id
 		from pb2_pcm_req r
 		left join pb2_main_workflow_next_actor a on r.id = a.master_id --Next Actor
 		left join pb2_ext_res_currency c on r.currency = c.name
-		left join pb2_ext_hr_employee e on r.req_by = lpad(e.employee_code, 6 ,'0') --Operating Unit ID
-		left join pb2_ext_res_org o on e.org_id = o.id
+		left join
+			(select org_id pur_org_id,p.id
+			from pb2_ext_wkf_config_purchase_unit p, pb2_ext_wkf_config_doctype d
+			where p.doctype_id = d.id and d.name = 'PR' ) pu on r.pcm_section_id = pu.id
 		left join pb2_main_workflow w on w.master_id = r.id --Last Approver
 		left join pb2_main_master m on objective_type=m.code and m.type='PC'
+		left join pb2_ext_prweb_purchase_method pm on prweb_method_id = pm.id
 		where r.id = #{id}
+    </select>
+    
+    <select id="getFirstApprover" parameterType="string" resultType="map">
+		SELECT e.first_name||' '||e.last_name approver, h.time
+		FROM pb2_main_workflow_reviewer r
+		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
+		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
+		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
+		WHERE w.type='PCM_REQ'
+		AND r.master_id=#{id}
+		AND r.level=1
+		AND h.action='อนุมัติ'
+		LIMIT 1
+    </select>
+    
+    <select id="getLastApprover" parameterType="string" resultType="map">
+		SELECT e.first_name||' '||e.last_name approver, h.time
+		FROM pb2_main_workflow_reviewer r
+		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
+		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
+		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
+		WHERE w.type='PCM_REQ'
+		AND r.master_id=#{id}
+		AND r.level=(select max(level) from pb2_main_workflow_reviewer where master_id=#{id})
+		AND h.action='อนุมัติ'
+		LIMIT 1
     </select>
     
 </mapper>

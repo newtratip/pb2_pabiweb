@@ -270,31 +270,54 @@ Ext.define('PBPcmOrd.controller.Main', {
 	    });
 	},
 	
-	viewDetail:function() {
+	viewDetail:function(r) {
+		window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/"+nodeRef2Url(r.get("doc_ref")),"_new");
 	},
 	
 	viewHistory:function(r) {
 		var dlg = Ext.create("PBPcmOrd.view.workflow.DtlDlg");
 		var id = r.get("id");
 	
-		var store = dlg.items.items[0].getStore(); 
+		// Current Task
+		Ext.Ajax.request({
+		      url:ALF_CONTEXT+'/pcm/ord/wf/task/list',
+		      method: "GET",
+		      params: {
+		    	  id : id
+		      },
+		      success: function(response) {
+				  var data = Ext.decode(response.responseText).data[0];
+				  var curTask;
+				  if (data) {
+					  curTask = data.type+(data.assignedTo ? " : " : "")+data.assignedTo;
+				  } else {
+					  curTask = "-";
+				  }
+				  dlg.items.items[0].items.items[0].items.items[0].setText('<font color="blue">'+curTask+'</font>',false);
+				  
+			  },
+		      failure: function(response, opts){
+		          alert("failed");
+		      },
+		      headers: getAlfHeader()
+		});
+		
+		
+		// Path
+		var store = dlg.items.items[0].items.items[1].getStore(); 
 		store.getProxy().extraParams = {
 			id : id
 		}
 		store.load();
 		
-		store = dlg.items.items[1].items.items[0].getStore();
+		// History
+		store = dlg.items.items[1].getStore();
 		store.getProxy().extraParams = {
 		   	id : id
 		};
 		store.load();
 		
-		store = dlg.items.items[1].items.items[1].getStore();
-		store.getProxy().extraParams = {
-		   	id : id
-		};
-		store.load();
-		
+		// Show
 		dlg.show();
 	}
 

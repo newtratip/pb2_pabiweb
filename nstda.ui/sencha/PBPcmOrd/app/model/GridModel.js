@@ -5,6 +5,7 @@ Ext.define('PBPcmOrd.model.GridModel', {
     		 , {name : 'total'}
     		 , {name : 'pr_id'}
     		 , {name : 'section_id'}
+    		 , {name : 'org_name'}
     		 , {name : 'doc_type'}
     		 , {name : 'workflow_ins_id'}
     		 , {name : 'created_time_show'}

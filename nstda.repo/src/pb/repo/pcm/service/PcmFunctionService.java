@@ -68,13 +68,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listType(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -96,13 +91,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listTeam(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -124,13 +114,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listLevel(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -152,13 +137,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listHour(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -180,13 +160,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listTypeChange(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -208,13 +183,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listRequestDay(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -236,13 +206,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listRequestEffect(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -264,13 +229,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listChange(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();
@@ -292,13 +252,8 @@ public class PcmFunctionService {
     		String data = memoFunctionDAO.listTrain(params);
     		list = jsonToMap(data);
     		
-    		//log.info(list.toString());
-    		
-            session.commit();
-            
         } catch (Exception ex) {
 			log.error("", ex);
-        	session.rollback();
         	throw ex;
         } finally {
         	session.close();

@@ -64,12 +64,12 @@ public class MainXmlRpcWebScript {
 //		XmlRpcParser.setDriver("org.apache.xerces.parsers.SAXParser");
 //		XmlRpc.setDriver("org.apache.xerces.parsers.SAXParser");
 
-		final XmlRpcClient client = new XmlRpcClient(new URL("http://128.199.255.252:8069/xmlrpc/2/common"), true);
+		final XmlRpcClient client = new XmlRpcClient(new URL("http://10.226.202.133:8069/xmlrpc/2/common"), true);
 		
 		List arguments = new ArrayList();
-		arguments.add("PABI");
-		arguments.add("admin");
-		arguments.add("admin");
+		arguments.add("PABI2_v3");
+		arguments.add("001509");
+		arguments.add("password");
 		arguments.add(new ArrayList());
 		
 		Object uid = client.invoke("authenticate", arguments);

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 
+import pb.repo.admin.model.MainWorkflowHistoryModel;
 import pb.repo.admin.model.MainWorkflowNextActorModel;
 import pb.repo.admin.model.SubModuleModel;
 
@@ -28,6 +29,7 @@ public interface SubModuleService {
 	public String getActionCaption(String action);
 	
 	public List<MainWorkflowNextActorModel> listNextActor(SubModuleModel model);
+	public List<String> listRelatedUser(SubModuleModel model);
 	
 	public String getFirstComment(SubModuleModel model);
 	
@@ -36,6 +38,13 @@ public interface SubModuleService {
     public String getModelUri();
     public String getWfUri();
     public String getModelPrefix();
+    public String getDocDesc();
+    public MainWorkflowHistoryModel getReqByWorkflowHistory(SubModuleModel model);
     
-	public QName getPropNextReviewers(); 
+	public QName getPropNextReviewers();
+	
+//	public Map<String, String> getBossMap(String docType, String type, String costCenter, String reqUser, Double amount);
+	public Map<String, String> getBossMap(String docType, SubModuleModel model);
+	
+	
 }

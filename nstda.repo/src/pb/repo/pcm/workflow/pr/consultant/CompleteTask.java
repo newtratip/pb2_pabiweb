@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.alfresco.repo.forms.FormException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
@@ -21,18 +22,20 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pb.common.constant.CommonConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainWorkflowReviewerModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.admin.util.MainWorkflowUtil;
+import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 import pb.repo.pcm.service.PcmSignatureService;
 
 @Component("pb.pcm.workflow.pr.consultant.CompleteTask")
@@ -69,7 +72,7 @@ public class CompleteTask implements TaskListener {
 	PcmReqService pcmReqService;
 	
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmReqWorkflowService mainWorkflowService;
 
 	@Autowired
 	PcmSignatureService signatureService;
@@ -128,17 +131,17 @@ public class CompleteTask implements TaskListener {
 					log.info("  last level:"+lastLevel);
 					log.info("  action:"+action);
 					
+					mainWorkflowService.setModuleService(pcmReqService);
+					
 					String finalAction = action;
 					if (action.equalsIgnoreCase(MainWorkflowConstant.TA_COMMENT)) {
-						MainWorkflowReviewerModel paramModel = new MainWorkflowReviewerModel();
-						paramModel.setMasterId(id.toString());
-						paramModel.setLevel(model.getWaitingLevel());
-						MainWorkflowReviewerModel reviewerModel = mainWorkflowService.getReviewer(paramModel);
-						if (reviewerModel != null) {
-							executionEntity.setVariable(WF_PREFIX+"nextReviewers", MainUserGroupUtil.codes2logins(reviewerModel.getReviewerUser()));
-						} else {
-							executionEntity.setVariable(WF_PREFIX+"nextReviewers", "");
-						}
+						Object counselee = task.getVariable(WF_PREFIX+"counselee");
+						log.info("::::counselee:::::"+counselee);
+						
+						executionEntity.setVariable(WF_PREFIX+"nextReviewers", counselee);
+						
+						model.setStatus(PcmReqConstant.ST_WAITING);
+						executionEntity.setVariable(WF_PREFIX+"workflowStatus", action);
 					}
 					
 					executionEntity.setVariable(WF_PREFIX+outcomeName, action);
@@ -166,8 +169,8 @@ public class CompleteTask implements TaskListener {
 						taskComment = tmpComment.toString();
 					}
 					
-					mainWorkflowService.setModuleService(pcmReqService);
 					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
+
 				}
 				catch (Exception ex) {
 					log.error(ex);

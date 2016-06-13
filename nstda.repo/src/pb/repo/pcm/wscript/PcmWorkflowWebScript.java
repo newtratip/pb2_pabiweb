@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.util.CommonUtil;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.service.PcmReqService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
@@ -24,7 +24,7 @@ public class PcmWorkflowWebScript {
 	private static final String URI_PREFIX = CommonConstant.GLOBAL_URI_PREFIX + "/pcm/wf";
 	
 	@Autowired
-	MainWorkflowService workflowService;
+	PcmReqWorkflowService workflowService;
 	
 	@Autowired
 	PcmReqService pcmReqService;

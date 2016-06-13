@@ -67,7 +67,7 @@
     <sequenceFlow id="flowReject" name="Reject" sourceRef="reviewGateway1" targetRef="Requester">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pcmordwf_reviewOutcome == 'Reject'}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="Consultant" name="Consultant" activiti:candidateUsers="${pcmordwf_nextReviewers}" activiti:formKey="pcmordwf:consultantConsultTask">
+    <userTask id="Consultant" name="Consultant" activiti:assignee="${pcmordwf_nextReviewers}" activiti:formKey="pcmordwf:consultantConsultTask">
       <extensionElements>
         <activiti:taskListener event="create" class="com.github.dynamicextensionsalfresco.workflow.activiti.DelegateTaskListener">
           <activiti:field name="componentId">

@@ -159,10 +159,8 @@ public class PcmSrcUrlService {
 	    		map.put((String)tmpMap.get(codeField), (String)tmpMap.get(MainMasterConstant.TFN_NAME));
     		}
 
-    		conn.commit();
         } catch (Exception ex) {
 			log.error("", ex);
-        	conn.rollback();
         } finally {
         	conn.close();
         }
@@ -189,11 +187,8 @@ public class PcmSrcUrlService {
     		Map<String,Object> tmpMap = sqlRunner.selectOne(sql.getSql());
     		
 	    	map.put((String)tmpMap.get(resultField.toUpperCase()), "");
-
-    		conn.commit();
         } catch (Exception ex) {
 			log.error("", ex);
-        	conn.rollback();
         } finally {
         	conn.close();
         }
@@ -421,11 +416,8 @@ public class PcmSrcUrlService {
     		for(Map<String,Object> tmpMap : tmpList) {
 	    		map.put((String)tmpMap.get(codeField), (String)tmpMap.get(PcmReqConstant.TFN_ID));
     		}
-
-    		conn.commit();
         } catch (Exception ex) {
 			log.error("", ex);
-        	conn.rollback();
         } finally {
         	conn.close();
         }
@@ -459,11 +451,8 @@ public class PcmSrcUrlService {
     		for(Map<String,Object> tmpMap : tmpList) {
 	    		map.put((String)tmpMap.get(codeField), (String)tmpMap.get(PcmReqConstant.TFN_ID)+" - "+(String)tmpMap.get(PcmReqDtlConstant.TFN_DESCRIPTION));
     		}
-
-    		conn.commit();
         } catch (Exception ex) {
 			log.error("", ex);
-        	conn.rollback();
         } finally {
         	conn.close();
         }
@@ -509,11 +498,8 @@ public class PcmSrcUrlService {
     		Map<String,Object> tmpMap = sqlRunner.selectOne(sql.getSql());
     		
 	    	map.put((String)tmpMap.get(PcmReqDtlConstant.TFN_DESCRIPTION), "");
-
-    		conn.commit();
         } catch (Exception ex) {
 			log.error("", ex);
-        	conn.rollback();
         } finally {
         	conn.close();
         }

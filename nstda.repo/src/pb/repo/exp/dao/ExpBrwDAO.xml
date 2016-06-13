@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.exp.dao.ExpBrwDAO">
+    <resultMap id="result" type="expBrwModel">
+        <result property="id" column="id"/>
+        <result property="reqBy" column="req_by"/>
+        <result property="reqSectionId" column="req_section_id"/>
+        <result property="objectiveType" column="objective_type"/>
+        <result property="objectiveTypeName" column="objective_type_name"/>
+        <result property="objective" column="objective"/>
+        <result property="reason" column="reason"/>
+        <result property="budgetCc" column="budget_cc"/>
+        <result property="budgetCcType" column="budget_cc_type"/>
+        <result property="budgetCcName" column="budget_cc_name"/>
+        <result property="budgetCcTypeName" column="budget_cc_type_name"/>
+        <result property="costControlTypeId" column="cost_control_type_id"/>
+        <result property="costControlId" column="cost_control_id"/>
+        <result property="costControl" column="cost_control"/>
+        <result property="costControlFrom" column="cost_control_from"/>
+        <result property="costControlTo" column="cost_control_to"/>
+        <result property="totalType" column="total_type"/>
+        <result property="bank" column="bank"/>
+        <result property="bankType" column="bank_type"/>
+        <result property="workflowInsId" column="workflow_ins_id"/>
+        <result property="docRef" column="doc_ref"/>
+        <result property="folderRef" column="folder_ref"/>
+        <result property="waitingLevel" column="waiting_level"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="updatedTime" column="updated_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="wfStatus" column="wf_status"/>
+        <result property="rewarning" column="rewarning"/>
+        <result property="waitingDay" column="waiting_day"/>
+    </resultMap>
+    
+    <select id="list" resultMap="result" parameterType="map">
+        SELECT
+		    REQ.ID, total, objective_type, mm.name objective_type_name, objective, 
+		    	budget_cc, budget_cc_type, b.name budget_cc_name,
+				WF_STATUS, STATUS, reason, 
+				cost_control_id, cost_control_type_id, cost_control,  
+				WORKFLOW_INS_ID, TASK_ID,
+				REQ.UPDATED_TIME, REQ.UPDATED_BY, REQ.CREATED_TIME, 
+				FOLDER_REF, DOC_REF,
+  			CASE 
+  				WHEN STATUS='D' THEN '1'
+            	WHEN STATUS='W2' THEN '2'
+            	WHEN STATUS='W1' THEN '3'
+            	WHEN STATUS='S' THEN '4'
+            	WHEN STATUS='C1' THEN '5'
+            	WHEN STATUS='C2' THEN '6'
+            	WHEN STATUS='X1' THEN '7'
+            	WHEN STATUS='X2' THEN '8'
+            	ELSE STATUS
+       		END ORDER_FIELD,
+	      	COALESCE(CBY ,REQ.CREATED_BY) CREATED_BY,
+	      	COALESCE(RBY ,REQ_BY) REQ_BY,
+		    COUNT(*) OVER() totalRowCount
+		FROM
+		    (SELECT ID, total, objective_type, objective, budget_cc, budget_cc_type,
+				NULL WF_STATUS, STATUS, reason, cost_control_id, cost_control_type_id, cost_control, 
+				WORKFLOW_INS_ID, NULL TASK_ID,
+				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
+				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = pb2_exp_brw.created_by) CBY,
+				FOLDER_REF, DOC_REF, REQ_BY,
+				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = pb2_exp_brw.req_by) RBY
+			FROM pb2_exp_brw
+			WHERE STATUS='D' AND CREATED_BY=#{loginE}
+ 			UNION
+			SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type,
+				CASE WHEN (W.STATUS IS NULL) THEN ''
+				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
+				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, cost_control, 
+				M.WORKFLOW_INS_ID, TASK_ID,
+				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
+				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.created_by) CBY,
+				FOLDER_REF, DOC_REF, REQ_BY,
+				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.req_by) RBY 
+			FROM pb2_exp_brw M LEFT JOIN 
+			(
+			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
+			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
+			WHERE TYPE='EXP_BRW' AND 
+			w.ID IN (
+				SELECT MAX(ID)
+				FROM pb2_main_workflow 
+				GROUP BY MASTER_ID
+			)) AS W ON M.ID = W.MASTER_ID 
+			WHERE M.STATUS != 'D'
+			AND (
+	 			ID IN ( 
+					SELECT master_id 
+					FROM pb2_main_workflow_reviewer 
+					WHERE reviewer_user LIKE #{loginL} 
+					<foreach item="item" index="index" collection="roleList"
+				      open="OR (" separator="OR" close=")">
+				        reviewer_group LIKE #{item}
+				    </foreach>
+					GROUP BY master_id
+				)
+				OR id IN (SELECT master_id FROM pb2_main_workflow_next_actor WHERE actor_user LIKE #{loginE} GROUP BY master_id)
+				OR CREATED_BY = #{loginE} 
+				OR REQ_BY = #{loginE}
+			)
+		) REQ
+		LEFT JOIN
+		(
+			select 'U' _type,id,name
+			from pb2_ext_res_section
+			union
+			select 'P' _type,id,name
+			from pb2_ext_res_project
+		) b on (REQ.budget_cc_type = b._type and REQ.budget_cc = b.id)
+		LEFT JOIN pb2_main_master mm on REQ.objective_type=mm.code and mm.type='BRW_TYPE'
+		WHERE
+			1=1
+		<if test="searchTerm != null">
+		AND (REQ.id ilike #{searchTerm}
+		OR objective ilike #{searchTerm}
+		OR reason ilike #{searchTerm}
+		OR cost_control ilike #{searchTerm}
+		)			
+		</if>
+		<if test="status != null">
+			AND status=#{status}
+		</if>
+		<if test="objective_type != null">
+			AND objective_type=#{objective_type}
+		</if>
+		ORDER BY ${orderBy}
+		LIMIT #{limit}
+		OFFSET #{start}
+    </select>
+    
+    <select id="listForSearch" resultMap="result" parameterType="map">
+        SELECT
+		    REQ.ID, total, objective_type, objective, 
+		    	budget_cc, budget_cc_type, b.name budget_cc_name,
+				WF_STATUS, STATUS, reason, 
+				cost_control_id, cost_control_type_id, cost_control, 
+				WORKFLOW_INS_ID, TASK_ID,
+				UPDATED_TIME, UPDATED_BY, CREATED_TIME, 
+				FOLDER_REF, DOC_REF,
+  			CASE 
+  				WHEN STATUS='D' THEN '1'
+            	WHEN STATUS='W2' THEN '2'
+            	WHEN STATUS='W1' THEN '3'
+            	WHEN STATUS='S' THEN '4'
+            	WHEN STATUS='C1' THEN '5'
+            	WHEN STATUS='C2' THEN '6'
+            	WHEN STATUS='X1' THEN '7'
+            	WHEN STATUS='X2' THEN '8'
+            	ELSE STATUS
+       		END ORDER_FIELD,
+	      	COALESCE(CBY ,CREATED_BY) CREATED_BY,
+	      	COALESCE(RBY ,REQ_BY) REQ_BY,
+		    COUNT(*) OVER() totalRowCount
+		FROM
+		    (SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type,
+				CASE WHEN (W.STATUS IS NULL) THEN ''
+				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
+				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, cost_control,
+				M.WORKFLOW_INS_ID, TASK_ID,
+				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
+				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.created_by) CBY,
+				FOLDER_REF, DOC_REF, REQ_BY,
+				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.req_by) RBY 
+			FROM pb2_exp_brw M LEFT JOIN 
+			(
+			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
+			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
+			WHERE TYPE='EXP_BRW' AND 
+			w.ID IN (
+				SELECT MAX(ID)
+				FROM pb2_main_workflow 
+				GROUP BY MASTER_ID
+			)) AS W ON M.ID = W.MASTER_ID 
+			WHERE M.STATUS not in ('D','X1','X2')
+		) REQ
+		LEFT JOIN
+		(
+			select 'U' _type,id,name
+			from pb2_ext_res_section
+			union
+			select 'P' _type,id,name
+			from pb2_ext_res_project
+		) b on (REQ.budget_cc_type = b._type and REQ.budget_cc = b.id)
+		
+		WHERE
+			1=1
+		<if test="searchTerm != null">
+		AND (REQ.id ilike #{searchTerm}
+			OR objective_type ilike #{searchTerm}
+			OR objective ilike #{searchTerm}
+			OR reason ilike #{searchTerm}
+			OR location ilike #{searchTerm}
+			)			
+		</if>
+		ORDER BY ${orderBy}
+		LIMIT #{limit}
+		OFFSET #{start}
+    </select>    
+    
+    <insert
+		id="add"
+		parameterType="expBrwModel"
+		flushCache="true"
+		statementType="PREPARED"
+		keyProperty="id"
+		useGeneratedKeys="true"
+		>
+	    INSERT INTO pb2_exp_brw(
+	    	id
+	    	,req_by,req_section_id
+	    	,objective_type,objective,reason
+	    	,budget_cc,budget_cc_type
+	    	,cost_control_id,cost_control_type_id,cost_control
+	    	,cost_control_from,cost_control_to
+	    	,total_type
+	    	,bank,bank_type
+	    	,total
+	    	,doc_ref,folder_ref
+	    	,waiting_level,status
+	    	,created_by,updated_by
+	    ) VALUES (
+	    	#{id}
+	    	,#{reqBy},#{reqSectionId}
+	    	,#{objectiveType},#{objective},#{reason}
+	    	,#{budgetCc},#{budgetCcType}
+	    	,#{costControlId},#{costControlTypeId},#{costControl}
+	    	,#{costControlFrom},#{costControlTo}
+	    	,#{totalType}
+	    	,#{bank},#{bankType}
+    		,#{total}
+    		,#{docRef},#{folderRef}
+    		,#{waitingLevel},#{status}
+    		,#{createdBy},#{updatedBy}
+    	)
+		
+	</insert>
+	
+	<select id="count"  resultType="long">
+        SELECT
+		    count(1)
+		FROM
+		    pb2_exp_brw
+	
+    </select>
+	
+	<delete id="delete"
+    		parameterType="string"
+			flushCache="true"
+			statementType="PREPARED"
+			>
+   		DELETE FROM pb2_exp_brw WHERE id=#{id}
+	</delete>
+	
+	<update id="update" 
+        parameterType="expBrwModel"
+		flushCache="true">
+     UPDATE pb2_exp_brw 
+     SET 
+     	workflow_ins_id=#{workflowInsId}
+		<if test="status != null">
+     		,status=#{status}
+		</if>			
+		,req_by =#{reqBy}
+		,req_section_id =#{reqSectionId}
+	    ,objective_type =#{objectiveType}
+	    ,objective =#{objective}
+	    ,reason =#{reason}
+	    ,budget_cc =#{budgetCc}
+	    ,budget_cc_type =#{budgetCcType}
+	    ,cost_control_type_id =#{costControlTypeId}
+	    ,cost_control_id =#{costControlId}
+	    ,cost_control =#{costControl}
+	    ,cost_control_from =#{costControlFrom}
+	    ,cost_control_to =#{costControlTo}
+	    ,total_type =#{totalType}
+	    ,bank =#{bank}
+	    ,bank_type =#{bankType}
+	    ,total =#{total}
+	    ,doc_ref =#{docRef}
+	    ,folder_ref =#{folderRef}
+	    ,waiting_level =#{waitingLevel}
+        ,updated_by =#{updatedBy}
+        ,updated_time =Now()
+     WHERE id=#{id}
+    </update>
+    
+    <select id="get" parameterType="string" resultMap="result">
+        SELECT
+		    *, b.name budget_cc_name,
+		    CASE 
+  				WHEN budget_cc_type='U' THEN 'หน่วยงาน'
+            	WHEN budget_cc_type='P' THEN 'โครงการ'
+            	ELSE budget_cc_type
+       		END budget_cc_type_name
+		FROM
+		    pb2_exp_brw r
+		LEFT JOIN
+		(
+		select 'U' _type,id,name
+		from pb2_ext_res_section
+		union
+		select 'P' _type,id,name
+		from pb2_ext_res_project
+		) b on (r.budget_cc_type = b._type and r.budget_cc = b.id)
+		
+		WHERE r.id=#{id}
+    </select>
+    
+    <select id="genNewId" parameterType="map" resultType="string">
+    	SELECT CONCAT(field2,TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMM'),'-',TRIM(TO_CHAR(CAST (RIGHT(id, 3) AS INT)+1,'000'))) NEW_ID 
+    	FROM pb2_exp_brw
+    	WHERE field2 = #{f2}
+    	AND CONCAT(field2,TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMM'),'-') = SUBSTRING(id,1,LENGTH(ID)-3) 
+    	ORDER BY id DESC 
+    	LIMIT 1
+    </select>
+    
+    <select id="getLastId" parameterType="map" resultType="string">
+    	SELECT id 
+    	FROM pb2_exp_brw
+    	WHERE id like #{idPrefix}
+    	ORDER BY id DESC 
+    	LIMIT 1
+    </select>
+    
+	<select id="getNewRunningNo"  resultType="long">
+		SELECT nextval('pb2_exp_brw_id_seq')
+    </select>
+    
+	<select id="resetRunningNo"  resultType="long">
+		SELECT setval('pb2_exp_brw_id_seq',1,false)	
+    </select>
+    
+    <update id="updateStatus" 
+        parameterType="expBrwModel"
+		flushCache="true">
+     UPDATE pb2_exp_brw 
+     SET  
+	<if test="status != null">
+		WAITING_LEVEL=#{waitingLevel}
+	</if>
+	<if test="status != null">
+		, status=#{status}
+	</if>
+     WHERE id=#{id}
+    </update>
+    
+    
+    <select id="listForInf" resultType="map" parameterType="map">
+		select 
+			r.id req_id,
+			r.req_by,
+			a.actor_user rp_id,
+			total,
+			m.flag1 objective_type,
+			r.reason,
+			r.objective,
+			location, 
+			r.updated_time,
+			r.created_time,
+			pur_org_id, 
+			budget_cc, 
+			w.by last_approver,
+			w.by_time,
+			pm.price_range_id,pm.condition_id,pm.confidential_id
+		from pb2_exp_brw r
+		left join pb2_main_workflow_next_actor a on r.id = a.master_id --Next Actor
+		left join pb2_main_workflow w on w.master_id = r.id --Last Approver
+		left join pb2_main_master m on objective_type=m.code and m.type='PC'
+		where r.id = #{id}
+    </select>
+    
+    <select id="getFirstApprover" parameterType="string" resultType="map">
+		SELECT e.first_name||' '||e.last_name approver, h.time
+		FROM pb2_main_workflow_reviewer r
+		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
+		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
+		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
+		WHERE w.type='EXP_BRW'
+		AND r.master_id=#{id}
+		AND r.level=1
+		AND h.action='อนุมัติ'
+		LIMIT 1
+    </select>
+    
+    <select id="getLastApprover" parameterType="string" resultType="map">
+		SELECT e.first_name||' '||e.last_name approver, h.time
+		FROM pb2_main_workflow_reviewer r
+		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
+		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
+		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
+		WHERE w.type='EXP_BRW'
+		AND r.master_id=#{id}
+		AND r.level=(select max(level) from pb2_main_workflow_reviewer where master_id=#{id})
+		AND h.action='อนุมัติ'
+		LIMIT 1
+    </select>
+    
+</mapper>

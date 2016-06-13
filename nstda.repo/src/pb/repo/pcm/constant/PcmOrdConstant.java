@@ -30,6 +30,7 @@ public class PcmOrdConstant extends SubModuleConstant {
 	public static final String JFN_PR_ID = "pr_id";
 	public static final String JFN_APP_BY = "app_by";
 	public static final String JFN_DOC_TYPE = "doc_type";
+	public static final String JFN_ORG_NAME = "org_name";
 	
 	public static final String JFN_TOTAL = "total";
 	public static final String JFN_STATUS = "status";

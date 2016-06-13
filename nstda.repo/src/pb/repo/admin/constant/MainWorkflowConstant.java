@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainWorkflowConstant {
-    
+  
+	public static final String TN_REAL_REQUESTER_CAPTION = "ผู้ขอ";
+	public static final String TN_REQUESTER_CAPTION = "ผู้บันทึก";
   
     /*
      * Task Name
@@ -16,7 +18,7 @@ public class MainWorkflowConstant {
 	public static final Map<String, String> WF_TASK_NAMES = new HashMap<String, String>();
     static {
     	WF_TASK_NAMES.put(TN_REVIEWER, "ผู้อนุมัติขั้นที่");
-    	WF_TASK_NAMES.put(TN_REQUESTER, "ผู้ขออนุมัติ ทบทวนอีกครั้ง");
+    	WF_TASK_NAMES.put(TN_REQUESTER, TN_REQUESTER_CAPTION+" ทบทวนอีกครั้ง");
     	WF_TASK_NAMES.put(TN_CONSULTANT, "ที่ปรึกษาให้ความเห็น");
     }
     

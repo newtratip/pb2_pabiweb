@@ -18,9 +18,9 @@
 		SELECT 	s.id, o.name, s.description
 		FROM 	pb2_ext_res_section s left join pb2_ext_res_org o on s.org_id = o.id
 		<if test="searchTerm != null">
-			WHERE o.name LIKE '%'||#{searchTerm}||'%'
-			OR s.name LIKE '%'||#{searchTerm}||'%'
-			OR s.description LIKE '%'||#{searchTerm}||'%'
+			WHERE o.name ILIKE '%'||#{searchTerm}||'%'
+			OR s.name ILIKE '%'||#{searchTerm}||'%'
+			OR s.description ILIKE '%'||#{searchTerm}||'%'
 		</if>
 		ORDER BY o.name, s.name
 	</select>
@@ -33,7 +33,7 @@
     </select>
     
     <select id="get" resultType="map" parameterType="int">
-        select * from pb2_ext_res_section
+        select *,id section_id from pb2_ext_res_section
         where id=#{id}
     </select>
 

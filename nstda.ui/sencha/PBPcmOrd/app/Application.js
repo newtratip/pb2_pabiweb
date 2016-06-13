@@ -17,6 +17,7 @@ Ext.define('PBPcmOrd.Application', {
         'Ext.util.Format',
         'Ext.layout.container.Card',
         'Ext.layout.container.Form',
+        'Ext.layout.container.Border',
         'Ext.form.field.Hidden',
         'Ext.form.field.Text',
         'Ext.form.field.TextArea',
@@ -113,6 +114,14 @@ Ext.define('PBPcmOrd.Application', {
 	 	  height:(HEIGHT-H_OFFSET)+'px',
 	 	  width:(WIDTH-W_OFFSET)+'px',
 	 	  tasks:TASKS
+	 	});
+	 	
+	 	Ext.EventManager.onWindowResize(function() {
+			HEIGHT = Ext.get(HTML_ID).getHeight();
+			WIDTH = Ext.get(HTML_ID).getWidth();
+	 		view.setHeight(HEIGHT-H_OFFSET);
+	 		view.setWidth(WIDTH-W_OFFSET);
+	 		view.doLayout();
 	 	});
 	
 	}

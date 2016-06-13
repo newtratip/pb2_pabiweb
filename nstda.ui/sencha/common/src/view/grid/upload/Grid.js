@@ -14,6 +14,7 @@ Ext.define('PB.view.common.upload.Grid', {
 		        	itemId : 'actionGrid',
 		        	text: 'Action',
 		            width: 60,
+		            align: 'center',
 		            items: [{
 		                tooltip: 'Delete',
 		        	    getClass: function(v) {
@@ -25,7 +26,8 @@ Ext.define('PB.view.common.upload.Grid', {
 		            }]
 			     },
 			     {xtype: 'rownumberer', text: 'NO.', width:60},
-			     {text: 'File Name', dataIndex: 'name', flex: 1 }
+			     {text: 'File Name', dataIndex: 'name', flex: 0.5},
+			     {text: 'Description', dataIndex: 'desc', flex: 1}
 			    ],
 			    tbar:[{
 		    	    xtype:'label',
@@ -35,11 +37,19 @@ Ext.define('PB.view.common.upload.Grid', {
 	            	padding: '0px 0px 0px 5px',
 	                name: 'file',
 	                msgTarget: 'side',
-	                width : 350,
+	                width : 335,
 	                buttonConfig: {
 	                    text: 'เลือก',
                         iconCls: "icon_search"               
 	                }
+            	},{
+            		xtype:'textfield',
+            		fieldLabel:'Description',
+            		labelWidth:70,
+            		name:'desc',
+            		width:335,
+            		maxLength:100,
+            		margin:'0 0 0 20'
             	},{
             		xtype: 'button',
 	                text: "Upload",

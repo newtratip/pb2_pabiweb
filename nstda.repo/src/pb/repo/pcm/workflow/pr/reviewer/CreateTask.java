@@ -15,10 +15,10 @@ import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainWorkflowModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 
 @Component("pb.pcm.workflow.pr.reviewer.CreateTask")
 public class CreateTask implements TaskListener {
@@ -26,7 +26,7 @@ public class CreateTask implements TaskListener {
 	private static Logger log = Logger.getLogger(CreateTask.class);
 
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmReqWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AuthenticationService authenticationService;

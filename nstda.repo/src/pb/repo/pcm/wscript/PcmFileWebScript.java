@@ -62,6 +62,8 @@ public class PcmFileWebScript {
         
         String sep = File.separator;
         
+        String desc = null;
+        
         for (FormField field : fields) {
         	if (field.getIsFile()) {
         		String name = field.getFilename();
@@ -81,6 +83,7 @@ public class PcmFileWebScript {
 					List<FileModel> files = new ArrayList<FileModel>();
 					FileModel fileModel = new FileModel();
 					fileModel.setName(name);
+					fileModel.setDesc(desc);
 					fileModel.setPath(path);
 					files.add(fileModel);
 					json = FileUtil.jsonSuccess(files);
@@ -91,6 +94,11 @@ public class PcmFileWebScript {
 					log.error("", ex);
 					throw ex;
 				}
+        	}
+        	else {
+        		if (field.getName().equals("desc")) {
+        			desc = field.getValue();
+        		}
         	}
         }
 		 

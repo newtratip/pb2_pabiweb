@@ -24,11 +24,10 @@ import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminTestSystemService;
 import pb.repo.admin.service.AdminUserGroupService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmOrdConstant;
-import pb.repo.pcm.model.PcmOrdDtlModel;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.PcmOrdService;
+import pb.repo.pcm.service.PcmOrdWorkflowService;
 import pb.repo.pcm.util.PcmOrdUtil;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
@@ -51,7 +50,7 @@ public class PcmOrdWebScript {
 	TemplateService templateService;
 
 	@Autowired
-	private MainWorkflowService mainWorkflowService;
+	private PcmOrdWorkflowService mainWorkflowService;
 	
 	@Autowired
 	private AdminMasterService masterService;
@@ -157,61 +156,6 @@ public class PcmOrdWebScript {
 	  }
   }
   
-  @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/send")
-  public void handleSendToReview(@RequestParam(required=false) final String id
-						,@RequestParam(required=false) final String reqType
-		  				,@RequestParam(required=false) final String remark
-		  				,@RequestParam(required=false) final String costType
-		  				,@RequestParam(required=false) final String reqOu
-		  				,@RequestParam(required=false) final String total
-		  				,@RequestParam(required=false) final String requested_time
-		  				,@RequestParam(required=false) final String status
-		  				,@RequestParam(required=false) final String dtls
-		  				,@RequestParam(required=false) final String files
-		  				,final WebScriptResponse response) throws Exception {
-
-	String json = null;
-	
-	try {
-		PcmOrdModel model = null;
-		
-		if (CommonUtil.isValidId(id)) {
-			model = pcmOrdService.get(id);
-		}
-		
-		if (model==null) {
-			model = new PcmOrdModel();
-		}
-
-		model.setTotal(Double.parseDouble(total));
-
-		
-		JSONObject validateResult = pcmOrdService.validateAssignee(model);
-		if (!(Boolean)validateResult.get("valid")) {
-			json = CommonUtil.jsonFail(validateResult);
-		}
-		else {
-//			model = pcmOrdService.save(model, dtls, files, true);
-			
-			mainWorkflowService.startWorkflow(model);
-			
-			JSONObject jsObj = new JSONObject();
-			jsObj.put("id", model.getId());
-			json = CommonUtil.jsonSuccess(jsObj);
-		}
-		
-	} catch (Exception ex) {
-		log.error("", ex);
-		json = CommonUtil.jsonFail(ex.toString());
-		throw ex;
-	} finally {
-		CommonUtil.responseWrite(response, json);
-	}
-
-	  
-  }
-
-
   @Uri(URI_PREFIX+"/get")
   public void handleGet(@RequestParam final String id, final WebScriptResponse response)
       throws Exception {
@@ -224,9 +168,7 @@ public class PcmOrdWebScript {
 	  List<PcmOrdModel> list = new ArrayList<PcmOrdModel>();
 	  list.add(model);
 	  
-	  List<PcmOrdDtlModel> dtlList = pcmOrdService.listDtlByMasterId(id);	  
-		
-	  json = PcmOrdUtil.jsonSuccess(list, dtlList);
+	  json = PcmOrdUtil.jsonSuccess(list);
 		
 	} catch (Exception ex) {
 		log.error("", ex);
@@ -374,6 +316,7 @@ public class PcmOrdWebScript {
 		}
 		else {
 //			model = pcmOrdService.save(model, dtls, files, true);
+			mainWorkflowService.setModuleService(pcmOrdService);
 			mainWorkflowService.updateWorkflow(model, aug, rug);
 			
 			JSONObject jsObj = new JSONObject();

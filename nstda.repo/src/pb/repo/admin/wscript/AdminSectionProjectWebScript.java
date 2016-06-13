@@ -11,9 +11,7 @@ import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.util.CommonUtil;
-import pb.repo.admin.service.AdminProjectService;
 import pb.repo.admin.service.AdminSectionProjectService;
-import pb.repo.admin.service.AdminSectionService;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
@@ -57,5 +55,4 @@ public class AdminSectionProjectWebScript {
 		}
 		
 	}
-	
 }

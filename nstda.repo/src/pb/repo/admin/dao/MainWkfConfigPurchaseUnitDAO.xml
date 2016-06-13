@@ -24,7 +24,7 @@
     </select>
     
     <select id="listPurchasingUnitBySectionId" resultType="map" parameterType="int">
-	    select 	purchasing_unit_id as id, p.name
+	    select 	purchasing_unit_id, p.name
 		from	pb2_ext_wkf_config_purchase_unit p, pb2_ext_purchasingunit_section_rel r, pb2_ext_wkf_config_doctype d
 		where	p.id = r.purchasing_unit_id
 		and		r.section_id = #{id}

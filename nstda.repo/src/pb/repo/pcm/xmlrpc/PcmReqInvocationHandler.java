@@ -3,14 +3,18 @@ package pb.repo.pcm.xmlrpc;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 
 @Service
 public class PcmReqInvocationHandler
@@ -22,9 +26,12 @@ public class PcmReqInvocationHandler
 	private PcmReqService pcmReqService;
 	
 	@Autowired
-	private MainWorkflowService mainWorkflowService;
+	private PcmReqWorkflowService mainWorkflowService;
 	
-    public Map<String, Object> action(String prNo, String type, String by)
+	@Autowired
+	private PermissionService permissionService;
+	
+    public Map<String, Object> action(String prNo, String type, final String by)
     {
     	log.info("action("+prNo+","+type+","+by+")");
     	
@@ -33,8 +40,26 @@ public class PcmReqInvocationHandler
     	try {
     		String statusDesc = null;
     		
+	    	PcmReqModel pcmReqModel = null;
+
 			if (type.equals(PcmReqConstant.ST_CLOSED_BY_PCM)) {
 				statusDesc = "Approve";
+				
+		    	pcmReqModel = pcmReqService.get(prNo);
+				final NodeRef folderNodeRef = new NodeRef(pcmReqModel.getFolderRef());
+				
+		        AuthenticationUtil.runAs(new RunAsWork<String>()
+	    	    {
+	    			public String doWork() throws Exception
+	    			{
+		        		if(!permissionService.getPermissions(folderNodeRef).contains(by)) {
+		        			permissionService.setPermission(folderNodeRef, by, "SiteCollaborator", true);
+		        		}
+
+	    	        	return null;
+	    			}
+	    	    }, AuthenticationUtil.getAdminUserName());  
+				
 			} else 
 			if (type.equals(PcmReqConstant.ST_CANCEL_BY_PCM)) {
 				statusDesc = "Cancel";
@@ -44,7 +69,9 @@ public class PcmReqInvocationHandler
     			return result;
 			}
     		
-	    	PcmReqModel pcmReqModel = pcmReqService.get(prNo);
+			if (pcmReqModel==null) {
+				pcmReqModel = pcmReqService.get(prNo);
+			}
 	    	pcmReqModel.setStatus(type);
 	    	pcmReqService.update(pcmReqModel);
     		

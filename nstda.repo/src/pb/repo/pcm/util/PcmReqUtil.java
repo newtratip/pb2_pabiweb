@@ -66,7 +66,7 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_IS_REF_ID, model.getIsRefId());
 		jsObj.put(PcmReqConstant.JFN_REF_ID, model.getRefId());
 		
-		jsObj.put(PcmReqConstant.JFN_METHOD, model.getMethod());
+		jsObj.put(PcmReqConstant.JFN_PRWEB_METHOD_ID, model.getPrWebMethodId());
 		jsObj.put(PcmReqConstant.JFN_METHOD_COND2_RULE, model.getMethodCond2Rule());
 		jsObj.put(PcmReqConstant.JFN_METHOD_COND2, model.getMethodCond2());
 		jsObj.put(PcmReqConstant.JFN_METHOD_COND2_DTL, model.getMethodCond2Dtl());
@@ -124,7 +124,7 @@ public class PcmReqUtil {
 		map.put(PcmReqConstant.JFN_ACROSS_BUDGET, model.getAcrossBudget());
 		map.put(PcmReqConstant.JFN_REF_ID, model.getRefId());
 		
-		map.put(PcmReqConstant.JFN_METHOD, model.getMethod());
+		map.put(PcmReqConstant.JFN_PRWEB_METHOD_ID, model.getPrWebMethodId());
 		map.put(PcmReqConstant.JFN_METHOD_COND2_RULE, model.getMethodCond2Rule());
 		map.put(PcmReqConstant.JFN_METHOD_COND2, model.getMethodCond2());
 		map.put(PcmReqConstant.JFN_METHOD_COND2_DTL, model.getMethodCond2Dtl());

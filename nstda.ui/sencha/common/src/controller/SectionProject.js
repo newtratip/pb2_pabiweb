@@ -18,9 +18,13 @@ Ext.define('PB.controller.common.SectionProject', {
 			},
 			'searchSectionProjectDlg button[action=ok]':{
 				confirmSectionProject:me.ok
+			},
+			'searchSectionProjectDlg':{
+				selectRadio:me.selectRadio
 			}
-			
 		});
+		
+
 	},
 	
 	getGrid:function(sender) {
@@ -57,6 +61,17 @@ Ext.define('PB.controller.common.SectionProject', {
 		
 		me.getDlg().callback(ids, type, typeName);
 		me.getDlg().close();
+	},
+	
+	selectRadio:function(rad, v) {
+		var grid = this.getDlg().down("grid");
+		if(v) {
+			grid.headerCt.getHeaderAtIndex(1).setText("ศูนย์");
+			grid.headerCt.getHeaderAtIndex(2).setText("หน่วยงาน");
+		} else {
+			grid.headerCt.getHeaderAtIndex(1).setText("รหัส");
+			grid.headerCt.getHeaderAtIndex(2).setText("ชื่อ");
+		}
 	}
 
 });

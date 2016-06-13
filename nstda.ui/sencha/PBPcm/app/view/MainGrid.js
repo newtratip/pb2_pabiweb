@@ -95,7 +95,6 @@ Ext.define('PBPcm.view.MainGrid', {
 		      async:false
 		}); 
 		
-		columns.push({ text: 'วันที่ขอ',  dataIndex: 'created_time_show', width:110});
 		columns.push({ text: 'สถานะ',  dataIndex: 'wfStatus', width:370,
 		  	  renderer: function (v, m, r) {
 			

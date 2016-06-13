@@ -15,8 +15,8 @@
 	<select id="list" resultType="map" parameterType="map">
 		SELECT * FROM pb2_ext_res_project
 		<if test="searchTerm != null">
-			WHERE description like '%'||#{searchTerm}||'%'
-			OR name like '%'||#{searchTerm}||'%'
+			WHERE description ILIKE '%'||#{searchTerm}||'%'
+			OR name ILIKE '%'||#{searchTerm}||'%'
 		</if>
 		ORDER BY name
 	</select>

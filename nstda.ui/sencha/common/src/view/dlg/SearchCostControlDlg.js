@@ -82,7 +82,12 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 			 	 				if(e.getKey() == e.ENTER){
 			 	 					this.fireEvent("searchCostControl",this);
 			 	 				}
-			 	 			}
+			 	 			},
+							afterrender:function(txt) {
+								Ext.defer(function(){
+									txt.focus();
+								},100);
+							}
 			           	}			        		
 					},{
 			        	xtype:'button',

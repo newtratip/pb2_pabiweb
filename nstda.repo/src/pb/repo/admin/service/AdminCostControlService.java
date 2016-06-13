@@ -42,7 +42,7 @@ public class AdminCostControlService {
         	for(Map<String, Object> tmpMap : tmpList) {
         		Map<String, Object> map = new HashMap<String, Object>();
         		
-        		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("description"));
+        		map.put("id", tmpMap.get("id"));
         		map.put("type", tmpMap.get("name"));
         		map.put("name", tmpMap.get("description"));
         		
@@ -78,4 +78,22 @@ public class AdminCostControlService {
 		return list;
 	}
 	
+	public Map<String, Object> get(Integer id) {
+		
+		Map<String, Object> map = null;
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+        	MainCostControlDAO dao = session.getMapper(MainCostControlDAO.class);
+            
+    		map = dao.get(id);
+            
+        } catch (Exception ex) {
+        	log.error(ex);
+        } finally {
+        	session.close();
+        }
+		
+		return map;
+	}
 }

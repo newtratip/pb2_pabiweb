@@ -6,15 +6,12 @@
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
         <result property="time" column="time"/>
-        <result property="user_" column="user_"/>
+        <result property="by" column="by"/>
         <result property="action" column="action"/>
         <result property="task" column="task"/>
         <result property="comment" column="comment"/>
         <result property="level" column="level"/>
-     
     </resultMap>
-    
-   
     
     <insert
 		id="add"
@@ -25,9 +22,9 @@
 		useGeneratedKeys="true"
 		>
 	    INSERT INTO pb2_main_workflow_history(
-	    	master_id,time,user_,action,task,comment,level
+	    	master_id,time,by,action,task,comment,level
 	    ) VALUES (
-	    	#{masterId},#{time},#{user_},#{action},#{task},#{comment},#{level}
+	    	#{masterId},#{time},#{by},#{action},#{task},#{comment},#{level}
     	)
 		
 	</insert>
@@ -50,10 +47,10 @@
 		<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
     			#{item}
    		</foreach>        
-        ORDER BY id DESC
+        ORDER BY id
     </select>
 
-    <delete id="deleteByPcmReqId"
+    <delete id="deleteByMasterId"
     		parameterType="string"
 			flushCache="true"
 			statementType="PREPARED"

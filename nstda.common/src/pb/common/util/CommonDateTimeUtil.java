@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.mortbay.log.Log;
 
@@ -25,7 +26,7 @@ public class CommonDateTimeUtil {
 			str = "2000-1-1T"+str;
 		}
 		
-		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.SENCHA_DATE_TIME_FORMAT);
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.SENCHA_DATE_TIME_FORMAT,Locale.US);
 		Date parseDate = dateFormat.parse(str);
 		Timestamp timestamp = new Timestamp(parseDate.getTime());
 		
@@ -40,7 +41,7 @@ public class CommonDateTimeUtil {
 			return null;
 		}
 		
-		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.GRID_COLUMN_DATE_TIME_FORMAT);
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.GRID_COLUMN_DATE_TIME_FORMAT,Locale.US);
 		
 		return dateFormat.format(timestamp);
 	}
@@ -54,7 +55,7 @@ public class CommonDateTimeUtil {
 			return null;
 		}
 		
-		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.GRID_COLUMN_DATE_FORMAT);
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.GRID_COLUMN_DATE_FORMAT,Locale.US);
 		
 		return dateFormat.format(timestamp);
 	}
@@ -68,7 +69,7 @@ public class CommonDateTimeUtil {
 			return null;
 		}
 		
-		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.SENCHA_DATE_FIELD_DATE_FORMAT);
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.SENCHA_DATE_FIELD_DATE_FORMAT,Locale.US);
 		
 		return dateFormat.format(timestamp);
 	}
@@ -82,7 +83,7 @@ public class CommonDateTimeUtil {
 			return null;
 		}
 		
-		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.SENCHA_DATE_TIME_FORMAT);
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.SENCHA_DATE_TIME_FORMAT,Locale.US);
 		
 		return dateFormat.format(timestamp);
 	}	
@@ -95,7 +96,7 @@ public class CommonDateTimeUtil {
 			return "";
 		}
 		
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.US);
 		
 		String d = df.format(date.getTime());
 		String[] splitS = d.split(" ");
@@ -120,7 +121,7 @@ public class CommonDateTimeUtil {
 			return null;
 		}
 		
-		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.ODOO_DATE_FORMAT);
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.ODOO_DATE_FORMAT,Locale.US);
 		
 		return dateFormat.format(timestamp);
 	}	
@@ -134,7 +135,7 @@ public class CommonDateTimeUtil {
 			return null;
 		}
 		
-		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.ODOO_DATE_TIME_FORMAT);
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.ODOO_DATE_TIME_FORMAT,Locale.US);
 		
 		return dateFormat.format(timestamp);
 	}	

@@ -1179,7 +1179,8 @@ Ext.define('PBPcm.controller.Main', {
 	},
 	
 	viewDetail : function(r){
-	    window.open(MAIN_CONTEXT+"/page/document-details?nodeRef="+r.get("doc_ref"),"_new");
+//	    window.open(MAIN_CONTEXT+"/page/document-details?nodeRef="+r.get("doc_ref"),"_new");
+	    window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/"+nodeRef2Url(r.get("doc_ref")),"_new");
 	},
 	
 	viewHistory : function(r){

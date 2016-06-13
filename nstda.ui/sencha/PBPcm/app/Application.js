@@ -28,10 +28,13 @@ Ext.define('PBPcm.Application', {
         'Ext.ux.DateTimePicker',
         'Ext.ux.form.DateTimeField',
         'Ext.ux.DateTimeMenu',
+        'Ext.EventManager',
         
         'PB.Util',
         'PB.Dlg',
         'PB.button.LinkButton',
+        'PB.store.common.UserStore',
+        'PB.model.common.UserModel',
         'PB.store.common.CostControlStore',
         'PB.model.common.CostControlModel',
         'PB.store.common.SectionProjectStore',
@@ -44,6 +47,7 @@ Ext.define('PBPcm.Application', {
         
         'PBPcm.controller.Main',
         'PBPcm.controller.Form',
+        'PBPcm.controller.common.User',
         'PBPcm.controller.common.CostControl',
         'PBPcm.controller.common.SectionProject',
         'PBPcm.controller.common.UserGroup',
@@ -65,6 +69,7 @@ Ext.define('PBPcm.Application', {
     controllers: [
         'Main',
         'Form',
+        'common.User',
         'common.CostControl',
         'common.SectionProject',
         'common.UserGroup',
@@ -139,6 +144,14 @@ Ext.define('PBPcm.Application', {
 	 	  height:(HEIGHT-H_OFFSET)+'px',
 	 	  width:(WIDTH-W_OFFSET)+'px',
 	 	  tasks:TASKS
+	 	});
+	 	
+	 	Ext.EventManager.onWindowResize(function() {
+			HEIGHT = Ext.get(HTML_ID).getHeight();
+			WIDTH = Ext.get(HTML_ID).getWidth();
+	 		view.setHeight(HEIGHT-H_OFFSET);
+	 		view.setWidth(WIDTH-W_OFFSET);
+	 		view.doLayout();
 	 	});
 	
 	}

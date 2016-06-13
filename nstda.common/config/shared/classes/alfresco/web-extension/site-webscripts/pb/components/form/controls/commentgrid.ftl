@@ -9,6 +9,7 @@
 </#if>
 <#assign controlId = fieldHtmlId + "-cntrl"/>
 <#if field.control.params.ds?exists><#assign cols=field.control.params.cols><#else><#assign cols=''></#if>
+<#if field.control.params.dsUrl?exists><#assign dsUrl=field.control.params.dsUrl><#else><#assign dsUrl=''></#if>
 
 <div class="form-field">
    <#if form.mode == "view">
@@ -55,7 +56,7 @@
 <script type="text/javascript">
 
 YAHOO.util.Event.onDOMReady(function(){
-   new Alfresco.UserDataTable("${controlId}", "${fieldHtmlId}-h").setMessages(${messages});
+   new Alfresco.UserDataTable("${controlId}", "${fieldHtmlId}-h", "${dsUrl}").setMessages(${messages});
    			/*
    		var divs = document.getElementsByTagName("div");
     	for(var i = 0; i < divs.length; i++){

@@ -22,5 +22,30 @@
 		from
 		    pb2_ext_wkf_cmd_boss_level_approval
     </select>
+    
+	<select id="listBoss" resultType="map" parameterType="map">
+		select 	b.org_id,
+				b.section_id,
+				employee_id,
+				lpad(employee_code, 6 ,'0') employee_code,
+				l.name lvl,
+				amount_min,
+				amount_max,
+				h.first_name,
+				h.last_name
+		from	pb2_ext_wkf_cmd_level l,
+				pb2_ext_wkf_cmd_boss_level_approval b,
+				pb2_ext_wkf_cmd_approval_amount a,
+				pb2_ext_hr_employee h,
+				pb2_ext_wkf_config_doctype d
+		where 	l.id = b.level
+		and 	b.section_id = #{sectionId}   
+		and 	a.org_id = b.org_id
+		and 	a.level = b.level
+		and 	a.doctype_id = d.id
+		and		d.name = #{docType}
+		and 	b.employee_id = h.id
+		order by 	l.name
+	</select>    
 	
 </mapper>

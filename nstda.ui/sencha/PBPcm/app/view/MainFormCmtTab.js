@@ -12,19 +12,24 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 
 	initComponent: function(config) {
 		var me = this;
-		
+
 		var methodStore = Ext.create('PB.store.common.ComboBoxStore');
 		methodStore.getProxy().api.read = ALF_CONTEXT+'/pcm/req/cmt/list';
 		methodStore.getProxy().extraParams = {
 			objType : me.rec.objective_type ? me.rec.objective_type : "blank" 
 		}
-		methodStore.load();		
-	
+		methodStore.load(function() {
+			if (me.rec.prweb_method_id) {
+				var rec = methodStore.getById(parseInt(me.rec.prweb_method_id));
+				me.fireEvent("selectCmb", me, [rec], me.rec);
+			}
+		});
+
 		Ext.applyIf(me, {
 			tbar : [{
 				xtype:'combo',
 				name:'method',
-				fieldLabel:'วิธีการจัดหา',
+				fieldLabel:mandatoryLabel('วิธีการจัดหา'),
 		    	displayField:'name',
 		    	valueField:'id',
 		        emptyText : "โปรดเลือก",
@@ -33,9 +38,10 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 		        typeAhead:true,
 		        multiSelect:false,
 		        forceSelection:true,
-				labelWidth:80,
+				labelWidth:90,
 				width:800,
 				margin:'0 0 0 10',
+				allowBlank:false,
 		        listConfig : {
 			    	resizable:true,
 			    	minWidth:800,
@@ -49,16 +55,9 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 					beforequery : function(qe) {
 						qe.query = new RegExp(qe.query, 'i');
 		//				qe.forceAll = true;
-					},
-					afterrender:function(cmb) {
-						if (me.rec.method) {
-							var rec = methodStore.getById(me.rec.method);
-							
-							cmb.fireEvent("select", cmb, [rec], me.rec);
-						}
 					}
 				},
-				value:replaceIfNull(me.rec.method, null)
+				value:replaceIfNull((me.rec.prweb_method_id ? parseInt(me.rec.prweb_method_id) : null), null)
 		    }],
 			items:[{
 				xtype:'tabpanel',
@@ -66,7 +65,7 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 			}]			
 		});		
 		
-	    this.callParent(arguments);
+	    me.callParent(arguments);
 	}
     
 });

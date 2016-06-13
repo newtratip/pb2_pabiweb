@@ -96,16 +96,19 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					margin:"0 0 0 15",
 					flex:1,
 					allowBlank:false,
-					value:replaceIfNull(me.rec.objective, null)
+					value:replaceIfNull(me.rec.objective, null),
+					maxLength:255
 				}]
 			},{
 				xtype:'textfield',
 				name:'reason',
-				fieldLabel:'เหตุผล / ความจำเป็น',
+				fieldLabel:mandatoryLabel('เหตุผล / ความจำเป็น'),
 				labelWidth:lbw,
 				margin:"5 0 0 10",
 				anchor:"-10",
-				value:replaceIfNull(me.rec.reason, null)
+				value:replaceIfNull(me.rec.reason, null),
+				allowBlank:false,
+				maxLength:255
 			},{
 				xtype:'container',
 				border:0,
@@ -142,7 +145,8 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					width:180,
 					margin:"5 0 0 15",
 					allowBlank:false,
-					value:replaceIfNull(me.rec.currency_rate, "1")
+					value:replaceIfNull(me.rec.currency_rate, "1"),
+					disabled:true
 				}]
 			},{
 				xtype:'container',
@@ -384,7 +388,8 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				anchor:'-10',
 				height:60,
 				margin:"5 0 0 10",
-				value:replaceIfNull(me.rec.location, null)
+				value:replaceIfNull(me.rec.location, null),
+				maxLength:1000
 			},{
 				xtype:'container',
 				layout:'hbox',
@@ -406,11 +411,11 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					fieldLabel:mandatoryLabel('มูลค่าเงินรวม'),
 					labelWidth:90,
 					margin:"5 0 0 0",
-					width:400,
+					width:335,
 					name:'acrossBudget',
 					value:replaceIfNull(me.rec.across_budget, null),
 					allowBlank:false,
-					disabled:true
+					disabled:replaceIfNull(me.rec.is_across_budget, "0") != "1"
 				}]
 			},{
 				xtype:'container',
@@ -421,7 +426,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					boxLabel:'PR เพิ่มเติม',
 					inputValue:'1',
 					margin:"5 0 0 10",
-					width:190,
+					width:194,
 					checked:replaceIfNull(me.rec.is_ref_id, "0") == "1",
 					listeners:{
 						change:function(chk, newV) {
@@ -432,16 +437,17 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					xtype:'trigger',
 					name:'refId',
 					fieldLabel:mandatoryLabel('อ้างอิง #'),
-					labelWidth:70,
+					labelWidth:66,
 					margin:"5 0 0 30",
-					width:445,
+					width:312,
 					triggerCls:'x-form-search-trigger',
 					onTriggerClick:function(evt) {
-						Ext.Msg.alert("Status","Search");
+						me.fireEvent("selectPR");
 					},
 					value:replaceIfNull(me.rec.ref_id, null),
 					allowBlank:false,
-					disabled:true
+					editable:false,
+					disabled:replaceIfNull(me.rec.is_ref_id, "0") != "1"
 				}]
 			}]
 		});		

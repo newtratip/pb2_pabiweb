@@ -49,7 +49,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String TFN_IS_REF_ID = "IS_REF_ID";
 	public static final String TFN_REF_ID = "REF_ID";
 	
-	public static final String TFN_METHOD = "METHOD";
+	public static final String TFN_PRWEB_METHOD_ID = "PRWEB_METHOD_ID";
 	public static final String TFN_METHOD_COND2_RULE = "METHOD_COND2_RULE";
 	public static final String TFN_METHOD_COND2 = "METHOD_COND2";
 	public static final String TFN_METHOD_COND2_DTL = "METHOD_COND2_DTL";
@@ -109,7 +109,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_IS_REF_ID = "is_ref_id";
 	public static final String JFN_REF_ID = "ref_id";
 	
-	public static final String JFN_METHOD = "method";
+	public static final String JFN_PRWEB_METHOD_ID = "prweb_method_id";
 	public static final String JFN_METHOD_COND2_RULE = "method_cond2_rule";
 	public static final String JFN_METHOD_COND2 = "method_cond2";
 	public static final String JFN_METHOD_COND2_DTL = "method_cond2_dtl";

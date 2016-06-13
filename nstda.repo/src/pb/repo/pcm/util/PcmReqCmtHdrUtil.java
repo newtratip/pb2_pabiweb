@@ -44,6 +44,7 @@ public class PcmReqCmtHdrUtil {
 				PcmReqCmtHdrModel model = new PcmReqCmtHdrModel();
 				model.setPcmReqId(masterId);
 				model.setCommittee(jsonObj.getString(PcmReqCmtHdrConstant.JFN_COMMITTEE));
+				model.setCommitteeId(jsonObj.getInt(PcmReqCmtHdrConstant.JFN_COMMITTEE_ID));
 				
 				list.add(model);
 

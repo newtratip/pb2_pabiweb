@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.util.CommonUtil;
-import pb.repo.admin.service.MainWorkflowService;
+import pb.repo.pcm.service.PcmOrdService;
+import pb.repo.pcm.service.PcmOrdWorkflowService;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
@@ -23,10 +24,13 @@ public class PcmOrdWorkflowWebScript {
 	private static final String URI_PREFIX = CommonConstant.GLOBAL_URI_PREFIX + "/pcm/ord/wf";
 	
 	@Autowired
-	MainWorkflowService workflowService;
+	PcmOrdWorkflowService workflowService;
+	
+	@Autowired
+	PcmOrdService pcmOrdService;
 	
 	/*
-	 * id = pr id
+	 * id = pd id
 	 */
 	@Uri(URI_PREFIX + "/assignee/list")
 	public void handleAssigneeList(@RequestParam final String id
@@ -36,7 +40,9 @@ public class PcmOrdWorkflowWebScript {
 		String json = null;
 
 		try {
+			workflowService.setModuleService(pcmOrdService);
 			JSONArray jsArr = workflowService.listAssignee(id);
+			
 			json = CommonUtil.jsonSuccess(jsArr);
 		} catch (Exception ex) {
 			log.error("", ex);
@@ -58,6 +64,7 @@ public class PcmOrdWorkflowWebScript {
 		String json = null;
 
 		try {
+			workflowService.setModuleService(pcmOrdService);
 			JSONArray jsArr = workflowService.listTask(id);
 			json = CommonUtil.jsonSuccess(jsArr);
 
@@ -83,6 +90,7 @@ public class PcmOrdWorkflowWebScript {
 		String json = null;
 
 		try {
+			workflowService.setModuleService(pcmOrdService);
 			JSONArray jsArr = workflowService.listDetail(id);
 			json = CommonUtil.jsonSuccess(jsArr);
 

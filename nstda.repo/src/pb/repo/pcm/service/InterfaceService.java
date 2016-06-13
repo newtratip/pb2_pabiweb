@@ -2,26 +2,35 @@ package pb.repo.pcm.service;
 
 import java.net.URL;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.alfresco.repo.forms.FormException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ibm.icu.text.DateFormat;
+
+import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.NodeUtil;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
+import pb.repo.admin.service.AdminSectionService;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.model.PcmReqModel;
 import redstone.xmlrpc.XmlRpcClient;
+import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcStruct;
 
 @Service
@@ -36,10 +45,26 @@ public class InterfaceService {
 	PcmReqService pcmReqService;
 	
 	@Autowired
+	PcmOrdService pcmOrdService;
+	
+	@Autowired
 	AdminMasterService masterService;
 	
-	public void createPR(PcmReqModel model) throws Exception {
-		log.info("interface : createPR");
+	@Autowired
+	AdminSectionService sectionService;
+	
+	private List<Object> getInitArgs(Map<String, Object> cfg) {
+		List<Object> args = new ArrayList();
+		args.add(cfg.get("db")); // db name
+		args.add(cfg.get("usr")); // uid 1='admin'
+		args.add(cfg.get("pwd")); // password
+		
+		return args;
+	}
+
+	private Map<String, Object> getConnectionConfig() {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
 		
 		MainMasterModel sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_ODOO_URL);
 //		String host = "http://10.226.202.133:8069";
@@ -49,236 +74,362 @@ public class InterfaceService {
 //		String db = "PABI2";
 		String db = sysCfgModel.getFlag1();
 		
+		Integer usr = 1; // uid 1='admin'
+		String pwd = "admin"; // password
+		
 		log.info("host:"+host);
 		log.info("db:"+db);
+		log.info("usr:"+usr);
 		
-		List<Map<String, Object>> list = pcmReqService.listForInf(model.getId());
-		Map<String, Object> data = list.size() > 0 ? list.get(0) : null;
+		map.put("host", host);
+		map.put("db", db);
+		map.put("usr", usr);
+		map.put("pwd", pwd);
+
+		return map;
+	}
+	
+	private XmlRpcClient getXmlRpcClient(Map<String, Object> cfg) throws Exception {
+		return new XmlRpcClient(cfg.get("host")+"/xmlrpc/2/object", false);
+	}
+	
+	public String createPR(PcmReqModel model) throws Exception {
+		log.info("interface : createPR");
 		
-		final XmlRpcClient client = new XmlRpcClient(new URL(host+"/xmlrpc/2/object"), true);
-		log.info("client:"+client);
-		
-		String rmtObj = "purchase.request";
-		
-		List arguments = new ArrayList();
-		arguments.add(db); // db name
-		arguments.add(1); // uid 1='admin'
-		arguments.add("admin"); // password
-		arguments.add(rmtObj);
-		arguments.add("generate_purchase_request");
-		
-		List a = new ArrayList();
+		Boolean success = false;
+		String msgs = null;
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		/*
-		 * Header
-		 */
-        map.put("name", data.get("req_id"));
-        map.put("requested_by",data.get("req_by"));
-        map.put("responsible_user_id",data.get("rp_id")!=null ? data.get("rp_id") : "");
-        map.put("assigned_to",data.get("last_approver"));
-        map.put("date_approved",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("by_time")));
-        map.put("total_budget_value",data.get("total"));
-        map.put("purchase_prototype_id.id",data.get("is_prototype").equals("1") ? "1" : "2");
-        map.put("purchase_type_id.id", data.get("objective_type"));
-        map.put("purchase_method_id.id",data.get("method"));
-        map.put("purchase_unit_id.id",data.get("pcm_section_id"));
-        map.put("description",data.get("reason"));
-        map.put("objective",data.get("objective"));
-        map.put("currency_id.id",data.get("currency_id"));
-        map.put("currency_rate",data.get("currency_rate"));
-        map.put("delivery_address", data.get("location"));
-        map.put("date_start",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("created_time")));
-        map.put("operating_unit_id.id",data.get("operating_unit_id"));
-        map.put("request_ref_id", data.get("ref_id"));
-        
-        for(String key : map.keySet()) {
-        	log.info(" - "+key+":"+map.get(key));
-        }
-        
-        /*
-         * Line Item
-         */
-		list = pcmReqService.listDtlForInf(model.getId());
-        
-        List orderLine = new ArrayList();
-        
-        for(Map<String, Object> dtl:list) {
-	        Map<String, Object> line = new HashMap<String, Object>();
-	        line.put("product_id.id","");
-	        line.put("name",dtl.get("description")); 
-	        line.put("product_qty",dtl.get("quantity")); 
-	        line.put("price_unit",dtl.get("price_cnv")); ////////
-	        line.put("product_uom_id.id",dtl.get("unit_id")); 
-//	        line.put("activity_id.id","");
-//	        line.put("date_required",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("updated_time"))); 
-	        line.put("section_id.id",dtl.get("budget_cc"));
-	        line.put("cost_control_id.id",dtl.get("cost_control_id")!=null ? dtl.get("cost_control_id") : "");
-	        line.put("fixed_asset","False");
-	        line.put("tax_ids",dtl.get("vat_name")!=null ? dtl.get("vat_name") : "");
-	        orderLine.add(line);
-        }
-        
-        map.put("line_ids", orderLine);
-
-        /*
-         * Committee
-         */
-		list = pcmReqService.listCmtForInf(model.getId());
-		
-        List committee = new ArrayList();
-
-        int seq = 1;
-        for(Map<String, Object> cmtData:list) {
-	        Map<String, Object> cmt = new HashMap<String, Object>();
-	        cmt.put("name",cmtData.get("first_name")+" "+cmtData.get("last_name")); 
-	        cmt.put("position",cmtData.get("position"));
-//	        cmt.put("responsible",cmtData.get("committee")); 
-	        cmt.put("committee_type","tor");
-	        cmt.put("sequence", String.valueOf(seq++));  /////////////////
-	        committee.add(cmt);
-	        
-	        for(String key : cmtData.keySet()) {
-	        	log.info(" -- "+key+":"+cmtData.get(key));
-	        }
-        }
-        
-        map.put("committee_ids", committee);
-
-        /*
-         * Attachment
-         */
-        List<FileModel> fileList = pcmReqService.listFile(model.getId(), true);
-        log.info("fileList.size()="+fileList.size());
-        
-        List attachment = new ArrayList();
-        
-        for(FileModel file:fileList) {
-        	log.info("name:"+file.getName());
-        	log.info("path:"+file.getPath());
-        	log.info("action:"+file.getAction());
-        	log.info("Node Ref:"+file.getNodeRef());
-// detail : http://localhost:18080/share/page/document-details?nodeRef=workspace://SpacesStore/5190b027-00c6-4322-98c3-1be01314bdd9
-//download format url : http://localhost:18080/share/proxy/alfresco/api/node/content/workspace/SpacesStore/<url>/<name>?a=true
-//example url : http://localhost:18080/share/proxy/alfresco/api/node/content/workspace/SpacesStore/260cdb8d-5a9c-43af-9c8e-178c75f1fe38/PR16000050.pdf?a=true
-        	
-	        Map<String, Object> att = new HashMap<String, Object>();
-	        att.put("name", file.getName()); 
-	        att.put("file_url",NodeUtil.trimNodeRef(file.getNodeRef().toString()));
-	        attachment.add(att);
-        }
-        
-        map.put("attachment_ids", attachment);
-        
-        log.info("map="+map);;
-		
-		a.add(map);
-		
-		arguments.add(a);
-
-		List ids = null;
-		XmlRpcStruct strc = null;
-		
-		Object obj = client.invoke("execute_kw", arguments);
-		
-		if (obj.getClass().getName().indexOf("List") >= 0) {
-			ids = (List)obj;
-			for (Object o : ids) {
-				log.info(" -"+o+":"+o.getClass().getName());
-			}
-		} else {
-			strc = (XmlRpcStruct)obj;
+		try {
+			Map<String, Object> cfg = getConnectionConfig();
+			XmlRpcClient client = getXmlRpcClient(cfg);
 			
+			List<Map<String, Object>> list = pcmReqService.listForInf(model.getId());
+			Map<String, Object> data = list.size() > 0 ? list.get(0) : null;
+			
+			List args = getInitArgs(cfg);
+			args.add("purchase.request"); // Remote Object
+			args.add("generate_purchase_request");
+			
+			List a = new ArrayList();
+			
+			/*
+			 * Header
+			 */
+	        map.put("name", data.get("req_id"));
+	        map.put("requested_by",data.get("req_by"));
+	        map.put("responsible_uid",data.get("rp_id")!=null ? data.get("rp_id") : "");
+	        map.put("assigned_to",data.get("last_approver"));
+	        map.put("date_approve",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("by_time")));
+	        map.put("total_budget_value",data.get("total"));
+	        map.put("purchase_prototype_id.id",data.get("is_prototype").equals("1") ? "1" : "2");
+	        map.put("purchase_type_id.id", data.get("objective_type"));
+	        map.put("purchase_method_id.id",data.get("method_id"));
+	        map.put("purchase_unit_id.id",data.get("pcm_section_id"));
+	        map.put("description",data.get("reason"));
+	        map.put("objective",data.get("objective"));
+	        map.put("currency_id.id",data.get("currency_id"));
+	        map.put("currency_rate",data.get("currency_rate"));
+	        map.put("delivery_address", data.get("location"));
+	        map.put("date_start",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("created_time")));
+//	        map.put("operating_unit_id.id",data.get("operating_unit_id"));
+	        map.put("org_id",data.get("pur_org_id"));
+	        map.put("request_ref_id", data.get("ref_id"));
+	        map.put("purchase_price_range_id.id", data.get("price_range_id")!=null ? data.get("price_range_id") : "");
+	        map.put("purchase_condition_id.id", data.get("condition_id")!=null ? data.get("condition_id") : "");
+	        map.put("purchase_confidential_id.id", data.get("confidential_id")!=null ? data.get("confidential_id") : "");
+	        map.put("confidential_detail", data.get("method_cond2_dtl"));
+	        
+	        for(String key : map.keySet()) {
+	        	log.info(" - "+key+":"+map.get(key));
+	        }
+	        
+	        /*
+	         * Line Item
+	         */
+			list = pcmReqService.listDtlForInf(model.getId());
+	        
+	        List orderLine = new ArrayList();
+	        
+	        for(Map<String, Object> dtl:list) {
+		        Map<String, Object> line = new HashMap<String, Object>();
+		        line.put("product_id.id","");
+		        line.put("name",dtl.get("description")); 
+		        line.put("product_qty",dtl.get("quantity")); 
+		        line.put("price_unit",dtl.get("price_cnv")); ////////
+		        line.put("product_uom_id.id",dtl.get("unit_id")); 
+	//	        line.put("activity_id.id","");
+	//	        line.put("date_required",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("updated_time"))); 
+		        line.put("section_id.id",dtl.get("budget_cc"));
+		        line.put("cost_control_id.id",dtl.get("cost_control_id")!=null ? dtl.get("cost_control_id") : "");
+		        line.put("fixed_asset","False");
+		        line.put("tax_ids",dtl.get("vat_name")!=null ? dtl.get("vat_name") : "");
+		        orderLine.add(line);
+		        
+		        for(String key : line.keySet()) {
+		        	log.info(" -- "+key+":"+line.get(key));
+		        }
+	        }
+	        
+	        map.put("line_ids", orderLine);
+	
+	        /*
+	         * Committee
+	         */
+			list = pcmReqService.listCmtForInf(model.getId());
+			
+	        List committee = new ArrayList();
+	
+	        int seq = 1;
+	        for(Map<String, Object> cmtData:list) {
+		        Map<String, Object> cmt = new HashMap<String, Object>();
+		        cmt.put("name",cmtData.get("first_name")+" "+cmtData.get("last_name")); 
+		        cmt.put("position",cmtData.get("position"));
+		        cmt.put("committee_type_id",cmtData.get("committee_id"));
+		        cmt.put("sequence", String.valueOf(seq++));
+		        committee.add(cmt);
+		        
+		        for(String key : cmt.keySet()) {
+		        	log.info(" --- "+key+":"+cmt.get(key));
+		        }
+	        }
+	        
+	        map.put("committee_ids", committee);
+	
+	        /*
+	         * Attachment
+	         */
+	        List<FileModel> fileList = pcmReqService.listFile(model.getId(), true);
+	        log.info("fileList.size()="+fileList.size());
+	        
+	        List attachment = new ArrayList();
+	        
+	        for(FileModel file:fileList) {
+	// detail : http://localhost:18080/share/page/document-details?nodeRef=workspace://SpacesStore/5190b027-00c6-4322-98c3-1be01314bdd9
+	//download format url : http://localhost:18080/share/proxy/alfresco/api/node/content/workspace/SpacesStore/<url>/<name>?a=true
+	//example url : http://localhost:18080/share/proxy/alfresco/api/node/content/workspace/SpacesStore/260cdb8d-5a9c-43af-9c8e-178c75f1fe38/PR16000050.pdf?a=true
+	        	
+		        Map<String, Object> att = new HashMap<String, Object>();
+		        att.put("name", file.getName()); 
+		        att.put("description", file.getDesc()!=null ? file.getDesc() : ""); 
+		        att.put("file_url",NodeUtil.trimNodeRef(file.getNodeRef().toString()));
+		        attachment.add(att);
+		        
+		        for(String key : att.keySet()) {
+		        	log.info(" ---- "+key+":"+att.get(key));
+		        }
+	        }
+	        
+	        map.put("attachment_ids", attachment);
+	        
+	        log.info("map="+map);
+			
+			a.add(map);
+			
+			args.add(a);
+
+			Object obj = client.invoke("execute_kw", args);
+			
+			XmlRpcStruct strc = (XmlRpcStruct)obj;
+			
+			for(Object k : strc.keySet()) {
+				Object v = strc.get(k);
+	
+				log.info(" - "+k+" : "+v+":"+v.getClass().getName());
+			}
+			
+			success = (Boolean)strc.get("is_success");
+			msgs = strc.get("messages")!=null ? strc.get("messages").toString() : "";
+		}
+		catch (Exception ex) {
+			return ex.toString()+":"+map.toString();
+		}
+		
+		return success ? "OK" : msgs+":"+map.toString();
+	}
+	
+	public String updateStatusPD(PcmOrdModel model, String action, String user) throws Exception {
+		log.info("interface : updateStatusPD");
+		
+		Boolean success = false;
+		String msgs = null;
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		try {
+			
+			Map<String, Object> cfg = getConnectionConfig();
+			XmlRpcClient client = getXmlRpcClient(cfg);
+			
+			List args = getInitArgs(cfg);
+			args.add("purchase.requisition"); // Remote Object
+			args.add("done_order");
+			
+			List a = new ArrayList();
+			
+	        map.put("name", model.getId());
+	        map.put("approve_uid", user);
+	        map.put("action", action.equals("Approve") ? "C1" : "W2");
+	        map.put("file_name",model.getId()+".pdf");
+	        map.put("file_url",NodeUtil.trimNodeRef(model.getDocRef()));
+	        
+	        for(String key : map.keySet()) {
+	        	log.info(" - "+key+":"+map.get(key));
+	        }
+	        
+			a.add(map);
+			args.add(a);
+	//		arguments.add(map);
+
+			Object obj = client.invoke("execute_kw", args);
+			
+			XmlRpcStruct strc = (XmlRpcStruct)obj;
+			
+			log.info("result.size() : "+strc.keySet().size());
 			for(Object k : strc.keySet()) {
 				Object v = strc.get(k);
 
 				log.info(" - "+k+" : "+v+":"+v.getClass().getName());
 			}
+			
+			if (strc.size()>0) {
+				success = (Boolean)strc.get("is_success");
+				msgs = (String)strc.get("messages");
+			}
+		} catch (XmlRpcException ex) {
+			throw new FormException(CommonConstant.FORM_ERR+ex.toString());
+		} catch (Exception ex) {
+			return ex.toString()+":"+map.toString();
 		}
 		
+		return success ? "OK" : msgs+":"+map.toString();
 	}
 	
-	public void updateStatusPD(PcmOrdModel model) throws Exception {
-		log.info("interface : updateStatusPD");
+	public Map<String, Object> getBudgetControlLevel(Timestamp time) throws Exception {
+		log.info("sub interface : getBudgetControlLevel");
 		
-//		MainMasterModel sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_ODOO_URL);
-////		String host = "http://10.226.202.133:8069";
-//		String host = sysCfgModel.getFlag1();
-//		
-//		sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_ODOO_DB);
-////		String db = "PABI2";
-//		String db = sysCfgModel.getFlag1();
-//		
-//		log.info("host:"+host);
-//		log.info("db:"+db);
-//		
-//		List<Map<String, Object>> list = pcmReqService.listForInf(model.getId());
-//		Map<String, Object> data = list.size() > 0 ? list.get(0) : null;
-//		
-//		final XmlRpcClient client = new XmlRpcClient(new URL(host+"/xmlrpc/2/object"), true);
-//		log.info("client:"+client);
-//		
-//		String rmtObj = "purchase.request";
-//		
-//		List arguments = new ArrayList();
-//		arguments.add(db); // db name
-//		arguments.add(1); // uid 1='admin'
-//		arguments.add("admin"); // password
-//		arguments.add(rmtObj);
-//		arguments.add("generate_purchase_request");
-//		
-//		List a = new ArrayList();
+		log.info("  time:"+time.toString());
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		Map<String, Object> cfg = getConnectionConfig();
+		XmlRpcClient client = getXmlRpcClient(cfg);
+		
+		List args = getInitArgs(cfg);
+		args.add("account.budget"); // Remote Object
+		args.add("get_fiscal_and_budget_level");
+		
+		List a = new ArrayList();
 //		Map<String, Object> map = new HashMap<String, Object>();
-//		
-//		/*
-//		 * Header
-//		 */
-//        map.put("name", data.get("req_id"));
-//        map.put("requested_by.id",data.get("emp_id"));
-//        map.put("responsible_user_id.id",data.get("rp_id")!=null ? data.get("rp_id") : "");
-//        map.put("assigned_to.id","1");//////////////////////////////////////////////////////
-//        map.put("date_approved",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("updated_time")));
-//        map.put("total_budget_value",data.get("total"));
-//        map.put("purchase_prototype_id.id",data.get("is_prototype").equals("1") ? "1" : "2");
-//        map.put("purchase_type_id.id", data.get("objective_type"));
-//        map.put("purchase_method_id.id",data.get("method"));
-//        map.put("purchase_unit_id.id",data.get("pcm_section_id"));
-//        map.put("description",data.get("reason"));
-//        map.put("objective",data.get("objective"));
-//        map.put("currency_id.id",data.get("currency_id"));
-//        map.put("currency_rate",data.get("currency_rate"));
-//        map.put("delivery_address", data.get("location"));
-//        map.put("date_start",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("created_time")));
-//        map.put("operating_unit_id.id",data.get("operating_unit_id"));
-//        
-//        for(String key : map.keySet()) {
-//        	log.info(" - "+key+":"+map.get(key));
-//        }
-//        
+//		a.add(map);
+		
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd",Locale.US);
+		
+		a.add(df.format(time));
+		
+		args.add(a);
+
+		Object obj = client.invoke("execute_kw", args);
+		
+		
+		XmlRpcStruct strc = (XmlRpcStruct)obj;
+		
+		for(Object k : strc.keySet()) {
+			Object v = strc.get(k);
+
+			log.info(" - "+k+" : "+v+":"+v.getClass().getName());
+			
+			map.put((String)k, v);
+		}
+
+		
+		return map;
+	}
+	
+	private Map<String, Object> checkBudget(Integer fiscalId,String budgetType,String budgetLevel, Integer resourceId,Double amount) throws Exception {
+		log.info("sub interface : checkBudget");
+		
+		log.info("  fiscalId:"+fiscalId);
+		log.info("  budgetType:"+budgetType);
+		log.info("  budgetLevel:"+budgetLevel);
+		log.info("  resourceId:"+resourceId);
+		log.info("  amount:"+amount);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		Map<String, Object> cfg = getConnectionConfig();
+		XmlRpcClient client = getXmlRpcClient(cfg);
+		
+		List args = getInitArgs(cfg);
+		args.add("account.budget"); // Remote Object
+		args.add("check_budget");
+		
+		List a = new ArrayList();
+//		Map<String, Object> map = new HashMap<String, Object>();
 //		a.add(map);
 //		
-//		arguments.add(a);
-//
-//		List ids = null;
-//		XmlRpcStruct strc = null;
-//		
-//		Object obj = client.invoke("execute_kw", arguments);
-//		
-//		if (obj.getClass().getName().indexOf("List") >= 0) {
-//			ids = (List)obj;
-//			for (Object o : ids) {
-//				log.info(" -"+o+":"+o.getClass().getName());
-//			}
-//		} else {
-//			strc = (XmlRpcStruct)obj;
-//			
-//			for(Object k : strc.keySet()) {
-//				Object v = strc.get(k);
-//
-//				log.info(" - "+k+" : "+v+":"+v.getClass().getName());
-//			}
-//		}
+//		map.put("", fiscalId);
+//		map.put("", budgetType);
+//		map.put("", budgetLevel);
+//		map.put("", resourceId);
+//		map.put("", amount);
 		
-	}
+		a.add(fiscalId);
+		a.add(budgetType);
+		a.add(budgetLevel);
+		a.add(resourceId);
+		a.add(amount);
+		
+		args.add(a);
+
+		Object obj = client.invoke("execute_kw", args);
+		
+		
+		XmlRpcStruct strc = (XmlRpcStruct)obj;
+		
+		for(Object k : strc.keySet()) {
+			Object v = strc.get(k);
+
+			log.info(" - "+k+" : "+v+":"+v.getClass().getName());
+			
+			map.put((String)k, v);
+		}
+		
+		return map;
+	}	
 	
+	public Map<String, Object> checkBudget(String budgetCcType, Integer budgetCc, Double amount) throws Exception {
+		log.info("interface : checkBudget");
+		log.info(" - budgetCcType : "+budgetCcType);
+		log.info(" - budgetCc : "+budgetCc);
+		log.info(" - amount : "+amount);
+		
+		Map<String, Object> budgetLevel = getBudgetControlLevel(new Timestamp(Calendar.getInstance(Locale.US).getTimeInMillis()));
+		for(String k : budgetLevel.keySet()) {
+			log.info(" -- "+k+":"+budgetLevel.get(k));
+		}
+		
+		String budgetType = budgetCcType.equals("P") ? "project_base" : "unit_base";
+		Integer resourceId = null;
+		if (budgetCcType.equals("P")) {
+			budgetType = "project_base";
+			resourceId = budgetCc;
+		} else {
+			budgetType = "unit_base";
+			Map<String, Object> section = sectionService.get(budgetCc);
+			resourceId = (Integer)section.get((String)budgetLevel.get(budgetType));
+		}
+		
+		log.info(" --- budgetType : "+budgetType);
+		log.info(" --- resouceId : "+resourceId);
+		
+		Map<String, Object> budget = checkBudget(
+				(Integer)budgetLevel.get("fiscal_id"),
+				budgetType,
+				(String)budgetLevel.get(budgetType),
+				resourceId,
+				amount
+		);
+		
+		return budget;
+	}
 }

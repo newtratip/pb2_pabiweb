@@ -37,10 +37,6 @@ public class AdminWkfConfigService {
             
     		list = dao.listSupervisor(id);
             
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
@@ -58,10 +54,6 @@ public class AdminWkfConfigService {
             
     		list = dao.listPurchasingUnitBySectionId(sectionId);
             
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }
@@ -78,10 +70,6 @@ public class AdminWkfConfigService {
             
     		map = dao.getByName(name);
             
-            session.commit();
-        } catch (Exception ex) {
-			log.error("", ex);
-        	session.rollback();
         } finally {
         	session.close();
         }

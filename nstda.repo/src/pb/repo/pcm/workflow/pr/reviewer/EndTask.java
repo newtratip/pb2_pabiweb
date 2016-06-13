@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AdminWkfConfigService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 
 @Component("pb.pcm.workflow.pr.reviewer.EndTask")
 public class EndTask implements ExecutionListener {
@@ -25,7 +25,7 @@ public class EndTask implements ExecutionListener {
 	private static Logger log = Logger.getLogger(EndTask.class);
 
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmReqWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AuthenticationService authenticationService;

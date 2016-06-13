@@ -13,14 +13,17 @@
     </resultMap>
     
     <select id="list" resultType="hashmap" parameterType="map">
-    
        SELECT 		*
 	   FROM 		pb2_ext_account_tax
 	   WHERE type_tax_use='purchase'
 	   and is_wht is false
 	   and is_undue_tax is false
 	   ORDER BY id DESC
-		
     </select>
+    
+    <select id="get" resultType="map" parameterType="int">
+        select * from pb2_ext_account_tax
+        where id=#{id}
+    </select>    
     	
 </mapper>

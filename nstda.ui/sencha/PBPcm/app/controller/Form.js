@@ -151,9 +151,6 @@ Ext.define('PBPcm.controller.Form', {
 			'pcmReqMainForm [action=approvalMatrix]': {
 				click : me.showApprovalMatrix
 			},
-			'pcmReqMainForm [action=searchPR]': {
-				click : me.searchPR
-			},
 			'pcmReqUserTab':{
 				selectReqBy:me.selectReqBy
 			},
@@ -162,40 +159,134 @@ Ext.define('PBPcm.controller.Form', {
 				selectCurrency:me.selectCurrency,
 				selectBudgetCc:me.selectBudgetCc,
 				selectCostControl:me.selectCostControl,
+				selectPR:me.selectPR,
 				clearCostControl:me.clearCostControl,
 				selectPrototype:me.selectPrototype,
 				notStock:me.notStock,
 				notPrototype:me.notPrototype,
 				isAcrossBudget:me.isAcrossBudget,
 				isRefId:me.isRefId
+			},
+			'button': {
+				searchPR : me.searchPR
+			},
+			'textfield': {
+				searchPR : me.searchPR
+			},
+			'pcmReqSearchDlg button[action=ok]':{
+				confirmPR : me.confirmPR
+			},
+			'pcmReqSearchDlg grid':{
+   				viewDetail : me.viewPRDetail
 			}
-			
 		});
 
 	},
 	
+	CURRENCY_RATE_MSG_KEY : 'GET_CURRENCY_RATE',
 	PREVIEW_MSG_KEY : 'PREVIEW',
 	SEND_MSG_KEY : 'SEND_PCM_REQ',
 	MSG_KEY : 'SAVE_PCM_REQ',
     URL : ALF_CONTEXT+'/pcm',
     MSG_URL : ALF_CONTEXT+'/pcm/message',
     
-    validForm:function(saveDraft) {
+    validForm:function(saveDraft,fn) {
 		var me = this;
 		var result = true;
 		
+		if (!saveDraft) {
+			var msg = "";
+			
+			// check committee
+			var panel = me.getCmtTab();
+			
+			panel.items.each(function(grid){
+				if (grid.xtype == 'grid') {
+				
+					var cmtStore = grid.getStore();
+//					console.log("grid.cmt.amount_min:"+grid.cmt.amount_min);
+					if (cmtStore.getCount() < grid.cmt.amount_min) {
+						if (msg) {
+							msg += "<br/>";
+						}
+						
+						msg += grid.title + ":" + grid.cmt.amount_min;					
+					}
+				}
+			});
+
+			if (msg) {
+				PB.Dlg.show('ERR_NOT_ENOUGH_CMT', MODULE_PCM, {msg:msg});
+				result = false;
+			}
+			
+			// check file
+			if (result) {
+				if (me.getHidTotal().getValue()>=100000) {
+					if (me.getFileTab().down("uploadGrid").getStore().getCount()<=0) {
+						PB.Dlg.show('ERR_NO_FILE', MODULE_PCM, 
+							{
+								icon:Ext.MessageBox.WARNING,
+								modal:true,
+								fn:function(btn) {
+									if (btn=='yes') {
+										me[fn](null);
+									}
+								},
+								scope:me,
+//								animateTarget:me.getFileTab().down("uploadGrid"),
+								buttonText:{yes:'ยืนยันการส่งขออนุมัติ',no:'แนบเอกสาร'},
+								buttons:Ext.MessageBox.YESNO
+							}
+						);
+						result = false;
+					}
+				}
+			}
+			
+			// check total with across budget
+			if (me.getChkAcrossBudget().getValue()) {
+				var acbg = parseFloat(me.getTxtAcrossBudget().getValue());
+				if (acbg > 0) {
+					var total = me.getHidTotal().getValue(); 
+					if (total > acbg) {
+						PB.Dlg.error('ERR_TOTAL_OVER_ACROSS_BUDGET', MODULE_PCM, {msg:total + '>' + acbg});
+						result = false;
+					}
+				}
+			}
+		}
+		
 		return result;
+	},
+	
+	listInvalidField:function(form) {
+		var ifield = form.query("field{isValid()==false}");
+		var msg = "";
+		var i = 1;
+		for(var a in ifield) {
+			if (msg) {
+				msg +="<br/>";
+			}
+			var lbl = ifield[a].getFieldLabel();
+			var pos = lbl.indexOf("<font");
+			msg += i+"."+lbl.substring(0,pos);
+			i++;
+		}
+		
+		return msg;
 	},
 	
 	send:function() {
 		var form = this.getMainForm();
 		
-		if (this.validForm(false)) {
-			if(validForm(form) ){
+		if (validForm(form)) {
+			if(this.validForm(false,'doSend')){
 				PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doSend', MODULE_PCM);
-			} else {
-				PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM);
 			}
+		} else {
+			var msg = this.listInvalidField(form);
+			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
 		}
 	},
 	
@@ -346,22 +437,27 @@ Ext.define('PBPcm.controller.Form', {
 	
 	closeForm:function() {
 		this.getMainForm().destroy();
-		
+		this.refreshGrid();
+	},
+	
+	refreshGrid:function() {
 		this.getMainGrid().getStore().load();
 	},
 	
 	saveDraft:function() {
+		var form = this.getMainForm();
+	
+		if(!validForm(form)){
+			var msg = this.listInvalidField(form);			
+			
+			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
+			return;
+		}
+
 		if (!this.validForm(true)) {
 			return;
 		}
 	
-		var form = this.getMainForm();
-	
-		if(!validForm(form)){
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM);
-			return;
-		}
-
 		var me = this;
 	
 		var grid = me.getMainGrid();
@@ -392,7 +488,10 @@ Ext.define('PBPcm.controller.Form', {
 				  
 			   	if (json.success) {
 			   		var id = json.data.id;
-			   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_PCM, {msg:'ID:'+id, fn:me.closeForm, scope:me});
+			   		me.getHidId().setValue(id);
+			   		me.getMainForm().setTitle('Edit : <font color="red">'+id+"</font>");
+			   		me.refreshGrid();
+			   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_PCM, {msg:'ID:'+id, scope:me});
 			   	} else {
 			   		PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
 			   	}
@@ -451,7 +550,6 @@ Ext.define('PBPcm.controller.Form', {
 		
 		var data = [];
 		panel.items.each(function(grid){
-			console.log(grid.xtype);
 			if (grid.xtype == 'grid') {
 			
 				var cmtStore = grid.getStore();
@@ -463,6 +561,7 @@ Ext.define('PBPcm.controller.Form', {
 				
 				data.push({
 					cmt:grid.title,
+					cmtId:grid.cmtId,
 					cmts:cmt
 				});
 				
@@ -472,21 +571,6 @@ Ext.define('PBPcm.controller.Form', {
 		return Ext.JSON.encode(data);
 	},	
 	
-	listSelectedUserGroup:function(itemId) {
-		var values = [];
-	
-		var store = this.getFileTab().down("usergroupGrid[itemId="+itemId+"]").getStore();
-		
-		store.each(function(rec){
-			values.push({
-				id:rec.get("id"),
-				type:rec.get("type")
-			});
-		});
-
-		return Ext.JSON.encode(values);
-	},
-	
 	listFiles:function() {
 		var values = [];
 	
@@ -495,6 +579,7 @@ Ext.define('PBPcm.controller.Form', {
 		store.each(function(rec){
 			values.push({
 				name:rec.get("name"),
+				desc:rec.get("desc"),
 				path:rec.get("path"),
 				nodeRef:rec.get("nodeRef")
 			});
@@ -510,12 +595,14 @@ Ext.define('PBPcm.controller.Form', {
 	finish:function() {
 		var form = this.getMainForm();
 		
-		if(validForm(form)){
-			PB.Dlg.confirm('CONFIRM_'+this.MSG_KEY,this,'doFinish', MODULE_PCM);
+		if (validForm(form)) {
+			if(this.validForm(false,'doFinish')){
+				PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doFinish', MODULE_PCM);
+			}
 		} else {
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM);
+			var msg = this.listInvalidField(form);
+			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
 		}
-		
 	},
 	
 	doFinish: function(){
@@ -625,11 +712,6 @@ Ext.define('PBPcm.controller.Form', {
 		dlg.show();
 	},
 	
-	searchPR:function() {
-		var dlg = Ext.create("PBPcm.view.pr.SearchDlg");
-		dlg.show();
-	},
-	
 	selectObjective:function(cmb, newV, oldV) {
 		var me = this;
 		
@@ -643,30 +725,39 @@ Ext.define('PBPcm.controller.Form', {
 	selectCurrency:function(cmb, newV, oldV) {
 		var me = this;
 		
-		Ext.Ajax.request({
-		     url:ALF_CONTEXT+'/admin/main/currency/rate/get',
-		     method: "GET",
-		     params: {
-				id: newV
-		     },
-		     success: function(res){
-		    	 
-		    	 var json = Ext.decode(res.responseText);
-		      	  
-		    	 if(json.success){
-		    	  
-		    		 me.getTxtCurrencyRate().setValue(json.data);
-		    		
-		    	 }else{
-		    		 PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
-		    	 }
-		    	 
-		     },
-		     failure: function(response, opts){
-		    	 PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
-		     },
-		     headers: getAlfHeader()
-		});  
+		if (newV == "THB") {
+			me.getTxtCurrencyRate().setValue(1);
+			me.getTxtCurrencyRate().disable();
+		}
+		else {
+			
+			me.getTxtCurrencyRate().enable();
+		
+			Ext.Ajax.request({
+			     url:ALF_CONTEXT+'/admin/main/currency/rate/get',
+			     method: "GET",
+			     params: {
+					id: newV
+			     },
+			     success: function(res){
+			    	 
+			    	 var json = Ext.decode(res.responseText);
+			      	  
+			    	 if(json.success){
+			    	  
+			    		 me.getTxtCurrencyRate().setValue(json.data);
+			    		
+			    	 }else{
+			    		 PB.Dlg.error('ERR_'+me.CURRENCY_RATE_MSG_KEY, MODULE_PCM);
+			    	 }
+			    	 
+			     },
+			     failure: function(response, opts){
+			    	 PB.Dlg.error('ERR_'+me.CURRENCY_RATE_MSG_KEY, MODULE_PCM);
+			     },
+			     headers: getAlfHeader()
+			});
+		}
 	},
 	
 	selectPrototype:function(cmb, newV, oldV) {
@@ -682,7 +773,9 @@ Ext.define('PBPcm.controller.Form', {
 		var form = me.getMainForm();
 		
 		if(!validForm(form)){
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM);
+			var msg = this.listInvalidField(form);
+			
+			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
 			return;
 		}		
 		
@@ -768,9 +861,13 @@ Ext.define('PBPcm.controller.Form', {
 		dlg.show();
 	},
 	
-	selectReqByCallBack:function(ids, type, typeName) {
+	selectReqByCallBack:function(id, rec) {
 		var tab = this.targetPanel;
-		setValue(tab, 'reqBy', ids[0]);
+		setValue(tab, 'reqBy', rec.get('emp_id'));
+		setValue(tab, 'reqByName', rec.get('first_name') + ' ' + rec.get('last_name'));
+		setValue(tab, 'reqByDept', rec.get('pos_name'));
+		setValue(tab, 'reqBu', rec.get('org_desc'));
+		setValue(tab, 'reqOuName', rec.get('section_desc'));
 	},	
 
 	selectReqBy:function() {
@@ -784,10 +881,10 @@ Ext.define('PBPcm.controller.Form', {
 		dlg.show();
 	},
 	
-	selectCostControlCallBack:function(ids, type, typeName) {
+	selectCostControlCallBack:function(id, name, type, typeName) {
 		var tab = this.targetPanel;
-		setValue(tab, 'costControlId', ids[0]);
-		setValue(tab, 'costControlName', ids[1]);
+		setValue(tab, 'costControlId', id);
+		setValue(tab, 'costControlName', name);
 		setValue(tab, 'costControlTypeId', type);
 		setValue(tab, 'costControlTypeName', typeName);
 	},
@@ -824,6 +921,54 @@ Ext.define('PBPcm.controller.Form', {
 		} else {
 			txt.disable();
 		}
+	},
+	
+	selectPRCallBack:function(sender, id, rec) {
+		var tab = sender.up("window").targetPanel;
+		setValue(tab, 'refId', id);
+	},
+
+	selectPR:function() {
+		Ext.create("PBPcm.view.pr.SearchDlg",{
+			title:'ค้นหา',
+			targetPanel:this.getInfoTab(),
+			callback:this.selectPRCallBack
+		}).show();
+	},
+	
+	searchPR:function(sender) {
+		var me = this;
+		
+		var store = sender.up("window").down("grid").getStore();
+		
+		store.getProxy().extraParams = {
+			s:sender.up("container").down("field[itemId=searchTerm]").getValue()
+		}
+		
+		store.load();
+	},
+	
+	confirmPR:function(sender) {
+		var me = this;
+		
+		var id = getRadioValue("id");
+		
+		var store = sender.up("window").down("grid").getStore();
+		var rec;
+		
+		for(var i=0; i<store.getCount(); i++) {
+			var r = store.getAt(i);
+			if (r.get('id') == id) {
+				rec = r;
+			}
+		}
+		
+		sender.up("window").callback(sender, id, rec);
+		sender.up("window").close();
+	},
+	
+	viewPRDetail:function(r) {
+		window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/"+nodeRef2Url(r.get("doc_ref")),"_new");
 	}
 
 });

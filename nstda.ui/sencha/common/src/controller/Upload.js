@@ -1,6 +1,11 @@
 Ext.define('PB.controller.common.Upload', {
     extend: 'Ext.app.Controller',
     alias:'controller.commonUpload',
+    
+    refs:[{
+    	ref:'grid',
+    	selector:'uploadGrid'
+    }],
 
     init:function() {
 		var me = this;
@@ -15,6 +20,7 @@ Ext.define('PB.controller.common.Upload', {
 	},
 	
 	uploadFile : function(form,grid){
+		var me = this;
 		   
 		if(form.isValid()){
 		    form.submit({
@@ -27,11 +33,14 @@ Ext.define('PB.controller.common.Upload', {
 			        	var fileModel = new Ext.create('PB.model.common.FileModel',{
 			        		name : o.result.data[0].name,
 			        		path : o.result.data[0].path,
+			        		desc : o.result.data[0].desc,
 			        		action   : 'D'
 			        	});
 			        	
 			        	grid.getStore().add(fileModel);
 			        	Ext.Msg.alert('Success', 'Success');
+			        	
+			        	me.getGrid().down("[name=desc]").setValue(null);
 		        	}
 		        }
 		    });

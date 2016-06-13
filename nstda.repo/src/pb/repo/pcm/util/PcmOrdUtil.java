@@ -15,7 +15,6 @@ import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
 import pb.repo.pcm.constant.PcmOrdConstant;
 import pb.repo.pcm.constant.PcmReqConstant;
-import pb.repo.pcm.model.PcmOrdDtlModel;
 import pb.repo.pcm.model.PcmOrdModel;
 
 public class PcmOrdUtil {
@@ -36,6 +35,8 @@ public class PcmOrdUtil {
 		jsObj.put(PcmOrdConstant.JFN_PR_ID, model.getPrId());
 		jsObj.put(PcmOrdConstant.JFN_SECTION_ID, model.getSectionId());
 		jsObj.put(PcmOrdConstant.JFN_DOC_TYPE, model.getDocType());
+		
+		jsObj.put(PcmOrdConstant.JFN_ORG_NAME, model.getOrgName());
 		
 		jsObj.put(PcmOrdConstant.JFN_TOTAL, String.valueOf(model.getTotal()));
 		jsObj.put(PcmOrdConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
@@ -98,25 +99,6 @@ public class PcmOrdUtil {
 		return jsonObj.toString();
 	}
 	
-	public static String jsonSuccess(List<PcmOrdModel> list, List<PcmOrdDtlModel> dtlList) throws Exception {
-		
-		Long total = list.size() > 0 ? list.get(0).getTotalRowCount() : 0;
-
-		JSONObject jsonObj = new JSONObject();
-
-		jsonObj.put(JsonConstant.SUCCESS,  true);
-		jsonObj.put(JsonConstant.TOTAL,  total);
-		jsonObj.put(JsonConstant.DATA, convertToJSONArray(list));
-		
-		JSONObject jsonObjDtl = new JSONObject();
-		for(PcmOrdDtlModel model : dtlList) {
-			jsonObjDtl.put(model.getDescription(), model.getQuantity());
-		}
-		jsonObj.put("dtls", jsonObjDtl);
-		
-		return jsonObj.toString();
-	}
-
 	public static String getMessage(String key, Locale locale) {
 		return CommonUtil.getMessage(CommonConstant.MODULE_PCM, key, locale);
 	}

@@ -39,9 +39,9 @@ public class AdminSectionProjectService {
             	for(Map<String, Object> tmpMap : tmpList) {
             		Map<String, Object> map = new HashMap<String, Object>();
             		
-            		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("description"));
+            		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("name")+" - "+tmpMap.get("description"));
             		map.put("type", tmpMap.get("name"));
-            		map.put("name", tmpMap.get("description"));
+            		map.put("name", tmpMap.get("name") + " - " + tmpMap.get("description"));
             		
             		list.add(map);
             	}

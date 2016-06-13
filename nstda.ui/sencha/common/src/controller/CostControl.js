@@ -50,7 +50,14 @@ Ext.define('PB.controller.common.CostControl', {
 	ok:function(btn) {
 		var me = this;
 		
-		var ids = getRadioValue("id").split("|");
+		var id = getRadioValue("id");
+		var name;
+		var store = me.getGrid(sender).getStore();
+		store().each(function(rec){
+			if (rec.get("id")==id) {
+				name = rec.get("name");
+			}
+		});
 		
 		var cmbType = me.getType(btn); 
 		var type = cmbType.getValue();
@@ -61,7 +68,7 @@ Ext.define('PB.controller.common.CostControl', {
 			}
 		});
 		
-		me.getDlg().callback(ids, type, typeName);
+		me.getDlg().callback(id, name, type, typeName);
 		me.getDlg().close();
 	}
 

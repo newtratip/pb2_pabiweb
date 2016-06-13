@@ -162,5 +162,9 @@
 		and flag1 = #{flag1}
 		order by code asc
     </select>
+    
+    <select id="reset" resultType="long" parameterType="string">
+		SELECT setval(#{seqName},1,false)	
+    </select>
  
 </mapper>

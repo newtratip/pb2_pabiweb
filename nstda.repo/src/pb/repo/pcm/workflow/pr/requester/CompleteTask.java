@@ -28,13 +28,13 @@ import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.admin.util.MainWorkflowUtil;
 import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
+import pb.repo.pcm.service.PcmReqWorkflowService;
 import pb.repo.pcm.service.PcmSignatureService;
 
 @Component("pb.pcm.workflow.pr.requester.CompleteTask")
@@ -71,7 +71,7 @@ public class CompleteTask implements TaskListener {
 	PcmReqService pcmReqService;
 	
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmReqWorkflowService mainWorkflowService;
 
 	@Autowired
 	PcmSignatureService signatureService;
@@ -130,6 +130,8 @@ public class CompleteTask implements TaskListener {
 					log.info("  last level:"+lastLevel);
 					log.info("  action:"+action);
 					
+					mainWorkflowService.setModuleService(pcmReqService);
+					
 					String finalAction = action;
 					if (action.equalsIgnoreCase(MainWorkflowConstant.TA_CANCEL)) {
 						model.setStatus(PcmReqConstant.ST_CANCEL_BY_REQ);
@@ -187,7 +189,6 @@ public class CompleteTask implements TaskListener {
 						taskComment = tmpComment.toString();
 					}
 					
-					mainWorkflowService.setModuleService(pcmReqService);
 					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
 				}
 				catch (Exception ex) {

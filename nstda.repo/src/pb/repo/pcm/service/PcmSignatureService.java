@@ -215,18 +215,7 @@ public class PcmSignatureService {
 			//			            fileChannel.force(false);
 			//			            fileChannel.close();
 						            
-							    	log.info("  is checked out:");
-								    if (checkOutCheckInService.isCheckedOut(pdfNodeRef)) {
-								    	log.info("    true");
-								    	NodeRef wNodeRef = alfrescoService.getWorkingCopyNodeRef(pdfNodeRef.toString());
-								    	log.info("    workingcopy NodeRef="+wNodeRef);
-								    	checkOutCheckInService.cancelCheckout(wNodeRef);
-								    	log.info("    cancel check out");
-								    }
-								    else {
-								    	log.info("    false");
-								    }
-								    log.info("  check out : "+pdfNodeRef+" ...");
+						        	alfrescoService.cancelCheckout(pdfNodeRef);
 						            NodeRef workingCopy = checkOutCheckInService.checkout(pdfNodeRef);
 									ContentWriter contentWriter = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
 								    contentWriter.setMimetype("application/pdf");
@@ -420,18 +409,7 @@ public class PcmSignatureService {
 									   			  //Handle exception
 									   		}
 								            
-									    	log.info("  is checked out:");
-										    if (checkOutCheckInService.isCheckedOut(attachNodeRef)) {
-										    	log.info("    true");
-										    	NodeRef wNodeRef = alfrescoService.getWorkingCopyNodeRef(attachNodeRef.toString());
-										    	log.info("    workingcopy NodeRef="+wNodeRef);
-										    	checkOutCheckInService.cancelCheckout(wNodeRef);
-										    	log.info("    cancel check out");
-										    }
-										    else {
-										    	log.info("    false");
-										    }
-										    log.info("  check out : "+attachNodeRef+" ...");
+								        	alfrescoService.cancelCheckout(attachNodeRef);
 								            NodeRef workingCopy = checkOutCheckInService.checkout(attachNodeRef);
 											ContentWriter contentWriter = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
 										    contentWriter.setMimetype("application/pdf");
@@ -564,18 +542,7 @@ public class PcmSignatureService {
 											   			  //Handle exception
 											   		}
 										            
-											    	log.info("  is checked out:");
-												    if (checkOutCheckInService.isCheckedOut(attachNodeRef)) {
-												    	log.info("    true");
-												    	NodeRef wNodeRef = alfrescoService.getWorkingCopyNodeRef(attachNodeRef.toString());
-												    	log.info("    workingcopy NodeRef="+wNodeRef);
-												    	checkOutCheckInService.cancelCheckout(wNodeRef);
-												    	log.info("    cancel check out");
-												    }
-												    else {
-												    	log.info("    false");
-												    }
-												    log.info("  check out : "+attachNodeRef+" ...");
+										        	alfrescoService.cancelCheckout(attachNodeRef);
 										            NodeRef workingCopy = checkOutCheckInService.checkout(attachNodeRef);
 													ContentWriter contentWriter = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
 												    contentWriter.setMimetype("application/pdf");

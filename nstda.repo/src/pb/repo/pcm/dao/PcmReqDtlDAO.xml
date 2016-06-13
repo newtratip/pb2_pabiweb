@@ -115,5 +115,5 @@
 		where master_id = #{id}
 		ORDER BY d.id
     </select>
-    
+
 </mapper>
