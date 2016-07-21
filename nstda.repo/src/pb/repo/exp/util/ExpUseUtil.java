@@ -15,7 +15,7 @@ import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
 import pb.repo.exp.constant.ExpBrwConstant;
 import pb.repo.exp.constant.ExpUseConstant;
-import pb.repo.exp.model.ExpUseVoyagerModel;
+import pb.repo.exp.model.ExpUseAttendeeModel;
 import pb.repo.exp.model.ExpUseModel;
 
 public class ExpUseUtil {
@@ -176,7 +176,7 @@ public class ExpUseUtil {
 		return jsonObj.toString();
 	}
 	
-	public static String jsonSuccess(List<ExpUseModel> list, List<ExpUseVoyagerModel> dtlList) throws Exception {
+	public static String jsonSuccess(List<ExpUseModel> list, List<ExpUseAttendeeModel> dtlList) throws Exception {
 		
 		Long total = list.size() > 0 ? list.get(0).getTotalRowCount() : 0;
 
@@ -185,12 +185,6 @@ public class ExpUseUtil {
 		jsonObj.put(JsonConstant.SUCCESS,  true);
 		jsonObj.put(JsonConstant.TOTAL,  total);
 		jsonObj.put(JsonConstant.DATA, convertToJSONArray(list, false));
-		
-//		JSONObject jsonObjDtl = new JSONObject();
-//		for(ExpUseVoyagerModel model : dtlList) {
-//			jsonObjDtl.put(model.getName(), model.getName());
-//		}
-//		jsonObj.put("dtls", jsonObjDtl);
 		
 		return jsonObj.toString();
 	}

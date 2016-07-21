@@ -31,9 +31,11 @@ public class PcmReqInvocationHandler
 	@Autowired
 	private PermissionService permissionService;
 	
-    public Map<String, Object> action(String prNo, String type, final String by)
+    public Map<String, Object> action(String prNo, String type, String comment, final String by)
+//    public Map<String, Object> action(String prNo, String type, final String by)
     {
-    	log.info("action("+prNo+","+type+","+by+")");
+//    	String comment = null;
+    	log.info("action("+prNo+","+type+","+comment+","+by+")");
     	
     	Map<String, Object> result = new HashMap<String, Object>();
     	
@@ -76,7 +78,7 @@ public class PcmReqInvocationHandler
 	    	pcmReqService.update(pcmReqModel);
     		
 	    	mainWorkflowService.setModuleService(pcmReqService);
-			mainWorkflowService.saveWorkflowHistory(null, by, "ผู้จัดซื้อ" , null, statusDesc, null,  prNo, null);
+			mainWorkflowService.saveWorkflowHistory(null, by, "ผู้จัดซื้อ" , comment, statusDesc, null,  prNo, null);
 			
 			result.put("success",true);
 			result.put("message","Success");

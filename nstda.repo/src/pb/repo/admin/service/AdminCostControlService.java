@@ -35,7 +35,11 @@ public class AdminCostControlService {
         	Map<String, Object> params = new HashMap<String, Object>();
         	log.info("type="+type);
         	params.put("type", type);
-        	params.put("searchTerm", searchTerm);
+        	if (searchTerm!=null) {
+        		String[] terms = searchTerm.split(" ");
+        	
+        		params.put("terms", terms);
+        	}
         	
     		List<Map<String,Object>> tmpList = dao.list(params);
     		

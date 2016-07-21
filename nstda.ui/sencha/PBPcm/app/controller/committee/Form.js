@@ -23,8 +23,11 @@ Ext.define('PBPcm.controller.committee.Form', {
         ref: 'txtLastName',
         selector:'pcmCommitteeDtlDlg field[name=last_name]'
     },{
-        ref: 'txtPosition',
-        selector:'pcmCommitteeDtlDlg field[name=position]'
+        ref: 'userGrid',
+        selector:'pcmCommitteeDtlDlg grid'
+    },{
+        ref: 'txtSearchTerm',
+        selector:'pcmCommitteeDtlDlg field[itemId=searchTerm]'
 	},{
 	    ref: 'cmtMain',
 	    selector:'pcmReqCmtTab'
@@ -40,11 +43,26 @@ Ext.define('PBPcm.controller.committee.Form', {
 		var me = this;
 		
 		me.control({
-			'pcmCommitteeDtlDlg [action=ok]': {
-				click : me.ok
+//			'pcmCommitteeDtlDlg': {
+//				selectSrcType : me.selectSrcType
+//			},
+//			'pcmCommitteeDtlDlg grid': {
+//				select : me.selectUser
+//			},
+//			'pcmCommitteeDtlDlg [action=ok]': {
+//				click : me.ok
+//			},
+//			'pcmCommitteeDtlDlg button': {
+//				searchUser : me.searchUser
+//			},
+//			'pcmCommitteeDtlDlg textfield': {
+//				searchUser : me.searchUser
+//			},
+			'pcmReqCmtTab [action=addCmtEmployee]': {
+				click : me.addEmployee
 			},
-			'pcmReqCmtTab [action=addCmt]': {
-				click : me.add
+			'pcmReqCmtTab [action=addCmtNonEmployee]': {
+				click : me.addNonEmployee
 			},
 			'pcmReqCmtTab grid':{
 				edit:me.edit,
@@ -63,64 +81,276 @@ Ext.define('PBPcm.controller.committee.Form', {
 	DEL_MSG_KEY : 'DELETE_PCM_REQ_CMT',
     URL : ALF_CONTEXT+'/pcm/req/cmt',
     MSG_URL : ALF_CONTEXT+'/pcm/message',
+    
 
-    ok:function() {
+//    ok:function() {
+//		var me = this;
+//		
+//		if (validForm(me.getForm())) {
+//		
+//			var rec; 
+//			
+//			var id = me.getHidId().getValue();
+//			if (!id) {
+//		
+//				var store = me.grid.getStore();
+//		
+//				var maxId = 0;
+//				if (store.getCount() > 0)
+//				{
+//				  maxId = store.getAt(0).get('id');
+//				  store.each(function(rec)
+//				  {
+//				    maxId = Math.max(maxId, rec.get('id'));
+//				  });
+//				}
+//				
+//				rec = Ext.create('PBPcm.model.CmtGridModel',{
+//		    		id : maxId+1,
+//		    		action : 'ED' 
+//		    	});
+//			} else {
+//				rec = me.selectedRec;
+//			}
+//			
+//			rec.set("first_name",me.getTxtFirstName().getValue()); 
+//			rec.set("last_name",me.getTxtLastName().getValue());
+//			
+//			if (!id) {
+//				rec.set("position", store.getCount() == 0 ? "ประธาน" : "กรรมการ");
+//
+//				rec.commit();
+//				store.add(rec);
+//			} else {
+//				me.grid.getView().refresh();
+//			}
+//			
+//			me.getDlg().destroy();
+//		} // validForm
+//	},
+	
+//	add:function(btn) {
+//		var me = this;
+//		me.grid = me.getCmtTab().getActiveTab();
+//		me.createDlg('เพิ่ม').show();
+//	},
+//	
+	addEmployee:function(btn) {
+		var me = this;
+//		me.grid = me.getCmtTab().getActiveTab();
+		me.createEmployeeDlg(PB.Label.m.add + (getLang().startsWith("th") ? "" : " ") + PB.Label.m.emp).show();
+	},
+
+	addNonEmployee:function(btn) {
+		var me = this;
+//		me.grid = me.getCmtTab().getActiveTab();
+		me.createNonEmployeeDlg(PB.Label.m.add + (getLang().startsWith("th") ? "" : " ") + PB.Label.m.nonemp).show();
+	},
+	
+//	createDlg:function(title) {
+//		
+//		var me = this;
+//		
+//		var dialog = Ext.create('PBPcm.view.committee.DtlDlg', {
+//		    title : title
+//		});
+//		
+//		return dialog;
+//	},
+	
+    dlgEmployeeUserCallBack:function(items) {
 		var me = this;
 		
-		if (validForm(me.getForm())) {
+		var CHAIRMAN = "ประธานกรรมการ";
+		var COMMITTEE = "กรรมการ";
 		
-			var rec; 
+		var grid = this.targetPanel;
+		
+		var store = grid.getStore();
+		
+		var maxId = 0;
+		
+		for(var a in items) {
+			if (store.getCount() > 0)
+			{
+			  maxId = store.getAt(0).get('id');
+			  store.each(function(rec)
+			  {
+			    maxId = Math.max(maxId, rec.get('id'));
+			  });
+			}
 			
-			var id = me.getHidId().getValue();
-			if (!id) {
+			var rec = Ext.create('PBPcm.model.CmtGridModel',{
+				id : maxId+1,
+				action : 'D' 
+			});
+			
+			rec.set("code", items[a].data['code']);
+			rec.set("fname", items[a].data['fname']);
+			rec.set("lname", items[a].data['lname']);
+//			rec.set("unit_type", items[a].data['utype']);
+//			rec.set("position", items[a].data['position']);
+//			rec.set("position_id", items[a].data['position_id']);
+			
+			rec.set("position", COMMITTEE);
+
+			rec.commit();
+			store.add(rec);
+		}
+
+		if (store.getCount() > 1) {
+			store.getAt(0).set("position", CHAIRMAN);
+			store.getAt(0).commit();
+		}
+
+	},
+	
+	employeeValidate:function(items) {
+		var result = true;
 		
-				var store = me.grid.getStore();
+		var panel = this.targetPanel.up("tabpanel");
 		
-				var maxId = 0;
-				if (store.getCount() > 0)
-				{
-				  maxId = store.getAt(0).get('id');
-				  store.each(function(rec)
-				  {
-				    maxId = Math.max(maxId, rec.get('id'));
-				  });
+		for(var a in items) {
+			var nv = items[a].data['fname']+' '+items[a].data['lname'];
+			
+			panel.items.each(function(grid){
+				if (result) {
+					if (grid.xtype == 'grid') {
+					
+						var store = grid.getStore();
+						
+						for(var i=0;i < store.getCount(); i++) {
+							var it = store.getAt(i);
+							if (nv == it.get('fname')+' '+it.get('lname')) {
+								result = false;
+								break;
+							}
+						}
+					}
+						
 				}
+			});
+			
+			if (!result) {
+				break;
+			}
+		}
+		
+		if (!result) {
+			PB.Dlg.error('',MODULE_PCM,{msg:'เลือกกรรมการซ้ำ กรุณาเลือกใหม่'});
+		}
+		
+		return result;
+	},
+
+	createEmployeeDlg:function(title, rec) {
+		
+		var me = this;
+		
+		var dialog = Ext.create('PB.view.common.SearchEmployeeUserDlg', {
+		    title : title,
+			targetPanel:me.getCmtTab().getActiveTab(),
+			validateCallback:me.employeeValidate,
+			callback:me.dlgEmployeeUserCallBack,
+			rec : rec,
+		    needFootPrint : false
+		});
+		
+		return dialog;
+	},
+	
+	dlgNonEmployeeUserCallBack:function(id, r) {
+		var me = this;
+	
+		var CHAIRMAN = "ประธานกรรมการ";
+		var COMMITTEE = "กรรมการ";
+		
+		var grid = this.targetPanel;
+		
+		var store = grid.getStore();
+		if (!id) {
+		
+			var maxId = 0;
+			if (store.getCount() > 0)
+			{
+			  maxId = store.getAt(0).get('id');
+			  store.each(function(rec)
+			  {
+			    maxId = Math.max(maxId, rec.get('id'));
+			  });
+			}
+			
+			var rec = Ext.create('PBPcm.model.CmtGridModel',{
+	    		id : maxId+1,
+	    		action : 'ED' 
+	    	});
+		
+		} else {
+			rec = me.rec;
+		}
+	
+		rec.set("fname", r.data.fname); 		
+		rec.set("lname", r.data.lname); 		
+		rec.set("position", COMMITTEE);
+		
+		if (!id) {
+			rec.commit();
+			store.add(rec);
+			
+			if (store.getCount() > 1) {
+				store.getAt(0).set("position", CHAIRMAN);
+				store.getAt(0).commit();
+			}
+			
+		} else {
+			grid.getView().refresh();
+		}		
+	},
+	
+	nonEmployeeValidate:function(r) {
+		var result = true;
+		
+		var panel = this.targetPanel.up("tabpanel");
+		
+		var nv = r.data['fname']+' '+r.data['lname'];
+		
+		panel.items.each(function(grid){
+			if (result) {
+				if (grid.xtype == 'grid') {
 				
-				rec = Ext.create('PBPcm.model.CmtGridModel',{
-		    		id : maxId+1,
-		    		action : 'ED' 
-		    	});
-			} else {
-				rec = me.selectedRec;
+					var store = grid.getStore();
+					
+					for(var i=0;i < store.getCount(); i++) {
+						var it = store.getAt(i);
+						if (nv == it.get('fname')+' '+it.get('lname')) {
+							result = false;
+							break;
+						}
+					}
+				}
+					
 			}
-			
-			rec.set("first_name",me.getTxtFirstName().getValue()); 
-			rec.set("last_name",me.getTxtLastName().getValue()); 
-			rec.set("position",me.getTxtPosition().getValue());
-			
-			if (!id) {
-				rec.commit();
-				store.add(rec);
-			} else {
-				me.grid.getView().refresh();
-			}
-			
-			me.getDlg().destroy();
-		} // validForm
-	},
-	
-	add:function(btn) {
-		var me = this;
-		me.grid = me.getCmtTab().getActiveTab();
-		me.createDlg('เพิ่ม').show();
-	},
-	
-	createDlg:function(title) {
+		});
+		
+		if (!result) {
+			PB.Dlg.error('',MODULE_PCM,{msg:'เลือกกรรมการซ้ำ กรุณาเลือกใหม่'});
+		}
+		
+		return result;
+	},	
+
+	createNonEmployeeDlg:function(title, rec) {
 		
 		var me = this;
 		
-		var dialog = Ext.create('PBPcm.view.committee.DtlDlg', {
-		    title : title
+		var dialog = Ext.create('PB.view.common.SearchOtherUserDlg', {
+		    title : title,
+			targetPanel:me.getCmtTab().getActiveTab(),
+			validateCallback:me.nonEmployeeValidate,
+			callback:me.dlgNonEmployeeUserCallBack,
+			rec : rec,
+			needPosition : false,
+		    needFootPrint : false
 		});
 		
 		return dialog;
@@ -134,12 +364,11 @@ Ext.define('PBPcm.controller.committee.Form', {
 			me.grid.getView().getSelectionModel().select(rec);
 			me.selectedRec = rec;		
 		
-			var dialog = me.createDlg('แก้ไข');
+			var dialog = me.createNonEmployeeDlg(PB.Label.m.edit, rec);
 			
-			me.getHidId().setValue(rec.get("id"));
-			me.getTxtFirstName().setValue(rec.get("first_name"));
-			me.getTxtLastName().setValue(rec.get("last_name"));
-			me.getTxtPosition().setValue(rec.get("position"));
+//			me.getHidId().setValue(rec.get("id"));
+//			me.getTxtFirstName().setValue(rec.get("fname"));
+//			me.getTxtLastName().setValue(rec.get("lname"));
 			
 			dialog.show();
 		}
@@ -158,7 +387,16 @@ Ext.define('PBPcm.controller.committee.Form', {
 	
 	doDel:function() {
 		var me = this;
-		me.grid.getStore().remove(me.selectedRec);
+		
+		var store = me.grid.getStore(); 
+		store.remove(me.selectedRec);
+		
+		var CHAIRMAN = "ประธานกรรมการ";
+
+		if (store.getCount()>1) {
+			store.getAt(0).set('position', CHAIRMAN);
+			store.getAt(0).commit();
+		}
 	},	
 	
 	methodSelect:function(cmb, rec, mainRec) {
@@ -175,6 +413,7 @@ Ext.define('PBPcm.controller.committee.Form', {
 	        	dataIndex: 'action',
 	        	text: '', 
 	            width: 100,
+	            align:'center',
 	            items: [{
 	                tooltip: 'Edit', 
 	                action : 'edit',
@@ -189,9 +428,9 @@ Ext.define('PBPcm.controller.committee.Form', {
 	        	    }
 	            }]
 	          },
-			  { text: 'ชื่อ',  dataIndex: 'first_name', flex:1},
-			  { text: 'นามสกุล',  dataIndex: 'last_name', flex:1},
-			  { text: 'ตำแหน่ง',  dataIndex: 'position', width:100}
+			  { text: PB.Label.m.ecode,  dataIndex: 'code', width:100},
+			  { text: PB.Label.m.fullname,  dataIndex: 'fname', flex:1, renderer:function(v,m,r){return r.get('fname')+' '+r.get('lname')}},
+			  { text: PB.Label.m.pos,  dataIndex: 'position', width:150}
 		);
 		
 		var data = rec[0].data.data;
@@ -221,9 +460,14 @@ Ext.define('PBPcm.controller.committee.Form', {
 								xtype : 'tbfill'
 						    },{
 				        		xtype: 'button',
-				                text: "Add",
+				                text: PB.Label.m.add + (getLang().startsWith("th") ? "" : " ") + PB.Label.m.emp,
 				                iconCls: "icon_add",
-				                action:'addCmt'
+				                action:'addCmtEmployee'
+						    },{
+				        		xtype: 'button',
+				                text: PB.Label.m.add + (getLang().startsWith("th") ? "" : " ") + PB.Label.m.nonemp,
+				                iconCls: "icon_add",
+				                action:'addCmtNonEmployee'
 				        	}],
 				        	cmt:cmt
 						});
@@ -236,31 +480,51 @@ Ext.define('PBPcm.controller.committee.Form', {
 		if (data.cond2) {
 			
 			var store = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
-			
-			var conds = data.cond2.split("\n");
-			
-			var cond2Title = conds[0];
-			
-			for(var i=1; i<conds.length; i++) {
-				if ("0123456789".indexOf(conds[i].substring(0,1)) >= 0) { // start with Number
-					console.log("'"+conds[i]+"'");
-					var item = Ext.create('PB.model.common.ComboBoxModel',{
-						id:conds[i],
-						name:conds[i]
-					});
-					store.add(item);
-				}
+			store.getProxy().api.read = ALF_CONTEXT+'/admin/main/purchase/condition/list';
+			store.getProxy().extraParams = {
+				id:data.condition_id
 			}
+			store.load();
 			
 			cmtTab.add({
 				xtype:'pcmReqCmtCond2Tab',
 				title:'เงื่อนไข',
 				store:store,
-				preCond2:cond2Title,
+				preCond2:data.cond2,
 				rec:mainRec
 			});
 		}
 		
 	}
+	
+//	selectSrcType:function(rad, v) {
+//		var me = this;
+//		var type = v ? "U" : "P";
+//	
+//		var store = me.getCmbCode().getStore();
+//		store.getProxy().extraParams = {
+//			t:type
+//		}
+//		store.load();
+//	},
+//
+//	searchUser : function(sender) {
+//		var me = this;
+//		
+//		var store = me.getUserGrid().getStore();
+//		
+//		store.getProxy().extraParams = {
+//			s:me.getTxtSearchTerm().getValue()
+//		}
+//		
+//		store.load();
+//	},
+//	
+//	selectUser : function(sender, rec, index) {
+//		var me = this;
+//		
+//		me.getTxtFirstName().setValue(rec.get("first_name"));
+//		me.getTxtLastName().setValue(rec.get("last_name"));
+//	}
 	
 });

@@ -19,7 +19,6 @@
         <result property="costControl" column="cost_control"/>
         <result property="costControlFrom" column="cost_control_from"/>
         <result property="costControlTo" column="cost_control_to"/>
-        <result property="totalType" column="total_type"/>
         <result property="bank" column="bank"/>
         <result property="bankType" column="bank_type"/>
         <result property="workflowInsId" column="workflow_ins_id"/>
@@ -201,7 +200,35 @@
 		ORDER BY ${orderBy}
 		LIMIT #{limit}
 		OFFSET #{start}
+    </select>
+    
+    <select id="listOld" resultType="map" parameterType="map">
+        select id, number, amount_advanced waitAmt, cleared_amount, (amount_advanced-cleared_amount) as balance
+		from
+		-- All Advance Expense regardless of clearing history or not
+		(select exp.id, exp.number,
+		    coalesce(adv.amount_advanced, exp.amount_advanced) as amount_advanced,
+		    coalesce(adv.cleared_amount, 0.0) as cleared_amount
+		from pb2_ext_hr_expense_expense exp
+		-- Advance Expense with some clearing history in hr_expense_clearing
+		left outer join (select exp.id, exp.number,
+		            exp.amount_advanced,
+		            clr.cleared_amount
+		from
+		        pb2_ext_hr_expense_expense exp join
+		            (select advance_expense_id, sum(clearing_amount) as cleared_amount
+		            from pb2_ext_hr_expense_clearing
+		            group by advance_expense_id) clr
+		        on clr.advance_expense_id = exp.id
+		        where exp.is_employee_advance = true) adv on adv.id = exp.id
+		        left join pb2_ext_hr_employee emp on exp.employee_id=emp.id
+		--
+		where is_employee_advance = true
+		and emp.employee_code = #{id}) a
+		where (amount_advanced-cleared_amount) > 0
+		order by number
     </select>    
+        
     
     <insert
 		id="add"
@@ -218,7 +245,6 @@
 	    	,budget_cc,budget_cc_type
 	    	,cost_control_id,cost_control_type_id,cost_control
 	    	,cost_control_from,cost_control_to
-	    	,total_type
 	    	,bank,bank_type
 	    	,total
 	    	,doc_ref,folder_ref
@@ -231,7 +257,6 @@
 	    	,#{budgetCc},#{budgetCcType}
 	    	,#{costControlId},#{costControlTypeId},#{costControl}
 	    	,#{costControlFrom},#{costControlTo}
-	    	,#{totalType}
 	    	,#{bank},#{bankType}
     		,#{total}
     		,#{docRef},#{folderRef}
@@ -278,7 +303,6 @@
 	    ,cost_control =#{costControl}
 	    ,cost_control_from =#{costControlFrom}
 	    ,cost_control_to =#{costControlTo}
-	    ,total_type =#{totalType}
 	    ,bank =#{bank}
 	    ,bank_type =#{bankType}
 	    ,total =#{total}
@@ -353,27 +377,22 @@
     
     
     <select id="listForInf" resultType="map" parameterType="map">
-		select 
-			r.id req_id,
-			r.req_by,
-			a.actor_user rp_id,
-			total,
-			m.flag1 objective_type,
-			r.reason,
-			r.objective,
-			location, 
-			r.updated_time,
-			r.created_time,
-			pur_org_id, 
-			budget_cc, 
-			w.by last_approver,
+		select
+			av.id av_id,
+			av.req_by,
+			av.created_by,
 			w.by_time,
-			pm.price_range_id,pm.condition_id,pm.confidential_id
-		from pb2_exp_brw r
-		left join pb2_main_workflow_next_actor a on r.id = a.master_id --Next Actor
-		left join pb2_main_workflow w on w.master_id = r.id --Last Approver
-		left join pb2_main_master m on objective_type=m.code and m.type='PC'
-		where r.id = #{id}
+			av.updated_time, 	
+			objective_type,
+			objective,
+			bank,
+			cost_control_to,
+			cost_control_id,
+			total
+		from pb2_exp_brw av
+		left join pb2_main_workflow_next_actor a on av.id = a.master_id --Next Actor
+		left join pb2_main_workflow w on w.master_id = av.id --Last Approver
+		where av.id=#{id}
     </select>
     
     <select id="getFirstApprover" parameterType="string" resultType="map">

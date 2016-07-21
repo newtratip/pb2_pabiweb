@@ -46,6 +46,6 @@
 		and		d.name = #{docType}
 		and 	b.employee_id = h.id
 		order by 	l.name
-	</select>    
+	</select>
 	
 </mapper>

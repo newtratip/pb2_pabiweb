@@ -54,6 +54,7 @@ public class PcmReqCmtHdrUtil {
 					JSONObject dtlObj = dtlArr.getJSONObject(j);
 					
 					PcmReqCmtDtlModel dtlModel = new PcmReqCmtDtlModel();
+					dtlModel.setEmployeeCode(dtlObj.getString(PcmReqCmtDtlConstant.JFN_EMPLOYEE_CODE));
 					dtlModel.setFirstName(dtlObj.getString(PcmReqCmtDtlConstant.JFN_FIRST_NAME));
 					dtlModel.setLastName(dtlObj.getString(PcmReqCmtDtlConstant.JFN_LAST_NAME));
 					dtlModel.setPosition(dtlObj.getString(PcmReqCmtDtlConstant.JFN_POSITION));

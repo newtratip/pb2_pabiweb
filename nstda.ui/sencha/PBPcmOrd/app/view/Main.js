@@ -19,7 +19,7 @@ Ext.define('PBPcmOrd.view.Main', {
 		if (!ID) {
 			items.push({
 				xtype:'pcmOrdMainGrid',
-				title:'Search',
+				title:PB.Label.m.search,
 				store:store
 			});
 			/*

@@ -58,6 +58,21 @@ Ext.define('PBPcm.controller.item.Form', {
     },{
         ref: 'hidTotal',     
         selector:'pcmReqItemTab field[name=total]'
+    },{
+        ref: 'cmbObjectiveType',     
+        selector: 'pcmReqMainForm field[name=objectiveType]'
+    },{
+        ref: 'cmbMethod',     
+        selector: 'pcmReqMainForm field[name=method]'
+	},{
+	    ref: 'cmtTab',
+	    selector:'pcmReqCmtTab [itemId=cmtTab]'
+    },{
+        ref: 'chkAcrossBudget',
+        selector: 'pcmReqMainForm field[name=isAcrossBudget]'
+    },{
+        ref: 'txtAcrossBudget',
+        selector: 'pcmReqMainForm field[name=acrossBudget]'
     }],
     
     init:function() {
@@ -129,7 +144,8 @@ Ext.define('PBPcm.controller.item.Form', {
 			rec.set("isEquipment",me.getHidIsEqmt().getValue()); 
 			rec.set("description",me.getTxtDesc().getValue()); 
 			rec.set("quantity",qty); 
-			rec.set("unit",me.getCmbUnit().getValue());
+			rec.set("unit",me.getCmbUnit().getRawValue());
+			rec.set("unitId",me.getCmbUnit().getValue());
 			rec.set("price",prc);
 			rec.set("priceCnv",prcCnv);
 			rec.set("total",total);
@@ -150,7 +166,7 @@ Ext.define('PBPcm.controller.item.Form', {
 	add:function() {
 		var me = this;
 	
-		this.createDlg('เพิ่ม').show();
+		this.createDlg(PBPcm.Label.m.add).show();
 
 	},
 	
@@ -171,14 +187,14 @@ Ext.define('PBPcm.controller.item.Form', {
 		me.getGrid().getView().getSelectionModel().select(rec);
 		me.selectedRec = rec;		
 	
-		var dialog = me.createDlg('แก้ไข');
+		var dialog = me.createDlg(PBPcm.Label.m.edit);
 		
 		me.getHidId().setValue(rec.get("id"));
 		me.getHidIsEqmt().setValue(rec.get("isEquipment"));
 //		me.getRaIsEqmt().setValue(rec.get("isEquipment"));
 		me.getTxtDesc().setValue(rec.get("description"));
 		me.getTxtQty().setValue(rec.get("quantity"));
-		me.getCmbUnit().setValue(rec.get("unit"));
+		me.getCmbUnit().setValue(rec.get("unitId"));
 		me.getTxtPrc().setValue(rec.get("price"));
 		
 		dialog.show();
@@ -217,6 +233,23 @@ Ext.define('PBPcm.controller.item.Form', {
 		me.getLblNetAmt().setText(Ext.util.Format.number(netAmt, DEFAULT_MONEY_FORMAT));
 		
 		me.getHidTotal().setValue(netAmt);
+		
+		if (!me.getChkAcrossBudget().getValue()) { // not across budget
+			var methodStore = me.getCmbMethod().getStore();
+			methodStore.getProxy().extraParams = {
+				objType : me.getCmbObjectiveType().getValue()
+			}
+			if (me.getHidTotal().getValue()) {
+				methodStore.getProxy().extraParams.total = me.getHidTotal().getValue(); 
+			}
+			methodStore.load(function(s, recs) {
+				var rec = methodStore.getById(parseInt(me.getCmbMethod().getValue()));
+				if (!rec) {
+					me.getCmbMethod().setValue(null);
+					me.getCmtTab().removeAll(true);
+				}
+			});
+		}
 		
 		if (netAmt >= 100000) {
 			var tbar = me.getUploadGrid().getDockedComponent(1);

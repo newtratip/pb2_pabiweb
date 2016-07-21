@@ -5,7 +5,7 @@ Ext.define('PB.view.common.SearchUserDlg', {
 	initComponent: function(config) {
 		var me = this;
 		
-		var lbw = 80;
+		var lbw = 100;
 		
 		var store = Ext.create('PB.store.common.UserStore');
 		
@@ -32,7 +32,7 @@ Ext.define('PB.view.common.SearchUserDlg', {
 					items:[{
 			        	xtype:'textfield',
 			        	itemId:'searchTerm',
-			        	fieldLabel:'คำค้นหา',
+			        	fieldLabel:PB.Label.m.searchTerm,
 			        	labelWidth:lbw,
 			        	width:400,
 			        	margin:'5 0 0 0',
@@ -53,7 +53,7 @@ Ext.define('PB.view.common.SearchUserDlg', {
 			           	}			        		
 					},{
 			        	xtype:'button',
-			        	text:'ค้นหา',
+			        	text:PB.Label.m.search,
 			        	iconCls:'icon_search',
 			        	margin:'5 0 0 10',
 		                listeners: {
@@ -73,16 +73,16 @@ Ext.define('PB.view.common.SearchUserDlg', {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:'ศูนย์', dataIndex: 'org_name', width: 100 },
-	        	     { text:'หน่วยงาน', dataIndex: 'section_name', flex:1 },
-	        	     { text:'รหัสพนักงาน', dataIndex: 'emp_id', width: 100 },
-	        	     { text:'ชื่อ-นามสกุล', dataIndex: 'first_name', flex:1, renderer:function(v,m,r){ return v+" "+r.get('last_name');}},
-	        	     { text:'ตำแหน่ง', dataIndex: 'pos_name', width: 150 }
+	        	     { text:PB.Label.m.org, dataIndex: 'org_name', width: 100 },
+	        	     { text:PB.Label.m.section, dataIndex: 'section_name', flex:1 },
+	        	     { text:PB.Label.m.ecode, dataIndex: 'emp_id', width: 100 },
+	        	     { text:PB.Label.m.fullname, dataIndex: 'first_name', flex:1, renderer:function(v,m,r){ return v+" "+r.get('last_name');}},
+	        	     { text:PB.Label.m.pos, dataIndex: 'pos_name', width: 150 }
 	        	],
 	        	store:store
 	        }],
 	        buttons : [{
-	          text: 'ยืนยัน', 
+	          text: PB.Label.m.confirm, 
 	          action : 'ok',
 	          iconCls:'icon_ok',
 	          listeners: {
@@ -91,7 +91,7 @@ Ext.define('PB.view.common.SearchUserDlg', {
 	               }
 	          }
 	        },{
-	          text: 'ยกเลิก',
+	          text: PB.Label.m.cancel,
 	          iconCls:'icon_no',
 	          handler:this.destroy,
 	          scope:this

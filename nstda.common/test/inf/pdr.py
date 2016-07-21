@@ -29,6 +29,6 @@ arg = {
 	'doc':{'name':'PD16000002.pdf','content':doc},
 	'attachments':[{'name':'A.pdf','content':att1},{'name':'B.pdf','content':att2}]
 }
-result = alfresco.ord.create(arg);
+result = alfresco.ord.action(arg);
 
 print result 

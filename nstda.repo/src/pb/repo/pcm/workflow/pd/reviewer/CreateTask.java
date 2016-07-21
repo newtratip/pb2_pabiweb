@@ -55,6 +55,7 @@ public class CreateTask implements TaskListener {
 	
 		String taskKey = task.getTaskDefinitionKey();
 		log.info("<- pd.reviewer.CreateTask -> Name:"+task.getName()+", ID:"+taskKey);
+		log.info("  task.executionId="+task.getExecutionId());
 		String curUser = authenticationService.getCurrentUserName();
 		task.setVariable(WF_PREFIX+"currentTaskKey", taskKey);
 		executionEntity.setVariable(WF_PREFIX+"currentTaskKey", taskKey);
@@ -84,7 +85,7 @@ public class CreateTask implements TaskListener {
 				workflowModel.setTaskId("activiti$"+task.getId());
 				mainWorkflowService.update(workflowModel);
 			}
-	
+			
 		} catch (Exception ex) {
 			log.error("", ex);
 		}

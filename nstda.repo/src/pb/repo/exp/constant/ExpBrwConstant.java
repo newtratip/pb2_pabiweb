@@ -16,7 +16,7 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String TFN_TOTAL = "TOTAL";
 	public static final String TFN_STATUS = "STATUS";
 	
-	public static final String TFN_REQ_BY = "REQ_BY"; 
+	public static final String TFN_REQ_BY = "REQ_BY";
 	public static final String TFN_REQ_SECTION_ID = "REQ_SECTION_ID"; 
 
 	public static final String TFN_OBJECTIVE_TYPE = "OBJECTIVE_TYPE";
@@ -33,7 +33,7 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String TFN_COST_CONTROL_FROM = "COST_CONTROL_FROM";
 	public static final String TFN_COST_CONTROL_TO = "COST_CONTROL_TO";
 	
-	public static final String TFN_TOTAL_TYPE = "TOTAL_TYPE";
+	public static final String TFN_ACTIVITY = "ACTIVITY";
 	
 	public static final String TFN_BANK_TYPE = "BANK_TYPE";
 	public static final String TFN_BANK = "BANK";
@@ -49,7 +49,8 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String JFN_OVER_DUE = "overDue";
 	
 	public static final String JFN_REQ_BY = "req_by"; 
-	public static final String JFN_REQ_BY_NAME = "req_by_name"; 
+	public static final String JFN_REQ_BY_NAME = "req_by_name";
+	public static final String JFN_REQ_TEL_NO = "req_tel_no";
 	public static final String JFN_REQ_BY_DEPT = "req_by_dept"; 
 	
 	public static final String JFN_REQ_BU = "req_bu"; 
@@ -73,7 +74,7 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String JFN_COST_CONTROL_FROM = "cost_control_from";
 	public static final String JFN_COST_CONTROL_TO = "cost_control_to";
 	
-	public static final String JFN_TOTAL_TYPE = "total_type";
+	public static final String JFN_ACTIVITY = "activity";
 	
 	public static final String JFN_BANK_TYPE = "bank_type";
 	public static final String JFN_BANK = "bank";

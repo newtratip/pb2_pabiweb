@@ -1,6 +1,7 @@
 package pb.repo.pcm.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import pb.common.constant.JsonConstant;
 import pb.repo.pcm.constant.PcmReqCmtDtlConstant;
 import pb.repo.pcm.model.PcmReqCmtDtlModel;
 
@@ -21,13 +23,43 @@ public class PcmReqCmtDtlUtil {
 		}
 	}
 	
-	public static String jsonSuccess(List<PcmReqCmtDtlModel> list) throws JSONException {
+//	public static String jsonSuccess(List<PcmReqCmtDtlModel> list) throws JSONException {
+//		
+//		JSONObject jsonObj = new JSONObject();
+//		
+//		for(PcmReqCmtDtlModel model : list) {
+//			jsonObj.put(model.getId(), model.getFirstName()+" "+model.getLastName());
+//		}
+//		
+//		return jsonObj.toString();
+//	}
+	
+	public static String jsonSuccess(List<Map<String, Object>> list) throws JSONException {
 		
 		JSONObject jsonObj = new JSONObject();
 		
-		for(PcmReqCmtDtlModel model : list) {
-			jsonObj.put(model.getId(), model.getFirstName()+" "+model.getLastName());
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+		
+		for(Map<String, Object> model : list) {
+			Map<String, Object> map = new HashMap<String,Object>();
+			map.put(PcmReqCmtDtlConstant.JFN_ID, model.get(PcmReqCmtDtlConstant.TFN_ID));
+			String code = (String)model.get(PcmReqCmtDtlConstant.TFN_EMPLOYEE_CODE);
+			map.put(PcmReqCmtDtlConstant.JFN_EMPLOYEE_CODE, code);
+			map.put(PcmReqCmtDtlConstant.JFN_FIRST_NAME, model.get(PcmReqCmtDtlConstant.TFN_FIRST_NAME));
+			map.put(PcmReqCmtDtlConstant.JFN_LAST_NAME, model.get(PcmReqCmtDtlConstant.TFN_LAST_NAME));
+			map.put(PcmReqCmtDtlConstant.JFN_POSITION, model.get(PcmReqCmtDtlConstant.TFN_POSITION));
+
+			if (code!=null && !code.equals("")) {
+				map.put(PcmReqCmtDtlConstant.JFN_ACTION, "D");
+			} else {
+				map.put(PcmReqCmtDtlConstant.JFN_ACTION, "ED");
+			}
+			
+			data.add(map);
 		}
+		
+		jsonObj.put(JsonConstant.SUCCESS,  true);
+		jsonObj.put(JsonConstant.DATA, data);
 		
 		return jsonObj.toString();
 	}
@@ -42,7 +74,8 @@ public class PcmReqCmtDtlUtil {
 			
 			jsObj.put(PcmReqCmtDtlConstant.JFN_ID, model.getId());
 			jsObj.put(PcmReqCmtDtlConstant.JFN_MASTER_ID, model.getMasterId());
-			jsObj.put(PcmReqCmtDtlConstant.JFN_FIRST_NAME, String.valueOf(model.getFirstName()));
+			jsObj.put(PcmReqCmtDtlConstant.JFN_EMPLOYEE_CODE, model.getEmployeeCode());
+			jsObj.put(PcmReqCmtDtlConstant.JFN_FIRST_NAME, model.getFirstName());
 			jsObj.put(PcmReqCmtDtlConstant.JFN_LAST_NAME, model.getLastName());
 			jsObj.put(PcmReqCmtDtlConstant.JFN_POSITION, String.valueOf(model.getPosition()));
 			jsObj.put(PcmReqCmtDtlConstant.JFN_CREATED_TIME, model.getCreatedTime());

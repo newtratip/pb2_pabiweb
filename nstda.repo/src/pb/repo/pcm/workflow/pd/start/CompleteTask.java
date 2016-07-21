@@ -29,7 +29,7 @@ import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.PcmOrdService;
 import pb.repo.pcm.service.PcmOrdWorkflowService;
-import pb.repo.pcm.service.PcmSignatureService;
+import pb.repo.pcm.service.PcmOrdSignatureService;
 
 @Component("pb.pcm.workflow.pd.start.CompleteTask")
 public class CompleteTask implements ExecutionListener {
@@ -68,7 +68,7 @@ public class CompleteTask implements ExecutionListener {
 	PcmOrdWorkflowService mainWorkflowService;
 
 	@Autowired
-	PcmSignatureService signatureService;
+	PcmOrdSignatureService signatureService;
 	
 	@Autowired
 	AdminMasterService adminMasterService;

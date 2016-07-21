@@ -18,18 +18,31 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 		methodStore.getProxy().extraParams = {
 			objType : me.rec.objective_type ? me.rec.objective_type : "blank" 
 		}
+		
+		if (!replaceIfNull(me.rec.is_across_budget, "0") == "1") { // not across budget
+			if (replaceIfNull(me.rec.total, 0)) {
+				methodStore.getProxy().extraParams.total = replaceIfNull(me.rec.total, 0); 
+			}
+		} else {
+			if (replaceIfNull(me.rec.across_budget, null)) {
+				methodStore.getProxy().extraParams.total = replaceIfNull(me.rec.across_budget, null);
+			}
+		}
+		
 		methodStore.load(function() {
 			if (me.rec.prweb_method_id) {
 				var rec = methodStore.getById(parseInt(me.rec.prweb_method_id));
 				me.fireEvent("selectCmb", me, [rec], me.rec);
 			}
 		});
+		
+		var lbw = parseInt(PBPcm.Label.c.lbw);
 
 		Ext.applyIf(me, {
 			tbar : [{
 				xtype:'combo',
 				name:'method',
-				fieldLabel:mandatoryLabel('วิธีการจัดหา'),
+				fieldLabel:mandatoryLabel(PBPcm.Label.c.pcmMethod),
 		    	displayField:'name',
 		    	valueField:'id',
 		        emptyText : "โปรดเลือก",
@@ -38,7 +51,7 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 		        typeAhead:true,
 		        multiSelect:false,
 		        forceSelection:true,
-				labelWidth:90,
+				labelWidth:lbw,
 				width:800,
 				margin:'0 0 0 10',
 				allowBlank:false,

@@ -48,14 +48,20 @@ public class AdminHrEmployeeService {
         return model;
 	}
 	
-	public Map<String, Object> getWithDtl(String id) {
+	public Map<String, Object> getWithDtl(String id, String lang) {
 		
 		Map<String, Object> map = null;
 		
 		SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
         	MainHrEmployeeDAO dao = session.getMapper(MainHrEmployeeDAO.class);
-    		map = dao.getWithDtl(id);
+        	
+        	Map<String, Object> params = new HashMap<String, Object>();
+
+        	params.put("code", id);
+        	params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
+        	
+    		map = dao.getWithDtl(params);
             
         } finally {
         	session.close();
@@ -74,8 +80,12 @@ public class AdminHrEmployeeService {
             
         	Map<String, Object> params = new HashMap<String, Object>();
 
-        	params.put("searchTerm", searchTerm);
         	params.put("code", Integer.parseInt(code));
+        	if (searchTerm!=null) {
+        		String[] terms = searchTerm.split(" ");
+        	
+        		params.put("terms", terms);
+        	}
         	
         	if (type.equals("P")) {
                 List<Map<String,Object>>tmpList = dao.listByProject(params);
@@ -115,5 +125,52 @@ public class AdminHrEmployeeService {
         }
 		
 		return list;
+	}
+	
+	public List<Map<String, Object>> list(String searchTerm, String lang) {
+		
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+        	MainHrEmployeeDAO dao = session.getMapper(MainHrEmployeeDAO.class);
+            
+        	Map<String, Object> params = new HashMap<String, Object>();
+
+        	if (searchTerm!=null) {
+        		String[] terms = searchTerm.split(" ");
+        	
+        		params.put("terms", terms);
+        	}
+        	
+        	params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
+        	
+        	log.info("params="+params);
+        	
+            List<Map<String,Object>>tmpList = dao.listForSearch(params);
+            
+        	for(Map<String, Object> tmpMap : tmpList) {
+        		Map<String, Object> map = new HashMap<String, Object>();
+        		
+        		String name = tmpMap.get("first_name")+" "+tmpMap.get("last_name");
+        		map.put("id", tmpMap.get("employee_code")+"|"+name);
+        		map.put("code", tmpMap.get("employee_code"));
+        		map.put("fname", tmpMap.get("first_name"));
+        		map.put("lname", tmpMap.get("last_name"));
+        		map.put("utype", tmpMap.get("utype"));
+        		map.put("position", tmpMap.get("position"));
+        		map.put("position_id", tmpMap.get("position_id"));
+        		
+        		list.add(map);
+        	}                
+    	
+        } catch (Exception ex) {
+        	log.error(ex);
+        } finally {
+        	session.close();
+        }
+		
+		return list;
 	}	
+	
 }

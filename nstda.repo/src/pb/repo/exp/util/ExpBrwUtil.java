@@ -14,7 +14,7 @@ import pb.common.constant.JsonConstant;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
 import pb.repo.exp.constant.ExpBrwConstant;
-import pb.repo.exp.model.ExpBrwVoyagerModel;
+import pb.repo.exp.model.ExpBrwAttendeeModel;
 import pb.repo.exp.model.ExpBrwModel;
 
 public class ExpBrwUtil {
@@ -51,8 +51,6 @@ public class ExpBrwUtil {
 		
 		jsObj.put(ExpBrwConstant.JFN_BANK_TYPE, model.getBankType());
 		jsObj.put(ExpBrwConstant.JFN_BANK, model.getBank());
-		
-		jsObj.put(ExpBrwConstant.JFN_TOTAL_TYPE, model.getTotalType());
 		
 		jsObj.put(ExpBrwConstant.JFN_TOTAL, model.getTotal());
 		jsObj.put(ExpBrwConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
@@ -98,8 +96,6 @@ public class ExpBrwUtil {
 		
 		map.put(ExpBrwConstant.JFN_BANK_TYPE, model.getBankType());
 		map.put(ExpBrwConstant.JFN_BANK, model.getBank());
-		
-		map.put(ExpBrwConstant.JFN_TOTAL_TYPE, model.getTotalType());
 		
 		map.put(ExpBrwConstant.JFN_TOTAL, model.getTotal());
 		map.put(ExpBrwConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
@@ -168,7 +164,7 @@ public class ExpBrwUtil {
 		return jsonObj.toString();
 	}
 	
-	public static String jsonSuccess(List<ExpBrwModel> list, List<ExpBrwVoyagerModel> dtlList) throws Exception {
+	public static String jsonSuccess(List<ExpBrwModel> list, List<ExpBrwAttendeeModel> dtlList) throws Exception {
 		
 		Long total = list.size() > 0 ? list.get(0).getTotalRowCount() : 0;
 

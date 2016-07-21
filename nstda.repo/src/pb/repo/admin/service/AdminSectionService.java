@@ -17,23 +17,27 @@ import pb.repo.common.mybatis.DbConnectionFactory;
 
 @Service
 public class AdminSectionService {
-	
+
 	private static Logger log = Logger.getLogger(AdminSectionService.class);
 
 	@Autowired
 	DataSource dataSource;
-	
+
 	public List<Map<String, Object>> list(String searchTerm) {
-		
+
 		List<Map<String, Object>> list = null;
-		
+
         SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
         	MainSectionDAO dao = session.getMapper(MainSectionDAO.class);
-            
+
         	Map<String, Object> params = new HashMap<String, Object>();
-        	
-        	params.put("searchTerm", searchTerm);
+
+        	if (searchTerm!=null) {
+        		String[] terms = searchTerm.split(" ");
+
+        		params.put("terms", terms);
+        	}
         	
             list = dao.list(params);
             
@@ -42,12 +46,12 @@ public class AdminSectionService {
         } finally {
         	session.close();
         }
-		
+
 		return list;
 	}
-	
+
 	public Map<String, Object> get(Integer id) {
-		
+
 		Map<String, Object> map = new HashMap<String, Object>();
 		
         SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();

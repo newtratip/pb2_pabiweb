@@ -37,7 +37,11 @@ public class AdminProjectService {
             
         	Map<String, Object> params = new HashMap<String, Object>();
         	
-        	params.put("searchTerm", searchTerm);
+        	if (searchTerm!=null) {
+        		String[] terms = searchTerm.split(" ");
+        	
+        		params.put("terms", terms);
+        	}
         	
             list = dao.list(params);
             
@@ -91,4 +95,28 @@ public class AdminProjectService {
 		
 		return list;
 	}
+	
+	public List<Map<String, Object>> listPMSpecialBudget(Integer projectId) {
+		
+		List<Map<String, Object>> list = null;
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+        	MainProjectMemberDAO dao = session.getMapper(MainProjectMemberDAO.class);
+            
+        	Map<String, Object> params = new HashMap<String, Object>();
+        	
+        	params.put("projectId", projectId);
+        	
+            list = dao.listPMSpecialBudget(params);
+            
+        } catch (Exception ex) {
+        	log.error(ex);
+        } finally {
+        	session.close();
+        }
+		
+		return list;
+	}
+	
 }

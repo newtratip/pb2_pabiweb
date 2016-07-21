@@ -11,6 +11,8 @@ Ext.define('PB.model.common.UserModel', {
     		 , {name : 'pos_name'}
     		 , {name : 'org_id'}
     		 , {name : 'section_id'}
+    		 , {name : 'work_phone'}
+    		 , {name : 'mobile_phone'}
     		 , {name : 'action'}
     ]
 });

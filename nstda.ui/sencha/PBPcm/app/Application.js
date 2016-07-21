@@ -32,13 +32,14 @@ Ext.define('PBPcm.Application', {
         
         'PB.Util',
         'PB.Dlg',
+        'PB.Label',
         'PB.button.LinkButton',
         'PB.store.common.UserStore',
         'PB.model.common.UserModel',
         'PB.store.common.CostControlStore',
         'PB.model.common.CostControlModel',
-        'PB.store.common.SectionProjectStore',
-        'PB.model.common.SectionProjectModel',
+        'PB.store.common.BudgetSrcStore',
+        'PB.model.common.BudgetSrcModel',
         'PB.store.common.ComboBoxStore',
         'PB.model.common.ComboBoxModel',
         'PB.vtype.Validation',
@@ -49,12 +50,13 @@ Ext.define('PBPcm.Application', {
         'PBPcm.controller.Form',
         'PBPcm.controller.common.User',
         'PBPcm.controller.common.CostControl',
-        'PBPcm.controller.common.SectionProject',
+        'PBPcm.controller.common.BudgetSrc',
+        'PBPcm.controller.common.EmployeeUser',
+        'PBPcm.controller.common.OtherUser',
         'PBPcm.controller.common.UserGroup',
         'PBPcm.controller.common.Upload',
         'PBPcm.controller.item.Main',
         'PBPcm.controller.item.Form',
-        'PBPcm.controller.committee.Main',
         'PBPcm.controller.committee.Form',
         'PBPcm.controller.file.Main',
         'PBPcm.controller.Report',
@@ -71,13 +73,14 @@ Ext.define('PBPcm.Application', {
         'Form',
         'common.User',
         'common.CostControl',
-        'common.SectionProject',
+        'common.BudgetSrc',
+        'common.EmployeeUser',
+        'common.OtherUser',
         'common.UserGroup',
         'common.Upload',
         'Report',
         'item.Main',
         'item.Form',
-        'committee.Main',
         'committee.Form',
         'file.Main'
     ],
@@ -123,10 +126,32 @@ Ext.define('PBPcm.Application', {
 	 	Ext.Ajax.request({
 		      url:ALF_CONTEXT+"/pcm/message/req",
 		      method: "GET",
+		      params:{
+	 			 lang:getLang()
+	 		  },
 		      success: function(response){
 		    	  
 		    	var data = Ext.decode(response.responseText);
 			 	Ext.apply(PBPcm.Label, data);
+			 	//alert(PBPcm.Label.a);
+		      },
+		      failure: function(response, opts){
+		          // do nothing
+		      },
+		      headers: getAlfHeader(),
+		      async:false
+		});
+	 	
+	 	Ext.Ajax.request({
+		      url:ALF_CONTEXT+"/admin/message/lbl",
+		      method: "GET",
+		      params:{
+	 			 lang:getLang()
+	 		  },
+		      success: function(response){
+		    	  
+		    	var data = Ext.decode(response.responseText);
+			 	Ext.apply(PB.Label, data);
 			 	//alert(PBPcm.Label.a);
 		      },
 		      failure: function(response, opts){

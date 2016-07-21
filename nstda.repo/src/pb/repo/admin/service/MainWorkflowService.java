@@ -179,6 +179,8 @@ public class MainWorkflowService {
 	        
 	        setNextActor(model, folderNodeRef);
 	        
+	        setSpecialUserPermission(folderNodeRef, model);
+	        
 	        MainWorkflowReviewerModel paramModel = new MainWorkflowReviewerModel();
 	        paramModel.setMasterId(model.getId());
 	        paramModel.setLevel(1);
@@ -221,6 +223,7 @@ public class MainWorkflowService {
 			workflowModel.setType(moduleService.getSubModuleType());
 			workflowModel.setWorkflowInsId(instanceId);
 			workflowModel.setTaskId(startTask.getId());
+			workflowModel.setExecutionId("");
 			workflowModel.setStatus(action);
 			workflowModel.setBy(model.getCreatedBy());
 			workflowModel.setCreatedBy(model.getCreatedBy());
@@ -228,7 +231,7 @@ public class MainWorkflowService {
 	        
 	        addWorkflow(workflowModel);
 	        
-	        MainWorkflowHistoryModel workflowHistoryModel = moduleService.getReqByWorkflowHistory(model);
+	        MainWorkflowHistoryModel workflowHistoryModel = moduleService.getReqByWorkflowHistory(model); // Extra History
 	        if (workflowHistoryModel != null) {
 		        workflowHistoryModel.setMasterId(wfKey);
 		        addWorkflowHistory(workflowHistoryModel);
@@ -242,6 +245,14 @@ public class MainWorkflowService {
 			workflowHistoryModel.setTask(stateTask);
 			workflowHistoryModel.setComment(moduleService.getFirstComment(model));
 	        addWorkflowHistory(workflowHistoryModel);
+	        
+	        
+	        workflowHistoryModel = moduleService.getAppByWorkflowHistory(model); // Extra History
+	        if (workflowHistoryModel != null) {
+		        workflowHistoryModel.setMasterId(wfKey);
+		        addWorkflowHistory(workflowHistoryModel);
+	        }
+	        
 	        log.info("Update Database Successfully");
 	        
 	        workflowService.endTask(startTask.getId(), null);
@@ -360,120 +371,115 @@ public class MainWorkflowService {
     	    }, AuthenticationUtil.getAdminUserName());    		
     }
     
-    private void setReviewer(Map<QName, Serializable> parameters, SubModuleModel model, final NodeRef folderNodeRef, String docType) {
+    private void setReviewer(Map<QName, Serializable> parameters, SubModuleModel model, final NodeRef folderNodeRef, String docType) throws Exception {
     	
-         try {
-        	Map<String, String> bossMap = moduleService.getBossMap(docType, model);
-        	
+    	Map<String, String> bossMap = moduleService.getBossMap(docType, model);
+
 //        	Map<String, String> bossMap = new LinkedHashMap<String, String>();
 //        	bossMap.put("L01", "001509");
 //        	bossMap.put("L02", "000511");
 //        	bossMap.put("L03", "000090");
-        	
-    		log.info("setReviewer :");
-        	for(Entry e : bossMap.entrySet()) {
-        		log.info("  - "+e.getKey()+":"+e.getValue());
-        	}
-        	
-        	final List<String> permissionGroup = new ArrayList<String>();
-        	final List<String> permissionUser = new ArrayList<String>();
-        	//List<Double> percents = new ArrayList<Double>();
-        	List<String> userCollectionList = null; 
-        	
-        	deleteReviewerByMasterId(model.getId());
-        	MainWorkflowReviewerModel reviewerModel = null;
-        	
-        	Map<Integer,List<String>> lvl = new HashMap<Integer, List<String>>();
+    	
+		log.info("setReviewer :");
+    	for(Entry e : bossMap.entrySet()) {
+    		log.info("  - "+e.getKey()+":"+e.getValue());
+    	}
+    	
+    	final List<String> permissionGroup = new ArrayList<String>();
+    	final List<String> permissionUser = new ArrayList<String>();
+    	//List<Double> percents = new ArrayList<Double>();
+    	List<String> userCollectionList = null; 
+    	
+    	deleteReviewerByMasterId(model.getId());
+    	MainWorkflowReviewerModel reviewerModel = null;
+    	
+    	Map<Integer,List<String>> lvl = new HashMap<Integer, List<String>>();
 //        	for(MainApprovalMatrixDtlModel dtl : listDtl) {
-        	int level = 1;
-        	for(Entry e : bossMap.entrySet()) {
-        		reviewerModel = new MainWorkflowReviewerModel();
-        		userCollectionList = new ArrayList<String>();
-        		String reviewerUser = (String)e.getValue();
-        		String reviewerGroup = "";
-        		
-        		reviewerModel.setReviewerGroup(reviewerGroup);
-        		reviewerModel.setReviewerUser(reviewerUser);
-        		reviewerModel.setMasterId(model.getId());
-        		reviewerModel.setLevel(level);
-        		reviewerModel.setPercent(0.0);
-        		reviewerModel.setRewarning(0);
-        		reviewerModel.setCreatedBy(model.getCreatedBy());
-        		addReviewer(reviewerModel);
-        		
-        		log.info("   user : "+reviewerUser);
-        		
-        		if(reviewerGroup!=null && !reviewerGroup.equalsIgnoreCase("")) {
-        			
-        			reviewerGroup = reviewerGroup.substring(1, reviewerGroup.length()-1);
-        			
-        			
-        			for(String appGroup : reviewerGroup.split(",")) {
-        				
-        				if(!permissionGroup.contains(appGroup)) {
-            				permissionGroup.add(appGroup);
-            			}
-        				
-        				Set<String> authorities = authorityService.getContainedAuthorities(AuthorityType.USER, "GROUP_"+appGroup, false);
-        				for(String u : authorities) {
-        					if(!userCollectionList.contains(u)) {
-        						userCollectionList.add(u);
-        					}
-	
-        				}
-        				
+    	int level = 1;
+    	for(Entry e : bossMap.entrySet()) {
+    		reviewerModel = new MainWorkflowReviewerModel();
+    		userCollectionList = new ArrayList<String>();
+    		String reviewerUser = (String)e.getValue();
+    		String reviewerGroup = "";
+    		
+    		reviewerModel.setReviewerGroup(reviewerGroup);
+    		reviewerModel.setReviewerUser(reviewerUser);
+    		reviewerModel.setMasterId(model.getId());
+    		reviewerModel.setLevel(level);
+    		reviewerModel.setPercent(0.0);
+    		reviewerModel.setRewarning(0);
+    		reviewerModel.setCreatedBy(model.getCreatedBy());
+    		addReviewer(reviewerModel);
+    		
+    		log.info("   user : "+reviewerUser);
+    		
+    		if(reviewerGroup!=null && !reviewerGroup.equalsIgnoreCase("")) {
+    			
+    			reviewerGroup = reviewerGroup.substring(1, reviewerGroup.length()-1);
+    			
+    			
+    			for(String appGroup : reviewerGroup.split(",")) {
+    				
+    				if(!permissionGroup.contains(appGroup)) {
+        				permissionGroup.add(appGroup);
         			}
+    				
+    				Set<String> authorities = authorityService.getContainedAuthorities(AuthorityType.USER, "GROUP_"+appGroup, false);
+    				for(String u : authorities) {
+    					if(!userCollectionList.contains(u)) {
+    						userCollectionList.add(u);
+    					}
 
-        		}
-        		
-        		if(reviewerUser!=null && !reviewerUser.equalsIgnoreCase("")) {
-        			
-        			//reviewerUser = reviewerUser.substring(1, reviewerUser.length()-1);
+    				}
+    				
+    			}
+
+    		}
+    		
+    		if(reviewerUser!=null && !reviewerUser.equalsIgnoreCase("")) {
+    			
+    			//reviewerUser = reviewerUser.substring(1, reviewerUser.length()-1);
  
         			for(String appUser : reviewerUser.split(",")) {
-               			if(!permissionUser.contains(appUser)) {
-            				permissionUser.add(appUser);
-            			}
-               			if(!userCollectionList.contains(appUser)) {
-               				userCollectionList.add(appUser);
-               			}
-        				
+           			if(!permissionUser.contains(appUser)) {
+        				permissionUser.add(appUser);
         			}
-        			
-        		}
-        		log.info("user collection:"+userCollectionList.toString());
-        		
-        		lvl.put(level, userCollectionList);
-
-        		level++;
-        	}
-        	
-	        AuthenticationUtil.runAs(new RunAsWork<String>()
-    	    {
-    			public String doWork() throws Exception
-    			{
-    	        	for(String g : permissionGroup) {
-    	        		
-    	        		if(!permissionService.getPermissions(folderNodeRef).contains("GROUP_"+g)) {
-    	        			permissionService.setPermission(folderNodeRef, "GROUP_"+g, "SiteCollaborator", true);
-    	        		}
-    	        			
-    	        	}
-    	        	for(String u : permissionUser) {
-    	        		String uu = MainUserGroupUtil.code2login(u);
-    	        		if(!permissionService.getPermissions(folderNodeRef).contains(uu)) {
-    	        			permissionService.setPermission(folderNodeRef, uu, "SiteCollaborator", true);
-    	        		}
-
-    	        	}
-    	        	return "A";
+           			if(!userCollectionList.contains(appUser)) {
+           				userCollectionList.add(appUser);
+           			}
+    				
     			}
-    	    }, AuthenticationUtil.getAdminUserName());
-        	
-		} catch (Exception ex) {
-			log.error("", ex);
-		}
+    			
+    		}
+    		log.info("user collection:"+userCollectionList.toString());
+    		
+    		lvl.put(level, userCollectionList);
 
+    		level++;
+    	}
+    	
+        AuthenticationUtil.runAs(new RunAsWork<String>()
+	    {
+			public String doWork() throws Exception
+			{
+	        	for(String g : permissionGroup) {
+	        		
+	        		if(!permissionService.getPermissions(folderNodeRef).contains("GROUP_"+g)) {
+	        			permissionService.setPermission(folderNodeRef, "GROUP_"+g, "SiteCollaborator", true);
+	        		}
+	        			
+	        	}
+	        	for(String u : permissionUser) {
+	        		String uu = MainUserGroupUtil.code2login(u);
+	        		if(!permissionService.getPermissions(folderNodeRef).contains(uu)) {
+	        			permissionService.setPermission(folderNodeRef, uu, "SiteCollaborator", true);
+	        		}
+
+	        	}
+	        	return "A";
+			}
+	    }, AuthenticationUtil.getAdminUserName());
+    	
     }
 
 	public Long getKey() {
@@ -1109,9 +1115,7 @@ public class MainWorkflowService {
 	public String saveWorkflowHistory(DelegateExecution execution, String user, String stateTask, String taskComment, String action, DelegateTask task, String id, Integer level) throws Exception {
 		
 		Timestamp now = CommonDateTimeUtil.now();
-		
 		action = moduleService.getActionCaption(action);
-		
 //		if (execution!=null) {
 //		
 //			String commentHistoryAttr = WF_PREFIX+"commentHistory";
@@ -1146,7 +1150,6 @@ public class MainWorkflowService {
 		MainWorkflowModel workflowModel = new MainWorkflowModel();
 		workflowModel.setMasterId(id.toString());
 		workflowModel = getLastWorkflow(workflowModel);
-		
 		if (workflowModel!=null) {
 			MainWorkflowHistoryModel workflowHistoryModel = new MainWorkflowHistoryModel();
 			workflowHistoryModel.setTime(now);
@@ -1157,14 +1160,15 @@ public class MainWorkflowService {
 			workflowHistoryModel.setMasterId(workflowModel.getId());
 			workflowHistoryModel.setLevel(level);
 			addWorkflowHistory(workflowHistoryModel);
-	
+			
 			workflowModel.setStatus(action);
 			workflowModel.setBy(user);
 			workflowModel.setByTime(workflowHistoryModel.getTime());
-			update(workflowModel);		
+			update(workflowModel);	
 		} else {
 			log.info("Not Found WorkflowModel");
 		}
+		log.info("saveHistory finish");
 
 		return action;
 	}	
@@ -1207,4 +1211,23 @@ public class MainWorkflowService {
 		
 		return workflowStatus.toUpperCase();
 	}
+	
+	
+	private void setSpecialUserPermission(final NodeRef folderNodeRef, final Object model) {
+		
+		// add permission to requester
+        AuthenticationUtil.runAs(new RunAsWork<String>()
+	    {
+			public String doWork() throws Exception
+			{
+				List<String> list = moduleService.getSpecialUserForAddPermission((SubModuleModel)model);
+				if (list!=null) {
+					for(String s : list) {
+						permissionService.setPermission(folderNodeRef, s, "SiteCollaborator", true);
+					}
+				}
+		    	return null;
+			}
+	    }, AuthenticationUtil.getAdminUserName());
+	}	
 }

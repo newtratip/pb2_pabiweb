@@ -16,13 +16,13 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		}
 		store.load();
 		
-		var typeStore = Ext.create('PB.store.common.ComboBoxStore');
-		typeStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/list';
-		typeStore.getProxy().extraParams = {
-		    name : '',
-			all : true
-		}
-		typeStore.load();
+//		var typeStore = Ext.create('PB.store.common.ComboBoxStore');
+//		typeStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/list';
+//		typeStore.getProxy().extraParams = {
+//		    name : '',
+//			all : true
+//		}
+//		typeStore.load();
 		
 		var bankStore = Ext.create('PB.store.common.ComboBoxStore');
 		bankStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/bank/list';
@@ -31,26 +31,22 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		}
 		bankStore.load();
 		
-		var gridStore = Ext.create('PBExp.store.OldGridStore',{storeId:'oldExpBrwGridStore',autoLoad:false});
-		gridStore.getProxy().extraParams = {
-			u : 'A'
-		}
-		gridStore.load();
+		var ogridStore = Ext.create('PBExp.store.OldGridStore',{storeId:'oldExpBrwGridStore',autoLoad:false});
 		
-		var lbw = 130;
+		var lbw = 160;
 		
-		var columns = [{
+		var ocolumns = [{
         	dataIndex: 'name',
         	text: '', 
         	flex:1
 	    },{
-	        dataIndex: 'id',
+	        dataIndex: 'number',
         	text: 'เลขที่เอกสาร AV', 
         	flex:1,
         	align:'center'
 	    },{
 	    	xtype:'numbercolumn',
-	        dataIndex: 'waitAmt',
+	        dataIndex: 'waitamt',
         	text: 'เงินยืมรอหักล้าง', 
         	flex:1,
         	align:'right',
@@ -62,7 +58,36 @@ Ext.define('PBExp.view.MainFormInfoTab', {
         	flex:1,
         	align:'right',
         	format:DEFAULT_MONEY_FORMAT
-	    }];		
+	    }];
+		
+		var gridStore = Ext.create('PBExp.store.ItemGridStore',{storeId:'expBrwItemGridStore',autoLoad:false});
+		gridStore.getProxy().extraParams = {
+			id : me.rec.id
+		}
+
+		var columns = [{
+	        		xtype: 'actioncolumn',
+		        	dataIndex: 'action',
+		        	text: '',
+		        	align:'center',
+		            width: 80,
+		            items: [{
+		                tooltip: 'Edit', 
+		                action : 'edit',
+		        	    getClass: function(v) {
+		        	    	return getActionIcon(v, "E", 'edit');
+			            }
+		            }, {
+		                tooltip: 'Delete', 
+		                action : 'del',
+		        	    getClass: function(v) {
+		        	    	return getActionIcon(v, "D", 'delete');
+		        	    }
+		            }]
+	        	},			
+				{ text: 'รายการยืมเงิน',  dataIndex: 'activity', flex:1},
+				{ text: 'จำนวนเงิน',  dataIndex: 'amount', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
+		];		
 		
 		Ext.applyIf(me, {
 			items:[{
@@ -82,7 +107,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 			        typeAhead:true,
 			        multiSelect:false,
 			        forceSelection:true,
-					width:310,
+					width:lbw+180,
 					labelWidth:lbw,
 					allowBlank:false,
 			        listConfig : {
@@ -109,8 +134,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					margin:"0 0 0 15",
 					flex:1,
 					allowBlank:false,
-					value:replaceIfNull(me.rec.objective, null),
-					maxLength:255
+					value:replaceIfNull(me.rec.objective, null)
 				}]
 			},{
 				xtype:'container',
@@ -127,8 +151,8 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				},{
 					xtype:'trigger',
 					name:'budgetCcTypeName',
-					fieldLabel:mandatoryLabel('งบประมาณที่ใช้'),
-					width:310,
+					fieldLabel:mandatoryLabel('แหล่งงบประมาณที่ใช้'),
+					width:lbw+180,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
 					triggerCls:'x-form-search-trigger',
@@ -147,21 +171,26 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					value:replaceIfNull(me.rec.budget_cc_name, ''),
 					readOnly:true,
 					fieldStyle:READ_ONLY
+				},{
+					xtype:'hidden',
+					name:'total',
+					value:replaceIfNull(me.rec.total, 0)
 				}]
 			},{
 				xtype:'panel',
 				title:'รายละเอียดเงินยืมคงค้าง',
 				layout:'border',
 				margin:'5 0 0 0',
-				height:150,
+				height:140,
 				items:[{
 					region:'center',
 					xtype:'grid',
-					columns:columns,
-					store:gridStore
+					columns:ocolumns,
+					store:ogridStore
 				},{
 					region:'east',
 					xtype:'panel',
+					itemId:'oldAV',
 					width:500,
 					layout:'fit',
 					split:true,
@@ -182,60 +211,41 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					}]
 				}]
 			},{
-				xtype:'panel',
 				title:'ข้อมูลรายละเอียดเพื่อเบิกจ่าย',
 				margin:'0 0 0 0',
-				items:[{
-					xtype:'container',
-					layout:'hbox',
-					margin:"0 0 0 0",
-					anchor:"-10",
+				xtype:'grid',
+				itemId:'itemGrid',
+				columns:columns,
+				store:gridStore,
+				height:HEIGHT-445,
+			    header:{
+					titlePosition:0,
 					items:[{
-						xtype:'combo',
-						name:'totalType',
-						margin:"5 0 5 10",
-						fieldLabel:mandatoryLabel('รายการยืมเงิน'),
-						labelWidth:lbw,
-				    	displayField:'name',
-				    	valueField:'id',
-				        emptyText : "โปรดเลือก",
-				        store: typeStore,
-				        queryMode: 'local',
-				        typeAhead:true,
-				        multiSelect:false,
-				        forceSelection:true,
-						flex:1,
-						labelWidth:lbw,
-						allowBlank:false,
-				        listConfig : {
-						    getInnerTpl: function () {
-								return '<div>{name}</div>';
-						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
-						    }
-						},
-				        listeners:{
-							beforequery : function(qe) {
-								qe.query = new RegExp(qe.query, 'i');
-				//				qe.forceAll = true;
-		    	       	    }
-						},
-						value:replaceIfNull(me.rec.total_type, null)
-					},{
-						xtype:'numericfield',
-						name:'total',
-						fieldLabel:mandatoryLabel('จำนวนเงินที่ขอยืม'),
-						labelWidth:120,
-						flex:0.25,
-						margin:"5 10 5 15",
-						value:replaceIfNull(me.rec.total, null),
-						allowBlank:false,
-						maxLength:255,
-						hideTrigger:true
-					}]
-				}]
+				    	xtype:'tbfill'
+				    },{
+		        		xtype: 'button',
+		                text: "Add",
+		                iconCls: "icon_add",
+		                action:'addItem'
+		        	}]
+			    },
+			    bbar:{
+			    	items:[{
+			    		xtype:'tbfill'
+			    	},{
+			    		xtype:'label',
+			    		text:'จำนวนเงินรวม'
+			    	},{
+			    		xtype:'label',
+			    		name:'total',
+			    		text:'0.00',
+			    		style:'text-align:right;',
+			    		margin:'0 5 0 170'
+			    	}]
+			    }
 			},{
 				xtype:'panel',
-				title:'วิธีการรับเงิน กรุณาโอนเงินผ่านบัญชีธนาคาร',
+				title:'วิธีการรับเงิน',
 				margin:'0 0 0 0',
 				items:[{
 					xtype:'radio',
@@ -301,7 +311,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 						value:replaceIfNull(me.rec.bank, null)						
 					},{
 						xtype:'label',
-						html:'<font color="red">*** กรณีที่ท่านเลือกธนาคารอื่น ต้องรับผิดชอบค่าธรรมเนียมการโอนเอง ***</font>',
+						html:'<font color="red">*** กรณีที่ท่านเลือกธนาคารอื่น ให้แนบเอกสารหน้า Book Bank ที่มี ชื่อธนาคาร , เลขที่บัญชี และ ชื่อ-นามสกุล ***</font>',
 						margin:'5 10 0 5'
 					}]
 				}]
@@ -309,6 +319,21 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		});		
 		
 	    this.callParent(arguments);
+	    
+		Ext.apply(gridStore, {pageSize:PAGE_SIZE});
+		gridStore.load({
+			params:{id:me.rec.id},
+			callback:function() {
+				me.fireEvent("itemStoreLoad");
+			}
+		});
+		
+		Ext.apply(ogridStore, {pageSize:PAGE_SIZE});
+		ogridStore.load({
+			callback:function(r) {
+				me.fireEvent("oldStoreLoad",r);
+			}
+		});
 	},
 	
 	listeners:{

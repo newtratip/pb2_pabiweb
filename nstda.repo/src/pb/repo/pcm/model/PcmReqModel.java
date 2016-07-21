@@ -2,6 +2,8 @@ package pb.repo.pcm.model;
 
 import java.util.List;
 
+import org.alfresco.service.cmr.repository.NodeRef;
+
 import pb.repo.admin.model.SubModuleModel;
 
 public class PcmReqModel extends SubModuleModel {
@@ -41,6 +43,7 @@ public class PcmReqModel extends SubModuleModel {
 	
 	String isRefId;
 	String refId;
+	String refDocRef;
 
 	Long prWebMethodId;
 	String methodCond2Rule;
@@ -236,6 +239,12 @@ public class PcmReqModel extends SubModuleModel {
 	}
 	public void setIsRefId(String isRefId) {
 		this.isRefId = isRefId;
+	}
+	public String getRefDocRef() {
+		return refDocRef;
+	}
+	public void setRefDocRef(String refDocRef) {
+		this.refDocRef = refDocRef;
 	}
 	public Integer getVatId() {
 		return vatId;

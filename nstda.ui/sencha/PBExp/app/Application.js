@@ -33,6 +33,7 @@ Ext.define('PBExp.Application', {
         
         'PB.Util',
         'PB.Dlg',
+        'PB.Label',
         'PB.button.LinkButton',
         'PB.store.common.UserStore',
         'PB.model.common.UserModel',
@@ -47,12 +48,13 @@ Ext.define('PBExp.Application', {
         'PBExp.controller.Main',
         'PBExp.controller.Form',
         'PBExp.controller.common.User',
-        'PBExp.controller.common.SectionProject',
-        'PBExp.controller.common.SectionProjectUser',
+        'PBExp.controller.common.BudgetSrc',
+        'PBExp.controller.common.EmployeeUser',
         'PBExp.controller.common.OtherUser',
         'PBExp.controller.common.CostControl',
         'PBExp.controller.common.Upload',
-        'PBExp.controller.voyager.Form',
+        'PBExp.controller.item.Form',
+        'PBExp.controller.attendee.Form',
         'PBExp.controller.file.Main',
         
         'PBExp.Label'
@@ -66,12 +68,13 @@ Ext.define('PBExp.Application', {
         'Main',
         'Form',
         'common.User',
-        'common.SectionProject',
-        'common.SectionProjectUser',
+        'common.BudgetSrc',
+        'common.EmployeeUser',
         'common.OtherUser',
         'common.CostControl',
         'common.Upload',
-        'voyager.Form',
+        'item.Form',
+        'attendee.Form',
         'file.Main'    
     ],
 
@@ -116,6 +119,9 @@ Ext.define('PBExp.Application', {
 	 	Ext.Ajax.request({
 		      url:ALF_CONTEXT+"/exp/message/brw",
 		      method: "GET",
+		      params:{
+				 lang:getLang()
+			  },
 		      success: function(response){
 		    	  
 		    	var data = Ext.decode(response.responseText);
@@ -127,7 +133,26 @@ Ext.define('PBExp.Application', {
 		      },
 		      headers: getAlfHeader(),
 		      async:false
-		});	
+		});
+	 	
+	 	Ext.Ajax.request({
+		      url:ALF_CONTEXT+"/admin/message/lbl",
+		      method: "GET",
+		      params:{
+	 			 lang:getLang()
+	 		  },
+		      success: function(response){
+		    	  
+		    	var data = Ext.decode(response.responseText);
+			 	Ext.apply(PB.Label, data);
+			 	//alert(PBPcm.Label.a);
+		      },
+		      failure: function(response, opts){
+		          // do nothing
+		      },
+		      headers: getAlfHeader(),
+		      async:false
+		});	 	
 	
 		HEIGHT = Ext.get(HTML_ID).getHeight();
 		WIDTH = Ext.get(HTML_ID).getWidth();

@@ -306,7 +306,7 @@ public class PcmSrcUrlService {
 		
 		fields.append(",D."+PcmReqDtlConstant.TFN_DESCRIPTION);
 		fields.append(",D."+PcmReqDtlConstant.TFN_QUANTITY);
-		fields.append(",D."+PcmReqDtlConstant.TFN_UNIT);
+		fields.append(",D."+PcmReqDtlConstant.TFN_UNIT_ID);
 		fields.append(",D."+PcmReqDtlConstant.TFN_PRICE);
 		fields.append(",D."+PcmReqDtlConstant.TFN_PRICE_CNV);
 		fields.append(",D."+PcmReqDtlConstant.TFN_TOTAL);
@@ -467,7 +467,7 @@ public class PcmSrcUrlService {
 		fields.append("D."+PcmReqDtlConstant.TFN_ID);
 		fields.append(",D."+PcmReqDtlConstant.TFN_DESCRIPTION);
 		fields.append(",D."+PcmReqDtlConstant.TFN_QUANTITY);
-		fields.append(",D."+PcmReqDtlConstant.TFN_UNIT);
+		fields.append(",D."+PcmReqDtlConstant.TFN_UNIT_ID);
 		fields.append(",D."+PcmReqDtlConstant.TFN_PRICE);
 		fields.append(",D."+PcmReqDtlConstant.TFN_PRICE_CNV);
 		fields.append(",D."+PcmReqDtlConstant.TFN_TOTAL);

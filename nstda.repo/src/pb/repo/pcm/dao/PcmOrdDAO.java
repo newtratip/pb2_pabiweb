@@ -10,6 +10,7 @@ public interface PcmOrdDAO {
 	public void add(PcmOrdModel model);
 	public void update(PcmOrdModel model);
 	public void updateStatus(PcmOrdModel model);
+	public void delete(String id);
 	
 	public Long count();
 	

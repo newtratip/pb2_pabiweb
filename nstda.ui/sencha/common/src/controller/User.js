@@ -37,7 +37,8 @@ Ext.define('PB.controller.common.User', {
 		var store = me.getGrid(sender).getStore();
 		
 		store.getProxy().extraParams = {
-			s:me.getSearchTerm(sender).getValue()
+			s:me.getSearchTerm(sender).getValue(),
+			lang:getLang()
 		}
 		
 		store.load();

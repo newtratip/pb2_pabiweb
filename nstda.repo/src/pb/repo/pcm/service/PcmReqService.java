@@ -206,6 +206,8 @@ public class PcmReqService implements SubModuleService {
 			model.setDtlList(PcmReqDtlUtil.convertJsonToList(items, model.getId()));
 			model.setCmtList(PcmReqCmtHdrUtil.convertJsonToList(cmts, model.getId()));
     		
+			log.info("saving PR "+model.getId()+", Status:"+model.getStatus());
+			
             if (model.getId() == null) {
         		model.setCreatedBy(model.getUpdatedBy());
         		
@@ -608,6 +610,14 @@ public class PcmReqService implements SubModuleService {
     	 */
     	model.setDocRef(docRef.toString());
     	
+    	if (model.getIsRefId()!=null && model.getIsRefId().equals(CommonConstant.V_ENABLE)) {
+    		PcmReqModel refModel = get(model.getRefId());
+    		NodeRef nodeRef = new NodeRef(refModel.getDocRef());
+        	NodeRef refDocRef = alfrescoService.createLink(folderNodeRef, nodeRef, "Link to "+refModel.getId());
+        	
+        	model.setRefDocRef(refDocRef.toString());
+    	}
+    	
     	return model;
 	}
 	
@@ -638,6 +648,8 @@ public class PcmReqService implements SubModuleService {
 	}
 	
 	public String doGenDoc(String name, PcmReqModel model) throws Exception {
+		
+		String lang = "th";
 		
 		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
 		
@@ -720,15 +732,18 @@ public class PcmReqService implements SubModuleService {
 								+model.getMethodCond2Rule()+" "+model.getMethodCond2()+" "+model.getMethodCond2Dtl()
 					  );
 		
-		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy());		
+		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy(), lang);		
 		map.put("reqBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
 		map.put("reqOrg", empDtl.get("org_desc"));
 		map.put("reqSection", empDtl.get("section_name"));
 		
-		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
+		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName(), lang);
 		map.put("createdBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
 		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
 		map.put("createdPhone", StringUtils.defaultIfBlank((String)empDtl.get("work_phone"),""));
+		
+		empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy()!=null ? model.getReqBy() : authService.getCurrentUserName(), lang);
+		map.put("reqPhone", StringUtils.defaultIfBlank((String)empDtl.get("work_phone"),""));
 		
 		Map<String, Object> firstAppMap = getFirstApprover(model.getId());
 		log.info("model.id:"+model.getId());
@@ -1102,7 +1117,7 @@ public class PcmReqService implements SubModuleService {
 		SqlSession session = PcmUtil.openSession(dataSource);
         try {
             PcmReqDAO pcmReqDAO = session.getMapper(PcmReqDAO.class);
-            
+
     		model = pcmReqDAO.get(id);
     		model.setTotalRowCount(1l);
         } catch (Exception ex) {
@@ -1778,7 +1793,7 @@ public class PcmReqService implements SubModuleService {
 		return list;
 	}
 
-	public List<Map<String, Object>> listCmt(String objType) throws Exception {
+	public List<Map<String, Object>> listCmt(String objType, String total) throws Exception {
 		
 		List<Map<String, Object>> list = null;
 		
@@ -1790,6 +1805,9 @@ public class PcmReqService implements SubModuleService {
             
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("objType", objType);
+            if (total != null) {
+            	params.put("total", Double.parseDouble(total));
+            }
             
     		list = dao.list(params);
     		
@@ -1888,7 +1906,7 @@ public class PcmReqService implements SubModuleService {
 		return CommonConstant.SUB_MODULE_PCM_REQ;
 	}
 	
-	public String copy(String id) throws Exception {
+	public String copy(String id, String lang) throws Exception {
 		
         SqlSession session = PcmUtil.openSession(dataSource);
         
@@ -1910,7 +1928,7 @@ public class PcmReqService implements SubModuleService {
              */
             model.setStatus(PcmReqConstant.ST_DRAFT);
             
-            Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName());
+            Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName(), lang);
             
         	model.setReqBy(authService.getCurrentUserName());
         	model.setReqSectionId((Integer)reqBy.get("section_id"));
@@ -2096,6 +2114,15 @@ public class PcmReqService implements SubModuleService {
 		parameters.put(PcmReqWorkflowConstant.PROP_REASON, model.getReason());
 		parameters.put(PcmReqWorkflowConstant.PROP_TOTAL, model.getTotal());
 		
+		if (model.getIsRefId()!=null && model.getIsRefId().equals(CommonConstant.V_ENABLE)) {
+	        List<NodeRef> refDocList = new ArrayList<NodeRef>();
+	        
+    		PcmReqModel refModel = get(model.getRefId());
+	        refDocList.add(new NodeRef(refModel.getDocRef()));
+			
+			parameters.put(PcmReqWorkflowConstant.PROP_REF_DOCUMENT, (Serializable)refDocList);
+		}
+		
 		Map<String, Object> map = null;
 		if (model.getBudgetCcType().equals(PcmReqConstant.BCCT_UNIT)) {
 			map = adminSectionService.get(model.getBudgetCc());
@@ -2178,7 +2205,6 @@ public class PcmReqService implements SubModuleService {
     		map.put("id", id);
 
     		list = dao.listForInf(map);
-            
         } catch (Exception ex) {
 			log.error("", ex);
         	throw ex;
@@ -2256,7 +2282,7 @@ public class PcmReqService implements SubModuleService {
 	}
 
 	@Override
-	public Map<String, String> getBossMap(String docType, SubModuleModel subModuleModel) {
+	public Map<String, String> getBossMap(String docType, SubModuleModel subModuleModel) throws Exception {
 		
 		PcmReqModel model = (PcmReqModel)subModuleModel;
 		
@@ -2310,6 +2336,7 @@ public class PcmReqService implements SubModuleService {
             
         } catch (Exception ex) {
         	log.error(ex);
+        	throw ex;
         } finally {
         	session.close();
         }
@@ -2319,7 +2346,7 @@ public class PcmReqService implements SubModuleService {
 	
 	public Map<String, String> getUnitBossMap(PcmReqModel model, List<Map<String, Object>> bossList,Map<String, String> tmpMap ) throws Exception {
 		
-		String reqByCode = MainUserGroupUtil.login2code(model.getReqBy());
+//		String reqByCode = MainUserGroupUtil.login2code(model.getReqBy());
     	
     	Map<String, Object> reservedBoss = null;
     	Map<String, Object> lastBossMap = null;
@@ -2404,6 +2431,7 @@ public class PcmReqService implements SubModuleService {
     					break;
     				}
     			}
+    			i++;
     		}
     	}
     	
@@ -2440,36 +2468,88 @@ public class PcmReqService implements SubModuleService {
 		return map;
 	}
 
-	public Map<String, String> getProjectBossMap(PcmReqModel model, List<Map<String, Object>> bossList,Map<String, String> tmpMap ) throws Exception {
+	public Map<String, String> getProjectBossMap(PcmReqModel model, List<Map<String, Object>> bossList,Map<String, String> tmpMap) throws Exception {
 		
 		String reqByCode = MainUserGroupUtil.login2code(model.getReqBy());
+		
+		String pm = tmpMap.get("00");
+		
+    	/*
+    	 * Find Boss by money, if reqByCode not exist in workflow path
+    	 */
+    	Double total = model.getTotal();
+    	if (model.getIsRefId().equals(CommonConstant.V_ENABLE)) {
+    		PcmReqModel oldModel = get(model.getRefId());
+    		total += oldModel.getTotal();
+    	}
+    	if (model.getIsAcrossBudget().equals(CommonConstant.V_ENABLE)) {
+    		if (model.getAcrossBudget() > 0) {
+    			total = model.getAcrossBudget();
+    		}
+    	}
     	
+    	log.info("total:"+total);
+
+    	/*
+    	 * Case PM get special budget
+    	 */
+		if (!pm.equals(model.getReqBy())) {
+			List<Map<String, Object>> list = adminProjectService.listPMSpecialBudget(model.getBudgetCc());
+			if (list!=null && list.size()>0) {
+				Map<String, Object> map = list.get(0);
+				log.info("min:"+map.get("amount_min")+",max:"+map.get("amount_max"));
+				if (total <= (Double)map.get("amount_max")) {
+					log.info("total<=max");
+					return tmpMap;
+				}
+			}
+		}
+    	
+		/*
+		 * Other cases
+		 */
     	Map<String, Object> reservedBoss = null;
     	Map<String, Object> lastBossMap = null;
     	
     	/*
-    	 * Find Boss by money
+    	 * Find Boss by level, if reqByCode exist in workflow path
     	 */
+    	int start = 0;
+    	int i = 0;
+    	
     	for(Map<String, Object> boss : bossList) {
     		
     		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code"));
-    		log.info("    amt_min:"+boss.get("amount_min"));
-    		if ((Double)boss.get("amount_min") <= model.getTotal()) {
-        		if (boss.get("employee_code").equals(reqByCode)) {
-        			tmpMap.clear();
-        		}
-    			tmpMap.put((String)boss.get("lvl"), MainUserGroupUtil.code2login((String)boss.get("employee_code")));
-    			lastBossMap = boss;
-    		} else {
-    			if (reservedBoss==null) {
-    				reservedBoss = boss;
-    			}
-    		}
     		
-    		if (reservedBoss!=null) {
+    		if (boss.get("employee_code").equals(model.getReqBy())) {
+    			log.info(model.getReqBy()+" is in path");
+    			start = i;
     			break;
     		}
+    		i++;
+    	}    	
+    	
+    	i = 0;
+    	log.info("  start:"+start);
+    	for(Map<String, Object> boss : bossList) {
+    		
+    		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code")+" (amt:"+boss.get("amount_min")+"-"+boss.get("amount_max")+")");
+    		
+    		if (i>=start) {
+    			if (tmpMap.size()<=1 || total > (Double)lastBossMap.get("amount_max")) {
+    				tmpMap.put((String)boss.get("lvl"), (String)boss.get("employee_code"));
+    				lastBossMap = boss;
+    			}
+    			else
+    			if (reservedBoss==null) {
+    				reservedBoss = boss;
+    				break;
+    			}
+    		}
+    		i++;
     	}
+    	
+    	log.info("lastBoss:"+lastBossMap.get("employee_code")+", reqBy:"+model.getReqBy());
     	
     	/*
     	 * Replace Last Boss if he is Requester
@@ -2478,44 +2558,34 @@ public class PcmReqService implements SubModuleService {
     		if (reservedBoss!=null) {
         		tmpMap.remove(lastBossMap.get("lvl"));
     			tmpMap.put((String)reservedBoss.get("lvl"), MainUserGroupUtil.code2login((String)reservedBoss.get("employee_code")));
+    		} else {
+    			// waiting SA
     		}
-    		else {
-    			// Waiting SA
-    			
-    		}
-    	}
-    	
-    	
-    	/*
-    	 * Remove Requester from Boss List
-    	 */
-    	List<String> rmList = new ArrayList<String>();
-    	int i = 1;
-    	int size = tmpMap.size();
-    	for(Entry<String, String> e : tmpMap.entrySet()) {
-    		log.info("  e.key:"+e.getKey()+", value:"+e.getValue());
-    		
-    		if (i==size) {
-    			break;
-    		}
-    		
-    		if (e.getValue().equals(reqByCode)) {
-    			rmList.add(e.getKey());
-    		}
-    		
-    		i++;
-    	}
-
-    	for(String k : rmList) {
-    		tmpMap.remove(k);
     	}
     	
 		/*
          * Remove duplicated Boss
          */
-		Map<String, String> map = removeDuplicatedBoss(tmpMap);
+		tmpMap = removeDuplicatedBoss(tmpMap);
 		
-		return map;
+    	/*
+    	 * Remove Requester
+    	 */
+		List<String> rmList = new ArrayList<String>();
+		
+    	if (tmpMap.size()>1) {
+    		for(Entry<String, String> e : tmpMap.entrySet()) {
+				if (e.getValue().equals(model.getReqBy())) {
+					rmList.add(e.getKey());
+				}
+    		}
+    	}
+
+    	for(String k:rmList) {
+    		tmpMap.remove(k);
+    	}
+    	
+		return tmpMap;
 	}
 	
 	private Map<String, String> removeDuplicatedBoss(Map<String, String> tmpMap) {
@@ -2626,6 +2696,16 @@ public class PcmReqService implements SubModuleService {
 		hModel.setBy(model.getReqBy());
 		
 		return hModel;
+	}
+	
+	@Override
+	public MainWorkflowHistoryModel getAppByWorkflowHistory(SubModuleModel subModuleModel) {
+		return null;
+	}
+
+	@Override
+	public List<String> getSpecialUserForAddPermission(SubModuleModel model) {
+		return null;
 	}
 
 }

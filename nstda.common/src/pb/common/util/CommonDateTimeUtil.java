@@ -96,13 +96,15 @@ public class CommonDateTimeUtil {
 			return "";
 		}
 		
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss",Locale.US);
+		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy",Locale.US);
 		
 		String d = df.format(date.getTime());
 		String[] splitS = d.split(" ");
 		String[] splitD = splitS[0].split("/");
-		Integer yearThai = Integer.valueOf(splitD[2])+543;
-		return splitD[0]+"/"+splitD[1]+"/"+yearThai.toString()+" "+ splitS[1];
+//		Integer yearThai = Integer.valueOf(splitD[2])+543;
+		Integer yearThai = Integer.valueOf(splitD[2]);
+//		return splitD[0]+"/"+splitD[1]+"/"+yearThai.toString()+" "+ splitS[1];
+		return splitD[0]+"/"+splitD[1]+"/"+yearThai.toString();
 	}
 	
 	/*

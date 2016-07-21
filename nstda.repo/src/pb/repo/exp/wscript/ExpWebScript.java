@@ -30,11 +30,14 @@ import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.exp.constant.ExpBrwConstant;
+import pb.repo.exp.model.ExpBrwDtlModel;
 import pb.repo.exp.model.ExpBrwModel;
-import pb.repo.exp.model.ExpBrwVoyagerModel;
+import pb.repo.exp.model.ExpBrwAttendeeModel;
 import pb.repo.exp.service.ExpBrwService;
+import pb.repo.exp.service.InterfaceService;
+import pb.repo.exp.util.ExpBrwDtlUtil;
 import pb.repo.exp.util.ExpBrwUtil;
-import pb.repo.exp.util.ExpBrwVoyagerUtil;
+import pb.repo.exp.util.ExpBrwAttendeeUtil;
 import pb.repo.pcm.constant.PcmReqConstant;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
@@ -65,6 +68,8 @@ public class ExpWebScript {
 	@Autowired
 	private AdminHrEmployeeService adminHrEmployeeService;
 	
+	@Autowired
+	private InterfaceService interfaceService;
 	
     @Uri(URI_PREFIX+"/brw/list")
     public void handleList(@RequestParam(required=false) final String s
@@ -144,8 +149,7 @@ public class ExpWebScript {
     }
     
     @Uri(URI_PREFIX+"/brw/old/list")
-    public void handleOldList(@RequestParam(required=false) final String u
-			  , final WebScriptResponse response)  throws Exception {
+    public void handleOldList(final WebScriptResponse response)  throws Exception {
 
 	  	/*
 	  	 * Prepare Criteria
@@ -158,6 +162,8 @@ public class ExpWebScript {
 		String json = null;
 		
 		try {
+			params.put("id", authService.getCurrentUserName());
+			
 			List<Map<String, Object>> list = expBrwService.listOld(params);
 			json = CommonUtil.jsonSuccess(list);
 			
@@ -242,6 +248,7 @@ public class ExpWebScript {
 	@Uri(URI_PREFIX+"/brw/userDtl")
 	public void handleInitForm(@RequestParam(required=false) final String r,
 			  					 @RequestParam(required=false) final String c,
+			  					@RequestParam(required=false) final String lang,
 			  					final WebScriptResponse response)
 	      throws Exception {
 			
@@ -254,24 +261,15 @@ public class ExpWebScript {
 		  
 		  String reqUser = (r!=null) ? r : authService.getCurrentUserName();
 		  
-		  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser);
+		  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser, lang);
 		  
 		  map.put(ExpBrwConstant.JFN_REQ_BY, reqUser);
 		  
 		  String ename = dtl.get("first_name") + " " + dtl.get("last_name");
 		  
-		  map.put(ExpBrwConstant.JFN_REQ_BY_NAME, ename);
-		  map.put(ExpBrwConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"));
-		  
-		  map.put(ExpBrwConstant.JFN_REQ_BU, dtl.get("org_desc"));
-		  
-		  map.put(ExpBrwConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
-		  map.put(ExpBrwConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"));
-		  
-		  
 		  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
 		  if (!createdUser.equals(reqUser)) {
-			  dtl = adminHrEmployeeService.getWithDtl(createdUser);
+			  dtl = adminHrEmployeeService.getWithDtl(createdUser, lang);
 			  ename = dtl.get("first_name") + " " + dtl.get("last_name");
 		  }
 		  
@@ -280,6 +278,16 @@ public class ExpWebScript {
 		  String mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
 		  String wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
 		  String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+		  
+		  map.put(ExpBrwConstant.JFN_REQ_BY_NAME, ename);
+		  
+		  map.put(ExpBrwConstant.JFN_REQ_TEL_NO, wphone+comma+mphone);
+		  map.put(ExpBrwConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"));
+		  
+		  map.put(ExpBrwConstant.JFN_REQ_BU, dtl.get("org_desc"));
+		  
+		  map.put(ExpBrwConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
+		  map.put(ExpBrwConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"));
 		  
 		  map.put(ExpBrwConstant.JFN_TEL_NO, wphone+comma+mphone);
 		  
@@ -298,8 +306,8 @@ public class ExpWebScript {
 		
 	}
 	
-	@Uri(URI_PREFIX+"/brw/voyager/list")
-	public void handleVoyagerList(@RequestParam final String id, 
+	@Uri(URI_PREFIX+"/brw/attendee/list")
+	public void handleAttendeeList(@RequestParam final String id, 
 								  @RequestParam final String type,
 								  final WebScriptResponse response)
 	    throws Exception {
@@ -307,10 +315,10 @@ public class ExpWebScript {
 		String json = null;
 		 
 		try {
-			List<ExpBrwVoyagerModel> list = expBrwService.listVoyagerByMasterIdAndType(id, type);
-			ExpBrwVoyagerUtil.addAction(list);
+			List<ExpBrwAttendeeModel> list = expBrwService.listAttendeeByMasterIdAndType(id, type);
+			ExpBrwAttendeeUtil.addAction(list);
 			
-			json = CommonUtil.jsonSuccess(ExpBrwVoyagerUtil.convertToJSONArray(list));
+			json = CommonUtil.jsonSuccess(ExpBrwAttendeeUtil.convertToJSONArray(list));
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -349,9 +357,9 @@ public class ExpWebScript {
 							,@RequestParam(required=false) final String costControlTo
 							,@RequestParam(required=false) final String bankType
 							,@RequestParam(required=false) final String bank
-							,@RequestParam(required=false) final String totalType
 							,@RequestParam(required=false) final String total
-			  				,@RequestParam(required=false) final String voyagers
+			  				,@RequestParam(required=false) final String items
+			  				,@RequestParam(required=false) final String attendees
 			  				,@RequestParam(required=false) final String files
 			  				,final WebScriptResponse response) throws Exception {
 		
@@ -398,14 +406,106 @@ public class ExpWebScript {
 			if (bank != null && !bank.equals("")) {
 				model.setBank(Integer.parseInt(bank));
 			}
-			if (totalType != null && !totalType.equals("")) {
-				model.setTotalType(Integer.parseInt(totalType));
-			}
 			model.setTotal(Double.parseDouble(total));
 			model.setStatus(ExpBrwConstant.ST_DRAFT);
 			
 			log.info("model="+model);
-			model = expBrwService.save(model, voyagers, files, false);
+			model = expBrwService.save(model, items, attendees, files, false);
+			
+			JSONObject jsObj = new JSONObject();
+			jsObj.put("id", model.getId());
+			jsObj.put("status", model.getStatus());
+			
+			json = CommonUtil.jsonSuccess(jsObj);
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		  
+	}
+	
+	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/send")
+	public void handleSendToReview(@RequestParam(required=false) final String id
+							,@RequestParam(required=false) final String reqBy
+			  				,@RequestParam(required=false) final String reqOu
+			  				,@RequestParam(required=false) final String objectiveType
+			  				,@RequestParam(required=false) final String objective
+			  				,@RequestParam(required=false) final String reason
+							,@RequestParam(required=false) final String budgetCc
+							,@RequestParam(required=false) final String budgetCcType
+							,@RequestParam(required=false) final String costControlTypeId
+							,@RequestParam(required=false) final String costControlId
+							,@RequestParam(required=false) final String costControl
+							,@RequestParam(required=false) final String costControlFrom
+							,@RequestParam(required=false) final String costControlTo
+							,@RequestParam(required=false) final String bankType
+							,@RequestParam(required=false) final String bank
+							,@RequestParam(required=false) final String total
+			  				,@RequestParam(required=false) final String items
+			  				,@RequestParam(required=false) final String attendees
+			  				,@RequestParam(required=false) final String files
+							,@RequestParam(required=false) final String status
+			  				,final WebScriptResponse response) throws Exception {
+		
+		String json = null;
+		
+		try {
+			ExpBrwModel model = null;
+			
+			if (CommonUtil.isValidId(id)) {
+				model = expBrwService.get(id);
+			}
+			
+			if (model==null) {
+				model = new ExpBrwModel();
+			}
+			
+			if (model.getId() == null) {
+				model.setStatus(ExpBrwConstant.ST_DRAFT);
+			}
+			
+			model.setReqBy(reqBy);
+			if (reqOu != null && !reqOu.equals("")) {
+				model.setReqSectionId(Integer.parseInt(reqOu));
+			}
+			model.setObjectiveType(objectiveType);
+			model.setObjective(objective);
+			model.setReason(reason);
+			if (budgetCc != null && !budgetCc.equals("")) {
+				model.setBudgetCc(Integer.parseInt(budgetCc));
+			}
+			model.setBudgetCcType(budgetCcType);
+			
+			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
+			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
+			model.setCostControl(costControl);
+			if (costControlFrom!=null) {
+				model.setCostControlFrom(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlFrom));
+			}
+			if (costControlTo!=null) {
+				model.setCostControlTo(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlTo));
+			}
+			
+			model.setBankType(bankType);
+			if (bank != null && !bank.equals("")) {
+				model.setBank(Integer.parseInt(bank));
+			}
+			model.setTotal(Double.parseDouble(total));
+			model.setStatus(status);
+			
+			if (model.getId() == null || (status!=null && status.equals(ExpBrwConstant.ST_DRAFT))) {
+				model.setStatus(ExpBrwConstant.ST_WAITING);
+				model.setWaitingLevel(1);
+			}
+			
+			log.info("model="+model);
+			model = expBrwService.save(model, items, attendees, files, false);
+
+			String createResult = interfaceService.createAV(model);
+			log.info("createAVResult="+createResult);
 			
 			JSONObject jsObj = new JSONObject();
 			jsObj.put("id", model.getId());
@@ -436,7 +536,7 @@ public class ExpWebScript {
 
 //		  List<ExpBrwDtlModel> dtlList = expBrwService.listDtlByMasterIdAndType(id, ExpBrwDtlConstant.T_EMPLOYEE);  
 
-		  json = ExpBrwUtil.jsonSuccess(list, (List<ExpBrwVoyagerModel>)null);
+		  json = ExpBrwUtil.jsonSuccess(list, (List<ExpBrwAttendeeModel>)null);
 
 		} catch (Exception ex) {
 			log.error("", ex);
@@ -473,13 +573,15 @@ public class ExpWebScript {
 	}
 	
 	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/brw/copy")
-	public void handleCopy(@RequestParam final String id, final WebScriptResponse response)
+	public void handleCopy(@RequestParam final String id,
+						   @RequestParam(required=false) final String lang,
+						   final WebScriptResponse response)
 	      throws Exception {
 			
 		String json = null;
 	
 		try {
-		  String newId = expBrwService.copy(id);
+		  String newId = expBrwService.copy(id, lang);
 	
 		  json = CommonUtil.jsonSuccess(newId);
 	
@@ -547,9 +649,10 @@ public class ExpWebScript {
 								,@RequestParam(required=false) final String costControlTo
 								,@RequestParam(required=false) final String bankType
 								,@RequestParam(required=false) final String bank
-								,@RequestParam(required=false) final String totalType
+								,@RequestParam(required=false) final String activity
 								,@RequestParam(required=false) final String total
-								,@RequestParam(required=false) final String voyagers
+								,@RequestParam(required=false) final String items
+								,@RequestParam(required=false) final String attendees
 								,@RequestParam(required=false) final String files
 								,@RequestParam(required=false) final String status
 								,final WebScriptResponse response) throws Exception {
@@ -597,9 +700,6 @@ public class ExpWebScript {
 			if (bank != null && !bank.equals("")) {
 				model.setBank(Integer.parseInt(bank));
 			}
-			if (totalType != null && !totalType.equals("")) {
-				model.setTotalType(Integer.parseInt(totalType));
-			}
 			model.setTotal(Double.parseDouble(total));
 			model.setStatus(status);
 			
@@ -618,7 +718,7 @@ public class ExpWebScript {
 			}
 			else {		
 				
-				model.setVoyagerList(ExpBrwVoyagerUtil.convertJsonToList(voyagers, model.getId()));
+				model.setAttendeeList(ExpBrwAttendeeUtil.convertJsonToList(attendees, model.getId()));
 				String fileName = expBrwService.doGenDoc("av", model);
 				
 				Map<String, Object> map = new HashMap<String, Object>();
@@ -635,5 +735,27 @@ public class ExpWebScript {
 		}
 		  
 	}
+	
+	@Uri(URI_PREFIX+"/brw/item/list")
+	public void handleItemList(@RequestParam final String id, final WebScriptResponse response)
+	      throws Exception {
+			
+		String json = null;
+		 
+		try {
+			List<ExpBrwDtlModel> list = expBrwService.listDtlByMasterId(id);
+			ExpBrwDtlUtil.addAction(list);
+			
+			json = CommonUtil.jsonSuccess(list);
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+			
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		
+	}	
 	  	
 }

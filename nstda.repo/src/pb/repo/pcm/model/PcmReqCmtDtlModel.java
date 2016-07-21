@@ -7,6 +7,7 @@ public class PcmReqCmtDtlModel {
 	
 	String id;
 	Long masterId;
+	String employeeCode;
 	String firstName;
 	String lastName;
 	String position;
@@ -30,6 +31,12 @@ public class PcmReqCmtDtlModel {
 	}
 	public void setMasterId(Long masterId) {
 		this.masterId = masterId;
+	}
+	public String getEmployeeCode() {
+		return employeeCode;
+	}
+	public void setEmployeeCode(String employeeCode) {
+		this.employeeCode = employeeCode;
 	}
 	public String getFirstName() {
 		return firstName;

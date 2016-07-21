@@ -293,4 +293,14 @@ public class CommonUtil {
 		return key+",Invalid Key : "+key;
 	}
 	
+	public static String getValidLang(String lang) {
+		if (lang!=null) {
+			String[] ls = lang.split("_");
+			lang = ls[0];
+		} else {
+			lang = "en";
+		}
+		  
+		return lang;
+	}
 }

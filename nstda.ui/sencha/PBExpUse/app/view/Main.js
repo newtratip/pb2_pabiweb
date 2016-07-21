@@ -17,7 +17,7 @@ Ext.define('PBExpUse.view.Main', {
 		if (!ID) {
 			items.push({
 				xtype:'expUseMainGrid',
-				title:'Search',
+				title:PB.Label.m.search,
 				store:store
 			});
 			

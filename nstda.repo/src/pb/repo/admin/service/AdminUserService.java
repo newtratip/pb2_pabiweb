@@ -22,7 +22,7 @@ public class AdminUserService {
 	@Autowired
 	DataSource dataSource;
 	
-	public List<Map<String, Object>> list(String searchTerm) {
+	public List<Map<String, Object>> list(String searchTerm, String lang) {
 		
 		List<Map<String, Object>> list = null;
 		
@@ -32,7 +32,13 @@ public class AdminUserService {
             
         	Map<String, Object> params = new HashMap<String, Object>();
         	
-        	params.put("searchTerm", searchTerm);
+        	if (searchTerm!=null) {
+        		String[] terms = searchTerm.split(" ");
+        	
+        		params.put("terms", terms);
+        	}
+        	
+        	params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
         	
             list = dao.list(params);
             

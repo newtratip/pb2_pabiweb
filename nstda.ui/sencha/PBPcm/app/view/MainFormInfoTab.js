@@ -49,7 +49,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 		}
 		prototypeStore.load();
 		
-		var lbw = 180;
+		var lbw = parseInt(PBPcm.Label.n.lbw);
 		
 		Ext.applyIf(me, {
 			items:[{
@@ -60,7 +60,8 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				items:[{
 					xtype:'combo',
 					name:'objectiveType',
-					fieldLabel:mandatoryLabel('มีความประสงค์ที่จะขออนุมัติ'),
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.objType),
+					errLabel:PBPcm.Label.n.err_objType, 
 			    	displayField:'name',
 			    	valueField:'id',
 			        emptyText : "โปรดเลือก",
@@ -69,7 +70,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 			        typeAhead:true,
 			        multiSelect:false,
 			        forceSelection:true,
-					width:280,
+					width:lbw+110,
 					labelWidth:lbw,
 					allowBlank:false,
 			        listConfig : {
@@ -91,8 +92,8 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				},{
 					xtype:'textfield',
 					name:'objective',
-					fieldLabel:mandatoryLabel('วัตถุประสงค์'),
-					labelWidth:110,
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.obj),
+					labelWidth:95,
 					margin:"0 0 0 15",
 					flex:1,
 					allowBlank:false,
@@ -102,7 +103,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 			},{
 				xtype:'textfield',
 				name:'reason',
-				fieldLabel:mandatoryLabel('เหตุผล / ความจำเป็น'),
+				fieldLabel:mandatoryLabel(PBPcm.Label.n.reason),
 				labelWidth:lbw,
 				margin:"5 0 0 10",
 				anchor:"-10",
@@ -116,7 +117,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				items:[{
 					xtype:'combo',
 					name:'currency',
-					fieldLabel:mandatoryLabel('สกุลเงิน'),
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.currency),
 			    	displayField:'name',
 			    	valueField:'id',
 			        emptyText : "โปรดเลือก",
@@ -125,7 +126,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 			        typeAhead:true,
 			        multiSelect:false,
 			        forceSelection:true,
-					width:280,
+					width:lbw+110,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
 					allowBlank:false,
@@ -138,15 +139,16 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 	                },
 					value:replaceIfNull(me.rec.currency, "THB")
 				},{
-					xtype:'textfield',
+					xtype:'numberfield',
 					name:'currencyRate',
-					fieldLabel:mandatoryLabel('อัตราแลกเปลี่ยน'),
-					labelWidth:110,
-					width:180,
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.currencyRate),
+					labelWidth:120,
+					width:200,
 					margin:"5 0 0 15",
 					allowBlank:false,
 					value:replaceIfNull(me.rec.currency_rate, "1"),
-					disabled:true
+					disabled:replaceIfNull(me.rec.currency, "THB") == "THB",
+					hideTrigger:true
 				}]
 			},{
 				xtype:'container',
@@ -163,8 +165,8 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				},{
 					xtype:'trigger',
 					name:'budgetCcTypeName',
-					fieldLabel:mandatoryLabel('งบประมาณที่ใช้'),
-					width:280,
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.budgetSrc),
+					width:lbw+110,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
 					triggerCls:'x-form-search-trigger',
@@ -242,19 +244,48 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				},
 				items:[{
 					xtype:'label',
-					text:'การจัดซื้อ/จัดจ้างครั้งนี้เป็นรายการครุภัณฑ์ต้นแบบ:',
+					html:mandatoryLabel(PBPcm.Label.n.isPtt),
 					width:lbw
 				},{
 					xtype:'radio',
+					itemId:'isPrototypeNo',
 					name:'isPrototype',
-					boxLabel:'ใช่',
+					boxLabel:PBPcm.Label.m.no,
+					inputValue:'0',
+					margin:'0 0 0 0',
+//					fieldLabel:mandatoryLabel('การจัดซื้อ / จัดจ้างครั้งนี้เป็นรายการครุภัณฑ์ต้นแบบ'),
+					errLabel:PBPcm.Label.n.err_isPtt,
+					hideLabel:true,
+					checked:replaceIfNull(me.rec.is_prototype, null) == "0",
+					listeners:{
+						change:function(rad, newV) {
+							if (newV) {
+								me.fireEvent('selectIsPrototype', rad, false);
+							}
+						}
+					},
+					invalidCls:'x-radio-invalid'
+				},{
+					xtype:'radio',
+					itemId:'isPrototypeYes',
+					name:'isPrototype',
+					boxLabel:PBPcm.Label.m.yes,
 					inputValue:'1',
 					margin:'0 0 0 5',
-					checked:replaceIfNull(me.rec.is_prototype, "0") == "1"
+					checked:replaceIfNull(me.rec.is_prototype, "0") == "1",
+					listeners:{
+						change:function(rad, newV) {
+							if (newV) {
+								me.fireEvent('selectIsPrototype', rad, true);
+							}
+						}
+					},
+					invalidCls:'x-radio-invalid'
 				},{
 					xtype:'combo',
 					name:'prototype',
 					hideLabel:true,
+					fieldLabel:PBPcm.Label.n.ptt,
 			    	displayField:'name',
 			    	valueField:'id',
 			        emptyText : "โปรดเลือก",
@@ -270,30 +301,20 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 							me.fireEvent('selectPrototype', cmd, newV, oldV);
 						}
 					},
-					value:replaceIfNull(me.rec.prototype, null)
+					value:replaceIfNull(me.rec.prototype, null),
+					allowBlank:false,
+					disabled:!(replaceIfNull(me.rec.is_prototype, "0") == "1")
 				},{
 					xtype:'textfield',
 					name:'pttContractNo',
-					fieldLabel:mandatoryLabel('เลขที่สัญญา'),
-					labelWidth:90,
-					width:200,
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.contract),
+					errLabel:PBPcm.Label.n.err_contract,
+					labelWidth:105,
+					width:235,
 					margin:"5 0 0 10",
 					disabled:true,
-					value:replaceIfNull(me.rec.prototype_contract_no, null)
-				},{
-					xtype:'radio',
-					name:'isPrototype',
-					boxLabel:'ไม่ใช่',
-					inputValue:'0',
-					margin:'0 0 0 20',
-					checked:replaceIfNull(me.rec.is_prototype, "0") == "0",
-					listeners:{
-						change:function(rad, newV) {
-							if (newV) {
-								me.fireEvent("notPrototype",rad);
-							}
-						}
-					}
+					value:replaceIfNull(me.rec.prototype_contract_no, null),
+					allowBlank:false
 				}]
 			},{
 				xtype:'container',
@@ -323,8 +344,8 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				},{
 					xtype:'trigger',
 					name:'costControlTypeName',
-					fieldLabel:'ต้นทุนงาน',
-					width:340,
+					fieldLabel:PBPcm.Label.n.cc,
+					width:lbw+160,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
 					trigger1Cls: 'x-form-clear-trigger',
@@ -383,7 +404,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 			},{
 				xtype:'textarea',
 				name:'location',
-				fieldLabel:'สถานที่ส่งสินค้า / เบอร์โทรศัพท์ผู้ขอ',
+				fieldLabel:PBPcm.Label.n.loc,
 				labelWidth:lbw,
 				anchor:'-10',
 				height:60,
@@ -396,10 +417,10 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				items:[{
 					xtype:'checkbox',
 					name:'isAcrossBudget',
-					boxLabel:'ใช้เงินงบประมาณมากกว่า 1 ปี',
+					boxLabel:PBPcm.Label.n.isAB,
 					inputValue:'1',
 					margin:'5 0 0 10',
-					width:200,
+					width:lbw,
 					checked:replaceIfNull(me.rec.is_across_budget, "0") == "1",
 					listeners:{
 						change:function(chk, newV) {
@@ -407,15 +428,22 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 						}
 					}
 				},{
-					xtype:'textfield',
-					fieldLabel:mandatoryLabel('มูลค่าเงินรวม'),
-					labelWidth:90,
-					margin:"5 0 0 0",
-					width:335,
+					xtype:'numericfield',
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.total),
+					errLabel:PBPcm.Label.n.err_total,
+					labelWidth:110,
+					margin:"5 0 0 5",
+					width:315,
 					name:'acrossBudget',
 					value:replaceIfNull(me.rec.across_budget, null),
 					allowBlank:false,
-					disabled:replaceIfNull(me.rec.is_across_budget, "0") != "1"
+					disabled:replaceIfNull(me.rec.is_across_budget, "0") != "1",
+					hideTrigger:true,
+					listeners:{
+						blur:function(txt) {
+							me.fireEvent("acrossBudgetBlur",txt);
+						}
+					}
 				}]
 			},{
 				xtype:'container',
@@ -423,10 +451,10 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				items:[{
 					xtype:'checkbox',
 					name:'isRefId',
-					boxLabel:'PR เพิ่มเติม',
+					boxLabel:PBPcm.Label.n.isRefId,
 					inputValue:'1',
 					margin:"5 0 0 10",
-					width:194,
+					width:lbw,
 					checked:replaceIfNull(me.rec.is_ref_id, "0") == "1",
 					listeners:{
 						change:function(chk, newV) {
@@ -436,10 +464,11 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				},{
 					xtype:'trigger',
 					name:'refId',
-					fieldLabel:mandatoryLabel('อ้างอิง #'),
-					labelWidth:66,
-					margin:"5 0 0 30",
-					width:312,
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.refId),
+					errLabel:PBPcm.Label.n.err_refId,
+					labelWidth:110,
+					margin:"5 0 0 5",
+					width:315,
 					triggerCls:'x-form-search-trigger',
 					onTriggerClick:function(evt) {
 						me.fireEvent("selectPR");
@@ -450,7 +479,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					disabled:replaceIfNull(me.rec.is_ref_id, "0") != "1"
 				}]
 			}]
-		});		
+		});
 		
 	    this.callParent(arguments);
 	}

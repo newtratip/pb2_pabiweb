@@ -11,23 +11,26 @@ def b64str(fname):
 
 alfresco = xmlrpclib.ServerProxy("http://admin:password@localhost:8080/alfresco/s/pb/pcm/inf")
 
-doc = b64str('PR_2015011901.pdf')
+doc = b64str('PD.pdf')
 att1 = b64str('PR_2015011901.pdf')
 att2 = b64str('PR_2015011901.pdf')
 
+# action : 1=create, 2=resubmit, 3=cancel
+
 arg = {
 	'action':'1',
-	'pdNo':'PD16000002',
-	'sectionId':'1',
+	'pdNo':'PD16000017',
+	'sectionId':'44',
 	'prNo':'PR16000001,PR16000002',
 	'docType':'PD1',
-	'objective':u'Buy Something 1 piece ทดสอบ',
+	'objective':u'Test Comment Interface ทดสอบ',
 	'total':'15000.00',
-	'reqBy':'000511',
+	'reqBy':'002648',
 	'appBy':'001509',
 	'doc':{'name':'PD16000002.pdf','content':doc},
-	'attachments':[{'name':'A.pdf','content':att1},{'name':'B.pdf','content':att2}]
+	'attachments':[{'name':'A.pdf','content':att1},{'name':'B.pdf','content':att2}],
+	'comment':'Request Request',
 }
-result = alfresco.ord.create(arg);
+result = alfresco.ord.action(arg);
 
 print result 

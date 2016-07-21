@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.model.MainWorkflowModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
@@ -29,7 +30,7 @@ import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
 import pb.repo.pcm.service.PcmReqWorkflowService;
-import pb.repo.pcm.service.PcmSignatureService;
+import pb.repo.pcm.service.PcmOrdSignatureService;
 
 @Component("pb.pcm.workflow.pr.start.CompleteTask")
 public class CompleteTask implements ExecutionListener {
@@ -68,7 +69,7 @@ public class CompleteTask implements ExecutionListener {
 	PcmReqWorkflowService mainWorkflowService;
 
 	@Autowired
-	PcmSignatureService signatureService;
+	PcmOrdSignatureService signatureService;
 	
 	@Autowired
 	AdminMasterService adminMasterService;
@@ -183,6 +184,7 @@ public class CompleteTask implements ExecutionListener {
 					String curUser = authenticationService.getCurrentUserName();
 					String taskKey = MainWorkflowConstant.TN_REQUESTER_CAPTION;
 					String finalAction = MainWorkflowConstant.TA_START;
+					
 					
 //					log.info("  level:"+level);
 //					log.info("  last level:"+lastLevel);

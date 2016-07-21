@@ -215,7 +215,7 @@ public class CompleteTask implements TaskListener {
 						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
 						
 						if (finalAction.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE) && lastLevel.equals(level)) {
-							model.setVoyagerList(expUseService.listVoyagerByMasterIdAndType(model.getId(),null));
+							model.setAttendeeList(expUseService.listAttendeeByMasterIdAndType(model.getId(),null));
 							
 							expUseService.updateDoc(model);
 						}

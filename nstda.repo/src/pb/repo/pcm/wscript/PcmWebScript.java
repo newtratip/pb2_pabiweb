@@ -100,6 +100,7 @@ public class PcmWebScript {
 		  	  , @RequestParam(required=false) final String fields
 			  , @RequestParam(required=false) final Integer start
 			  , @RequestParam(required=false) final Integer limit
+			  , @RequestParam(required=false) final String lang
 			  , final WebScriptResponse response)  throws Exception {
 
 	  	/*
@@ -107,12 +108,11 @@ public class PcmWebScript {
 	  	 */
 		Map<String, Object> params = new HashMap<String, Object>();
 		
-		String searchTerm = null;
-		
 		if (s != null && !s.equals("")) {
-			searchTerm = "%" + s + "%";
+    		String[] terms = s.split(" ");
+        	
+    		params.put("terms", terms);
 		}
-		params.put("searchTerm", searchTerm);
 		params.put("start", start);
 		params.put("limit", limit);
 		
@@ -150,7 +150,9 @@ public class PcmWebScript {
 			putOneParam(params, jsObj, PcmReqConstant.JFN_OBJECTIVE_TYPE);
 		}		
 		
-		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
+		params.put("orderBy", "ORDER_FIELD, updated_time DESC");
+		
+		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
 	  
 		/*
 		 * Search
@@ -177,6 +179,7 @@ public class PcmWebScript {
 		  	  , @RequestParam(required=false) final String fields
 			  , @RequestParam(required=false) final Integer start
 			  , @RequestParam(required=false) final Integer limit
+			  , @RequestParam(required=false) final String lang
 			  , final WebScriptResponse response)  throws Exception {
 
 	  	/*
@@ -184,12 +187,11 @@ public class PcmWebScript {
 	  	 */
 		Map<String, Object> params = new HashMap<String, Object>();
 		
-		String searchTerm = null;
-		
 		if (s != null && !s.equals("")) {
-			searchTerm = "%" + s + "%";
+    		String[] terms = s.split(" ");
+        	
+    		params.put("terms", terms);
 		}
-		params.put("searchTerm", searchTerm);
 		params.put("start", start);
 		params.put("limit", limit);
 		
@@ -219,7 +221,6 @@ public class PcmWebScript {
 		}
 		params.put("roleList",  roleList);
 		
-		
 		if (fields != null) {
 			JSONObject jsObj = new JSONObject(fields);
 			
@@ -227,7 +228,10 @@ public class PcmWebScript {
 			putOneParam(params, jsObj, PcmReqConstant.JFN_OBJECTIVE_TYPE);
 		}		
 		
-		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
+		params.put("orderBy", "updated_time DESC");
+		
+		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
+		
 	  
 		/*
 		 * Search
@@ -544,7 +548,8 @@ public class PcmWebScript {
   }
 
   @Uri(URI_PREFIX+"/req/get")
-  public void handleGet(@RequestParam final String id, final WebScriptResponse response)
+  public void handleGet(@RequestParam final String id,
+						  final WebScriptResponse response)
       throws Exception {
 		
 	String json = null;
@@ -573,6 +578,7 @@ public class PcmWebScript {
   @Uri(URI_PREFIX+"/req/userDtl")
   public void handleInitForm(@RequestParam(required=false) final String r,
 		  					 @RequestParam(required=false) final String c,
+		  					@RequestParam(required=false) final String lang,
 		  					final WebScriptResponse response)
       throws Exception {
 		
@@ -585,24 +591,15 @@ public class PcmWebScript {
 	  
 	  String reqUser = (r!=null) ? r : authService.getCurrentUserName();
 	  
-	  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser);
+	  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser, lang);
 	  
 	  map.put(PcmReqConstant.JFN_REQ_BY, reqUser);
 	  
 	  String ename = dtl.get("first_name") + " " + dtl.get("last_name");
-	  
-	  map.put(PcmReqConstant.JFN_REQ_BY_NAME, ename);
-	  map.put(PcmReqConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"));
-	  
-	  map.put(PcmReqConstant.JFN_REQ_BU, dtl.get("org_desc"));
-	  
-	  map.put(PcmReqConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
-	  map.put(PcmReqConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"));
-	  
-	  
+
 	  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
 	  if (!createdUser.equals(reqUser)) {
-		  dtl = adminHrEmployeeService.getWithDtl(createdUser);
+		  dtl = adminHrEmployeeService.getWithDtl(createdUser, lang);
 		  ename = dtl.get("first_name") + " " + dtl.get("last_name");
 	  }
 	  
@@ -611,6 +608,15 @@ public class PcmWebScript {
 	  String mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
 	  String wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
 	  String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+	  
+	  map.put(PcmReqConstant.JFN_REQ_BY_NAME, ename);
+	  map.put(PcmReqConstant.JFN_REQ_TEL_NO, wphone+comma+mphone);
+	  map.put(PcmReqConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"));
+	  
+	  map.put(PcmReqConstant.JFN_REQ_BU, dtl.get("org_desc"));
+	  
+	  map.put(PcmReqConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
+	  map.put(PcmReqConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"));
 	  
 	  map.put(PcmReqConstant.JFN_TEL_NO, wphone+comma+mphone);
 	  
@@ -1016,12 +1022,13 @@ public class PcmWebScript {
 	
 	@Uri(URI_PREFIX+"/req/cmt/list")
 	public void handleCmtList(@RequestParam final String objType,
+							  @RequestParam(required=false) final String total,
 			  					final WebScriptResponse response)  throws Exception {
 	
 		String json = null;
 			
 		try {
-			List<Map<String, Object>> list = pcmReqService.listCmt(objType);
+			List<Map<String, Object>> list = pcmReqService.listCmt(objType, total);
 				
 			json = PcmReqCmtUtil.jsonSuccess(list);
 		} catch (Exception ex) {
@@ -1047,7 +1054,7 @@ public class PcmWebScript {
 			List<Map<String,Object>> list = pcmReqService.listCmtDtl(id, Integer.parseInt(cmt));
 			PcmReqCmtDtlUtil.addAction(list);
 				
-			json = CommonUtil.jsonSuccess(list);
+			json = PcmReqCmtDtlUtil.jsonSuccess(list);
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -1057,7 +1064,7 @@ public class PcmWebScript {
 			CommonUtil.responseWrite(response, json);
 		}
 	    
-	}	
+	}
 	  
 	public void genRpt(byte[] file, String fileName, WebScriptResponse response, JasperPrint jasperPrint) throws IOException, JRException {
 		
@@ -1079,13 +1086,15 @@ public class PcmWebScript {
 	}
 	
 	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/req/copy")
-	public void handleCopy(@RequestParam final String id, final WebScriptResponse response)
+	public void handleCopy(@RequestParam final String id,
+						   @RequestParam(required=false) final String lang
+						   , final WebScriptResponse response)
 	      throws Exception {
 			
 		String json = null;
 	
 		try {
-		  String newId = pcmReqService.copy(id);
+		  String newId = pcmReqService.copy(id, lang);
 	
 		  json = CommonUtil.jsonSuccess(newId);
 	

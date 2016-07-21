@@ -91,7 +91,7 @@ public class CommonConstant {
     public static final String SENCHA_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     
     public static final String ODOO_DATE_FORMAT = "yyyy-MM-dd";
-    public static final String ODOO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String ODOO_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     
     public static final String GRID_COLUMN_DATE_FORMAT = "dd/MM/yyyy";
     public static final String GRID_COLUMN_DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm";

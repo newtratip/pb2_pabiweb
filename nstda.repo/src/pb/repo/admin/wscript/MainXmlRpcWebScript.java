@@ -45,7 +45,7 @@ public class MainXmlRpcWebScript {
 	
 	private static Logger log = Logger.getLogger(MainXmlRpcWebScript.class);
 	
-	private static final String URI_PREFIX = CommonConstant.GLOBAL_URI_PREFIX + "/inf";
+	private static final String URI_PREFIX = CommonConstant.GLOBAL_URI_PREFIX + "/iii";
 	
 	@Autowired
 	AlfrescoService alfrescoService;

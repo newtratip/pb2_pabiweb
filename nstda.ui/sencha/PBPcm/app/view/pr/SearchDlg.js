@@ -12,7 +12,7 @@ Ext.define('PBPcm.view.pr.SearchDlg', {
 		Ext.applyIf(me, {
 	        renderTo : Ext.getBody(),
 	        modal: true,
-	        width: 750,
+	        width: 765,
 	        height: 470,
 	        layout: 'border',
 	        resizable: false,

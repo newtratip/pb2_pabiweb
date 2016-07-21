@@ -29,13 +29,13 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 		        	    }
 		            }]
 	        	},			
-				{ text: 'ค่าใช้จ่าย/ครุภัณฑ์',  dataIndex: 'isEquipment', width:130, renderer:me.equipmentRenderer, align:'center'},
-				{ text: 'รายการวัสดุ',  dataIndex: 'description', flex:1},
-				{ text: 'จำนวน',  dataIndex: 'quantity', width:80, align:'right', xtype: 'numbercolumn', format:'0,000'},
-				{ text: 'หน่วยนับ',  dataIndex: 'unit', width:80, align:'center'},
-				{ text: 'ราคาต่อหน่วย',  dataIndex: 'price', width:100, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
-				{ text: 'ราคาต่อหน่วย(สกุลเงินบาท)',  dataIndex: 'priceCnv', width:185, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
-				{ text: 'ราคารวม',  dataIndex: 'total', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
+//				{ text: 'ค่าใช้จ่าย/ครุภัณฑ์',  dataIndex: 'isEquipment', width:130, renderer:me.equipmentRenderer, align:'center'},
+				{ text: PBPcm.Label.t.name,  dataIndex: 'description', flex:1},
+				{ text: PBPcm.Label.t.qty,  dataIndex: 'quantity', width:80, align:'right', xtype: 'numbercolumn', format:'0,000'},
+				{ text: PBPcm.Label.t.uom,  dataIndex: 'unit', width:110, align:'center'},
+				{ text: PBPcm.Label.t.prc,  dataIndex: 'price', width:100, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
+				{ text: PBPcm.Label.t.prcCnv,  dataIndex: 'priceCnv', width:185, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
+				{ text: PBPcm.Label.t.subtotal,  dataIndex: 'total', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
 		);
 		
 		var vatStore = Ext.create('PB.store.common.ComboBoxStore');
@@ -46,6 +46,8 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 		
 		var store = Ext.create('PBPcm.store.ItemGridStore');
 		
+		var lbw = parseInt(PBPcm.Label.t.lbw);		
+
 		Ext.applyIf(me, {
 			items:[{
 				xtype:'container',
@@ -60,7 +62,7 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 				    	xtype:'tbfill'
 				    },{
 		        		xtype: 'button',
-		                text: "Add",
+		                text: PBPcm.Label.m.add,
 		                iconCls: "icon_add",
 		                action:'addItem'
 		        	}]
@@ -87,13 +89,13 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 							margin:'5 5 0 5',
 							items:[{
 								xtype:'label',
-								text:'จำนวนเงินก่อนภาษี',
-								width:114
+								text:PBPcm.Label.t.gross,
+								width:lbw+15
 							},{
 								xtype:'label',
 								name:'grossAmt',
 								style:'text-align:right;',
-								width:211
+								width:210
 							}]
 						},{
 							xtype:'container',
@@ -107,8 +109,8 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 							},{
 								xtype:'combo',
 								name:'vatId',
-								fieldLabel:mandatoryLabel('ภาษีมูลค่าเพิ่ม'),
-								labelWidth:100,
+								fieldLabel:mandatoryLabel(PBPcm.Label.t.vat),
+								labelWidth:lbw,
 						    	displayField:'name',
 						    	valueField:'id',
 						        emptyText : "โปรดเลือก",
@@ -116,7 +118,7 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 						        queryMode: 'local',
 						        multiSelect:false,
 						        forceSelection:true,
-								width:220,
+								width:lbw+120,
 								margin:"3 0 0 0",
 								editable:false,
 								allowBlank:false,
@@ -140,13 +142,13 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 							margin:'5 5 0 5',
 							items:[{
 								xtype:'label',
-								text:'จำนวนเงินรวม',
-								width:110
+								text:PBPcm.Label.t.total,
+								width:lbw+15
 							},{
 								xtype:'label',
 								name:'netAmt',
 								style:'text-align:right;',
-								width:215
+								width:210
 							},{
 								xtype:'hiddenfield',
 								name:'total',

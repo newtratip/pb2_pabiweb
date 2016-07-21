@@ -40,11 +40,13 @@ public interface SubModuleService {
     public String getModelPrefix();
     public String getDocDesc();
     public MainWorkflowHistoryModel getReqByWorkflowHistory(SubModuleModel model);
+    public MainWorkflowHistoryModel getAppByWorkflowHistory(SubModuleModel model);
+    public List<String> getSpecialUserForAddPermission(SubModuleModel model);
     
 	public QName getPropNextReviewers();
 	
 //	public Map<String, String> getBossMap(String docType, String type, String costCenter, String reqUser, Double amount);
-	public Map<String, String> getBossMap(String docType, SubModuleModel model);
+	public Map<String, String> getBossMap(String docType, SubModuleModel model) throws Exception;
 	
 	
 }

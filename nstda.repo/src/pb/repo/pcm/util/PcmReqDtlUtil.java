@@ -35,7 +35,7 @@ public class PcmReqDtlUtil {
 			jsObj.put(PcmReqDtlConstant.JFN_ID, model.getId());
 			jsObj.put(PcmReqDtlConstant.JFN_DESCRIPTION, model.getDescription());
 			jsObj.put(PcmReqDtlConstant.JFN_QUANTITY, String.valueOf(model.getQuantity()));
-			jsObj.put(PcmReqDtlConstant.JFN_UNIT, model.getUnit());
+			jsObj.put(PcmReqDtlConstant.JFN_UNIT_ID, model.getUnitId());
 			jsObj.put(PcmReqDtlConstant.JFN_PRICE, String.valueOf(model.getPrice()));
 			jsObj.put(PcmReqDtlConstant.JFN_PRICE_CNV, String.valueOf(model.getPriceCnv()));
 			jsObj.put(PcmReqDtlConstant.JFN_TOTAL, String.valueOf(model.getTotal()));
@@ -64,6 +64,7 @@ public class PcmReqDtlUtil {
 				model.setIsEquipment(jsonObj.getString(PcmReqDtlConstant.JFN_IS_EQUIPMENT));
 				model.setDescription(jsonObj.getString(PcmReqDtlConstant.JFN_DESCRIPTION));
 				model.setQuantity(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_QUANTITY)));
+				model.setUnitId(jsonObj.getInt(PcmReqDtlConstant.JFN_UNIT_ID));
 				model.setUnit(jsonObj.getString(PcmReqDtlConstant.JFN_UNIT));
 				model.setPrice(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_PRICE)));
 				model.setPriceCnv(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_PRICE_CNV)));

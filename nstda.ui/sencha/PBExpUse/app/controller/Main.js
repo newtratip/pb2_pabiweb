@@ -228,7 +228,7 @@ Ext.define('PBExpUse.controller.Main', {
 		      url:me.MSG_URL+"/list",
 		      method: "GET",
 		      params: {
-		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO_2,TAB_TITLE_VOYAGER,TAB_TITLE_ITEM,TAB_TITLE_FILE"
+		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO_2,TAB_TITLE_ITEM,TAB_TITLE_ATTENDEE,TAB_TITLE_FILE"
 		      },
 		      success: function(response){
 		    	  
@@ -238,8 +238,8 @@ Ext.define('PBExpUse.controller.Main', {
 		    	form.setActiveTab(firstTab);
 		    	
 		    	form.add({ xtype:'expUseInfoTab', title:data[1].message, rec:rec });
-				form.add({ xtype:'expUseVoyagerTab', title:data[2].message, rec:rec });
-				form.add({ xtype:'expUseItemTab', title:data[3].message, rec:rec });
+				form.add({ xtype:'expUseItemTab', title:data[2].message, rec:rec });
+				form.add({ xtype:'expUseAttendeeTab', title:data[3].message, rec:rec });
 				form.add({ xtype:'expUseFileTab', title:data[4].message, rec:rec });
 		      },
 		      failure: function(response, opts){

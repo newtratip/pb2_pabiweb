@@ -38,29 +38,20 @@ Ext.define('PBExpUse.controller.Form', {
 	    ref: 'radBankType',     
 	    selector: 'expUseMainForm field[name=bankType]'
 	},{
+	    ref: 'radBankType0',     
+	    selector: 'expUseMainForm field[itemId=bankType1]'
+	},{
+	    ref: 'radBankType1',     
+	    selector: 'expUseMainForm field[itemId=bankType0]'
+	},{
 	    ref: 'txtTotal',     
 	    selector: 'expUseMainForm field[name=total]'
 	},{
-	    ref: 'radCostControlTypeId',
+	    ref: 'hidCostControlTypeId',
 	    selector: 'expUseMainForm field[name=costControlTypeId]'
 	},{
-	    ref: 'cmbCostControlId',
+	    ref: 'hidCostControlId',
 	    selector: 'expUseMainForm field[name=costControlId]'
-	},{
-	    ref: 'txtCostControl',
-	    selector: 'expUseMainForm field[name=costControl]'
-	},{
-	    ref: 'txtCc1From',
-	    selector: 'expUseMainForm field[name=cc1From]'
-	},{
-	    ref: 'txtCc1To',
-	    selector: 'expUseMainForm field[name=cc1To]'
-	},{
-	    ref: 'txtCc2From',
-	    selector: 'expUseMainForm field[name=cc2From]'
-	},{
-	    ref: 'txtCc2To',
-	    selector: 'expUseMainForm field[name=cc2To]'
 	},{
 	    ref: 'radPayType',
 	    selector: 'expUseMainForm field[name=payType]'
@@ -104,11 +95,11 @@ Ext.define('PBExpUse.controller.Form', {
 	    ref:'btnApprovalMatrix',     
 	    selector: 'expUseMainForm button[action=approvalMatrix]'
 	},{
-		ref:'voyagerEmpGrid',
-		selector:'expUseVoyagerTab #empGrid'
+		ref:'attendeeEmpGrid',
+		selector:'expUseAttendeeTab #empGrid'
 	},{
-		ref:'voyagerOthGrid',
-		selector:'expUseVoyagerTab #othGrid'
+		ref:'attendeeOthGrid',
+		selector:'expUseAttendeeTab #othGrid'
 	},{
     	ref:'itemGrid',
     	selector:'expUseItemTab grid'
@@ -152,10 +143,12 @@ Ext.define('PBExpUse.controller.Form', {
 				selectBudgetCc:me.selectBudgetCc,
 				selectMainBank:me.selectMainBank,
 				selectPayType:me.selectPayType,
+				selectCostControl:me.selectCostControl,
+				clearCostControl:me.clearCostControl,
 				selectIcharge:me.selectIcharge
 			},
-			'expUseVoyagerTab':{
-				selectCostControl:me.selectCostControl
+			'expUseAttendeeTab':{
+//				selectCostControl:me.selectCostControl
 			}
 		});
 	
@@ -306,21 +299,8 @@ Ext.define('PBExpUse.controller.Form', {
 		params.budgetCcType = me.getHidBudgetCcType().getValue();
 		params.budgetCc = me.getHidBudgetCc().getValue();
 		
-		var ccType = me.getRadCostControlTypeId().getGroupValue();
-	
-		params.costControlTypeId = ccType;
-		if (ccType=="0") {
-			params.costControlId = me.getCmbCostControlId().getValue();
-			
-			params.costControlFrom = me.getTxtCc1From().getValue();
-			params.costControlTo = me.getTxtCc1To().getValue();
-		} 
-		else if (ccType=="1") {
-			params.costControl = me.getTxtCostControl().getValue();
-			
-			params.costControlFrom = me.getTxtCc2From().getValue();
-			params.costControlTo = me.getTxtCc2To().getValue();
-		}
+		params.costControlTypeId = me.getHidCostControlTypeId().getValue();
+		params.costControlId = me.getHidCostControlId().getValue();
 		
 		params.bankType = me.getRadBankType().getGroupValue();
 		params.bank = me.getCmbBank().getValue();
@@ -351,7 +331,7 @@ Ext.define('PBExpUse.controller.Form', {
 		
 		params.total = me.getTxtTotal().getValue();
 		
-		params.voyagers = me.getVoyagers();
+		params.attendees = me.getAttendees();
 		params.items = me.getItems();
 		params.files = me.listFiles();
 		
@@ -455,17 +435,17 @@ Ext.define('PBExpUse.controller.Form', {
 		return v;
 	},
 	
-	getVoyagers:function() {
+	getAttendees:function() {
 	
 		var me = this;
 	
 		var data = [];
-		me.getVoyagerEmpGrid().getStore().each(function(rec){
+		me.getAttendeeEmpGrid().getStore().each(function(rec){
 		   rec.data.type = "E";
 		   data.push(rec.data);
 		});
 		
-		me.getVoyagerOthGrid().getStore().each(function(rec){
+		me.getAttendeeOthGrid().getStore().each(function(rec){
 		   rec.data.type = "O";
 		   data.push(rec.data);
 		});
@@ -705,7 +685,7 @@ Ext.define('PBExpUse.controller.Form', {
 	selectBudgetCc:function() {
 		var me = this;
 	
-		var dlg = Ext.create("PB.view.common.SearchSectionProjectDlg",{
+		var dlg = Ext.create("PB.view.common.SearchBudgetSrcDlg",{
 			title:'ค้นหา',
 			targetPanel:this.getInfoTab(),
 			callback:this.selectBudgetCcCallBack
@@ -724,7 +704,7 @@ Ext.define('PBExpUse.controller.Form', {
 	selectIcharge:function() {
 		var me = this;
 	
-		var dlg = Ext.create("PB.view.common.SearchSectionProjectDlg",{
+		var dlg = Ext.create("PB.view.common.SearchBudgetSrcDlg",{
 			title:'ค้นหา',
 			targetPanel:this.getInfoTab(),
 			callback:this.selectIchargeCallBack
@@ -736,6 +716,13 @@ Ext.define('PBExpUse.controller.Form', {
 		var tab = this.targetPanel;
 		setValue(tab, 'reqBy', rec.get('emp_id'));
 		setValue(tab, 'reqByName', rec.get('first_name') + ' ' + rec.get('last_name'));
+		
+		var mphone = rec.get("mobile_phone")!=null ? rec.get("mobile_phone") : "";
+		var wphone = rec.get("work_phone")!=null ? rec.get("work_phone") : "";
+		var comma = (mphone!="" && wphone!="") ? "," : "";
+		
+		setValue(tab, 'reqTelNo', wphone+comma+mphone);
+		
 		setValue(tab, 'reqByDept', rec.get('pos_name'));
 		setValue(tab, 'reqBu', rec.get('org_desc'));
 		setValue(tab, 'reqOuName', rec.get('section_desc'));
@@ -765,38 +752,65 @@ Ext.define('PBExpUse.controller.Form', {
 		}
 	},
 	
-	selectCostControl:function(rad,v) {
-		var me = this;
-		
-		var vi = parseInt(v);
-		
-		var i=0;
-		var b = vi!=i;
-		me.getCmbCostControlId().setDisabled(b);
-		me.getTxtCc1From().setDisabled(b);
-		me.getTxtCc1To().setDisabled(b);
-		if (b) {
-			me.getCmbCostControlId().setValue(null);
-			me.getTxtCc1From().setValue(null);
-			me.getTxtCc1To().setValue(null);
-		}
-		
-		i++;
-		b = vi!=i;
-		me.getTxtCostControl().setDisabled(b);
-		me.getTxtCc2From().setDisabled(b);
-		me.getTxtCc2To().setDisabled(b);
-		if (b) {
-			me.getTxtCostControl().setValue(null);
-			me.getTxtCc2From().setValue(null);
-			me.getTxtCc2To().setValue(null);
-		}
+	selectCostControlCallBack:function(id, name, type, typeName) {
+		var tab = this.targetPanel;
+		setValue(tab, 'costControlId', id);
+		setValue(tab, 'costControlName', name);
+		setValue(tab, 'costControlTypeId', type);
+		setValue(tab, 'costControlTypeName', typeName);
 	},
+	
+	selectCostControl:function() {
+		Ext.create("PB.view.common.SearchCostControlDlg",{
+			title:'ค้นหา',
+			targetPanel:this.getInfoTab(),
+			callback:this.selectCostControlCallBack
+		}).show();
+	},
+	
+	clearCostControl:function() {
+		var tab = this.getInfoTab();
+		setValue(tab, 'costControlId', null);
+		setValue(tab, 'costControlName', '');
+		setValue(tab, 'costControlTypeId', null);
+		setValue(tab, 'costControlTypeName', '');
+	},
+	
+//	selectCostControl:function(rad,v) {
+//		var me = this;
+//		
+//		var vi = parseInt(v);
+//		
+//		var i=0;
+//		var b = vi!=i;
+//		me.getCmbCostControlId().setDisabled(b);
+//		me.getTxtCc1From().setDisabled(b);
+//		me.getTxtCc1To().setDisabled(b);
+//		if (b) {
+//			me.getCmbCostControlId().setValue(null);
+//			me.getTxtCc1From().setValue(null);
+//			me.getTxtCc1To().setValue(null);
+//		}
+//		
+//		i++;
+//		b = vi!=i;
+//		me.getTxtCostControl().setDisabled(b);
+//		me.getTxtCc2From().setDisabled(b);
+//		me.getTxtCc2To().setDisabled(b);
+//		if (b) {
+//			me.getTxtCostControl().setValue(null);
+//			me.getTxtCc2From().setValue(null);
+//			me.getTxtCc2To().setValue(null);
+//		}
+//	},
 	
 	selectPayType:function(rad,v) {
 		var me = this;
 		
 		var vi = parseInt(v);
+		
+		me.getRadBankType0().setDisabled(vi!=0 && vi!=3);
+		me.getRadBankType1().setDisabled(me.getRadBankType0().disabled);
 		
 		var i=1;
 		b = vi!=i;

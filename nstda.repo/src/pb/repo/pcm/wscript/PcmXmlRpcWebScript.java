@@ -63,7 +63,9 @@ public class PcmXmlRpcWebScript {
 			XmlRpcDispatcher dispatcher = new XmlRpcDispatcher(server, "");
 			
 			InputStream is = new ByteArrayInputStream(request.getContent().getContent().getBytes("UTF-8"));
+			response.setContentEncoding("UTF-8");
 			dispatcher.dispatch(is, response.getWriter());
+			
 			
 		} catch (Exception ex) {
 			log.error(ex);

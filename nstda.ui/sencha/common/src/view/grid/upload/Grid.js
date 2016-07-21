@@ -12,7 +12,7 @@ Ext.define('PB.view.common.upload.Grid', {
 			    	xtype: 'actioncolumn',
 		        	dataIndex: 'action',
 		        	itemId : 'actionGrid',
-		        	text: 'Action',
+		        	text: '',
 		            width: 60,
 		            align: 'center',
 		            items: [{
@@ -25,13 +25,13 @@ Ext.define('PB.view.common.upload.Grid', {
 			            }
 		            }]
 			     },
-			     {xtype: 'rownumberer', text: 'NO.', width:60},
-			     {text: 'File Name', dataIndex: 'name', flex: 0.5},
-			     {text: 'Description', dataIndex: 'desc', flex: 1}
+			     {text: PB.Label.u.number, xtype: 'rownumberer', width:60},
+			     {text: PB.Label.u.name, dataIndex: 'name', flex: 0.5},
+			     {text: PB.Label.u.desc, dataIndex: 'desc', flex: 1}
 			    ],
 			    tbar:[{
 		    	    xtype:'label',
-		    	    html:"&nbsp;&nbsp;<b>File</b>"
+		    	    html:"&nbsp;&nbsp;"+PB.Label.u.file+":"
 		        },{
             		xtype: 'filefield',
 	            	padding: '0px 0px 0px 5px',
@@ -39,20 +39,20 @@ Ext.define('PB.view.common.upload.Grid', {
 	                msgTarget: 'side',
 	                width : 335,
 	                buttonConfig: {
-	                    text: 'เลือก',
+	                    text: PB.Label.u.browse,
                         iconCls: "icon_search"               
 	                }
             	},{
             		xtype:'textfield',
-            		fieldLabel:'Description',
-            		labelWidth:70,
+            		fieldLabel:PB.Label.u.desc,
+            		labelWidth:80,
             		name:'desc',
             		width:335,
             		maxLength:100,
             		margin:'0 0 0 20'
             	},{
             		xtype: 'button',
-	                text: "Upload",
+	                text: PB.Label.u.upload,
 	                iconCls: "icon_upload",
 	                listeners: {
 	                    click: function(){

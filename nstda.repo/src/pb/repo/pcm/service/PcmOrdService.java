@@ -14,10 +14,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.activiti.engine.RuntimeService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
@@ -41,6 +43,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
@@ -49,6 +53,9 @@ import pb.common.util.FolderUtil;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.dao.MainWkfCmdBossLevelApprovalDAO;
+import pb.repo.admin.dao.MainWorkflowDAO;
+import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
 import pb.repo.admin.model.MainHrEmployeeModel;
@@ -65,12 +72,15 @@ import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.service.MainSrcUrlService;
 import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.service.SubModuleService;
+import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.common.mybatis.DbConnectionFactory;
 import pb.repo.pcm.constant.PcmOrdConstant;
 import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
 import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.dao.PcmOrdDAO;
+import pb.repo.pcm.exception.NotFoundApprovalMatrixException;
 import pb.repo.pcm.model.PcmOrdModel;
+import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.util.PcmOrdUtil;
 import pb.repo.pcm.util.PcmUtil;
 
@@ -132,6 +142,9 @@ public class PcmOrdService implements SubModuleService {
 	
 	@Autowired
 	AdminHrEmployeeService adminHrEmployeeService;
+
+	@Autowired
+	private RuntimeService runtimeService;
 	
 	public PcmOrdModel save(PcmOrdModel model,Map<String, Object> docMap, List<Map<String, Object>> attList) throws Exception {
 		
@@ -150,15 +163,11 @@ public class PcmOrdService implements SubModuleService {
     		/*
     		 * Add DB
     		 */
-        	pcmOrdDAO.add(model);
-            
-//            List<PcmOrdDtlModel> dtlList = PcmOrdDtlUtil.convertJsonToList(dtls, model.getId());
-//            for(PcmOrdDtlModel dtlModel : dtlList) {
-//	        	dtlModel.setCreatedBy(model.getUpdatedBy());
-//	        	dtlModel.setUpdatedBy(model.getUpdatedBy());
-//	        	
-//            	pcmOrdDtlDAO.add(dtlModel);
-//            }
+        	if (model.getCreatedTime()==null) {
+        		pcmOrdDAO.add(model);
+        	} else {
+        		pcmOrdDAO.update(model);
+        	}
             
             session.commit();
         } catch (Exception ex) {
@@ -235,6 +244,23 @@ public class PcmOrdService implements SubModuleService {
 		createEcmFolder(model);
 		
 		NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
+		
+    	/*
+    	 * Delete Old Files
+    	 */
+    	Set<QName> qnames = new HashSet<QName>();
+    	qnames.add(ContentModel.TYPE_CONTENT);
+    	List<ChildAssociationRef> docs = nodeService.getChildAssocs(folderNodeRef, qnames);
+    	for(ChildAssociationRef doc : docs) {
+    		
+    		log.info("doc:"+doc.toString());
+    		log.info("   childRef:"+doc.getChildRef().toString());
+    		if (!doc.getQName().getLocalName().equals(model.getId()+".pdf")) { // it is not main.pdf
+    			alfrescoService.cancelCheckout(doc.getChildRef());
+    			alfrescoService.deleteFileFolder(doc.getChildRef().toString());
+        		log.info("   delete");
+    		}
+    	}		
 		
 		/*
 		 * Save Doc
@@ -496,6 +522,37 @@ public class PcmOrdService implements SubModuleService {
         return list;
 	}
 	
+	public void delete(String id) throws Exception {
+		
+		SqlSession session = PcmUtil.openSession(dataSource);
+        try {
+            PcmOrdDAO pcmOrdDAO = session.getMapper(PcmOrdDAO.class);
+            MainWorkflowDAO workflowDAO = session.getMapper(MainWorkflowDAO.class);
+            MainWorkflowHistoryDAO workflowHistoryDAO = session.getMapper(MainWorkflowHistoryDAO.class);
+            MainWorkflowReviewerDAO workflowReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
+            MainWorkflowNextActorDAO workflowNextActorDAO = session.getMapper(MainWorkflowNextActorDAO.class);
+
+    		PcmOrdModel model = get(id);
+    		boolean exists = (model.getFolderRef()!=null) && fileFolderService.exists(new NodeRef(model.getFolderRef()));    		
+    		if(exists) {
+    			alfrescoService.deleteFileFolder(model.getFolderRef());
+        	}
+
+    		workflowNextActorDAO.deleteByMasterId(id);
+    		workflowHistoryDAO.deleteByMasterId(id);
+    		workflowReviewerDAO.deleteByMasterId(id);
+    		workflowDAO.deleteByMasterId(id);
+    		pcmOrdDAO.delete(id);
+            
+            session.commit();
+        } catch (Exception ex) {
+			log.error("", ex);
+        	session.rollback();
+        } finally {
+        	session.close();
+        }
+	}
+	
 	public void deleteReviewerByMasterId(String id) throws Exception {
 		SqlSession session = PcmUtil.openSession(dataSource);
         try {
@@ -694,9 +751,8 @@ public class PcmOrdService implements SubModuleService {
 		
 		JSONObject map = PcmOrdUtil.convertToJSONObject(pcmOrdModel);
 		
-		Writer w = null;
 		TemplateProcessor pc = templateService.getTemplateProcessor("freemarker");
-		w = new StringWriter();
+		Writer w = new StringWriter();
 		pc.processString(descFormat, map, w);
 		
 		return w.toString();
@@ -790,7 +846,7 @@ public class PcmOrdService implements SubModuleService {
 	public String getFirstComment(SubModuleModel model) {
 		PcmOrdModel realModel = (PcmOrdModel)model;
 		
-		return realModel.getObjective() + " " + realModel.getDocType();
+		return realModel.getObjective();
 	}
 
 	@Override
@@ -819,13 +875,186 @@ public class PcmOrdService implements SubModuleService {
 	}
 
 	@Override
-	public Map<String, String> getBossMap(String docType, SubModuleModel model) {
-    	Map<String, String> bossMap = new LinkedHashMap<String, String>();
-    	bossMap.put("L01", "001509");
-//    	bossMap.put("L02", "000511");
+	public Map<String, String> getBossMap(String docType, SubModuleModel subModuleModel) throws Exception {
 		
-		return bossMap;
+		PcmOrdModel model = (PcmOrdModel)subModuleModel;
+		
+		/*
+		 * Search Original Boss List
+		 */
+		Map<String, String> tmpMap = new LinkedHashMap<String, String>();
+		
+		log.info("getBossMap()");
+		log.info("  docType:'"+docType+"'");
+		log.info("  sectionId:'"+model.getSectionId()+"'");
+		log.info("  reqUser:"+model.getCreatedBy());
+		log.info("  total:"+model.getTotal());
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+        	MainWkfCmdBossLevelApprovalDAO dao = session.getMapper(MainWkfCmdBossLevelApprovalDAO.class);
+        	
+        	Map<String, Object> params = new HashMap<String, Object>();
+        	params.put("docType", docType);
+       		params.put("sectionId", model.getSectionId());
+        	
+        	List<Map<String, Object>> bossList = dao.listBoss(params);
+        	log.info("  bossList"+bossList);
+        	if (bossList==null || bossList.size()==0) {
+        		throw new NotFoundApprovalMatrixException();
+        	}
+        	
+        	tmpMap = getUnitBossMap(model, bossList, tmpMap);
+
+            log.info("  tmpMap.size:"+tmpMap.size());                       
+        } catch (Exception ex) {
+        	log.error(ex);
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+		
+		return tmpMap;
 	}
+	
+	public Map<String, String> getUnitBossMap(PcmOrdModel model, List<Map<String, Object>> bossList,Map<String, String> tmpMap ) throws Exception {
+		
+		String reqByCode = MainUserGroupUtil.login2code(model.getCreatedBy());
+    	
+    	Map<String, Object> reservedBoss = null;
+    	Map<String, Object> lastBossMap = null;
+    	
+    	/*
+    	 * Find Boss by level, if reqByCode exist in workflow path
+    	 */
+    	int start = 0;
+    	int i = 0;
+    	
+    	for(Map<String, Object> boss : bossList) {
+    		
+    		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code"));
+    		
+    		if (boss.get("employee_code").equals(model.getCreatedBy())) {
+    			log.info(model.getCreatedBy()+" is in path");
+    			start = i;
+    			break;
+    		}
+    		i++;
+    	}    	
+    	
+    	/*
+    	 * Find Boss by money, if reqByCode not exist in workflow path
+    	 */
+    	Double total = model.getTotal();
+    	
+    	i = 0;
+    	log.info("  start:"+start);
+    	for(Map<String, Object> boss : bossList) {
+    		
+    		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code")+" (amt:"+boss.get("amount_min")+"-"+boss.get("amount_max")+")");
+    		
+    		if (i>=start) {
+    			if (tmpMap.size()==0 || total > (Double)lastBossMap.get("amount_max")) {
+    				tmpMap.put((String)boss.get("lvl"), (String)boss.get("employee_code"));
+    				lastBossMap = boss;
+    			}
+    			else
+    			if (reservedBoss==null) {
+    				reservedBoss = boss;
+    				break;
+    			}
+    		}
+    		i++;
+    	}
+    	
+    	log.info("lastBoss:"+lastBossMap.get("employee_code")+", reqBy:"+model.getCreatedBy());
+    	/*
+    	 * Replace Last Boss if he is Requester
+    	 */
+    	if (lastBossMap.get("employee_code").equals(model.getCreatedBy())) {
+    		if (reservedBoss!=null) {
+        		tmpMap.remove(lastBossMap.get("lvl"));
+    			tmpMap.put((String)reservedBoss.get("lvl"), (String)reservedBoss.get("employee_code"));
+    		}
+    		else {
+    			// Waiting SA
+    			
+    		}
+    	}
+    	
+    	
+    	/*
+    	 * Remove Requester from first position
+    	 */
+    	if (tmpMap.size()>1) {
+    		i = 0;
+    		for(Entry<String, String> e : tmpMap.entrySet()) {
+    			if(i==0) {
+    				if (e.getValue().equals(model.getCreatedBy())) {
+    					tmpMap.remove(e.getKey());
+    					break;
+    				}
+    			}
+    		}
+    	}
+    	
+    	
+//    	/*
+//    	 * Remove Requester from Boss List
+//    	 */
+//    	List<String> rmList = new ArrayList<String>();
+//    	int i = 1;
+//    	int size = tmpMap.size();
+//    	for(Entry<String, String> e : tmpMap.entrySet()) {
+//    		log.info("  e.key:"+e.getKey()+", value:"+e.getValue());
+//    		
+//    		if (i==size) {
+//    			break;
+//    		}
+//    		
+//    		if (e.getValue().equals(reqByCode)) {
+//    			rmList.add(e.getKey());
+//    		}
+//    		
+//    		i++;
+//    	}
+//
+//    	for(String k : rmList) {
+//    		tmpMap.remove(k);
+//    	}
+		
+		 /*
+         * Remove duplicated Boss
+         */
+		Map<String, String> map = removeDuplicatedBoss(tmpMap);
+		
+		return map;
+	}
+	
+	private Map<String, String> removeDuplicatedBoss(Map<String, String> tmpMap) {
+		
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		
+		Entry<String, String> prevEntry = null;
+		for(Entry<String, String> e : tmpMap.entrySet()) {
+			
+			if (prevEntry==null || !e.getValue().equals(prevEntry.getValue())) {
+				map.put(e.getKey(), e.getValue());
+			}
+			
+			prevEntry = e;
+		}
+		
+		if (prevEntry != null) {
+			map.put((String)prevEntry.getKey(), (String)prevEntry.getValue());
+		}
+		
+        log.info("  map="+map);
+
+        return map;
+	}
+	
+
 
 	@Override
 	public List<String> listRelatedUser(SubModuleModel model) {
@@ -841,5 +1070,56 @@ public class PcmOrdService implements SubModuleService {
 	@Override
 	public MainWorkflowHistoryModel getReqByWorkflowHistory(SubModuleModel subModuleModel) {
 		return null;
+	}
+	
+	@Override
+	public MainWorkflowHistoryModel getAppByWorkflowHistory(SubModuleModel subModuleModel) {
+		MainWorkflowHistoryModel hModel = new MainWorkflowHistoryModel();
+		
+		PcmOrdModel model = (PcmOrdModel)subModuleModel;
+		
+		hModel.setTime(model.getCreatedTime());
+		hModel.setLevel(0);
+		hModel.setComment("");
+		hModel.setAction("อนุมัติ");
+		hModel.setTask(MainWorkflowConstant.TN_APPROVER_CAPTION);
+		hModel.setBy(model.getAppBy());
+		
+		return hModel;
+	}	
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void continueRequesterTask(final String exeId, String action, PcmOrdModel model, String comment) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		map.put(PcmOrdWorkflowConstant.MODEL_PREFIX+"reSubmitOutcome", action);
+		map.put(PcmOrdWorkflowConstant.MODEL_PREFIX+"workflowStatus", action);
+		map.put("reqBy", model.getUpdatedBy());
+		map.put("comment", comment);
+		
+        List<NodeRef> docList = new ArrayList<NodeRef>();
+        docList.add(new NodeRef(model.getDocRef()));
+		map.put(PcmOrdWorkflowConstant.MODEL_PREFIX+"document", docList);
+		
+        List<NodeRef> attachDocList = new ArrayList<NodeRef>();
+        if(model.getListAttachDoc() !=null) {
+        	for(String nodeRef : model.getListAttachDoc()) {
+        		attachDocList.add(new NodeRef(nodeRef));
+            }
+        }
+		map.put(PcmOrdWorkflowConstant.MODEL_PREFIX+"attachDocument", attachDocList);
+
+		runtimeService.signal(exeId, map);
+	}
+
+	@Override
+	public List<String> getSpecialUserForAddPermission(SubModuleModel model) {
+		List<String> list = new ArrayList();
+		
+		PcmOrdModel pcmOrdModel = (PcmOrdModel)model;
+		
+		list.add(pcmOrdModel.getAppBy());
+		
+		return list;
 	}
 }

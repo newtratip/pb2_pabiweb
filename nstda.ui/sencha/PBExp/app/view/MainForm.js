@@ -4,7 +4,7 @@ Ext.define('PBExp.view.MainForm', {
     requires: [
         'PBExp.view.MainFormUserTab',
         'PBExp.view.MainFormInfoTab',
-        'PBExp.view.MainFormVoyagerTab',
+        'PBExp.view.MainFormAttendeeTab',
         'PBExp.view.MainFormFileTab'
     ],
     

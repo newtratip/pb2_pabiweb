@@ -13,6 +13,7 @@ public class MainWorkflowModel {
 	String by;
 	Timestamp byTime;
 	String taskId;
+	String executionId;
 	Timestamp createdTime;
 	String createdBy;
 	
@@ -71,6 +72,12 @@ public class MainWorkflowModel {
 	public void setTaskId(String taskId) {
 		this.taskId = taskId;
 	}
+	public String getExecutionId() {
+		return executionId;
+	}
+	public void setExecutionId(String executionId) {
+		this.executionId = executionId;
+	}
 	public Timestamp getCreatedTime() {
 		return createdTime;
 	}
@@ -83,8 +90,5 @@ public class MainWorkflowModel {
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
-	
-	
-	
 	
 }

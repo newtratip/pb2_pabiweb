@@ -1,0 +1,75 @@
+package pb.repo.exp.util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import pb.repo.exp.constant.ExpBrwDtlConstant;
+import pb.repo.exp.model.ExpBrwDtlModel;
+
+public class ExpBrwDtlUtil {
+	
+	public static String jsonSuccess(List<ExpBrwDtlModel> list) throws JSONException {
+		
+		JSONObject jsonObj = new JSONObject();
+		
+		for(ExpBrwDtlModel model : list) {
+			jsonObj.put(model.getActivity(), model.getActivity());
+		}
+		
+		return jsonObj.toString();
+	}
+	
+	public static JSONArray convertToJSONArray(List<ExpBrwDtlModel> inList) throws Exception {
+		
+		List<JSONObject> outList = new ArrayList<JSONObject>();
+		
+		JSONObject jsObj = null;
+		for(ExpBrwDtlModel model : inList) {
+			jsObj = new JSONObject();
+			
+			jsObj.put(ExpBrwDtlConstant.JFN_ID, model.getId());
+			jsObj.put(ExpBrwDtlConstant.JFN_MASTER_ID, model.getMasterId());
+			jsObj.put(ExpBrwDtlConstant.JFN_ACTIVITY, model.getActivity());
+			jsObj.put(ExpBrwDtlConstant.JFN_AMOUNT, model.getAmount());
+			jsObj.put(ExpBrwDtlConstant.JFN_CREATED_TIME, model.getCreatedTime());
+			jsObj.put(ExpBrwDtlConstant.JFN_CREATED_BY, model.getCreatedBy());
+			jsObj.put(ExpBrwDtlConstant.JFN_UPDATED_TIME, model.getUpdatedTime());
+			jsObj.put(ExpBrwDtlConstant.JFN_UPDATED_BY, model.getUpdatedBy());
+			jsObj.put(ExpBrwDtlConstant.JFN_ACTION, "ED");
+
+			outList.add(jsObj);
+		}
+		
+		return new JSONArray(outList);
+	}
+	
+	public static List<ExpBrwDtlModel> convertJsonToList(String json, String masterId) throws Exception {
+		List<ExpBrwDtlModel> list = new ArrayList<ExpBrwDtlModel>();
+		
+		if (json!=null && !json.equals("")) {
+			JSONArray jsonArr = new JSONArray(json);
+			for(int i=0; i<jsonArr.length(); i++) {
+				JSONObject jsonObj = jsonArr.getJSONObject(i);
+				
+				ExpBrwDtlModel model = new ExpBrwDtlModel();
+				model.setMasterId(masterId);
+				model.setActivity(jsonObj.getString(ExpBrwDtlConstant.JFN_ACTIVITY));
+				model.setAmount(jsonObj.getDouble(ExpBrwDtlConstant.JFN_AMOUNT));
+				
+				list.add(model);
+			}
+		}
+		
+		return list;
+	}
+	
+	public static void addAction(List<ExpBrwDtlModel> list) {
+		for (ExpBrwDtlModel model : list) {
+			model.setAction("ED");
+		}
+	}	
+}

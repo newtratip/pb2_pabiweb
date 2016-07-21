@@ -64,7 +64,7 @@ Ext.define('PBPcm.view.MainGrid', {
 					var d = data[i];
 					
 					var col = {
-						text: d.label,  
+						text: PBPcm.Label.m[d.label],  
 						dataIndex: d.field,
 						align:d.align
 					}
@@ -95,7 +95,7 @@ Ext.define('PBPcm.view.MainGrid', {
 		      async:false
 		}); 
 		
-		columns.push({ text: 'สถานะ',  dataIndex: 'wfStatus', width:370,
+		columns.push({ text: PBPcm.Label.m.status,  dataIndex: 'wfStatus', width:370,
 		  	  renderer: function (v, m, r) {
 			
 					if (r.get("overDue")) {
@@ -137,14 +137,14 @@ Ext.define('PBPcm.view.MainGrid', {
 	           	}
             },{
             	xtype: 'button',
-                text: "Search",
+                text: PBPcm.Label.m.search,
                 iconCls: "icon_search",                
                 action: "search"
             },
                 "->"
             ,{ 
             	xtype: 'button',
-                text: "New PR",
+                text: PBPcm.Label.m['new'],
                 iconCls: "icon_add",
                 action: "add"
             }],

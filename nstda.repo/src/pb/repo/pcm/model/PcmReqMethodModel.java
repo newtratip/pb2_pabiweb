@@ -9,8 +9,8 @@ public class PcmReqMethodModel {
 	String docType;
 	String cond1;
 	String cond2;
-	String amountFrom;
-	String amountTo;
+	String priceFrom;
+	String priceTo;
 	
 	private Long totalRowCount;
 
@@ -62,20 +62,20 @@ public class PcmReqMethodModel {
 		this.cond2 = cond2;
 	}
 
-	public String getAmountFrom() {
-		return amountFrom;
+	public String getPriceFrom() {
+		return priceFrom;
 	}
 
-	public void setAmountFrom(String amountFrom) {
-		this.amountFrom = amountFrom;
+	public void setPriceFrom(String priceFrom) {
+		this.priceFrom = priceFrom;
 	}
 
-	public String getAmountTo() {
-		return amountTo;
+	public String getPriceTo() {
+		return priceTo;
 	}
 
-	public void setAmountTo(String amountTo) {
-		this.amountTo = amountTo;
+	public void setPriceTo(String priceTo) {
+		this.priceTo = priceTo;
 	}
 
 	public Long getTotalRowCount() {

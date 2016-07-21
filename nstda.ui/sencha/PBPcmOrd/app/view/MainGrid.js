@@ -41,7 +41,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 					var d = data[i];
 					
 					var col = {
-						text: d.label,  
+						text: PBPcmOrd.Label.m[d.label],  
 						dataIndex: d.field,
 						align:d.align
 					}
@@ -73,7 +73,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 		}); 
 		
 		//columns.push({ text: 'Requested Time',  dataIndex: 'created_time_show', width:130});
-		columns.push({ text: 'Status',  dataIndex: 'wfStatus', width:300,
+		columns.push({ text: PBPcmOrd.Label.m.status,  dataIndex: 'wfStatus', width:300,
 		  	  renderer: function (v, m, r) {
 			
 					if (r.get("overDue")) {
@@ -115,7 +115,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 	           	}
             },{
             	xtype: 'button',
-                text: "Search",
+                text: PB.Label.m.search,
                 iconCls: "icon_search",                
                 action: "search"
             }],

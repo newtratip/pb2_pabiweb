@@ -9,8 +9,8 @@
         <result property="docType" column="doc_type"/>
         <result property="cond1" column="cond1"/>
         <result property="cond2" column="cond2"/>
-        <result property="amountFrom" column="amount_from"/>
-        <result property="amountTo" column="amount_to"/>
+        <result property="priceFrom" column="price_from"/>
+        <result property="priceTo" column="price_to"/>
     </resultMap>
 
 	<select id="list" resultType="map" parameterType="map">
@@ -19,6 +19,10 @@
 		    pb2_ext_pr_method_view
 		WHERE
 			obj like #{objType} || '%'
+		<if test="total != null">
+     		AND #{total}&gt;=price_from
+     		AND #{total}&lt;=price_to
+		</if>
 		ORDER BY id
 	</select>
 	

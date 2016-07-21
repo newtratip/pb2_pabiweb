@@ -157,6 +157,7 @@
      		,status=#{status}
 		</if>			
 		,app_by =#{appBy}
+		,section_id =#{sectionId}
 	    ,objective =#{objective}
 	    ,doc_type =#{docType}
 	    ,pr_id =#{prId}
@@ -164,6 +165,7 @@
 	    ,doc_ref =#{docRef}
 	    ,folder_ref =#{folderRef}
 	    ,waiting_level =#{waitingLevel}
+	    ,created_by =#{createdBy}
         ,updated_by =#{updatedBy}
         ,updated_time =Now()
      WHERE id=#{id}
@@ -198,5 +200,12 @@
 	ORDER BY ORDERVAL
     </select>
 
+	<delete id="delete"
+    		parameterType="string"
+			flushCache="true"
+			statementType="PREPARED"
+			>
+   		DELETE FROM pb2_pcm_ord WHERE id=#{id}
+	</delete>
     
 </mapper>

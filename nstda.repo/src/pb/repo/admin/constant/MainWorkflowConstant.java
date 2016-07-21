@@ -7,6 +7,7 @@ public class MainWorkflowConstant {
   
 	public static final String TN_REAL_REQUESTER_CAPTION = "ผู้ขอ";
 	public static final String TN_REQUESTER_CAPTION = "ผู้บันทึก";
+	public static final String TN_APPROVER_CAPTION = "ผู้ตรวจสอบ";
   
     /*
      * Task Name

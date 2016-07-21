@@ -8,10 +8,12 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.alfresco.model.ApplicationModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
@@ -19,6 +21,7 @@ import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.repository.AssociationRef;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
@@ -29,6 +32,7 @@ import org.alfresco.service.cmr.repository.Path;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -128,6 +132,35 @@ public class AlfrescoService {
 
         return newNode;
     }
+    
+    public NodeRef createLink(NodeRef parentFolder, NodeRef docRef, String desc) throws Exception {
+    	
+		Map<QName, Serializable> props = new HashMap<QName, Serializable>(2, 1.0f);
+		String targetNewName = desc + ".url";
+
+		// common properties
+		props.put(ContentModel.PROP_NAME, targetNewName);
+		props.put(ContentModel.PROP_LINK_DESTINATION, docRef);
+    	
+		ChildAssociationRef childRef = nodeService.createNode(parentFolder, ContentModel.ASSOC_CONTAINS,
+				QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, targetNewName),
+				ApplicationModel.TYPE_FILELINK, props);
+
+		// apply the titled aspect - title and description
+		Map<QName, Serializable> titledProps = new HashMap<QName, Serializable>(2, 1.0f);
+		titledProps.put(ContentModel.PROP_TITLE, desc);
+		titledProps.put(ContentModel.PROP_DESCRIPTION, desc);
+		nodeService.addAspect(childRef.getChildRef(), ContentModel.ASPECT_TITLED, titledProps);
+
+		NodeRef newNode = childRef.getChildRef();    	
+    	
+//        if (desc!=null) {
+//        	nodeService.setProperty(newNode, ContentModel.PROP_DESCRIPTION, desc);
+//        }
+
+        return newNode;
+    }
+    
     
     public void updateDoc(NodeRef docRef, Object obj) throws Exception {
 	    String fileName = null;

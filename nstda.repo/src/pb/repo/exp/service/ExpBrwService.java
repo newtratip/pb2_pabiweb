@@ -95,16 +95,20 @@ import pb.repo.admin.service.MainSrcUrlService;
 import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.service.SubModuleService;
 import pb.repo.admin.util.MainUserGroupUtil;
+import pb.repo.admin.util.RptUtil;
 import pb.repo.common.mybatis.DbConnectionFactory;
 import pb.repo.exp.constant.ExpBrwConstant;
-import pb.repo.exp.constant.ExpBrwVoyagerConstant;
+import pb.repo.exp.constant.ExpBrwAttendeeConstant;
 import pb.repo.exp.constant.ExpBrwWorkflowConstant;
 import pb.repo.exp.dao.ExpBrwDAO;
-import pb.repo.exp.dao.ExpBrwVoyagerDAO;
-import pb.repo.exp.model.ExpBrwVoyagerModel;
+import pb.repo.exp.dao.ExpBrwDtlDAO;
+import pb.repo.exp.dao.ExpBrwAttendeeDAO;
+import pb.repo.exp.model.ExpBrwDtlModel;
 import pb.repo.exp.model.ExpBrwModel;
-import pb.repo.exp.util.ExpBrwVoyagerUtil;
+import pb.repo.exp.model.ExpBrwAttendeeModel;
+import pb.repo.exp.util.ExpBrwDtlUtil;
 import pb.repo.exp.util.ExpBrwUtil;
+import pb.repo.exp.util.ExpBrwAttendeeUtil;
 import pb.repo.exp.util.ExpUtil;
 
 @Service
@@ -181,20 +185,22 @@ public class ExpBrwService implements SubModuleService {
 	@Autowired
 	AlfrescoService alfrescoTaxService;
 	
-	public ExpBrwModel save(ExpBrwModel model, String items, String files, boolean genDoc) throws Exception {
+	public ExpBrwModel save(ExpBrwModel model, String items, String attendees, String files, boolean genDoc) throws Exception {
 		
         SqlSession session = ExpUtil.openSession(dataSource);
         
         try {
             ExpBrwDAO expBrwDAO = session.getMapper(ExpBrwDAO.class);
-            ExpBrwVoyagerDAO expBrwDtlDAO = session.getMapper(ExpBrwVoyagerDAO.class);
+            ExpBrwDtlDAO expBrwDtlDAO = session.getMapper(ExpBrwDtlDAO.class);
+            ExpBrwAttendeeDAO expBrwAttendeeDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             
             setUserGroupFields(model);
             
     		model.setUpdatedBy(authService.getCurrentUserName());
     		model = lookupOtherFields(model);
     		
-			model.setVoyagerList(ExpBrwVoyagerUtil.convertJsonToList(items, model.getId()));
+			model.setDtlList(ExpBrwDtlUtil.convertJsonToList(items, model.getId()));
+			model.setAttendeeList(ExpBrwAttendeeUtil.convertJsonToList(attendees, model.getId()));
     		
             if (model.getId() == null) {
         		model.setCreatedBy(model.getUpdatedBy());
@@ -211,7 +217,7 @@ public class ExpBrwService implements SubModuleService {
             	
         		model.setId(newId);
         		log.info("new id:"+newId);
-            	doCommonSaveProcess(model, genDoc, items, files);
+            	doCommonSaveProcess(model, genDoc, attendees, files);
             	
         		/*
         		 * Add DB
@@ -219,7 +225,7 @@ public class ExpBrwService implements SubModuleService {
             	expBrwDAO.add(model);
             }
             else {
-            	doCommonSaveProcess(model, genDoc, items, files);
+            	doCommonSaveProcess(model, genDoc, attendees, files);
             	
             	/*
             	 * Update DB
@@ -229,13 +235,22 @@ public class ExpBrwService implements SubModuleService {
             	expBrwDtlDAO.deleteByMasterId(model.getId());
             }
             
-            List<ExpBrwVoyagerModel> dtlList = model.getVoyagerList();
-            for(ExpBrwVoyagerModel dtlModel : dtlList) {
+            List<ExpBrwDtlModel> dtlList = model.getDtlList();
+            for(ExpBrwDtlModel dtlModel : dtlList) {
             	dtlModel.setMasterId(model.getId());
 	        	dtlModel.setCreatedBy(model.getUpdatedBy());
 	        	dtlModel.setUpdatedBy(model.getUpdatedBy());
 	        	
             	expBrwDtlDAO.add(dtlModel);
+            }
+            
+            List<ExpBrwAttendeeModel> attendeeList = model.getAttendeeList();
+            for(ExpBrwAttendeeModel vModel : attendeeList) {
+            	vModel.setMasterId(model.getId());
+	        	vModel.setCreatedBy(model.getUpdatedBy());
+	        	vModel.setUpdatedBy(model.getUpdatedBy());
+	        	
+            	expBrwAttendeeDAO.add(vModel);
             }
             
             session.commit();
@@ -432,7 +447,7 @@ public class ExpBrwService implements SubModuleService {
         return result;
 	}	
 	
-	private ExpBrwModel doCommonSaveProcess(ExpBrwModel model, boolean genDoc, String voyagers, String files) throws Exception {
+	private ExpBrwModel doCommonSaveProcess(ExpBrwModel model, boolean genDoc, String attendees, String files) throws Exception {
 		
 		/*
 		 * Find Pcm Section Id
@@ -468,7 +483,7 @@ public class ExpBrwService implements SubModuleService {
 		 * Gen Doc
 		 */
 		if (genDoc) {
-			model.setVoyagerList(ExpBrwVoyagerUtil.convertJsonToList(voyagers, model.getId()));
+			model.setAttendeeList(ExpBrwAttendeeUtil.convertJsonToList(attendees, model.getId()));
 			
 			model = genDoc(model, folderNodeRef);
 		}
@@ -602,41 +617,41 @@ public class ExpBrwService implements SubModuleService {
 	}
 	
 	public String doGenDoc(String name, ExpBrwModel model) throws Exception {
+		String lang = "th";
 		
 		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
 		
 		List<Map<String, Object>> empList = new ArrayList<Map<String, Object>>();
 		List<Map<String, Object>> othList = new ArrayList<Map<String, Object>>();
-		Map<String, Object> voyagerMap = null;
+		Map<String, Object> attendeeMap = null;
 		
-        List<ExpBrwVoyagerModel> tmpDtlList = model.getVoyagerList();
-        for(ExpBrwVoyagerModel tmpDtl : tmpDtlList) {
-        	voyagerMap = new HashMap<String, Object>();
+        List<ExpBrwAttendeeModel> tmpDtlList = model.getAttendeeList();
+        for(ExpBrwAttendeeModel tmpDtl : tmpDtlList) {
+        	attendeeMap = new HashMap<String, Object>();
 			
-			voyagerMap.put("code", tmpDtl.getCode());
-			voyagerMap.put("name", tmpDtl.getName());
-			voyagerMap.put("utype", tmpDtl.getUnitType());
-			voyagerMap.put("position", tmpDtl.getPosition());
+			attendeeMap.put("code", tmpDtl.getCode());
+			attendeeMap.put("name", tmpDtl.getFname()+" "+tmpDtl.getLname());
+			attendeeMap.put("utype", tmpDtl.getUnitType());
+			attendeeMap.put("position", tmpDtl.getPosition());
 			
-			if (tmpDtl.getType().equals(ExpBrwVoyagerConstant.T_EMPLOYEE)) {
-				empList.add(voyagerMap);
+			if (tmpDtl.getType().equals(ExpBrwAttendeeConstant.T_EMPLOYEE)) {
+				empList.add(attendeeMap);
 			} else {
-				othList.add(voyagerMap);
+				othList.add(attendeeMap);
 			}
         }
         
-		Collection<Map<String, ?>> empCol = new ArrayList<Map<String,?>>(empList);
-		JRMapCollectionDataSource emp = new JRMapCollectionDataSource(empCol);
-		
-		Collection<Map<String, ?>> othCol = new ArrayList<Map<String,?>>(othList);
-		JRMapCollectionDataSource oth = new JRMapCollectionDataSource(othCol);
 		/*
 		 * Parameters
 		 */
 		Map parameters = new HashMap();
 		parameters.put("imgPath", CommonConstant.GP_REPORT_IMG_PATH);
-		parameters.put("EmpDataSource", emp);
-		parameters.put("OthDataSource", oth);
+		if (empList.size()>0) {
+			parameters.put("EmpDataSource", new JRMapCollectionDataSource(new ArrayList<Map<String,?>>(empList)));
+		}
+		if (othList.size()>0) {
+			parameters.put("OthDataSource", new JRMapCollectionDataSource(new ArrayList<Map<String,?>>(othList)));
+		}
 		
 		parameters.put("total", df.format(model.getTotal()));
 		
@@ -648,12 +663,12 @@ public class ExpBrwService implements SubModuleService {
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", model.getId() != null ? model.getId() : "");
 		
-		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy());		
+		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy(), lang);		
 		map.put("reqBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
 		map.put("reqOrg", empDtl.get("org_desc"));
 		map.put("reqSection", empDtl.get("section_name"));
 		
-		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
+		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName(), lang);
 		map.put("createdBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
 		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
 		map.put("createdPhone", StringUtils.defaultIfBlank((String)empDtl.get("work_phone"),""));
@@ -692,19 +707,39 @@ public class ExpBrwService implements SubModuleService {
 		map.put("total", "aa");
 		
 		map.put("bank", "aa");
-		map.put("bank1", (model.getBankType().equals("0") ? "/radio_on.png" : "/radio_off.png"));
-		map.put("bank2", (model.getBankType().equals("1") ? "/radio_on.png" : "/radio_off.png"));
+		map.put("bank1", RptUtil.radio(model.getBankType().equals("0")));
+		map.put("bank2", RptUtil.radio(model.getBankType().equals("1")));
 
-		map.put("cc1", (model.getCostControlTypeId() == 0 ? "/radio_on.png" : "/radio_off.png"));
-		map.put("cc2", (model.getCostControlTypeId() == 1 ? "/radio_on.png" : "/radio_off.png"));
-		map.put("cc3", (model.getCostControlTypeId() == 2 ? "/radio_on.png" : "/radio_off.png"));
+		map.put("cc1", RptUtil.radio(model.getCostControlTypeId() == 0));
+		map.put("cc2", RptUtil.radio(model.getCostControlTypeId() == 1));
+		map.put("cc3", RptUtil.radio(model.getCostControlTypeId() == 2));
+
+		if (model.getCostControlTypeId() == 0) {
+			map.put("costControlId", model.getCostControlId()!=null ? model.getCostControlId().toString() : "");
+			map.put("cc1From", model.getCostControlFrom() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlFrom()) : "");
+			map.put("cc1To", model.getCostControlTo() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlTo()) : "");
+
+			map.put("costControl", "");
+			map.put("cc2From", "");
+			map.put("cc2To", "");
+		}
+
+		if (model.getCostControlTypeId() == 1) {
+			map.put("costControlId", "");
+			map.put("cc1From", "");
+			map.put("cc1To", "");
+			
+			map.put("costControl", model.getCostControl());
+			map.put("cc2From", model.getCostControlFrom() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlFrom()) : "");
+			map.put("cc2To", model.getCostControlTo() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlTo()) : "");
+		}
 		
-		map.put("costControlId", "aa");
-		map.put("costControl", "aa");
-		map.put("cc1From", "aa");
-		map.put("cc1To", "aa");
-		map.put("cc2From", "aa");
-		map.put("cc2To", "aa");
+		map.put("oav_id1", "AV16000001");
+		map.put("oav_id2", "AV16000002");
+		map.put("oav_amt1", "100.00");
+		map.put("oav_amt2", "200.00");
+		map.put("oav_bl1", "500.00");
+		map.put("oav_bl2", "600.50");
 		
 		listData.add(map);
 
@@ -965,33 +1000,37 @@ public class ExpBrwService implements SubModuleService {
 		
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("id", "AV16000001");
-		map.put("name", "ยอดคงค้างผู้ขอเบิก 1");
-		map.put("waitAmt", "1000");
-		map.put("balance", "2000");
-		list.add(map);
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		map.put("id", "AV16000001");
+//		map.put("name", "ยอดคงค้างผู้ขอเบิก 1");
+//		map.put("waitAmt", "1000");
+//		map.put("balance", "2000");
+//		list.add(map);
+//		
+//		map = new HashMap<String, Object>();
+//		map.put("id", "AV16000002");
+//		map.put("name", "ยอดคงค้างผู้ขอเบิก 2");
+//		map.put("waitAmt", "2000");
+//		map.put("balance", "4000");
+//		list.add(map);
 		
-		map = new HashMap<String, Object>();
-		map.put("id", "AV16000002");
-		map.put("name", "ยอดคงค้างผู้ขอเบิก 2");
-		map.put("waitAmt", "2000");
-		map.put("balance", "4000");
-		list.add(map);
-		
-		
-//		SqlSession session = ExpUtil.openSession(dataSource);
-//        try {
-//            ExpBrwDAO dao = session.getMapper(ExpBrwDAO.class);
-//            log.info("exp brw list param:"+params);
-//    		list = dao.list(params);
-//            
-//        } catch (Exception ex) {
-//			log.error("", ex);
-//        	throw ex;
-//        } finally {
-//        	session.close();
-//        }
+		SqlSession session = ExpUtil.openSession(dataSource);
+        try {
+            ExpBrwDAO dao = session.getMapper(ExpBrwDAO.class);
+            log.info("old exp brw list param:"+params);
+    		list = dao.listOld(params);
+            
+    		int i = 1;
+    		for(Map<String, Object> map : list) {
+    			map.put("name", "ยอดคงค้างผู้ขอเบิก "+i);
+    			i++;
+    		}
+        } catch (Exception ex) {
+			log.error("", ex);
+        	throw ex;
+        } finally {
+        	session.close();
+        }
         
         return list;
 	}
@@ -1021,7 +1060,7 @@ public class ExpBrwService implements SubModuleService {
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
             ExpBrwDAO expBrwDAO = session.getMapper(ExpBrwDAO.class);
-            ExpBrwVoyagerDAO expBrwDtlDAO = session.getMapper(ExpBrwVoyagerDAO.class);
+            ExpBrwAttendeeDAO expBrwDtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             MainWorkflowDAO workflowDAO = session.getMapper(MainWorkflowDAO.class);
             MainWorkflowHistoryDAO workflowHistoryDAO = session.getMapper(MainWorkflowHistoryDAO.class);
             MainWorkflowReviewerDAO workflowReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
@@ -1068,13 +1107,13 @@ public class ExpBrwService implements SubModuleService {
         return model;
 	}
 	
-	public List<ExpBrwVoyagerModel> listVoyagerByMasterIdAndType(String masterId, String type) {
+	public List<ExpBrwAttendeeModel> listAttendeeByMasterIdAndType(String masterId, String type) {
 		
-		List<ExpBrwVoyagerModel> list = null;
+		List<ExpBrwAttendeeModel> list = null;
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
-            ExpBrwVoyagerDAO dtlDAO = session.getMapper(ExpBrwVoyagerDAO.class);
+            ExpBrwAttendeeDAO dtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             
     		Map<String, Object> map = new HashMap<String, Object>();
     		map.put("masterId", masterId);
@@ -1091,13 +1130,13 @@ public class ExpBrwService implements SubModuleService {
         return list;
 	}
 	
-	public List<ExpBrwVoyagerModel> listOthDtlByMasterId(String masterId) {
+	public List<ExpBrwAttendeeModel> listOthDtlByMasterId(String masterId) {
 		
-		List<ExpBrwVoyagerModel> list = null;
+		List<ExpBrwAttendeeModel> list = null;
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
-            ExpBrwVoyagerDAO dtlDAO = session.getMapper(ExpBrwVoyagerDAO.class);
+            ExpBrwAttendeeDAO dtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             
     		Map<String, Object> map = new HashMap<String, Object>();
     		map.put("masterId", masterId);
@@ -1114,13 +1153,13 @@ public class ExpBrwService implements SubModuleService {
 	}
 	
 	
-	public List<ExpBrwVoyagerModel> listDtlByMasterIdAndFieldName(String masterId, String fieldName) {
+	public List<ExpBrwAttendeeModel> listDtlByMasterIdAndFieldName(String masterId, String fieldName) {
 		
-		List<ExpBrwVoyagerModel> list = null;
+		List<ExpBrwAttendeeModel> list = null;
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
-            ExpBrwVoyagerDAO dtlDAO = session.getMapper(ExpBrwVoyagerDAO.class);
+            ExpBrwAttendeeDAO dtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             
     		Map<String, Object> map = new HashMap<String, Object>();
     		map.put("masterId", masterId);
@@ -1779,7 +1818,7 @@ public class ExpBrwService implements SubModuleService {
 		return CommonConstant.SUB_MODULE_EXP_BRW;
 	}
 	
-	public String copy(String id) throws Exception {
+	public String copy(String id, String lang) throws Exception {
 		
         SqlSession session = ExpUtil.openSession(dataSource);
         
@@ -1787,7 +1826,8 @@ public class ExpBrwService implements SubModuleService {
         
         try {
             ExpBrwDAO expBrwDAO = session.getMapper(ExpBrwDAO.class);
-            ExpBrwVoyagerDAO expBrwVoyagerDAO = session.getMapper(ExpBrwVoyagerDAO.class);
+            ExpBrwDtlDAO expBrwDtlDAO = session.getMapper(ExpBrwDtlDAO.class);
+            ExpBrwAttendeeDAO expBrwAttendeeDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             
             /*
              * Get Old Exp Brw
@@ -1799,7 +1839,7 @@ public class ExpBrwService implements SubModuleService {
              */
             model.setStatus(ExpBrwConstant.ST_DRAFT);
             
-            Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName());
+            Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName(),lang);
             
         	model.setReqBy(authService.getCurrentUserName());
         	model.setReqSectionId((Integer)reqBy.get("section_id"));
@@ -1817,7 +1857,6 @@ public class ExpBrwService implements SubModuleService {
         	model.setCostControlFrom(oModel.getCostControlFrom());
         	model.setCostControlTo(oModel.getCostControlTo());
         	
-        	model.setTotalType(oModel.getTotalType());
         	model.setTotal(oModel.getTotal());
         	
         	model.setBankType(oModel.getBankType());
@@ -1854,15 +1893,27 @@ public class ExpBrwService implements SubModuleService {
     		expBrwDAO.add(model);
             
             /*
-             * Create New Voyagers
+             * Create New Details
              */
-    		List<ExpBrwVoyagerModel> voyagerList = listVoyagerByMasterIdAndType(oModel.getId(), null);
-            for(ExpBrwVoyagerModel vModel : voyagerList) {
+    		List<ExpBrwDtlModel> dtlList = listDtlByMasterId(oModel.getId());
+            for(ExpBrwDtlModel dModel : dtlList) {
+            	dModel.setMasterId(model.getId());
+	        	dModel.setCreatedBy(model.getUpdatedBy());
+	        	dModel.setUpdatedBy(model.getUpdatedBy());
+	        	
+            	expBrwDtlDAO.add(dModel);
+            }
+            
+            /*
+             * Create New Attendees
+             */
+    		List<ExpBrwAttendeeModel> attendeeList = listAttendeeByMasterIdAndType(oModel.getId(), null);
+            for(ExpBrwAttendeeModel vModel : attendeeList) {
             	vModel.setMasterId(model.getId());
 	        	vModel.setCreatedBy(model.getUpdatedBy());
 	        	vModel.setUpdatedBy(model.getUpdatedBy());
 	        	
-            	expBrwVoyagerDAO.add(vModel);
+            	expBrwAttendeeDAO.add(vModel);
             }
             
             /*
@@ -1968,7 +2019,7 @@ public class ExpBrwService implements SubModuleService {
 	public String getFirstComment(SubModuleModel model) {
 		ExpBrwModel realModel = (ExpBrwModel)model;
 		
-		return realModel.getObjectiveType() + " " + realModel.getObjective() + " " + realModel.getReason();
+		return realModel.getObjectiveType() + " " + realModel.getObjective();
 	}
 
 	@Override
@@ -2005,7 +2056,7 @@ public class ExpBrwService implements SubModuleService {
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
-            ExpBrwVoyagerDAO dao = session.getMapper(ExpBrwVoyagerDAO.class);
+            ExpBrwDtlDAO dao = session.getMapper(ExpBrwDtlDAO.class);
             
     		Map<String, Object> map = new HashMap<String, Object>();
     		map.put("id", id);
@@ -2387,4 +2438,39 @@ public class ExpBrwService implements SubModuleService {
 		
 		return hModel;
 	}
+	
+	public List<ExpBrwDtlModel> listDtlByMasterId(String masterId) {
+		
+		List<ExpBrwDtlModel> list = null;
+		
+		SqlSession session = ExpUtil.openSession(dataSource);
+        try {
+            ExpBrwDtlDAO dao = session.getMapper(ExpBrwDtlDAO.class);
+            
+    		Map<String, Object> map = new HashMap<String, Object>();
+    		map.put("masterId", masterId);
+
+    		list = dao.list(map);
+        } catch (Exception ex) {
+			log.error("", ex);
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}
+
+	@Override
+	public MainWorkflowHistoryModel getAppByWorkflowHistory(SubModuleModel model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<String> getSpecialUserForAddPermission(SubModuleModel model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

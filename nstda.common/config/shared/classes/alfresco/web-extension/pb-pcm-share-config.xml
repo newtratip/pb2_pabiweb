@@ -170,21 +170,23 @@
 				<show id="pcmreqwf:total"/>
 				
 				<show id="pcmreqwf:document"/>
+				<show id="pcmreqwf:refDocument"/>
 				<show id="pcmreqwf:attachDocument"/>
 				
 				<show id="bpm:comment" />
 				<show id="pcmreqwf:reviewOutcome" />
 				<show id="pcmreqwf:folderRef"/>
 				
-				<!--show id="pcmreqwf:consultant"/-->
+				<show id="pcmreqwf:consultant"/>
 			</field-visibility>
 			
 			<appearance>
 				<set id="docInfo" appearance="panel" label-id="workflow.pcm.set.docInfo"/>		
 				<set id="pnlDocument" appearance="panel" parent="docInfo" label-id="workflow.pcm.set.document.pr" />
+				<set id="pnlRefDocument" appearance="panel" parent="docInfo" label-id="workflow.pcm.set.document.pr.ref" />
 				<set id="pnlAttachment" appearance="panel" parent="docInfo" label-id="workflow.pcm.set.attachment" />	
 				<set id="pnlComment" appearance="panel" parent = "docInfo"  label-id="workflow.pcm.set.comment" />
-				<!-- set id="pnlConsult" appearance="panel" label-id="workflow.pcm.set.consult" /-->
+				<set id="pnlConsult" appearance="panel" label-id="workflow.pcm.set.consult" />
 				<set id="response" appearance="title" label-id="workflow.pcm.set.response" />
 				 
 				<field id="pcmreqwf:id" set="docInfo">
@@ -228,7 +230,16 @@
 						<control-param name="removeAction">false</control-param>  
 						<control-param name="showLabel">false</control-param>
 					</control>
-				</field> 
+				</field>
+				
+				<field id="pcmreqwf:refDocument" set="pnlRefDocument">
+					<control template="/pb/components/form/controls/workflow/packageitems_ref.ftl">
+						<control-param name="style">width:100%</control-param>
+						<control-param name="removeAction">false</control-param>  
+						<control-param name="showLabel">false</control-param>
+					</control>
+				</field>
+				 
 				<field id="pcmreqwf:attachDocument" set="pnlAttachment">
 					<control template="/pb/components/form/controls/workflow/packageitems.ftl">
 						<control-param name="style">width:100%</control-param>
@@ -253,12 +264,12 @@
 				  </control>
 				</field>
 				
-				<!-- field id="pcmreqwf:consultant" set="pnlConsult">
+				<field id="pcmreqwf:consultant" set="pnlConsult">
                   	<control template="/pb/components/form/controls/consultant.ftl">
 						<control-param name="width">80</control-param>
 						<control-param name="fieldName">consultant</control-param>
 				  	</control>
-                </field-->
+                </field>
                 
 				<field id="pcmreqwf:reviewOutcome" label-id="workflow.field.outcome" set="response">
                   <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />

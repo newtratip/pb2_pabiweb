@@ -108,6 +108,14 @@ function getLanguage() {
 	    return contentLanguage[0].split(":")[1].trim().toUpperCase();
 	}	    
 }
+function getCookie(name) {
+  match = document.cookie.match(new RegExp(name + '=([^;]+)'));
+  if (match) return match[1];
+}
+function getLang() {
+	var v = getCookie(ALF_LANG_COOKIE);
+	return v ? v : "en";
+}
 function mandatoryLabel(lbl) {
 	return lbl + '<font color="red">*</font>';
 }

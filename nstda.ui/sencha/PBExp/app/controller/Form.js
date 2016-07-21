@@ -29,6 +29,9 @@ Ext.define('PBExp.controller.Form', {
         ref: 'txtObjective',
         selector: 'expBrwMainForm field[name=objective]'
     },{
+        ref: 'pnlOldAV',
+        selector: 'expBrwInfoTab panel[itemId=oldAV]'
+    },{
         ref: 'txtReason',
         selector: 'expBrwMainForm field[name=reason]'
     },{
@@ -44,11 +47,11 @@ Ext.define('PBExp.controller.Form', {
         ref: 'radBankType',     
         selector: 'expBrwMainForm field[name=bankType]'
     },{
-        ref: 'txtTotal',     
+        ref: 'hidTotal',     
         selector: 'expBrwMainForm field[name=total]'
     },{
-        ref: 'cmbTotalType',
-        selector: 'expBrwMainForm field[name=totalType]'
+        ref: 'txtActivity',
+        selector: 'expBrwMainForm field[name=activity]'
     },{
         ref: 'radCostControlTypeId',
         selector: 'expBrwMainForm field[name=costControlTypeId]'
@@ -80,11 +83,14 @@ Ext.define('PBExp.controller.Form', {
         ref: 'btnApprovalMatrix',     
         selector: 'expBrwMainForm button[action=approvalMatrix]'
 	},{
-    	ref:'voyagerEmpGrid',
-    	selector:'expBrwVoyagerTab #empGrid'
+    	ref:'itemGrid',
+    	selector:'expBrwInfoTab grid[itemId=itemGrid]'
 	},{
-    	ref:'voyagerOthGrid',
-    	selector:'expBrwVoyagerTab #othGrid'
+    	ref:'attendeeEmpGrid',
+    	selector:'expBrwAttendeeTab #empGrid'
+	},{
+    	ref:'attendeeOthGrid',
+    	selector:'expBrwAttendeeTab #othGrid'
 	},{
     	ref:'infoTab',
     	selector:'expBrwInfoTab'
@@ -123,9 +129,10 @@ Ext.define('PBExp.controller.Form', {
 			},
 			'expBrwInfoTab':{
 				selectBudgetCc:me.selectBudgetCc,
-				selectMainBank:me.selectMainBank
+				selectMainBank:me.selectMainBank,
+				oldStoreLoad:me.oldStoreLoad
 			},
-			'expBrwVoyagerTab':{
+			'expBrwAttendeeTab':{
 				selectCostControl:me.selectCostControl
 			}
 		});
@@ -147,26 +154,26 @@ Ext.define('PBExp.controller.Form', {
 			
 			// check file
 			if (result) {
-				if (me.getHidTotal().getValue()>=100000) {
-					if (me.getFileTab().down("uploadGrid").getStore().getCount()<=0) {
-						PB.Dlg.show('ERR_NO_FILE', MODULE_EXP, 
-							{
-								icon:Ext.MessageBox.WARNING,
-								modal:true,
-								fn:function(btn) {
-									if (btn=='yes') {
-										me[fn](null);
-									}
-								},
-								scope:me,
-//								animateTarget:me.getFileTab().down("uploadGrid"),
-								buttonText:{yes:'ยืนยันการส่งขออนุมัติ',no:'แนบเอกสาร'},
-								buttons:Ext.MessageBox.YESNO
-							}
-						);
-						result = false;
-					}
-				}
+//				if (me.getHidTotal().getValue()>=100000) {
+//					if (me.getFileTab().down("uploadGrid").getStore().getCount()<=0) {
+//						PB.Dlg.show('ERR_NO_FILE', MODULE_EXP, 
+//							{
+//								icon:Ext.MessageBox.WARNING,
+//								modal:true,
+//								fn:function(btn) {
+//									if (btn=='yes') {
+//										me[fn](null);
+//									}
+//								},
+//								scope:me,
+////								animateTarget:me.getFileTab().down("uploadGrid"),
+//								buttonText:{yes:'ยืนยันการส่งขออนุมัติ',no:'แนบเอกสาร'},
+//								buttons:Ext.MessageBox.YESNO
+//							}
+//						);
+//						result = false;
+//					}
+//				}
 			}
 		}
 		
@@ -327,10 +334,10 @@ Ext.define('PBExp.controller.Form', {
 		params.bankType = me.getRadBankType().getGroupValue();
 		params.bank = me.getCmbBank().getValue();
 		
-		params.totalType = me.getCmbTotalType().getValue();
-		params.total = me.getTxtTotal().getValue();
+		params.total = me.getHidTotal().getValue();
 		
-		params.voyagers = me.getVoyagers();
+		params.items = me.getItems();
+		params.attendees = me.getAttendees();
 		params.files = me.listFiles();
 		
 		return params;
@@ -433,11 +440,24 @@ Ext.define('PBExp.controller.Form', {
 		return v;
 	},
 	
-	getVoyagers:function() {
+	getItems:function() {
+		var me = this;
+	
+		var itemStore = me.getItemGrid().getStore();
+		
+		var data = [];
+		itemStore.each(function(rec){
+		   data.push(rec.data);
+		});
+		
+		return Ext.JSON.encode(data);
+	},
+	
+	getAttendees:function() {
 	
 		var me = this;
 	
-		var eStore = me.getVoyagerEmpGrid().getStore();
+		var eStore = me.getAttendeeEmpGrid().getStore();
 		
 		var data = [];
 		eStore.each(function(rec){
@@ -445,7 +465,7 @@ Ext.define('PBExp.controller.Form', {
 		   data.push(rec.data);
 		});
 		
-		var oStore = me.getVoyagerOthGrid().getStore();
+		var oStore = me.getAttendeeOthGrid().getStore();
 		oStore.each(function(rec){
 		   rec.data.type = "O";
 		   data.push(rec.data);
@@ -670,7 +690,7 @@ Ext.define('PBExp.controller.Form', {
 	selectBudgetCc:function() {
 		var me = this;
 
-		var dlg = Ext.create("PB.view.common.SearchSectionProjectDlg",{
+		var dlg = Ext.create("PB.view.common.SearchBudgetSrcDlg",{
 			title:'ค้นหา',
 			targetPanel:this.getInfoTab(),
 			callback:this.selectBudgetCcCallBack
@@ -682,6 +702,13 @@ Ext.define('PBExp.controller.Form', {
 		var tab = this.targetPanel;
 		setValue(tab, 'reqBy', rec.get('emp_id'));
 		setValue(tab, 'reqByName', rec.get('first_name') + ' ' + rec.get('last_name'));
+		
+		var mphone = rec.get("mobile_phone")!=null ? rec.get("mobile_phone") : "";
+		var wphone = rec.get("work_phone")!=null ? rec.get("work_phone") : "";
+		var comma = (mphone!="" && wphone!="") ? "," : "";
+		
+		setValue(tab, 'reqTelNo', wphone+comma+mphone);
+		
 		setValue(tab, 'reqByDept', rec.get('pos_name'));
 		setValue(tab, 'reqBu', rec.get('org_desc'));
 		setValue(tab, 'reqOuName', rec.get('section_desc'));
@@ -735,6 +762,17 @@ Ext.define('PBExp.controller.Form', {
 			me.getTxtCostControl().setValue(null);
 			me.getTxtCc2From().setValue(null);
 			me.getTxtCc2To().setValue(null);
+		}
+	},
+	
+	oldStoreLoad:function(r) {
+//		for(var a in r) {
+//			console.log("- "+a+":"+r[a]);
+//		}
+		if (!r || r.length<=0) {
+			this.getTxtReason().setFieldStyle('background-color: #ddd; background-image:none;');
+			this.getTxtReason().setDisabled(true);
+			this.getPnlOldAV().setDisabled(true);
 		}
 	}
 	

@@ -45,7 +45,7 @@ public class ExpUseModel extends SubModuleModel {
 	String status;
 	String wfStatus;
 	
-	List<ExpUseVoyagerModel> voyagerList;
+	List<ExpUseAttendeeModel> attendeeList;
 	List<ExpUseDtlModel> dtlList;
 	
 	public String getStatus() {
@@ -147,11 +147,11 @@ public class ExpUseModel extends SubModuleModel {
 	public void setCostControlId(Integer costControlId) {
 		this.costControlId = costControlId;
 	}
-	public List<ExpUseVoyagerModel> getVoyagerList() {
-		return voyagerList;
+	public List<ExpUseAttendeeModel> getAttendeeList() {
+		return attendeeList;
 	}
-	public void setVoyagerList(List<ExpUseVoyagerModel> voyagerList) {
-		this.voyagerList = voyagerList;
+	public void setAttendeeList(List<ExpUseAttendeeModel> attendeeList) {
+		this.attendeeList = attendeeList;
 	}
 	public String getCostControl() {
 		return costControl;

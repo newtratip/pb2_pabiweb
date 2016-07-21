@@ -64,7 +64,7 @@ Ext.define('PBExp.view.MainGrid', {
 					var d = data[i];
 					
 					var col = {
-						text: d.label,  
+						text: PBExp.Label.m[d.label],  
 						dataIndex: d.field,
 						align:d.align
 					}
@@ -95,7 +95,7 @@ Ext.define('PBExp.view.MainGrid', {
 		      async:false
 		}); 
 		
-		columns.push({ text: 'สถานะ',  dataIndex: 'wfStatus', width:370,
+		columns.push({ text: PBExp.Label.m.status,  dataIndex: 'wfStatus', width:370,
 		  	  renderer: function (v, m, r) {
 			
 					if (r.get("overDue")) {
@@ -137,14 +137,14 @@ Ext.define('PBExp.view.MainGrid', {
 	           	}
             },{
             	xtype: 'button',
-                text: "Search",
+                text: PB.Label.m.search,
                 iconCls: "icon_search",                
                 action: "search"
             },
                 "->"
             ,{ 
             	xtype: 'button',
-                text: "New AV",
+                text: PB.Label.m["new"],
                 iconCls: "icon_add",
                 action: "add"
             }],

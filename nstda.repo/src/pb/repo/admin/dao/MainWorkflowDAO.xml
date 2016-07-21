@@ -12,6 +12,7 @@
         <result property="by" column="by"/>
         <result property="byTime" column="by_time"/>
         <result property="taskId" column="task_id"/>
+        <result property="executionId" column="execution_id"/>
         <result property="createdTime" column="created_time"/>
         <result property="createdBy" column="created_by"/>
      
@@ -38,9 +39,9 @@
 		useGeneratedKeys="true"
 		>
 	    INSERT INTO pb2_main_workflow(
-	    	id,type,master_id,workflow_ins_id,status,assignee,by,by_time,task_id,created_time,created_by
+	    	id,type,master_id,workflow_ins_id,status,assignee,by,by_time,task_id,execution_id,created_time,created_by
 	    ) VALUES (
-	    	#{id},#{type},#{masterId},#{workflowInsId},#{status},#{assignee},#{by},Now(),#{taskId},Now(),#{createdBy}
+	    	#{id},#{type},#{masterId},#{workflowInsId},#{status},#{assignee},#{by},Now(),#{taskId},#{executionId},Now(),#{createdBy}
     	)
 		
 	</insert>
@@ -51,6 +52,7 @@
 		
 	     UPDATE pb2_main_workflow 
 	     SET task_id=#{taskId},
+	     	 execution_id=#{executionId},
 	     	 status=#{status},
 	         assignee=#{assignee},
 	         by=#{by},

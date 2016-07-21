@@ -26,7 +26,6 @@ public class ExpBrwModel extends SubModuleModel {
 	Timestamp costControlFrom;
 	Timestamp costControlTo;
 	
-	Integer totalType;
 	Double total;
 	
 	String bankType;
@@ -37,7 +36,8 @@ public class ExpBrwModel extends SubModuleModel {
 	String status;
 	String wfStatus;
 	
-	List<ExpBrwVoyagerModel> voyagerList;
+	List<ExpBrwDtlModel> dtlList;
+	List<ExpBrwAttendeeModel> attendeeList;
 	
 	public String getStatus() {
 		return status;
@@ -156,12 +156,6 @@ public class ExpBrwModel extends SubModuleModel {
 	public void setCostControlTo(Timestamp costControlTo) {
 		this.costControlTo = costControlTo;
 	}
-	public Integer getTotalType() {
-		return totalType;
-	}
-	public void setTotalType(Integer totalType) {
-		this.totalType = totalType;
-	}
 	public String getBankType() {
 		return bankType;
 	}
@@ -174,11 +168,17 @@ public class ExpBrwModel extends SubModuleModel {
 	public void setBank(Integer bank) {
 		this.bank = bank;
 	}
-	public List<ExpBrwVoyagerModel> getVoyagerList() {
-		return voyagerList;
+	public List<ExpBrwDtlModel> getDtlList() {
+		return dtlList;
 	}
-	public void setVoyagerList(List<ExpBrwVoyagerModel> voyagerList) {
-		this.voyagerList = voyagerList;
+	public void setDtlList(List<ExpBrwDtlModel> dtlList) {
+		this.dtlList = dtlList;
+	}
+	public List<ExpBrwAttendeeModel> getAttendeeList() {
+		return attendeeList;
+	}
+	public void setAttendeeList(List<ExpBrwAttendeeModel> attendeeList) {
+		this.attendeeList = attendeeList;
 	}
 	public String getCostControl() {
 		return costControl;

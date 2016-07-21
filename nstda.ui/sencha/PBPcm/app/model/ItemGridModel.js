@@ -5,6 +5,7 @@ Ext.define('PBPcm.model.ItemGridModel', {
     		 , {name : 'description'}
     		 , {name : 'quantity'}
     		 , {name : 'unit'}
+    		 , {name : 'unitId'}
     		 , {name : 'price'}
     		 , {name : 'priceCnv'}
     		 , {name : 'total'}

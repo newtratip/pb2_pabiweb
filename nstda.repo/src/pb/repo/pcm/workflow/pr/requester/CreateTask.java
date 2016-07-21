@@ -20,7 +20,7 @@ import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
 import pb.repo.pcm.service.PcmReqWorkflowService;
-import pb.repo.pcm.service.PcmSignatureService;
+import pb.repo.pcm.service.PcmOrdSignatureService;
 
 @Component("pb.pcm.workflow.pr.requester.CreateTask")
 public class CreateTask implements TaskListener {
@@ -46,7 +46,7 @@ public class CreateTask implements TaskListener {
 	AdminViewerService viewerService;
 	
 	@Autowired
-	PcmSignatureService signatureService;
+	PcmOrdSignatureService signatureService;
 	
 	@Autowired
 	AdminMasterService adminMasterService;

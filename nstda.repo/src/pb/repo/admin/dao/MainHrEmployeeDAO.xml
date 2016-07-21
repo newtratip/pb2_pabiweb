@@ -32,33 +32,57 @@
 	</select>
 	
 	<select id="listBySection" resultType="map" parameterType="map">
-		select	e.employee_code, first_name,last_name ,po.name "position",s.name utype
+		select	e.employee_code, first_name,last_name ,po.name "position",s.name utype, e.position_id
 		from	pb2_ext_hr_employee e, pb2_ext_res_org o ,pb2_ext_res_section s,pb2_ext_hr_position po
 		where	e.org_id = o.id
 		and	e.section_id = s.id
 		and	e.position_id = po.id
 		and	e.section_id = #{code}
-		<if test="searchTerm != null">
-			AND (
-				e.employee_code like '%'||#{searchTerm}||'%'
-			)
-		</if>
+		<if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+	    			concat(e.employee_code, ' ', first_name, ' ', last_name, ' ', po.name, ' ', s.name, ' ', first_name_th, ' ', last_name_th) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  		
 		order by	first_name,last_name
 	</select>
 
 	<select id="listByProject" resultType="map" parameterType="map">
-		select	e.employee_code, e.first_name, e.last_name, po.name "position" , concat(p.name,' - ',p.description) utype
+		select	e.employee_code, e.first_name, e.last_name, po.name "position" , concat(p.name,' - ',p.description) utype, e.position_id 
 		from	pb2_ext_res_project_member pm, pb2_ext_hr_employee e ,pb2_ext_hr_position po, pb2_ext_res_project p
 		where	e.id = pm.employee_id
 		and 	e.position_id = po.id
 		and	pm.project_id = p.id
 		and	pm.project_id = #{code}
-		<if test="searchTerm != null">
-			AND (
-				e.employee_code like '%'||#{searchTerm}||'%'
-			)
-		</if>
+		<if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+	    			concat(e.employee_code, ' ', e.first_name, ' ', e.last_name, ' ', po.name, ' ', p.name, ' ',p.description) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  		
 		order by 	first_name,last_name
+	</select>
+	
+	<select id="listForSearch" resultType="map" parameterType="map">
+		select * from
+		(
+			select e.employee_code, e.first_name,e.last_name ,po.name "position",s.description utype, e.position_id
+			from pb2_ext_hr_employee${lang} e, pb2_ext_res_org o ,pb2_ext_res_section s,pb2_ext_hr_position po
+			where e.org_id = o.id
+			and e.section_id = s.id
+			and e.position_id = po.id
+		union
+			select e.employee_code, e.first_name, e.last_name, po.name "position" , concat(p.name,' - ',p.description) utype, e.position_id
+			from pb2_ext_res_project_member pm, pb2_ext_hr_employee${lang} e ,pb2_ext_hr_position po, pb2_ext_res_project p
+			where e.id = pm.employee_id
+			and e.position_id = po.id
+			and pm.project_id = p.id
+		) a
+		WHERE 1=1
+		<if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+	    			concat(employee_code, ' ', first_name, ' ', last_name, ' ', position, ' ', utype) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+		</if>  		
+		order by employee_code,first_name,last_name,utype,"position"
 	</select>
 	
 	<select id="count"  resultType="long">
@@ -76,7 +100,7 @@
 		WHERE lpad(employee_code, 6 ,'0')=lpad(#{code}, 6 ,'0')
     </select>
     
-    <select id="getWithDtl" parameterType="string" resultType="map" >
+    <select id="getWithDtl" parameterType="map" resultType="map" >
 		select
 			e.id,
 			e.name_related,
@@ -93,10 +117,10 @@
 			d.name div_name,
 			e.section_id,
 			e.org_id
-		from pb2_ext_hr_employee e left join pb2_ext_res_org o on e.org_id = o.id
+		from pb2_ext_hr_employee${lang} e left join pb2_ext_res_org o on e.org_id = o.id
 		left join pb2_ext_res_section s on e.section_id = s.id
 		left join pb2_ext_res_division d on d.id = s.division_id
-		where lpad(employee_code, 6 ,'0')=lpad(#{code}, 6 ,'0')    
+		where lpad(e.employee_code, 6 ,'0')=lpad(#{code}, 6 ,'0')    
 	</select>    
 	
 </mapper>

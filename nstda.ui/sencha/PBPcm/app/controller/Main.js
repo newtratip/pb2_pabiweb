@@ -160,7 +160,8 @@ Ext.define('PBPcm.controller.Main', {
 			      url:me.URL+"/get",
 			      method: "GET",
 			      params: {
-			    	  id : ID
+			    	  id : ID,
+			    	  lang : getLang()
 			      },
 			      success: function(response){
 			    	  
@@ -185,7 +186,8 @@ Ext.define('PBPcm.controller.Main', {
 		var store = me.getMainGrid().getStore();
 		
 		var params = {
-			s : me.getTxtSearch().getValue()
+			s : me.getTxtSearch().getValue(),
+			lang : getLang()
 		}
 		
 		var fields = {};
@@ -223,12 +225,12 @@ Ext.define('PBPcm.controller.Main', {
 		form.removeAll(true);
 		
 //		form.down("field[name=hId]").setValue(header.id);
-		
 		Ext.Ajax.request({
 		      url:me.MSG_URL+"/list",
 		      method: "GET",
 		      params: {
-		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ITEM,TAB_TITLE_FILE,TAB_TITLE_CMT"
+		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ITEM,TAB_TITLE_FILE,TAB_TITLE_CMT",
+		    	  lang:getLang()
 		      },
 		      success: function(response){
 		    	  
@@ -829,6 +831,9 @@ Ext.define('PBPcm.controller.Main', {
 		Ext.Ajax.request({
 		      url:me.URL+"/userDtl",
 		      method: "GET",
+		      params:{
+				lang:getLang()
+			  },
 		      success: function(response){
 		    	  
 		    	var json = Ext.decode(response.responseText);
@@ -836,7 +841,7 @@ Ext.define('PBPcm.controller.Main', {
 		    	var data = json.data[0];
 		    	data.created_time = new Date();
 		    	
-				me.createForm("Create", data);
+				me.createForm(PBPcm.Label.m.create, data);
 				
 				me.activateForm();
 				
@@ -881,7 +886,8 @@ Ext.define('PBPcm.controller.Main', {
 			      method: "GET",
 			      params:{
 		    		 r:me.data.req_by,
-		    	     c:me.data.created_by
+		    	     c:me.data.created_by,
+		    	     lang:getLang()
 		    	  },
 			      success: function(response){
 			    	  
@@ -891,7 +897,7 @@ Ext.define('PBPcm.controller.Main', {
 			    	
 			    	Ext.merge(me.data, data);
 			    	
-					me.createForm('Edit : <font color="red">'+rec.get("id")+"</font>", me.data);
+					me.createForm(PBPcm.Label.m.edit+' : <font color="red">'+rec.get("id")+"</font>", me.data);
 					if (ID) {
 						var form = me.getMainForm(); 
 						form.down("button[action=send]").hide();

@@ -56,7 +56,8 @@ public class ExpUseConstant extends SubModuleConstant {
 	public static final String JFN_OVER_DUE = "overDue";
 	
 	public static final String JFN_REQ_BY = "req_by"; 
-	public static final String JFN_REQ_BY_NAME = "req_by_name"; 
+	public static final String JFN_REQ_BY_NAME = "req_by_name";
+	public static final String JFN_REQ_TEL_NO = "req_tel_no";
 	public static final String JFN_REQ_BY_DEPT = "req_by_dept"; 
 	
 	public static final String JFN_REQ_BU = "req_bu"; 

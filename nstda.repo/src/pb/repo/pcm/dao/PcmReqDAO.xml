@@ -79,9 +79,9 @@
 				NULL WF_STATUS, STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				WORKFLOW_INS_ID, NULL TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
-				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = pb2_pcm_req.created_by) CBY,
+				(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = pb2_pcm_req.created_by) CBY,
 				FOLDER_REF, DOC_REF, REQ_BY,
-				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = pb2_pcm_req.req_by) RBY
+				(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = pb2_pcm_req.req_by) RBY
 			FROM pb2_pcm_req
 			WHERE STATUS='D' AND CREATED_BY=#{loginE}
  			UNION
@@ -91,13 +91,13 @@
 				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				M.WORKFLOW_INS_ID, TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
-				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.created_by) CBY,
+				(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = M.created_by) CBY,
 				FOLDER_REF, DOC_REF, REQ_BY,
-				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.req_by) RBY 
+				(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = M.req_by) RBY 
 			FROM pb2_pcm_req M LEFT JOIN 
 			(
 			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
-			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
+			FROM pb2_main_workflow w  left join pb2_ext_hr_employee${lang} e on w.by = lpad(e.employee_code,6,'0')
 			WHERE TYPE='PCM_REQ' AND 
 			w.ID IN (
 				SELECT MAX(ID)
@@ -132,16 +132,11 @@
 		
 		WHERE
 			1=1
-		<if test="searchTerm != null">
-		AND (REQ.id ilike #{searchTerm}
-		OR objective ilike #{searchTerm}
-		OR reason ilike #{searchTerm}
-		OR location ilike #{searchTerm}
-		OR method_cond2_rule ilike #{searchTerm}
-		OR method_cond2 ilike #{searchTerm}
-		OR method_cond2_dtl ilike #{searchTerm}
-		)			
-		</if>
+		<if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+	    			concat(REQ.id, ' ', objective_type, ' ', objective, ' ', reason, ' ', location, ' ', method_cond2_rule, ' ', method_cond2, ' ', method_cond2_dtl) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  
 		<if test="status != null">
 			AND status=#{status}
 		</if>
@@ -154,74 +149,31 @@
     </select>
     
     <select id="listForSearch" resultMap="result" parameterType="map">
-        SELECT
-		    REQ.ID, total, objective_type, objective, 
-		    	budget_cc, budget_cc_type, b.name budget_cc_name,
-				WF_STATUS, STATUS, reason, 
-				cost_control_id, cost_control_type_id, 
-				location, 
-				prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
-				WORKFLOW_INS_ID, TASK_ID,
-				UPDATED_TIME, UPDATED_BY, CREATED_TIME, 
-				FOLDER_REF, DOC_REF,
-  			CASE 
-  				WHEN STATUS='D' THEN '1'
-            	WHEN STATUS='W2' THEN '2'
-            	WHEN STATUS='W1' THEN '3'
-            	WHEN STATUS='S' THEN '4'
-            	WHEN STATUS='C1' THEN '5'
-            	WHEN STATUS='C2' THEN '6'
-            	WHEN STATUS='X1' THEN '7'
-            	WHEN STATUS='X2' THEN '8'
-            	ELSE STATUS
-       		END ORDER_FIELD,
-	      	COALESCE(CBY ,CREATED_BY) CREATED_BY,
-	      	COALESCE(RBY ,REQ_BY) REQ_BY,
-		    COUNT(*) OVER() totalRowCount
+		SELECT REQ.ID, total, objective_type, b.name budget_cc_name, status, objective,FOLDER_REF, DOC_REF, COALESCE(CBY ,CREATED_BY) CREATED_BY, COALESCE(RBY ,REQ_BY) REQ_BY, COUNT(*) OVER() totalRowCount, CREATED_TIME
 		FROM
-		    (SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type,
-				CASE WHEN (W.STATUS IS NULL) THEN ''
-				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
-				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
-				M.WORKFLOW_INS_ID, TASK_ID,
-				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
-				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.created_by) CBY,
-				FOLDER_REF, DOC_REF, REQ_BY,
-				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.req_by) RBY 
-			FROM pb2_pcm_req M LEFT JOIN 
-			(
-			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
-			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
-			WHERE TYPE='PCM_REQ' AND 
-			w.ID IN (
-				SELECT MAX(ID)
-				FROM pb2_main_workflow 
-				GROUP BY MASTER_ID
-			)) AS W ON M.ID = W.MASTER_ID 
-			WHERE M.STATUS not in ('D','X1','X2')
-		) REQ
-		LEFT JOIN
-		(
-			select 'U' _type,id,name
-			from pb2_ext_res_section
-			union
-			select 'P' _type,id,p.name||' - '||p.description
-			from pb2_ext_res_project p
-		) b on (REQ.budget_cc_type = b._type and REQ.budget_cc = b.id)
-		
-		WHERE
-			1=1
-		<if test="searchTerm != null">
-		AND (REQ.id ilike #{searchTerm}
-			OR objective_type ilike #{searchTerm}
-			OR objective ilike #{searchTerm}
-			OR reason ilike #{searchTerm}
-			OR location ilike #{searchTerm}
-			OR method_cond2_rule ilike #{searchTerm}
-			OR method_cond2 ilike #{searchTerm}
-			OR method_cond2_dtl ilike #{searchTerm}
-			)			
-		</if>
+      		(SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
+    		M.WORKFLOW_INS_ID ,
+    		UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
+    		(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = M.created_by) CBY,
+    		FOLDER_REF, DOC_REF, REQ_BY,
+    		(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = M.req_by) RBY 
+   			FROM pb2_pcm_req M  
+   			WHERE M.STATUS not in ('D','X1','X2')
+  			) REQ
+  		LEFT JOIN
+  		(
+   			select 'U' _type,id,name
+   			from pb2_ext_res_section
+   			union
+   			select 'P' _type,id,p.name||' - '||p.description
+   			from pb2_ext_res_project p
+  		) b on (REQ.budget_cc_type = b._type and REQ.budget_cc = b.id)
+  		WHERE ((created_by = #{loginE}) or (req_by = #{loginE}))
+		<if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+	    			concat(REQ.id, ' ', objective_type, ' ', objective, ' ', reason, ' ', location, ' ', method_cond2_rule, ' ', method_cond2, ' ', method_cond2_dtl) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  
 		ORDER BY ${orderBy}
 		LIMIT #{limit}
 		OFFSET #{start}
@@ -425,6 +377,7 @@
 			r.is_prototype,
 			budget_cc, 
 			prweb_method_id, 
+			r.method_cond2,
 			method_cond2_dtl,
 			method_id,
 			w.by last_approver,

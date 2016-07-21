@@ -26,12 +26,19 @@ Ext.define('PBPcm.view.Main', {
 		
 		var items = [];
 		
-		var store = Ext.create('PBPcm.store.GridStore',{storeId:'pcmReqGridStore',autoLoad:true});
+		var store = Ext.create('PBPcm.store.GridStore',{
+			storeId:'pcmReqGridStore',
+			autoLoad:false
+		});
+
+		store.getProxy().extraParams = {
+				lang : getLang()
+		}
 		
 		if (!ID) {
 			items.push({
 				xtype:'pcmReqMainGrid',
-				title:'Search',
+				title:PBPcm.Label.m.search,
 				store:store
 			});
 			

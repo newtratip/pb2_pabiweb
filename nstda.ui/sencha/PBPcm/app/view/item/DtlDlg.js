@@ -11,12 +11,12 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 		}
 		store.load();
 		
-		var lbw = 100;
+		var lbw = 170;
 		
 		Ext.applyIf(me, {
 		        renderTo : Ext.getBody(),
 	            modal: true,
-	            width: 420,
+	            width: 520,
 	            height: 370,
 	            layout: 'fit',
 	            resizable: false,
@@ -46,7 +46,7 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 //					    ]
 					 },{
 					    xtype: 'textfield',
-					    fieldLabel : mandatoryLabel('รายการ'), 
+					    fieldLabel : mandatoryLabel(PBPcm.Label.t.name), 
 					    labelWidth: lbw,
 					    anchor:"-10",
 					    hideTrigger:true,
@@ -63,7 +63,7 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 						}
 					},{
 					    xtype: 'numericfield',
-					    fieldLabel : mandatoryLabel('จำนวน'), 
+					    fieldLabel : mandatoryLabel(PBPcm.Label.t.qty), 
 					    labelWidth: lbw,
 					    anchor:"-10",
 					    hideTrigger:true,
@@ -74,9 +74,9 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					},{
 						xtype:'combo',
 						name:'unit',
-						fieldLabel:mandatoryLabel('หน่วยนับ'),
+						fieldLabel:mandatoryLabel(PBPcm.Label.t.uom),
 				    	displayField:'name',
-				    	valueField:'name',
+				    	valueField:'id',
 				        emptyText : "โปรดเลือก",
 				        store: store,
 				        queryMode: 'local',
@@ -101,7 +101,7 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 						}			
 					},{
 					    xtype: 'numericfield',
-					    fieldLabel : mandatoryLabel('ราคาต่อหน่วย'), 
+					    fieldLabel : mandatoryLabel(PBPcm.Label.t.dlg_prc), 
 					    labelWidth: lbw,
 					    anchor:"-10",
 					    hideTrigger:true,
@@ -111,13 +111,13 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					    allowBlank:false
 					}],
 			        buttons : [{
-			          text: 'บันทึก', 
+			          text: PBPcm.Label.m.save, 
 //			          disabled : true,
 			          action : 'ok',
 			          itemId: 'okButton',
 			          iconCls:'icon_ok'
 			        },{
-			          text: 'ยกเลิก',
+			          text: PBPcm.Label.m.cancel,
 			          handler:this.destroy,
 			          scope:this,
 			          iconCls:'icon_no'

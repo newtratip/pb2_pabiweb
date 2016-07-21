@@ -8,7 +8,7 @@
  * - MainForm
  * 		- UserTab
  * 		- InfoTab
- * 		- VoyagerTab
+ * 		- AttendeeTab
  * 		- FileTab
  */
 Ext.define('PBExp.view.Main', {
@@ -30,7 +30,7 @@ Ext.define('PBExp.view.Main', {
 		if (!ID) {
 			items.push({
 				xtype:'expBrwMainGrid',
-				title:'Search',
+				title:PB.Label.m.search,
 				store:store
 			});
 			

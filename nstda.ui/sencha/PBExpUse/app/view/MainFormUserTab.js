@@ -38,6 +38,17 @@ Ext.define('PBExpUse.view.MainFormUserTab', {
 					fieldStyle:READ_ONLY
 				},{
 					xtype:'textfield',
+					name:'reqTelNo',
+					hideLabel:true,
+//					fieldLabel:'โทรศัพท์',
+//					labelWidth:lbw,
+					margin:"5 0 0 10",
+					width:300,
+					value:replaceIfNull(me.rec.req_tel_no, null),
+					readOnly:true,
+					fieldStyle:READ_ONLY
+				},{
+					xtype:'textfield',
 					name:'reqByDept',
 					hideLabel:true,
 					margin:"5 0 0 10",

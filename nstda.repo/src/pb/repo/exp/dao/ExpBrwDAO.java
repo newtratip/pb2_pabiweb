@@ -18,6 +18,7 @@ public interface ExpBrwDAO {
 
 	public List<ExpBrwModel> list(Map<String, Object> params);
 	public List<ExpBrwModel> listForSearch(Map<String, Object> params);
+	public List<Map<String, Object>> listOld(Map<String, Object> params);
 	public List<Map<String, Object>> listForInf(Map<String, Object> params);
 	
 	public String genNewId(Map<String, Object> params);

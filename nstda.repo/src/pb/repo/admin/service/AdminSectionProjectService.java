@@ -33,6 +33,21 @@ public class AdminSectionProjectService {
 		
         try {
         	List<Map<String, Object>> tmpList;
+        	if (type.equals("U")) {
+        		tmpList = sectionService.list(searchTerm);
+        		
+            	for(Map<String, Object> tmpMap : tmpList) {
+            		Map<String, Object> map = new HashMap<String, Object>();
+            		
+            		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("description"));
+            		map.put("type", tmpMap.get("name"));
+            		map.put("name", tmpMap.get("description"));
+            		map.put("cc", tmpMap.get("costcenter"));
+            		
+            		list.add(map);
+            	}
+        	}
+        	else
         	if (type.equals("P")) {
         		tmpList = projectService.list(searchTerm);
         		
@@ -42,23 +57,14 @@ public class AdminSectionProjectService {
             		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("name")+" - "+tmpMap.get("description"));
             		map.put("type", tmpMap.get("name"));
             		map.put("name", tmpMap.get("name") + " - " + tmpMap.get("description"));
+            		map.put("cc", tmpMap.get("pm_code")+" - "+tmpMap.get("pm_name")); // project manager
+            		map.put("org", tmpMap.get("org_name"));
             		
             		list.add(map);
             	}
             	
         	} else {
-        		tmpList = sectionService.list(searchTerm);
-        		
-            	for(Map<String, Object> tmpMap : tmpList) {
-            		Map<String, Object> map = new HashMap<String, Object>();
-            		
-            		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("description"));
-            		map.put("type", tmpMap.get("name"));
-            		map.put("name", tmpMap.get("description"));
-            		
-            		list.add(map);
-            	}
-        		
+        		// do nothing
         	}
         	
         	

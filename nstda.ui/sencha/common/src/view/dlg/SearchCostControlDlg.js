@@ -5,7 +5,7 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 	initComponent: function(config) {
 		var me = this;
 		
-		var lbw = 80;
+		var lbw = 100;
 		
 		var typeStore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
 		typeStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/costcontrol/type/list';
@@ -36,7 +36,7 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 					items:[{
 						xtype:'combo',
 						name:'type',
-						fieldLabel:'ประเภท',
+						fieldLabel:PB.Label.m.type,
 				    	displayField:'name',
 				    	valueField:'id',
 				        emptyText : "โปรดเลือก",
@@ -72,7 +72,7 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 					items:[{
 			        	xtype:'textfield',
 			        	itemId:'searchTerm',
-			        	fieldLabel:'คำค้นหา',
+			        	fieldLabel:PB.Label.m.searchTerm,
 			        	labelWidth:lbw,
 			        	width:400,
 			        	margin:'5 0 0 0',
@@ -91,7 +91,7 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 			           	}			        		
 					},{
 			        	xtype:'button',
-			        	text:'ค้นหา',
+			        	text:PB.Label.m.search,
 			        	iconCls:'icon_search',
 			        	margin:'5 0 0 10',
 		                listeners: {
@@ -111,13 +111,13 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:'ประเภท', dataIndex: 'type', width: 150 },
-	        	     { text:'ชื่อ', dataIndex: 'name', flex:1 }
+	        	     { text:PB.Label.m.type, dataIndex: 'type', width: 150 },
+	        	     { text:PB.Label.m.name, dataIndex: 'name', flex:1 }
 	        	],
 	        	store:store
 	        }],
 	        buttons : [{
-	          text: 'ยืนยัน', 
+	          text: PB.Label.m.confirm, 
 	          action : 'ok',
 	          iconCls:'icon_ok',
 	          listeners: {
@@ -126,7 +126,7 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 	               }
 	          }
 	        },{
-	          text: 'ยกเลิก',
+	          text: PB.Label.m.cancel,
 	          iconCls:'icon_no',
 	          handler:this.destroy,
 	          scope:this

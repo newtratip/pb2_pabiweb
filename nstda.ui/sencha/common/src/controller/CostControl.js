@@ -52,8 +52,8 @@ Ext.define('PB.controller.common.CostControl', {
 		
 		var id = getRadioValue("id");
 		var name;
-		var store = me.getGrid(sender).getStore();
-		store().each(function(rec){
+		var store = me.getGrid(btn).getStore();
+		store.each(function(rec){
 			if (rec.get("id")==id) {
 				name = rec.get("name");
 			}

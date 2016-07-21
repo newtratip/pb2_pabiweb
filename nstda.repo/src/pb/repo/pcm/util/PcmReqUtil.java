@@ -68,7 +68,7 @@ public class PcmReqUtil {
 		
 		jsObj.put(PcmReqConstant.JFN_PRWEB_METHOD_ID, model.getPrWebMethodId());
 		jsObj.put(PcmReqConstant.JFN_METHOD_COND2_RULE, model.getMethodCond2Rule());
-		jsObj.put(PcmReqConstant.JFN_METHOD_COND2, model.getMethodCond2());
+		jsObj.put(PcmReqConstant.JFN_METHOD_COND2, model.getMethodCond2()!=null && !model.getMethodCond2().equals("") ? Integer.parseInt(model.getMethodCond2()) :null);
 		jsObj.put(PcmReqConstant.JFN_METHOD_COND2_DTL, model.getMethodCond2Dtl());
 		
 		jsObj.put(PcmReqConstant.JFN_VAT, model.getVat());

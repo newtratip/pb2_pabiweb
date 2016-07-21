@@ -60,12 +60,19 @@ public class MainMasterConstant {
     public static final String SCC_MAIN_TEMP_PATH      = "MAIN_TEMP_PATH";  // Main TEMP Path Node Ref
     public static final String SCC_MAIN_PAGING_SIZE    = "MAIN_PAGING_SIZE";  // Main Grid Paging Size
     public static final String SCC_MAIN_ADMIN_AM       = "MAIN_ADMIN_AM";  // Show Admin Approval Matrix Tab : '0' or '1'
-    public static final String SCC_MAIN_ODOO_URL       = "MAIN_ODOO_URL";  
-    public static final String SCC_MAIN_ODOO_DB        = "MAIN_ODOO_DB";
+//    public static final String SCC_MAIN_ODOO_URL       = "MAIN_ODOO_URL";
+//    public static final String SCC_MAIN_ODOO_DB        = "MAIN_ODOO_DB";
+    
+    public static final String SCC_PCM_ODOO_URL       = "PCM_ODOO_URL";
+    public static final String SCC_PCM_ODOO_DB        = "PCM_ODOO_DB";
+
+    public static final String SCC_EXP_ODOO_URL       = "EXP_ODOO_URL";
+    public static final String SCC_EXP_ODOO_DB        = "EXP_ODOO_DB";
     
     public static final String SCC_MAIN_RESET_SEQUENCE        = "MAIN_RESET_SEQUENCE"; // DB Sequence names : comma delimited
     
     public static final String SCC_MAIN_INF_CHECK_BUDGET 	    = "MAIN_INF_CHECK_BUDGET";  // Check Budget
+    public static final String SCC_MAIN_INF_PD_UPDATE_STATUS 	= "MAIN_INF_PD_UPDATE_STATUS";  // PD Update Status
     
 	// PCM
     public static final String SCC_PCM_REQ_SITE_ID 	    		= "PCM_REQ_SITE_ID";  // Site ID for Store Files
@@ -122,6 +129,12 @@ public class MainMasterConstant {
 	public static final String SCC_PCM_REQ_MAIL_COMPLETE_TEMPLATE   = "PCM_REQ_MAIL_COMPLETE_TEMPLATE";
 	public static final String SCC_PCM_REQ_MAIL_COMPLETE_SUBJECT 	= "PCM_REQ_MAIL_COMPLETE_SUBJECT";
 	public static final String SCC_PCM_REQ_MAIL_COMPLETE_FROM		= "PCM_REQ_MAIL_COMPLETE_FROM";
+	
+	public static final String SCC_PCM_REQ_CMT_CHECK_PARAMS		= "PCM_REQ_CMT_CHECK_PARAMS";
+	
+	public static final String SCC_PCM_ORD_SIGN_POS 			= "PCM_ORD_SIGN_POS";
+	public static final String SCC_PCM_ORD_SIGN_FONT_SIZE 		= "PCM_ORD_SIGN_FONT_SIZE";
+	public static final String SCC_PCM_ORD_SIGN_DATE_OFFSET 		= "PCM_ORD_SIGN_DATE_OFFSET";
 	
 	// EXP
     public static final String SCC_EXP_BRW_SITE_ID 	    		= "EXP_BRW_SITE_ID";  // Site ID for Store Files

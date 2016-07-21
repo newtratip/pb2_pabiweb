@@ -24,6 +24,7 @@ import pb.common.model.FileModel;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.NodeUtil;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminSectionService;
@@ -66,11 +67,11 @@ public class InterfaceService {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		MainMasterModel sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_ODOO_URL);
+		MainMasterModel sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ODOO_URL);
 //		String host = "http://10.226.202.133:8069";
 		String host = sysCfgModel.getFlag1();
 		
-		sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_ODOO_DB);
+		sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ODOO_DB);
 //		String db = "PABI2";
 		String db = sysCfgModel.getFlag1();
 		
@@ -119,8 +120,8 @@ public class InterfaceService {
 	        map.put("name", data.get("req_id"));
 	        map.put("requested_by",data.get("req_by"));
 	        map.put("responsible_uid",data.get("rp_id")!=null ? data.get("rp_id") : "");
-	        map.put("assigned_to",data.get("last_approver"));
-	        map.put("date_approve",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("by_time")));
+	        map.put("assigned_to",model.getUpdatedBy());
+	        map.put("date_approve",CommonDateTimeUtil.convertToOdooFieldDate(new Timestamp(Calendar.getInstance().getTimeInMillis())));
 	        map.put("total_budget_value",data.get("total"));
 	        map.put("purchase_prototype_id.id",data.get("is_prototype").equals("1") ? "1" : "2");
 	        map.put("purchase_type_id.id", data.get("objective_type"));
@@ -137,8 +138,9 @@ public class InterfaceService {
 	        map.put("request_ref_id", data.get("ref_id"));
 	        map.put("purchase_price_range_id.id", data.get("price_range_id")!=null ? data.get("price_range_id") : "");
 	        map.put("purchase_condition_id.id", data.get("condition_id")!=null ? data.get("condition_id") : "");
-	        map.put("purchase_confidential_id.id", data.get("confidential_id")!=null ? data.get("confidential_id") : "");
-	        map.put("confidential_detail", data.get("method_cond2_dtl"));
+//	        map.put("purchase_confidential_id.id", data.get("confidential_id")!=null ? data.get("confidential_id") : "");
+	        map.put("purchase_condition_detail_id.id", data.get("method_cond2")!=null ? data.get("method_cond2") : "");
+	        map.put("purchase_condition_detail", data.get("method_cond2_dtl"));
 	        
 	        for(String key : map.keySet()) {
 	        	log.info(" - "+key+":"+map.get(key));
@@ -156,7 +158,7 @@ public class InterfaceService {
 		        line.put("product_id.id","");
 		        line.put("name",dtl.get("description")); 
 		        line.put("product_qty",dtl.get("quantity")); 
-		        line.put("price_unit",dtl.get("price_cnv")); ////////
+		        line.put("price_unit",dtl.get("price")); ////////
 		        line.put("product_uom_id.id",dtl.get("unit_id")); 
 	//	        line.put("activity_id.id","");
 	//	        line.put("date_required",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("updated_time"))); 
@@ -248,57 +250,63 @@ public class InterfaceService {
 		return success ? "OK" : msgs+":"+map.toString();
 	}
 	
-	public String updateStatusPD(PcmOrdModel model, String action, String user) throws Exception {
+	public String updateStatusPD(PcmOrdModel model, String action, String user, String comment) throws Exception {
 		log.info("interface : updateStatusPD");
+		
+		MainMasterModel cfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_INF_PD_UPDATE_STATUS);
 		
 		Boolean success = false;
 		String msgs = null;
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		try {
-			
-			Map<String, Object> cfg = getConnectionConfig();
-			XmlRpcClient client = getXmlRpcClient(cfg);
-			
-			List args = getInitArgs(cfg);
-			args.add("purchase.requisition"); // Remote Object
-			args.add("done_order");
-			
-			List a = new ArrayList();
-			
-	        map.put("name", model.getId());
-	        map.put("approve_uid", user);
-	        map.put("action", action.equals("Approve") ? "C1" : "W2");
-	        map.put("file_name",model.getId()+".pdf");
-	        map.put("file_url",NodeUtil.trimNodeRef(model.getDocRef()));
-	        
-	        for(String key : map.keySet()) {
-	        	log.info(" - "+key+":"+map.get(key));
-	        }
-	        
-			a.add(map);
-			args.add(a);
-	//		arguments.add(map);
-
-			Object obj = client.invoke("execute_kw", args);
-			
-			XmlRpcStruct strc = (XmlRpcStruct)obj;
-			
-			log.info("result.size() : "+strc.keySet().size());
-			for(Object k : strc.keySet()) {
-				Object v = strc.get(k);
-
-				log.info(" - "+k+" : "+v+":"+v.getClass().getName());
+		if (cfgModel.getFlag1().equals(CommonConstant.V_ENABLE)) { 
+		
+			try {
+				
+				Map<String, Object> cfg = getConnectionConfig();
+				XmlRpcClient client = getXmlRpcClient(cfg);
+				
+				List args = getInitArgs(cfg);
+				args.add("purchase.requisition"); // Remote Object
+				args.add("done_order");
+				
+				List a = new ArrayList();
+				
+		        map.put("name", model.getId());
+		        map.put("approve_uid", user);
+		        map.put("action", action.equals(MainWorkflowConstant.TA_APPROVE) ? "C1" : "W2");
+		        map.put("file_name",model.getId()+".pdf");
+		        map.put("file_url",NodeUtil.trimNodeRef(model.getDocRef()));
+		        map.put("comment",comment);
+		        
+		        log.info("map="+map);
+		        
+				a.add(map);
+				args.add(a);
+		//		arguments.add(map);
+	
+				Object obj = client.invoke("execute_kw", args);
+				
+				XmlRpcStruct strc = (XmlRpcStruct)obj;
+				
+				log.info("result.size() : "+strc.keySet().size());
+				for(Object k : strc.keySet()) {
+					Object v = strc.get(k);
+	
+					log.info(" - "+k+" : "+v+":"+v.getClass().getName());
+				}
+				
+				if (strc.size()>0) {
+					success = (Boolean)strc.get("is_success");
+					msgs = (String)strc.get("messages");
+				}
+			} catch (XmlRpcException ex) {
+				throw new FormException(CommonConstant.FORM_ERR+ex.toString());
+			} catch (Exception ex) {
+				return ex.toString()+":"+map.toString();
 			}
-			
-			if (strc.size()>0) {
-				success = (Boolean)strc.get("is_success");
-				msgs = (String)strc.get("messages");
-			}
-		} catch (XmlRpcException ex) {
-			throw new FormException(CommonConstant.FORM_ERR+ex.toString());
-		} catch (Exception ex) {
-			return ex.toString()+":"+map.toString();
+		} else {
+			success = true;
 		}
 		
 		return success ? "OK" : msgs+":"+map.toString();

@@ -5,6 +5,7 @@
     <resultMap id="result" type="pcmReqCmtDtlModel">
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
+        <result property="employeeCode" column="employee_code"/>
         <result property="firstName" column="first_name"/>
         <result property="lastName" column="last_name"/>
         <result property="position" column="position"/>
@@ -24,12 +25,14 @@
 		>
 	    INSERT INTO pb2_pcm_req_committee_dtl(
 	    	master_id
+	    	,employee_code
 	    	,first_name
 	    	,last_name
 	    	,position
 	    	,created_by,updated_by
 	    )VALUES( 
     		#{masterId}
+    		,#{employeeCode}
     		,#{firstName}
     		,#{lastName}
     		,#{position}

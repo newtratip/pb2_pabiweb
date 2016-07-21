@@ -29,9 +29,8 @@ public class AdminEmployeeWebScript {
 	AdminHrEmployeeService employeeService;
 	
 	@Uri(URI_PREFIX+"/list")
-	public void handleList(@RequestParam String t,
-						   @RequestParam String c,
-						   @RequestParam(required=false) String s,
+	public void handleList(@RequestParam(required=false) String s,
+						   @RequestParam(required=false) String lang,
 			 final WebScriptResponse response)  throws Exception {
 		
 		String json = null;
@@ -39,7 +38,7 @@ public class AdminEmployeeWebScript {
 		try {
 			List<Map<String, Object>> list = null;
 			
-			list = employeeService.list(t,c,s);
+			list = employeeService.list(s,lang);
 			
 			json = CommonUtil.jsonSuccess(list);
 		} catch (Exception ex) {

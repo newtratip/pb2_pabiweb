@@ -87,8 +87,50 @@ public class MenuGenerator {
 		writer.write(			"}");
 		writer.write(		"}]");
 		writer.write(	"}");
-		writer.write(	"});");
+		writer.write("});");
+		
+		writer.write("if(!user.isAdmin){");
+		
+	    writer.write("function findAndRemoveIn(obj, arrContext, arrIdx, id)");
+	    writer.write("{");
+	    writer.write(	"var idx, max, key;");
+	    writer.write(	"if (obj !== undefined && obj !== null)");    
+	    writer.write(	"{");
+	    writer.write(		"if (Object.prototype.toString.apply(obj) === \"[object Object]\")");
+	    writer.write(		"{");
+	    writer.write(			"if (obj.hasOwnProperty(\"id\") && obj.id === id)");
+	    writer.write(			"{");
+	    writer.write(				"if (arrContext !== null && arrIdx !== null)");
+	    writer.write(				"{ arrContext.splice(arrIdx, 1); }");
+	    writer.write(				"else");
+	    writer.write(				"{ logger.debug(\"Unexpected match outside of array structure: \" + jsonUtils.toJSONString(obj)); }");
+	    writer.write(			"}");
+	    writer.write(			"else");
+	    writer.write(			"{");
+	    writer.write(				"for (key in obj)");
+	    writer.write(				"{");
+	    writer.write(					"if (obj.hasOwnProperty(key))");
+	    writer.write(					"{ findAndRemoveIn(obj[key], null, null, id); }");
+	    writer.write(				"}");
+	    writer.write(			"}");
+	    writer.write(		"}");
+	    writer.write(		"else if (Object.prototype.toString.apply(obj) === \"[object Array]\")");
+	    writer.write(		"{");
+	    writer.write(			"for (idx = 0, max = obj.length; idx < max; idx++)");
+	    writer.write(			"{ findAndRemoveIn(obj[idx], obj, idx, id); }");
+	    writer.write(		"}");
+	    writer.write(	"}");
 	    writer.write("}");
+	    
+	    writer.write("var widget, widgetsToRemove = [ \"HEADER_SHARED_FILES\", \"HEADER_MY_FILES\", \"HEADER_PEOPLE\", \"HEADER_TASKS\", \"HEADER_REPOSITORY\",");
+	    writer.write(								"\"HEADER_SEARCH\", \"HEADER_SITES_MENU\" ], idx, max;");
+	                                     
+	    writer.write("for (idx = 0, max = widgetsToRemove.length; idx < max; idx++)");
+	    writer.write(	"findAndRemoveIn(model.jsonModel.widgets, null, null, widgetsToRemove[idx]);");
+
+		writer.write("}"); // if is not admin
+	    
+	    writer.write("}"); // last line
 	}
 	
 	private void adminModule(Writer writer) throws Exception {

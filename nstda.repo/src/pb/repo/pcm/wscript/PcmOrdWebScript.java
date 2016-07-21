@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.engine.RuntimeService;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.TemplateService;
 import org.alfresco.service.cmr.security.AuthenticationService;
@@ -25,6 +28,7 @@ import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminTestSystemService;
 import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.pcm.constant.PcmOrdConstant;
+import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.PcmOrdService;
 import pb.repo.pcm.service.PcmOrdWorkflowService;
@@ -32,6 +36,7 @@ import pb.repo.pcm.util.PcmOrdUtil;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Transaction;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 
@@ -357,6 +362,36 @@ public class PcmOrdWebScript {
 		} finally {
 			CommonUtil.responseWrite(response, json);
 		}
-	} 	
+	}
+	
+//	@Uri(URI_PREFIX + "/continue")
+//	@Transaction(readOnly=false)
+//	public void handleContinueTask(@RequestParam final String exeId
+//								,final WebScriptResponse response)
+//								throws Exception {
+//
+//		String json = null;
+//
+//		try {
+////
+////			ProcessInstance pi = runtimeService.startProcessInstanceByKey("NSTDAPcmPD");
+////			Execution execution = runtimeService.createExecutionQuery()
+////			  .processInstanceId(pi.getId())
+////			  .activityId("RequesterRemote")
+////			  .singleResult();
+//
+//			pcmOrdService.continueRequesterTask(exeId);
+//			
+//			JSONObject jsObj = new JSONObject();
+//			jsObj.put("tasks", "OK");
+//
+//			json = CommonUtil.jsonSuccess(jsObj);
+//		} catch (Exception ex) {
+//			log.error("", ex);
+//			json = CommonUtil.jsonFail(ex.toString());
+//		} finally {
+//			CommonUtil.responseWrite(response, json);
+//		}
+//	} 	
   
 }

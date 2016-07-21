@@ -33,6 +33,7 @@ import pb.repo.admin.dao.MainPartnerTitleDAO;
 import pb.repo.admin.dao.MainProductUomDAO;
 import pb.repo.admin.dao.MainProjectDAO;
 import pb.repo.admin.dao.MainProjectMemberDAO;
+import pb.repo.admin.dao.MainPurchaseConditionDAO;
 import pb.repo.admin.dao.MainPurchasingUnitSectionRelDAO;
 import pb.repo.admin.dao.MainSectionDAO;
 import pb.repo.admin.dao.MainUserDAO;
@@ -199,6 +200,7 @@ public class DbConnectionFactory {
         config.addMapper(MainHrExpenseRuleDAO.class);
         config.addMapper(MainHrPositionDAO.class);
         config.addMapper(MainPurchasingUnitSectionRelDAO.class);
+        config.addMapper(MainPurchaseConditionDAO.class);
 		if (!config.hasMapper(MainProjectDAO.class)) {
 			config.addMapper(MainProjectDAO.class);
 		}

@@ -30,5 +30,17 @@
 		and  m.project_id =  #{projectId}
 		and  m.project_position = 'manager'
 	</select>    
+
+	<select id="listPMSpecialBudget" resultType="map" parameterType="map">
+		select pm.project_id, pm.employee_id, amount_min, amount_max 
+		from pb2_ext_res_project_member pm,
+		     pb2_ext_wkf_cmd_special_amount_project_approval am,
+		     pb2_ext_wkf_config_doctype d
+		where project_position = 'manager'
+		and pm.employee_id=am.employee_id
+		and am.doctype_id=d.id
+		and d.name='PR'
+		and pm.project_id =  #{projectId}
+	</select>    
 	
 </mapper>

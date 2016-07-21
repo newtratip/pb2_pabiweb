@@ -10,6 +10,7 @@ public class PcmReqDtlModel extends BaseDataModel {
 	String masterId;
 	String description;
 	Double quantity;
+	Integer unitId;
 	String unit;
 	Double price;
 	Double priceCnv;
@@ -55,12 +56,12 @@ public class PcmReqDtlModel extends BaseDataModel {
 		this.quantity = quantity;
 	}
 
-	public String getUnit() {
-		return unit;
+	public Integer getUnitId() {
+		return unitId;
 	}
 
-	public void setUnit(String unit) {
-		this.unit = unit;
+	public void setUnitId(Integer unitId) {
+		this.unitId = unitId;
 	}
 
 	public Double getPrice() {
@@ -93,6 +94,14 @@ public class PcmReqDtlModel extends BaseDataModel {
 
 	public void setIsEquipment(String isEquipment) {
 		this.isEquipment = isEquipment;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
 	}
 
 	public Timestamp getCreatedTime() {

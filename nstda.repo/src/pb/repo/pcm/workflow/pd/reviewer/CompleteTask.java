@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.model.MainWorkflowModel;
 import pb.repo.admin.model.MainWorkflowReviewerModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
@@ -39,7 +40,7 @@ import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.InterfaceService;
 import pb.repo.pcm.service.PcmOrdService;
 import pb.repo.pcm.service.PcmOrdWorkflowService;
-import pb.repo.pcm.service.PcmSignatureService;
+import pb.repo.pcm.service.PcmOrdSignatureService;
 
 @Component("pb.pcm.workflow.pd.reviewer.CompleteTask")
 public class CompleteTask implements TaskListener {
@@ -78,7 +79,7 @@ public class CompleteTask implements TaskListener {
 	PcmOrdWorkflowService mainWorkflowService;
 
 	@Autowired
-	PcmSignatureService signatureService;
+	PcmOrdSignatureService signatureService;
 	
 	@Autowired
 	AdminMasterService adminMasterService;
@@ -103,7 +104,7 @@ public class CompleteTask implements TaskListener {
 	
 	@Autowired
 	InterfaceService interfaceService;
-
+	
 	private static final String WF_PREFIX = PcmOrdWorkflowConstant.MODEL_PREFIX;
 	
 	public void notify(final DelegateTask task) {
@@ -121,6 +122,7 @@ public class CompleteTask implements TaskListener {
 					log.info("  task.EventName="+task.getEventName());
 					log.info("  task.Name="+task.getName());
 					log.info("  task.Owner="+task.getOwner());
+					log.info("  task.executionId="+task.getExecutionId());
 					
 						Object id = ObjectUtils.defaultIfNull(task.getVariable(WF_PREFIX+"id"), "");
 						log.info("  id :: " + id.toString());
@@ -148,7 +150,7 @@ public class CompleteTask implements TaskListener {
 								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
-							String result = interfaceService.updateStatusPD(model, finalAction, curUser);
+							String result = interfaceService.updateStatusPD(model, finalAction, curUser, (String)comment);
 							
 							if (!result.equals("OK")) {
 								throw new FormException(CommonConstant.FORM_ERR+result);
@@ -156,11 +158,22 @@ public class CompleteTask implements TaskListener {
 							
 							model.setStatus(PcmReqConstant.ST_WAITING_REJECT);
 							model.setWaitingLevel(0);
+							
+							MainWorkflowModel wfModel = new MainWorkflowModel();
+							wfModel.setMasterId(id.toString());
+									
+							wfModel = mainWorkflowService.getLastWorkflow(wfModel);
+							wfModel.setExecutionId(task.getExecutionId());
+							mainWorkflowService.update(wfModel);
 						}
 						else
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE)) {
 							if (lastLevel.equals(level)) {
-								String result = interfaceService.updateStatusPD(model, finalAction, curUser);
+								Object comment = task.getVariable("bpm_comment");
+								if (comment==null) {
+									comment = "";
+								}
+								String result = interfaceService.updateStatusPD(model, finalAction, curUser, (String)comment);
 								
 								if (!result.equals("OK")) {
 									throw new FormException(CommonConstant.FORM_ERR+result);
@@ -183,7 +196,7 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_CONSULT)) {
 							Object  consultant = task.getVariable(WF_PREFIX+"consultant");
 							if (consultant==null || consultant.equals("")) {
-								throw new FormException(CommonConstant.FORM_ERR+"Please specify Consultant before press Consult button");
+								throw new FormException(CommonConstant.FORM_ERR+"Please choose Consultant before press Consult button");
 							}
 							
 							model.setStatus(PcmReqConstant.ST_CONSULT);
@@ -218,6 +231,10 @@ public class CompleteTask implements TaskListener {
 						}
 						
 						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
+						
+						if (finalAction.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE) && level.equals(lastLevel)) {
+							signatureService.addSignature(task, curUser, lastLevel);
+						}
 					
 					return null;
 				}
