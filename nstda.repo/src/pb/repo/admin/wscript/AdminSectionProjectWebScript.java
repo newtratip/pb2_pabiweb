@@ -31,6 +31,7 @@ public class AdminSectionProjectWebScript {
 	@Uri(URI_PREFIX+"/list")
 	public void handleList(@RequestParam String t,
 						   @RequestParam(required=false) String s,
+						   @RequestParam(required=false) String lang,
 			 final WebScriptResponse response)  throws Exception {
 		
 		String json = null;
@@ -38,7 +39,7 @@ public class AdminSectionProjectWebScript {
 		try {
 			List<Map<String, Object>> list = null;
 			
-			list = sectionProjectService.list(t,s);
+			list = sectionProjectService.list(t,s, lang);
 			
 			json = CommonUtil.jsonSuccess(list);
 		} catch (Exception ex) {

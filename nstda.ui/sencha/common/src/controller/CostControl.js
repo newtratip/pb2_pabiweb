@@ -41,7 +41,8 @@ Ext.define('PB.controller.common.CostControl', {
     	
     	store.getProxy().extraParams = {
     			s:me.getSearchTerm(sender).getValue(),
-    			t:me.getType(sender).getValue()
+    			t:me.getType(sender).getValue(),
+    			lang:getLang()
     	}
     	
     	store.load();

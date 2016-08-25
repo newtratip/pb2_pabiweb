@@ -130,6 +130,7 @@ public class MainMasterConstant {
 	public static final String SCC_PCM_REQ_MAIL_COMPLETE_SUBJECT 	= "PCM_REQ_MAIL_COMPLETE_SUBJECT";
 	public static final String SCC_PCM_REQ_MAIL_COMPLETE_FROM		= "PCM_REQ_MAIL_COMPLETE_FROM";
 	
+	public static final String SCC_PCM_REQ_REF_PR_PERCENT		= "PCM_REQ_REF_PR_PERCENT";
 	public static final String SCC_PCM_REQ_CMT_CHECK_PARAMS		= "PCM_REQ_CMT_CHECK_PARAMS";
 	
 	public static final String SCC_PCM_ORD_SIGN_POS 			= "PCM_ORD_SIGN_POS";

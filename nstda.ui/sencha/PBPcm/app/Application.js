@@ -23,6 +23,7 @@ Ext.define('PBPcm.Application', {
         'Ext.form.field.Date',
         'Ext.tab.Panel',
         'Ext.overrides.grid.column.Action',
+        'Ext.ux.form.MultiFile',
         'Ext.ux.form.NumericField',
         'Ext.ux.form.TimePickerField',
         'Ext.ux.DateTimePicker',
@@ -55,6 +56,7 @@ Ext.define('PBPcm.Application', {
         'PBPcm.controller.common.OtherUser',
         'PBPcm.controller.common.UserGroup',
         'PBPcm.controller.common.Upload',
+        'PBPcm.controller.common.EditFile',
         'PBPcm.controller.item.Main',
         'PBPcm.controller.item.Form',
         'PBPcm.controller.committee.Form',
@@ -78,6 +80,7 @@ Ext.define('PBPcm.Application', {
         'common.OtherUser',
         'common.UserGroup',
         'common.Upload',
+        'common.EditFile',
         'Report',
         'item.Main',
         'item.Form',
@@ -89,6 +92,11 @@ Ext.define('PBPcm.Application', {
     ],
     
 	launch: function () {
+		Ext.apply(Ext.QuickTips.getQuickTip(), {
+		    dismissDelay: 0,
+			maxWidth:600
+		});
+		
 	 	Ext.Ajax.request({
 		      url:ALF_CONTEXT+"/util/getPageSize",
 		      method: "GET",

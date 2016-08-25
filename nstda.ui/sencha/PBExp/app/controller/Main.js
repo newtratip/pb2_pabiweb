@@ -96,7 +96,8 @@ Ext.define('PBExp.controller.Main', {
 							store.getProxy().extraParams = {
 								p1 : params[0],
 								orderBy : 'code',
-								all : true
+								all : true,
+								lang : getLang()
 							}
 							if (params.length>1) {
 								store.getProxy().extraParams.p2 = params[1];
@@ -228,7 +229,8 @@ Ext.define('PBExp.controller.Main', {
 		      url:me.MSG_URL+"/list",
 		      method: "GET",
 		      params: {
-		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ATTENDEE,TAB_TITLE_FILE"
+		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ATTENDEE,TAB_TITLE_FILE",
+		    	  lang : getLang()
 		      },
 		      success: function(response){
 		    	  
@@ -261,6 +263,9 @@ Ext.define('PBExp.controller.Main', {
 		Ext.Ajax.request({
 		      url:me.URL+"/userDtl",
 		      method: "GET",
+		      params:{
+				lang:getLang()
+			  },
 		      success: function(response){
 		    	  
 		    	var json = Ext.decode(response.responseText);
@@ -268,7 +273,7 @@ Ext.define('PBExp.controller.Main', {
 		    	var data = json.data[0];
 		    	data.created_time = new Date();
 		    	
-				me.createForm("Create", data);
+				me.createForm(PB.Label.m.create, data);
 				
 				me.activateForm();
 				
@@ -323,7 +328,7 @@ Ext.define('PBExp.controller.Main', {
 			    	
 			    	Ext.merge(me.data, data);
 			    	
-					me.createForm('Edit : <font color="red">'+rec.get("id")+"</font>", me.data);
+					me.createForm(PB.Label.m.edit+' : <font color="red">'+rec.get("id")+"</font>", me.data);
 					if (ID) {
 						var form = me.getMainForm(); 
 						form.down("button[action=send]").hide();

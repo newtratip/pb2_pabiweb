@@ -39,10 +39,12 @@ public class AdminAccountActivityService {
             
     		List<Map<String, Object>> tmpList = dao.list(params);
     		
+    		String name = MainAccountActivityConstant.TFN_NAME+params.get("lang");
+    		
     		for(Map<String,Object> tmpMap : tmpList) {
     			Map<String, Object> map = new HashMap<String, Object>();
 	    		map.put(JsonConstant.COMBOBOX_ID, (Integer)tmpMap.get(MainAccountActivityConstant.TFN_ID));
-	    		map.put(JsonConstant.COMBOBOX_NAME, (String)tmpMap.get(MainAccountActivityConstant.TFN_NAME));
+	    		map.put(JsonConstant.COMBOBOX_NAME, (String)tmpMap.get(name.toUpperCase()));
 	    		map.put(JsonConstant.COMBOBOX_DATA, tmpMap);
 	    		
 	    		list.add(map);

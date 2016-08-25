@@ -168,7 +168,7 @@ public class EndRemoteExecutor implements ExecutionListener {
 						taskComment = tmpComment.toString();
 					}
 					
-					finalAction = mainWorkflowService.saveWorkflowHistory(execution, curUser, taskKey, taskComment, finalAction, null,  model.getId(), level);
+					String action = mainWorkflowService.saveWorkflowHistory(execution, curUser, taskKey, taskComment, finalAction, null,  model.getId(), level, model.getStatus());
 					
 					if (finalAction.equals(MainWorkflowConstant.TA_RESUBMIT)) {
 						MainWorkflowModel workflowModel = new MainWorkflowModel();

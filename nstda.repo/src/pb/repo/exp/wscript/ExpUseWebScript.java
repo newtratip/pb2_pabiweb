@@ -227,7 +227,7 @@ public class ExpUseWebScript {
 		  
 		  String reqUser = (r!=null) ? r : authService.getCurrentUserName();
 		  
-		  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser, lang);
+		  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser);
 		  
 		  map.put(ExpUseConstant.JFN_REQ_BY, reqUser);
 		  
@@ -235,7 +235,7 @@ public class ExpUseWebScript {
 		  
 		  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
 		  if (!createdUser.equals(reqUser)) {
-			  dtl = adminHrEmployeeService.getWithDtl(createdUser, lang);
+			  dtl = adminHrEmployeeService.getWithDtl(createdUser);
 			  ename = dtl.get("first_name") + " " + dtl.get("last_name");
 		  }
 		  
@@ -362,7 +362,7 @@ public class ExpUseWebScript {
 		String json = null;
 	
 		try {
-		  String newId = expUseService.copy(id, lang);
+		  String newId = expUseService.copy(id);
 	
 		  json = CommonUtil.jsonSuccess(newId);
 	

@@ -1,5 +1,6 @@
 package pb.repo.pcm.workflow.pr.consultant;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
@@ -140,7 +141,8 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_COMMENT)) {
 							Object comment = task.getVariable("bpm_comment");
 							if (comment==null || comment.toString().trim().equals("")) {
-								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_COMMENT_NO_COMMENT", I18NUtil.getLocale());
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_COMMENT_NO_COMMENT", new Locale(lang));
 								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
@@ -178,7 +180,7 @@ public class CompleteTask implements TaskListener {
 							taskComment = tmpComment.toString();
 						}
 						
-						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
+						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level, model.getStatus());
 	
 					return null;
 				}

@@ -66,6 +66,7 @@
       // qs
       YAHOO.Bubbling.on("uploadFinished", this.onUploadFinished, this);
       YAHOO.Bubbling.on("uploadListItem", this.onUploadListItem, this);
+      YAHOO.Bubbling.on("editDescListItem", this.onEditDescListItem, this);
 
       // Initialise prototype properties
       this.pickerId = htmlId + "-picker";
@@ -327,6 +328,15 @@
           */
          allowUploadAction: false,
 
+          /**
+          * Determines if an "Edit Description" button shall be displayed
+          *
+          * @property allowEditDescAction
+          * @type boolean
+          * @default false
+          */
+         allowEditDescAction: false,
+         
          /**
           * Determines if an "Add/Select" button shall be displayed that will display an items picker
           *
@@ -590,7 +600,7 @@
                       disabled: false
                    }, downloadButtonEl);
                }
-
+               
                // Create a "Remove all" button to remove all items (if component is in "list" mode)
                if (this.options.allowRemoveAllAction && this.options.displayMode == "list")
                {
@@ -614,6 +624,17 @@
 	               label: "form.control.object-picker.upload-item"
 	            });
 	         }
+			
+			if (this.options.allowEditDescAction && (this.options.displayMode == "list" || this.options.displayMode == "items"))
+            {
+               this.options.listItemActions.push(
+               {
+                  name: "edit-desc-item",
+                  event: "editDescListItem",
+                  label: "form.control.object-picker.editdesc-item"
+               });
+            }
+	         
             //Doy+ }
             
 			//qs
@@ -663,6 +684,7 @@
             YAHOO.Bubbling.unsubscribe("parentDetails", this.onParentDetails, this);
             YAHOO.Bubbling.unsubscribe("formContainerDestroyed", this.onFormContainerDestroyed, this);
             YAHOO.Bubbling.unsubscribe("removeListItem", this.onRemoveListItem, this);
+            YAHOO.Bubbling.unsubscribe("editDescListItem", this.onEditDescListItem, this);
          }
          catch (e)
          {
@@ -1712,6 +1734,149 @@
          }
       },
 
+      /**
+       * Edit Description selected item from datatable used in "list" mode
+       *
+       * @method onEditDescListItem
+       * @param layer {object} Event fired (unused)
+       * @param args {array} Event parameters
+       */
+      onEditDescListItem: function ObjectFinder_onEditDescListItem(event, args)
+      {
+         if ($hasEventInterest(this, args))
+         {
+       	  	 var me = this;
+       	  	 
+             var data = args[1].value,
+             rowId = args[1].rowId;
+
+             console.log(rowId+","+data.nodeRef);
+             
+             //Alfresco.util.PopupManager.curNodeRef = data.nodeRef;
+             this.curNodeRef = data.nodeRef;
+             
+//             if (!this.widgets.editDescPanel) {
+//            	 
+//	             this.widgets.editDescPanel = Alfresco.util.createYUIPanel(this.id + "-editDescPanel",{
+//	            	 buttons:[{
+//            	 		name:'Cancel',
+//            	 		text:this.msg("button.edit.desc.cancel"),
+//            	 		handler:this.onEditDescCancelClick
+//            	 	},{
+//            	 		name:'Ok',
+//            	 		text:this.msg("button.edit.desc.ok"),
+//            	 		handler:this.onEditDescOkClick
+//            	 	}]
+//	             });
+//	             
+//	             this.widgets.editDescPanel.setHeader("Warning!");
+//	             this.widgets.editDescPanel.setBody("AAA!");
+//	             this.widgets.editDescPanel.cfg.setProperty("icon", YAHOO.widget.SimpleDialog.ICON_WARN);
+	             
+//				 var editDescOkBtnEl = document.createElement("button");
+//				 document.getElementById(this.id+"-editDescPanel").appendChild(editDescOkBtnEl);
+//	
+//				 this.widgets.editDescOkBtn = Alfresco.util.createYUIButton(this, null, this.onEditDescOkClick,
+//				 {
+//					label: this.msg("button.edit.desc.ok"),
+//					disabled: false
+//				 }, editDescOkBtnEl);             
+	
+//			 }
+
+    	  	url = appContext + "/proxy/alfresco/pb/main/editDesc";
+             
+	        var params = {
+	           n:this.curNodeRef
+	        };
+			Ext.Ajax.request({
+			    url:url,
+			    method: "GET",
+			    params: params,
+			    success: function(response){
+			  	  
+				  	var json = Ext.decode(response.responseText);
+					  
+				   	if (json.success) {
+//				         this.widgets.editDescPanel.show();
+				         this.userInputDlg = Alfresco.util.PopupManager.getUserInput({
+				        	 title: me.msg("title.edit.desc"), // the title of the dialog, default is null 
+				        	 //text: 'Test Text', // optional label next to input box 
+				        	 value: json.data.desc, // optional default value to populate textbox with 
+				        	 callback: {
+				        		 fn:me.editDescFn, // Object literal specifying function callback to receive user input. Only called if default button config used.
+				        		 scope:me
+				        	 },
+				        	 //fn: this.editDescFn, //function, obj: optional pass-thru object, scope: callback scope 
+				        	 icon: null, // the icon to display next to the text, default is null 
+				        	 modal: true, // if a grey transparent overlay should be displayed in the background 
+				        	 initialShow:true, // whether to call show() automatically on the panel 
+				        	 close: true, // if a close icon should be displayed in the right upper corner, default is true 
+				        	 input:"text"
+//				        	 buttons:[{
+//			        	 		name:'Cancel',
+//			        	 		text:this.msg("button.edit.desc.cancel"),
+//			        	 		handler:this.onEditDescCancelClick
+//			        	 	 },{
+//			        	 		name:'Ok',
+//			        	 		text:this.msg("button.edit.desc.ok"),
+//			        	 		handler:this.onEditDescOkClick
+//			        	 	 }]
+//				        	 buttons: [] // an array of button configs as described by YUI's SimpleDialog, default is a single OK button 
+//				        	 okButtonText: {string} // Allows just the label of the OK button to be overridden 
+//				        	 noEscape: {boolean} // indicates the the text property has already been escaped (e.g. to display HTML-based messages) 
+//				        	 html:
+				         });
+				   	} else {
+				   		alert("not success");
+				   	}
+			    },
+			    failure: function(response, opts){
+			    	alert("fail");
+			    },
+			    headers: getAlfHeader()
+			});
+         }
+      },
+      
+      editDescFn:function(obj,scope) {
+    	  var me = this;
+    	  console.log(obj);
+//    	  console.log(Alfresco.util.PopupManager.curNodeRef);
+    	  console.log(me.curNodeRef);
+    	  
+    	  url = appContext + "/proxy/alfresco/pb/main/editDesc";
+    	  
+    	  for(var a in Alfresco.util.PopupManager) {
+    		  console.log(a+":"+Alfresco.util.PopupManager[a]);
+          }
+    	  
+          	   
+        var params = {
+           d:obj,
+           n:me.curNodeRef
+        };
+		Ext.Ajax.request({
+		    url:url,
+		    method: "POST",
+		    params: params,
+		    success: function(response){
+		  	  
+			  	var json = Ext.decode(response.responseText);
+				  
+			   	if (json.success) {
+			   		me._loadSelectedItems();
+			   	} else {
+			   		alert("not success");
+			   	}
+		    },
+		    failure: function(response, opts){
+		    	alert("fail");
+		    },
+		    headers: getAlfHeader()
+		});
+      },
+      
 	  // qs
       onUploadFinished: function ObjectFinder_onUploadFinished(event, args)
       {

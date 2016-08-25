@@ -6,7 +6,7 @@ import java.util.Map;
 public interface MainSectionDAO {
 
 	public List<Map<String, Object>> list(Map<String, Object> params);
-	public List<Map<String, Object>> listWarehouse(Map<String, Object> params);
+//	public List<Map<String, Object>> listWarehouse(Map<String, Object> params);
 	
 	public Map<String, Object> get(Integer id);
 	

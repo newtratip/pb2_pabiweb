@@ -6,7 +6,8 @@ Ext.define('PB.Dlg', {
 		        url:ALF_CONTEXT+"/"+module+"/message/get",
 		        method: "GET",
 		        params: {
-		            key: key
+		            key: key,
+		            lang:getLang()
 		        },
 		        success: function(response){
 		        	
@@ -53,7 +54,8 @@ Ext.define('PB.Dlg', {
 		        url:ALF_CONTEXT+"/"+module+"/message/get",
 		        method: "GET",
 		        params: {
-		            key: key
+		            key: key,
+		            lang:getLang()
 		        },
 		        success: function(response){
 		        	
@@ -66,7 +68,12 @@ Ext.define('PB.Dlg', {
 		        		}
 		        		
 		        		msg += opts.msg;
+		        		
 		        	}
+		        	
+	        		if (opts.val) {
+	        			msg = Ext.String.format(msg, opts.val[0],opts.val[1],opts.val[2]);
+	        		}
 		        	
 		        	if (opts.buttonText) {
 		        		Ext.MessageBox.buttonText = opts.buttonText;

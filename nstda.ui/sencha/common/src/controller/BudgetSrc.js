@@ -46,7 +46,8 @@ Ext.define('PB.controller.common.BudgetSrc', {
 		
 		store.getProxy().extraParams = {
 			s:me.getSearchTerm(sender).getValue(),
-			t:v ? v : me.getType(sender).getGroupValue()
+			t:v ? v : me.getType(sender).getGroupValue(),
+			lang:getLang()
 		}
 		
 		store.load();

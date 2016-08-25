@@ -10,7 +10,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
@@ -129,6 +128,7 @@ public class PcmMessageWebScript {
 	  lbl.put("budget", PcmReqUtil.getMessage(prefix+"budget", locale));
 	  lbl.put("objective", PcmReqUtil.getMessage(prefix+"objective", locale));
 	  lbl.put("amount", PcmReqUtil.getMessage(prefix+"amount", locale));
+	  lbl.put("currency", PcmReqUtil.getMessage(prefix+"currency", locale));
 	  lbl.put("requester", PcmReqUtil.getMessage(prefix+"requester", locale));
 	  lbl.put("preparer", PcmReqUtil.getMessage(prefix+"preparer", locale));
 	  lbl.put("requestTime", PcmReqUtil.getMessage(prefix+"requestTime", locale));
@@ -171,6 +171,7 @@ public class PcmMessageWebScript {
 	  lbl.put("ptt", PcmReqUtil.getMessage(prefix+"prototype", locale));
 	  lbl.put("contract", PcmReqUtil.getMessage(prefix+"contract", locale));
 	  lbl.put("err_contract", PcmReqUtil.getMessage(prefix+"err.contract", locale));
+	  lbl.put("contractDate", PcmReqUtil.getMessage(prefix+"contractDate", locale));
 	  lbl.put("cc", PcmReqUtil.getMessage(prefix+"costControl", locale));
 	  lbl.put("loc", PcmReqUtil.getMessage(prefix+"location", locale));
 	  lbl.put("isAB", PcmReqUtil.getMessage(prefix+"isAcrossBudget", locale));
@@ -188,11 +189,13 @@ public class PcmMessageWebScript {
 	  lbl = new JSONObject();
 	  prefix = "pr.form.tab.item.";
 	  lbl.put("lbw", PcmReqUtil.getMessage(prefix+"lbw", locale));
+	  lbl.put("actGrp", PcmReqUtil.getMessage(prefix+"actGrp", locale));
 	  lbl.put("name", PcmReqUtil.getMessage(prefix+"name", locale));
 	  lbl.put("qty", PcmReqUtil.getMessage(prefix+"qty", locale));
 	  lbl.put("uom", PcmReqUtil.getMessage(prefix+"uom", locale));
 	  lbl.put("prc", PcmReqUtil.getMessage(prefix+"prc", locale));
       lbl.put("prcCnv", PcmReqUtil.getMessage(prefix+"prcCnv", locale));
+      lbl.put("fiscalYear", PcmReqUtil.getMessage(prefix+"fiscalYear", locale));
       lbl.put("subtotal", PcmReqUtil.getMessage(prefix+"subtotal", locale));
       lbl.put("gross", PcmReqUtil.getMessage(prefix+"gross", locale));
       lbl.put("vat", PcmReqUtil.getMessage(prefix+"vat", locale));

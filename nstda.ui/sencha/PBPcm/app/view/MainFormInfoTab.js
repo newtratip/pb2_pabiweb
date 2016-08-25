@@ -7,12 +7,21 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 	initComponent: function(config) {
 		var me = this;
 		
+		var reason = me.rec.reason;
+		var reasonOth = null;
+		if (reason && reason.startsWith("อื่นๆ")) {
+			var pos = reason.indexOf(" ");
+			reasonOth = reason.substring(pos+1);
+			reason = "อื่นๆ";
+		}
+		
 		var store = Ext.create('PB.store.common.ComboBoxStore');
 		store.getProxy().api.read = ALF_CONTEXT+'/srcUrl/main/master?all=false';
 		store.getProxy().extraParams = {
 			p1 : "type='PC'",
 			orderBy : 'flag1',
-			all : true
+			all : true,
+			lang : getLang()
 		}
 		store.load();
 		
@@ -48,6 +57,16 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 			all : true
 		}
 		prototypeStore.load();
+		
+		var reasonStore = Ext.create('PB.store.common.ComboBoxStore');
+		reasonStore.getProxy().api.read = ALF_CONTEXT+'/srcUrl/main/master?all=false';
+		reasonStore.getProxy().extraParams = {
+			p1 : "type='PR_RSN'",
+			orderBy : 'id',
+			all : true,
+			lang : getLang()
+		}
+		reasonStore.load();
 		
 		var lbw = parseInt(PBPcm.Label.n.lbw);
 		
@@ -93,23 +112,52 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					xtype:'textfield',
 					name:'objective',
 					fieldLabel:mandatoryLabel(PBPcm.Label.n.obj),
-					labelWidth:95,
+					labelWidth:160,
 					margin:"0 0 0 15",
 					flex:1,
 					allowBlank:false,
 					value:replaceIfNull(me.rec.objective, null),
 					maxLength:255
+//					,afterLabelTextTpl: ' <img src="../res/page/img/icon/question.png" class="info_image" data-qtip="ระบุรายการ จำนวน เพื่ออะไร"></img>'
 				}]
 			},{
-				xtype:'textfield',
-				name:'reason',
-				fieldLabel:mandatoryLabel(PBPcm.Label.n.reason),
-				labelWidth:lbw,
+				xtype:'container',
+				layout:'hbox',
 				margin:"5 0 0 10",
 				anchor:"-10",
-				value:replaceIfNull(me.rec.reason, null),
-				allowBlank:false,
-				maxLength:255
+				items:[{
+					xtype:'combo',
+					name:'reason',
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.reason),
+			    	displayField:'name',
+			    	valueField:'id',
+			        emptyText : "โปรดเลือก",
+			        store: reasonStore,
+			        queryMode: 'local',
+			        typeAhead:true,
+			        multiSelect:false,
+			        forceSelection:true,
+					width:lbw+275,
+					labelWidth:lbw,
+					allowBlank:false,
+	     	        listeners: {
+	    	       	   change : function(combo, newValue, oldValue, e){
+							me.fireEvent("selectReason",combo, newValue, oldValue);
+	    	       	   }
+	                },
+					value:replaceIfNull(reason, "")
+				},{
+					xtype:'textfield',
+					name:'reasonOth',
+					hideLabel:true,
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.reasonOth),
+					flex:1,
+					margin:"0 0 0 15",
+					allowBlank:false,
+					value:replaceIfNull(reasonOth, null),
+					disabled:replaceIfNull(reason, "") != "อื่นๆ",
+					hideTrigger:true
+				}]
 			},{
 				xtype:'container',
 				border:0,
@@ -142,8 +190,8 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					xtype:'numberfield',
 					name:'currencyRate',
 					fieldLabel:mandatoryLabel(PBPcm.Label.n.currencyRate),
-					labelWidth:120,
-					width:200,
+					labelWidth:160,
+					width:250,
 					margin:"5 0 0 15",
 					allowBlank:false,
 					value:replaceIfNull(me.rec.currency_rate, "1"),
@@ -174,8 +222,15 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					onTriggerClick:function(evt) {
 						me.fireEvent("selectBudgetCc");
 					},
-					value:replaceIfNull(me.rec.budget_cc_type_name, ''),
+					value:me.budgetSrcTypeName(replaceIfNull(me.rec.budget_cc_type, '')),
 					allowBlank:false
+				},{
+					xtype:'button',
+					hidden:replaceIfNull(me.rec.budget_cc_type, null) == null,
+					iconCls:'icon_money',
+					margin:"5 0 0 10",
+					text:'',
+					action:'showBudget'
 				},{
 					xtype:'textfield',
 					name:'budgetCcName',
@@ -402,6 +457,16 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 //				labelWidth:lbw,
 //				value:replaceIfNull(me.rec.pcm_ou, null)
 			},{
+				xtype:'datefield',
+				name:'contractDate',
+				fieldLabel:mandatoryLabel(PBPcm.Label.n.contractDate),
+				labelWidth:lbw,
+				margin:"5 0 0 10",
+				width:lbw+160,
+				format:'d/m/Y',
+				value:me.rec.contract_date ? new Date(me.rec.contract_date) : null,
+				allowBlank:false
+			},{
 				xtype:'textarea',
 				name:'location',
 				fieldLabel:PBPcm.Label.n.loc,
@@ -427,23 +492,23 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 							me.fireEvent("isAcrossBudget",chk, newV);
 						}
 					}
-				},{
-					xtype:'numericfield',
-					fieldLabel:mandatoryLabel(PBPcm.Label.n.total),
-					errLabel:PBPcm.Label.n.err_total,
-					labelWidth:110,
-					margin:"5 0 0 5",
-					width:315,
-					name:'acrossBudget',
-					value:replaceIfNull(me.rec.across_budget, null),
-					allowBlank:false,
-					disabled:replaceIfNull(me.rec.is_across_budget, "0") != "1",
-					hideTrigger:true,
-					listeners:{
-						blur:function(txt) {
-							me.fireEvent("acrossBudgetBlur",txt);
-						}
-					}
+//				},{
+//					xtype:'numericfield',
+//					fieldLabel:mandatoryLabel(PBPcm.Label.n.total),
+//					errLabel:PBPcm.Label.n.err_total,
+//					labelWidth:110,
+//					margin:"5 0 0 5",
+//					width:315,
+//					name:'acrossBudget',
+//					value:replaceIfNull(me.rec.across_budget, null),
+//					allowBlank:false,
+//					disabled:replaceIfNull(me.rec.is_across_budget, "0") != "1",
+//					hideTrigger:true,
+//					listeners:{
+//						blur:function(txt) {
+//							me.fireEvent("acrossBudgetBlur",txt);
+//						}
+//					}
 				}]
 			},{
 				xtype:'container',
@@ -482,6 +547,15 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 		});
 		
 	    this.callParent(arguments);
+	},
+	
+	budgetSrcTypeName:function(budgetSrcType) {
+		switch(budgetSrcType) {
+			case 'U':return PB.Label.m.section;break;
+			case 'P':return PB.Label.m.project;break;
+			default:
+				return '';
+		}
 	}
     
 });

@@ -29,6 +29,9 @@ Ext.define('PBPcm.controller.item.Form', {
         ref: 'hidIsEqmt',
         selector:'pcmItemDtlDlg [name=isEqmt]'
     },{
+        ref: 'cmbActGrp',
+        selector:'pcmItemDtlDlg field[name=actGrp]'
+    },{
         ref: 'txtDesc',
         selector:'pcmItemDtlDlg field[name=desc]'
     },{
@@ -40,6 +43,9 @@ Ext.define('PBPcm.controller.item.Form', {
     },{
         ref: 'txtPrc',
         selector:'pcmItemDtlDlg field[name=prc]'
+    },{
+        ref: 'txtFiscalYear',
+        selector:'pcmItemDtlDlg field[name=fiscalYear]'
     },{
         ref: 'txtCurrencyRate',
         selector:'pcmReqInfoTab field[name=currencyRate]'
@@ -142,12 +148,15 @@ Ext.define('PBPcm.controller.item.Form', {
 			
 //			rec.set("isEquipment",me.getRaIsEqmt().getChecked()[0].getGroupValue()); 
 			rec.set("isEquipment",me.getHidIsEqmt().getValue()); 
+			rec.set("actGrp",me.getCmbActGrp().getRawValue()); 
+			rec.set("actGrpId",me.getCmbActGrp().getValue()); 
 			rec.set("description",me.getTxtDesc().getValue()); 
 			rec.set("quantity",qty); 
 			rec.set("unit",me.getCmbUnit().getRawValue());
 			rec.set("unitId",me.getCmbUnit().getValue());
 			rec.set("price",prc);
 			rec.set("priceCnv",prcCnv);
+			rec.set("fiscalYear",me.getTxtFiscalYear().getValue());
 			rec.set("total",total);
 			
 			if (!id) {
@@ -170,12 +179,14 @@ Ext.define('PBPcm.controller.item.Form', {
 
 	},
 	
-	createDlg:function(title) {
+	createDlg:function(title, rec) {
 		
 		var me = this;
 		
 		var dialog = Ext.create('PBPcm.view.item.DtlDlg', {
-		    title : title
+		    title : title,
+		    rec : rec,
+		    acrossBudget : me.getChkAcrossBudget().getValue()
 		});
 		
 		return dialog;
@@ -187,15 +198,17 @@ Ext.define('PBPcm.controller.item.Form', {
 		me.getGrid().getView().getSelectionModel().select(rec);
 		me.selectedRec = rec;		
 	
-		var dialog = me.createDlg(PBPcm.Label.m.edit);
+		var dialog = me.createDlg(PBPcm.Label.m.edit, rec);
 		
 		me.getHidId().setValue(rec.get("id"));
 		me.getHidIsEqmt().setValue(rec.get("isEquipment"));
 //		me.getRaIsEqmt().setValue(rec.get("isEquipment"));
+		me.getCmbActGrp().setValue(rec.get("actGrpId"));
 		me.getTxtDesc().setValue(rec.get("description"));
 		me.getTxtQty().setValue(rec.get("quantity"));
 		me.getCmbUnit().setValue(rec.get("unitId"));
 		me.getTxtPrc().setValue(rec.get("price"));
+		me.getTxtFiscalYear().setValue(rec.get("fiscalYear"));
 		
 		dialog.show();
 	},
@@ -234,7 +247,7 @@ Ext.define('PBPcm.controller.item.Form', {
 		
 		me.getHidTotal().setValue(netAmt);
 		
-		if (!me.getChkAcrossBudget().getValue()) { // not across budget
+//		if (!me.getChkAcrossBudget().getValue()) { // not across budget
 			var methodStore = me.getCmbMethod().getStore();
 			methodStore.getProxy().extraParams = {
 				objType : me.getCmbObjectiveType().getValue()
@@ -249,7 +262,7 @@ Ext.define('PBPcm.controller.item.Form', {
 					me.getCmtTab().removeAll(true);
 				}
 			});
-		}
+//		}
 		
 		if (netAmt >= 100000) {
 			var tbar = me.getUploadGrid().getDockedComponent(1);

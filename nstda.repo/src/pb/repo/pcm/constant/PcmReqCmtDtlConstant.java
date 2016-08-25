@@ -10,6 +10,7 @@ public class PcmReqCmtDtlConstant {
 	public static final String TFN_ID = "ID";
 	public static final String TFN_MASTER_ID = "MASTER_ID";
 	public static final String TFN_EMPLOYEE_CODE = "EMPLOYEE_CODE";
+	public static final String TFN_TITLE = "TITLE";
 	public static final String TFN_FIRST_NAME = "FIRST_NAME";
 	public static final String TFN_LAST_NAME = "LAST_NAME";
 	public static final String TFN_POSITION = "POSITION";
@@ -25,6 +26,7 @@ public class PcmReqCmtDtlConstant {
 	public static final String JFN_ID = "id";
 	public static final String JFN_MASTER_ID = "master_id";
 	public static final String JFN_EMPLOYEE_CODE = "code";
+	public static final String JFN_TITLE = "title";
 	public static final String JFN_FIRST_NAME = "fname";
 	public static final String JFN_LAST_NAME = "lname";
 	public static final String JFN_POSITION = "position";

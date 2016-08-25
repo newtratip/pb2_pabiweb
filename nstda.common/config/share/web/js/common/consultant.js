@@ -1,5 +1,27 @@
 function renderConsultant(Id,v,n,width,vv){
 	
+	 if (!PB.Label.m) {
+		 Ext.Ajax.request({
+		      url:ALF_CONTEXT+"/admin/message/lbl",
+		      method: "GET",
+		      params:{
+	 			 lang:getLang()
+	 		  },
+		      success: function(response){
+		    	  
+		    	var data = Ext.decode(response.responseText);
+			 	Ext.apply(PB.Label, data);
+			 	//alert(PBPcm.Label.a);
+		      },
+		      failure: function(response, opts){
+		          // do nothing
+		      },
+		      headers: getAlfHeader(),
+		      async:false
+		});	
+	}
+	 
+	
 	var w = parseInt(width);
 	
 	var field = document.getElementsByName(n)[0];
@@ -63,7 +85,7 @@ function renderConsultant(Id,v,n,width,vv){
 					return true;
 				},			
 				change:function(trigger, newV, oldV) {
-					console.log("change:"+this.inputEl.dom.style.width);
+//					console.log("change:"+this.inputEl.dom.style.width);
 					var cw = newV ? "17" : "0";
 					this.triggerEl.item(0).dom.parentNode.style.width = cw+"px";
 					

@@ -77,7 +77,6 @@ import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
-import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainWorkflowHistoryModel;
 import pb.repo.admin.model.MainWorkflowNextActorModel;
@@ -97,19 +96,21 @@ import pb.repo.admin.service.SubModuleService;
 import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.admin.util.RptUtil;
 import pb.repo.common.mybatis.DbConnectionFactory;
-import pb.repo.exp.constant.ExpBrwConstant;
 import pb.repo.exp.constant.ExpBrwAttendeeConstant;
+import pb.repo.exp.constant.ExpBrwConstant;
 import pb.repo.exp.constant.ExpBrwWorkflowConstant;
+import pb.repo.exp.constant.ExpUseConstant;
+import pb.repo.exp.dao.ExpBrwAttendeeDAO;
 import pb.repo.exp.dao.ExpBrwDAO;
 import pb.repo.exp.dao.ExpBrwDtlDAO;
-import pb.repo.exp.dao.ExpBrwAttendeeDAO;
+import pb.repo.exp.model.ExpBrwAttendeeModel;
 import pb.repo.exp.model.ExpBrwDtlModel;
 import pb.repo.exp.model.ExpBrwModel;
-import pb.repo.exp.model.ExpBrwAttendeeModel;
+import pb.repo.exp.util.ExpBrwAttendeeUtil;
 import pb.repo.exp.util.ExpBrwDtlUtil;
 import pb.repo.exp.util.ExpBrwUtil;
-import pb.repo.exp.util.ExpBrwAttendeeUtil;
 import pb.repo.exp.util.ExpUtil;
+import pb.repo.pcm.model.PcmReqModel;
 
 @Service
 public class ExpBrwService implements SubModuleService {
@@ -217,7 +218,7 @@ public class ExpBrwService implements SubModuleService {
             	
         		model.setId(newId);
         		log.info("new id:"+newId);
-            	doCommonSaveProcess(model, genDoc, attendees, files);
+            	doCommonSaveProcess(model, genDoc, items, attendees, files);
             	
         		/*
         		 * Add DB
@@ -225,7 +226,7 @@ public class ExpBrwService implements SubModuleService {
             	expBrwDAO.add(model);
             }
             else {
-            	doCommonSaveProcess(model, genDoc, attendees, files);
+            	doCommonSaveProcess(model, genDoc, items, attendees, files);
             	
             	/*
             	 * Update DB
@@ -233,6 +234,7 @@ public class ExpBrwService implements SubModuleService {
             	expBrwDAO.update(model);
             	
             	expBrwDtlDAO.deleteByMasterId(model.getId());
+            	expBrwAttendeeDAO.deleteByMasterId(model.getId());
             }
             
             List<ExpBrwDtlModel> dtlList = model.getDtlList();
@@ -447,7 +449,7 @@ public class ExpBrwService implements SubModuleService {
         return result;
 	}	
 	
-	private ExpBrwModel doCommonSaveProcess(ExpBrwModel model, boolean genDoc, String attendees, String files) throws Exception {
+	private ExpBrwModel doCommonSaveProcess(ExpBrwModel model, boolean genDoc, String dtls, String attendees, String files) throws Exception {
 		
 		/*
 		 * Find Pcm Section Id
@@ -483,6 +485,7 @@ public class ExpBrwService implements SubModuleService {
 		 * Gen Doc
 		 */
 		if (genDoc) {
+			model.setDtlList(ExpBrwDtlUtil.convertJsonToList(dtls, model.getId()));
 			model.setAttendeeList(ExpBrwAttendeeUtil.convertJsonToList(attendees, model.getId()));
 			
 			model = genDoc(model, folderNodeRef);
@@ -663,12 +666,12 @@ public class ExpBrwService implements SubModuleService {
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", model.getId() != null ? model.getId() : "");
 		
-		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy(), lang);		
+		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy());		
 		map.put("reqBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
 		map.put("reqOrg", empDtl.get("org_desc"));
 		map.put("reqSection", empDtl.get("section_name"));
 		
-		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName(), lang);
+		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
 		map.put("createdBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
 		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
 		map.put("createdPhone", StringUtils.defaultIfBlank((String)empDtl.get("work_phone"),""));
@@ -1060,7 +1063,8 @@ public class ExpBrwService implements SubModuleService {
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
             ExpBrwDAO expBrwDAO = session.getMapper(ExpBrwDAO.class);
-            ExpBrwAttendeeDAO expBrwDtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
+            ExpBrwDtlDAO expBrwDtlDAO = session.getMapper(ExpBrwDtlDAO.class);
+            ExpBrwAttendeeDAO expBrwAttendeeDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             MainWorkflowDAO workflowDAO = session.getMapper(MainWorkflowDAO.class);
             MainWorkflowHistoryDAO workflowHistoryDAO = session.getMapper(MainWorkflowHistoryDAO.class);
             MainWorkflowReviewerDAO workflowReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
@@ -1076,6 +1080,7 @@ public class ExpBrwService implements SubModuleService {
     		workflowHistoryDAO.deleteByMasterId(id);
     		workflowReviewerDAO.deleteByMasterId(id);
     		workflowDAO.deleteByMasterId(id);
+    		expBrwAttendeeDAO.deleteByMasterId(id);
     		expBrwDtlDAO.deleteByMasterId(id);
     		expBrwDAO.delete(id);
             
@@ -1735,7 +1740,7 @@ public class ExpBrwService implements SubModuleService {
 
 	}
 	
-	public List<Map<String, Object>> listWorkflowPath(String id) {
+	public List<Map<String, Object>> listWorkflowPath(String id,String lang) {
 		
 		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id);
 		
@@ -1774,11 +1779,15 @@ public class ExpBrwService implements SubModuleService {
         /*
          * Convert Employeee Code to Name
          */
+        lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
+
 		for(Map<String, Object> rec:list) {
 			String empCode = (String)rec.get("U");
-			MainHrEmployeeModel empModel = adminHrEmployeeService.get(empCode);
+			Map<String,Object> empModel = adminHrEmployeeService.getWithDtl(empCode);
 			if (empModel!=null) {
-				rec.put("U", empCode + " - " + empModel.getFirstName());
+				rec.put("U", empCode + " - " + empModel.get("first_name"+lang));
+			} else {
+				rec.put("U", "");
 			}
 		}
 		
@@ -1818,7 +1827,7 @@ public class ExpBrwService implements SubModuleService {
 		return CommonConstant.SUB_MODULE_EXP_BRW;
 	}
 	
-	public String copy(String id, String lang) throws Exception {
+	public String copy(String id) throws Exception {
 		
         SqlSession session = ExpUtil.openSession(dataSource);
         
@@ -1839,7 +1848,7 @@ public class ExpBrwService implements SubModuleService {
              */
             model.setStatus(ExpBrwConstant.ST_DRAFT);
             
-            Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName(),lang);
+            Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName());
             
         	model.setReqBy(authService.getCurrentUserName());
         	model.setReqSectionId((Integer)reqBy.get("section_id"));
@@ -1995,22 +2004,17 @@ public class ExpBrwService implements SubModuleService {
 	public List<MainWorkflowNextActorModel> listNextActor(SubModuleModel model) {
 		List<MainWorkflowNextActorModel> list = new ArrayList<MainWorkflowNextActorModel>();
 		
-		ExpBrwModel realModel = (ExpBrwModel)model;
+//		ExpBrwModel realModel = (ExpBrwModel)model;
 		
-		List<Map<String, Object>> superList = adminWkfConfigService.listSupervisor(realModel.getCostControlId());
-		if(superList.size()>0) {
-			Map<String, Object> map = superList.get(0);
-			
-			MainWorkflowNextActorModel actorModel = new MainWorkflowNextActorModel();
-			
-			actorModel.setMasterId(model.getId());
-			actorModel.setLevel(1);
-			actorModel.setActor(ExpBrwConstant.NA_BOSS);
-			actorModel.setActorUser(MainUserGroupUtil.code2login((String)map.get(MainHrEmployeeConstant.TFN_EMPLOYEE_CODE)));
-			actorModel.setCreatedBy(model.getUpdatedBy());
-			
-			list.add(actorModel);
-		}
+		MainWorkflowNextActorModel actorModel = new MainWorkflowNextActorModel();
+		
+		actorModel.setMasterId(model.getId());
+		actorModel.setLevel(1);
+		actorModel.setActor(ExpBrwConstant.NA_OFFICER);
+		actorModel.setActorUser(CommonConstant.DUMMY_EMPLOYEE_CODE);
+		actorModel.setCreatedBy(model.getUpdatedBy());
+		
+		list.add(actorModel);
 		
 		return list;
 	}
@@ -2023,7 +2027,7 @@ public class ExpBrwService implements SubModuleService {
 	}
 
 	@Override
-	public String getNextActionInfo() {
+	public String getNextActionInfo(SubModuleModel model) {
 		return "ฝ่ายพัสดุ";
 	}
 	
@@ -2469,8 +2473,21 @@ public class ExpBrwService implements SubModuleService {
 
 	@Override
 	public List<String> getSpecialUserForAddPermission(SubModuleModel model) {
-		// TODO Auto-generated method stub
-		return null;
+		ExpBrwModel avModel = (ExpBrwModel)model;
+		
+		List<String> list = new ArrayList<String>();
+		List<Map<String,Object>> tmpList = adminHrEmployeeService.listExpMember();
+		
+		for(Map<String,Object> map:tmpList) {
+			list.add((String)map.get("employee_code"));
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public String getFirstStatus() {
+		return ExpBrwConstant.ST_WAITING;
 	}
 	
 }

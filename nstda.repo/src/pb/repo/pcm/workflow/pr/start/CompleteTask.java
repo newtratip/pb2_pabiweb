@@ -26,6 +26,7 @@ import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
+import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.constant.PcmReqWorkflowConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
@@ -211,7 +212,7 @@ public class CompleteTask implements ExecutionListener {
 					String taskComment = model.getObjectiveType() + " " + model.getObjective() + " " + model.getReason();
 					
 					mainWorkflowService.setModuleService(pcmReqService);
-					finalAction = mainWorkflowService.saveWorkflowHistory(execution, curUser, taskKey, taskComment, finalAction, null,  model.getId(), level);
+					finalAction = mainWorkflowService.saveWorkflowHistory(execution, curUser, taskKey, taskComment, finalAction, null,  model.getId(), level, PcmReqConstant.ST_WAITING);
 				}
 				catch (Exception ex) {
 					log.error(ex);

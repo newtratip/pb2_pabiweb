@@ -27,6 +27,7 @@ Ext.define('PBAdmin.Application', {
         
         'PB.Util',
         'PB.Dlg',
+        'PB.Label',
         'PB.button.LinkButton',
         'PB.model.common.UserModel',
         'PB.store.common.UserStore',
@@ -66,6 +67,10 @@ Ext.define('PBAdmin.Application', {
     ],
     
 	launch: function () {
+		Ext.apply(Ext.QuickTips.getQuickTip(), {
+		    dismissDelay: 0
+		});
+	
 		if (typeof TASKS !== 'undefined') {
 			HEIGHT = Ext.get(HTML_ID).getHeight();
 			WIDTH = Ext.get(HTML_ID).getWidth();
@@ -114,6 +119,26 @@ Ext.define('PBAdmin.Application', {
 			      },
 			      headers: getAlfHeader()
 			});
+		 	
+		 	Ext.Ajax.request({
+			      url:ALF_CONTEXT+"/admin/message/lbl",
+			      method: "GET",
+			      params:{
+		 			 lang:getLang()
+		 		  },
+			      success: function(response){
+			    	  
+			    	var data = Ext.decode(response.responseText);
+				 	Ext.apply(PB.Label, data);
+				 	//alert(PBPcm.Label.a);
+			      },
+			      failure: function(response, opts){
+			          // do nothing
+			      },
+			      headers: getAlfHeader(),
+			      async:false
+			});	 	
+		 	
 		}
 
 	}

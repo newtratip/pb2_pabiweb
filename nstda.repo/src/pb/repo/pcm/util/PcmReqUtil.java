@@ -57,6 +57,8 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
 		jsObj.put(PcmReqConstant.JFN_COST_CONTROL_TYPE_NAME, model.getCostControlTypeName());
 		
+		jsObj.put(PcmReqConstant.JFN_CONTRACT_DATE, model.getContractDate());
+		
 		jsObj.put(PcmReqConstant.JFN_PCM_SECTION_ID, model.getPcmSectionId());
 		jsObj.put(PcmReqConstant.JFN_LOCATION, model.getLocation());
 		
@@ -73,6 +75,8 @@ public class PcmReqUtil {
 		
 		jsObj.put(PcmReqConstant.JFN_VAT, model.getVat());
 		jsObj.put(PcmReqConstant.JFN_VAT_ID, model.getVatId());
+
+		jsObj.put(PcmReqConstant.JFN_FILE_NAME, model.getFileName());
 		
 		jsObj.put(PcmReqConstant.JFN_TOTAL, model.getTotal());
 		jsObj.put(PcmReqConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());

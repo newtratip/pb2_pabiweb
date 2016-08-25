@@ -14,6 +14,7 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.log4j.Logger;
 
 import pb.repo.admin.dao.MainAccountActivityDAO;
+import pb.repo.admin.dao.MainAccountActivityGroupDAO;
 import pb.repo.admin.dao.MainAccountTaxDAO;
 import pb.repo.admin.dao.MainBankMasterDAO;
 import pb.repo.admin.dao.MainCompleteNotificationDAO;
@@ -27,6 +28,7 @@ import pb.repo.admin.dao.MainHrEmployeeDAO;
 import pb.repo.admin.dao.MainHrExpenseRuleDAO;
 import pb.repo.admin.dao.MainHrPositionDAO;
 import pb.repo.admin.dao.MainMasterDAO;
+import pb.repo.admin.dao.MainModuleDAO;
 import pb.repo.admin.dao.MainMsgDAO;
 import pb.repo.admin.dao.MainOrgDAO;
 import pb.repo.admin.dao.MainPartnerTitleDAO;
@@ -50,6 +52,7 @@ import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
+import pb.repo.admin.model.MainAccountActivityGroupModel;
 import pb.repo.admin.model.MainAccountActivityModel;
 import pb.repo.admin.model.MainAccountTaxModel;
 import pb.repo.admin.model.MainBankMasterModel;
@@ -133,6 +136,7 @@ public class DbConnectionFactory {
         config.getTypeAliasRegistry().registerAlias("mainMsgModel", MainMsgModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCompleteNotificationModel", MainCompleteNotificationModel.class);
         config.getTypeAliasRegistry().registerAlias("mainAccountTaxModel", MainAccountTaxModel.class);
+        config.getTypeAliasRegistry().registerAlias("mainAccountActivityGroupModel", MainAccountActivityGroupModel.class);
         config.getTypeAliasRegistry().registerAlias("mainAccountActivityModel", MainAccountActivityModel.class);
         config.getTypeAliasRegistry().registerAlias("mainBankMasterModel", MainBankMasterModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCurrencyModel", MainCurrencyModel.class);
@@ -171,6 +175,7 @@ public class DbConnectionFactory {
         config.addMapper(MainMsgDAO.class);
         config.addMapper(MainCompleteNotificationDAO.class);
         config.addMapper(MainAccountTaxDAO.class);
+        config.addMapper(MainAccountActivityGroupDAO.class);
         config.addMapper(MainAccountActivityDAO.class);
         config.addMapper(MainBankMasterDAO.class);
         config.addMapper(MainCurrencyDAO.class);
@@ -201,6 +206,7 @@ public class DbConnectionFactory {
         config.addMapper(MainHrPositionDAO.class);
         config.addMapper(MainPurchasingUnitSectionRelDAO.class);
         config.addMapper(MainPurchaseConditionDAO.class);
+        config.addMapper(MainModuleDAO.class);
 		if (!config.hasMapper(MainProjectDAO.class)) {
 			config.addMapper(MainProjectDAO.class);
 		}

@@ -2,6 +2,7 @@ Ext.define('PB.model.common.EmployeeUserModel', {
     extend: 'Ext.data.Model',
     fields : [ {name : 'id'}
     		 , {name : 'code'}
+    		 , {name : 'title'}
     		 , {name : 'fname'}
     		 , {name : 'lname'}
     		 , {name : 'utype'}

@@ -9,6 +9,7 @@ public class SubModuleModel {
 	
 	String docRef;
 	String folderRef;
+	String fileName;
 	
 	Integer waitingLevel;
 	String workflowInsId;
@@ -33,6 +34,12 @@ public class SubModuleModel {
 	}
 	public void setDocRef(String docRef) {
 		this.docRef = docRef;
+	}
+	public String getFileName() {
+		return fileName;
+	}
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 	public String getFolderRef() {
 		return folderRef;

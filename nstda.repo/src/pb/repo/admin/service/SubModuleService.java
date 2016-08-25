@@ -14,7 +14,7 @@ import pb.repo.admin.model.SubModuleModel;
 
 public interface SubModuleService {
 	
-	public List<Map<String, Object>> listWorkflowPath(String id);
+	public List<Map<String, Object>> listWorkflowPath(String id, String lang);
 	
 	public void update(SubModuleModel model) throws Exception;
 	public Object get(String id);
@@ -32,8 +32,9 @@ public interface SubModuleService {
 	public List<String> listRelatedUser(SubModuleModel model);
 	
 	public String getFirstComment(SubModuleModel model);
+	public String getFirstStatus();
 	
-	public String getNextActionInfo();
+	public String getNextActionInfo(SubModuleModel model);
 	
     public String getModelUri();
     public String getWfUri();

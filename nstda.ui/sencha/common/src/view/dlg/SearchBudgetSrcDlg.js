@@ -75,7 +75,7 @@ Ext.define('PB.view.common.SearchBudgetSrcDlg', {
 								}
 							}
 						},
-						afterBoxLabelTextTpl: ' <img src="../res/page/img/icon/question.png" class="info_image" data-qtip="ใช้งบประมาณซึ่งวางแผนตั้งแต่ต้นปีงบประมาณ เป็นของส่วนกลาง สนับสนุนให้ใช้ประโยชน์คุ้มค่าสูงสุด"></img>'
+						afterBoxLabelTextTpl: ' <img src="../res/page/img/icon/question.png" class="info_image" data-qtip="ครุภัณฑ์ประจำปีที่ผ่านการพิจารณาอนุมัติจากคณะกรรมการพิจารณากลั่นกรองครุภัณฑ์วิทยาศาสตร์"></img>'
 					},{
 						xtype:'radio',
 						name:'type',

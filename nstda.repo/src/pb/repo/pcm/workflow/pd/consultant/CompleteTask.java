@@ -1,10 +1,12 @@
 package pb.repo.pcm.workflow.pd.consultant;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.alfresco.repo.forms.FormException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
@@ -21,11 +23,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pb.common.constant.CommonConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
+import pb.repo.admin.util.MainUtil;
 import pb.repo.admin.util.MainWorkflowUtil;
 import pb.repo.pcm.constant.PcmOrdConstant;
 import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
@@ -132,6 +136,13 @@ public class CompleteTask implements TaskListener {
 					
 					String finalAction = action;
 					if (action.equalsIgnoreCase(MainWorkflowConstant.TA_COMMENT)) {
+						Object comment = task.getVariable("bpm_comment");
+						if (comment==null || comment.toString().trim().equals("")) {
+							String lang = (String)task.getVariable(WF_PREFIX+"lang");
+							String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_COMMENT_NO_COMMENT", new Locale(lang));
+							throw new FormException(CommonConstant.FORM_ERR+errMsg);
+						}						
+						
 						Object counselee = task.getVariable(WF_PREFIX+"counselee");
 						log.info("::::counselee:::::"+counselee);
 						
@@ -166,7 +177,7 @@ public class CompleteTask implements TaskListener {
 						taskComment = tmpComment.toString();
 					}
 					
-					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
+					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level, model.getStatus());
 				}
 				catch (Exception ex) {
 					log.error(ex);

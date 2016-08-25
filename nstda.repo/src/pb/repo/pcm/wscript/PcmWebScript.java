@@ -10,8 +10,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
+import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
@@ -228,7 +231,7 @@ public class PcmWebScript {
 			putOneParam(params, jsObj, PcmReqConstant.JFN_OBJECTIVE_TYPE);
 		}		
 		
-		params.put("orderBy", "updated_time DESC");
+		params.put("orderBy", "REQ.id DESC");
 		
 		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
 		
@@ -283,6 +286,7 @@ public class PcmWebScript {
 						,@RequestParam(required=false) final String costControlTypeId
 						,@RequestParam(required=false) final String costControlId
 						,@RequestParam(required=false) final String pcmOu
+						,@RequestParam(required=false) final String contractDate
 						,@RequestParam(required=false) final String location
 						,@RequestParam(required=false) final String isAcrossBudget
 						,@RequestParam(required=false) final String acrossBudget
@@ -342,6 +346,7 @@ public class PcmWebScript {
 		if (pcmOu != null && !pcmOu.equals("")) {
 			model.setPcmSectionId(Integer.parseInt(pcmOu));
 		}
+		model.setContractDate(CommonDateTimeUtil.convertSenchaStringToTimestamp(contractDate));
 		model.setLocation(location);
 		model.setIsAcrossBudget(isAcrossBudget);
 		if (acrossBudget != null && !acrossBudget.equals("")) {
@@ -397,6 +402,7 @@ public class PcmWebScript {
 								,@RequestParam(required=false) final String costControlTypeId
 								,@RequestParam(required=false) final String costControlId
 								,@RequestParam(required=false) final String pcmOu
+								,@RequestParam(required=false) final String contractDate
 								,@RequestParam(required=false) final String location
 								,@RequestParam(required=false) final String isAcrossBudget
 								,@RequestParam(required=false) final String acrossBudget
@@ -454,6 +460,7 @@ public class PcmWebScript {
 		if (pcmOu!=null && !pcmOu.equals("")) {
 			model.setPcmSectionId(Integer.parseInt(pcmOu));
 		}
+		model.setContractDate(CommonDateTimeUtil.convertSenchaStringToTimestamp(contractDate));
 		model.setLocation(location);
 		model.setIsAcrossBudget(isAcrossBudget);
 		if (acrossBudget!=null && !acrossBudget.equals("")) {
@@ -496,7 +503,7 @@ public class PcmWebScript {
 				Boolean budgetOk = false;
 				Map<String, Object> budgetResult = null;
 				if (checkBudget) {
-					budgetResult = interfaceService.checkBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getTotal());
+					budgetResult = interfaceService.checkBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getTotal(), model.getCreatedBy());
 					log.info("Budget Result:"+budgetResult);
 					budgetOk = (Boolean)budgetResult.get("budget_ok");
 				}
@@ -585,22 +592,24 @@ public class PcmWebScript {
 	String json = null;
 
 	try {
+      String langSuffix = lang!=null && lang.startsWith("th") ? "_th" : "";
+		
 	  List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 
 	  Map<String, Object> map = new HashMap<String, Object>();
 	  
 	  String reqUser = (r!=null) ? r : authService.getCurrentUserName();
 	  
-	  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser, lang);
+	  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser);
 	  
 	  map.put(PcmReqConstant.JFN_REQ_BY, reqUser);
 	  
-	  String ename = dtl.get("first_name") + " " + dtl.get("last_name");
+	  String ename = dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
 
 	  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
 	  if (!createdUser.equals(reqUser)) {
-		  dtl = adminHrEmployeeService.getWithDtl(createdUser, lang);
-		  ename = dtl.get("first_name") + " " + dtl.get("last_name");
+		  dtl = adminHrEmployeeService.getWithDtl(createdUser);
+		  ename = dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
 	  }
 	  
 	  map.put(PcmReqConstant.JFN_CREATED_BY_SHOW, ename);
@@ -611,17 +620,17 @@ public class PcmWebScript {
 	  
 	  map.put(PcmReqConstant.JFN_REQ_BY_NAME, ename);
 	  map.put(PcmReqConstant.JFN_REQ_TEL_NO, wphone+comma+mphone);
-	  map.put(PcmReqConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"));
+	  map.put(PcmReqConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"+langSuffix));
 	  
-	  map.put(PcmReqConstant.JFN_REQ_BU, dtl.get("org_desc"));
+	  map.put(PcmReqConstant.JFN_REQ_BU, dtl.get("org_desc"+langSuffix));
 	  
 	  map.put(PcmReqConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
-	  map.put(PcmReqConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"));
+	  map.put(PcmReqConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"+langSuffix));
 	  
 	  map.put(PcmReqConstant.JFN_TEL_NO, wphone+comma+mphone);
 	  
 	  list.add(map);
-
+	  
 	  json = CommonUtil.jsonSuccess(list);
 
 	} catch (Exception ex) {
@@ -720,6 +729,7 @@ public class PcmWebScript {
 							,@RequestParam(required=false) final String costControlTypeId
 							,@RequestParam(required=false) final String costControlId
 							,@RequestParam(required=false) final String pcmOu
+							,@RequestParam(required=false) final String contractDate
 							,@RequestParam(required=false) final String location
 							,@RequestParam(required=false) final String isAcrossBudget
 							,@RequestParam(required=false) final String acrossBudget
@@ -777,6 +787,7 @@ public class PcmWebScript {
 		if (pcmOu != null && !pcmOu.equals("")) {
 			model.setPcmSectionId(Integer.parseInt(pcmOu));
 		}
+		model.setContractDate(CommonDateTimeUtil.convertSenchaStringToTimestamp(contractDate));
 		model.setLocation(location);
 		model.setIsAcrossBudget(isAcrossBudget);
 		if (acrossBudget!=null && !acrossBudget.equals("")) {
@@ -889,6 +900,7 @@ public class PcmWebScript {
 						,@RequestParam(required=false) final String costControlTypeId
 						,@RequestParam(required=false) final String costControlId
 						,@RequestParam(required=false) final String pcmOu
+						,@RequestParam(required=false) final String contractDate
 						,@RequestParam(required=false) final String location
 						,@RequestParam(required=false) final String isAcrossBudget
 						,@RequestParam(required=false) final String acrossBudget
@@ -946,6 +958,7 @@ public class PcmWebScript {
 		if (pcmOu!=null && !pcmOu.equals("")) {
 			model.setPcmSectionId(Integer.parseInt(pcmOu));
 		}
+		model.setContractDate(CommonDateTimeUtil.convertSenchaStringToTimestamp(contractDate));
 		model.setLocation(location);
 		model.setIsAcrossBudget(isAcrossBudget);
 		if (acrossBudget!=null && !acrossBudget.equals("")) {
@@ -978,7 +991,7 @@ public class PcmWebScript {
 		else {
 			model = pcmReqService.save(model, items, files, cmts, true);
 			mainWorkflowService.setModuleService(pcmReqService);
-			mainWorkflowService.updateWorkflow(model, files, cmts);
+			mainWorkflowService.updateWorkflow(model, files, cmts, MainWkfConfigDocTypeConstant.DT_PR);
 			
 			JSONObject jsObj = new JSONObject();
 			jsObj.put("id", model.getId());
@@ -1046,6 +1059,7 @@ public class PcmWebScript {
 	@Uri(URI_PREFIX+"/req/cmt/dtl/list")
 	public void handleCmtDtlList(@RequestParam final String id,
 								 @RequestParam final String cmt,
+								 @RequestParam final String lang,
 			  					final WebScriptResponse response)  throws Exception {
 	
 		String json = null;
@@ -1054,7 +1068,7 @@ public class PcmWebScript {
 			List<Map<String,Object>> list = pcmReqService.listCmtDtl(id, Integer.parseInt(cmt));
 			PcmReqCmtDtlUtil.addAction(list);
 				
-			json = PcmReqCmtDtlUtil.jsonSuccess(list);
+			json = PcmReqCmtDtlUtil.jsonSuccess(list,lang);
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -1094,7 +1108,7 @@ public class PcmWebScript {
 		String json = null;
 	
 		try {
-		  String newId = pcmReqService.copy(id, lang);
+		  String newId = pcmReqService.copy(id);
 	
 		  json = CommonUtil.jsonSuccess(newId);
 	
@@ -1107,6 +1121,124 @@ public class PcmWebScript {
 			CommonUtil.responseWrite(response, json);
 		}
 		
+	}
+	
+	
+	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/req/checkRefPR")
+	public void handleCheckRefPR(@RequestParam final String refId,
+						         @RequestParam final String total
+						   , final WebScriptResponse response)
+	      throws Exception {
+			
+		String json = null;
+	
+		try {
+		  MainMasterModel percentModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_REF_PR_PERCENT);
+			
+		  PcmReqModel model = pcmReqService.get(refId);
+		  
+		  JSONObject jobj = new JSONObject();
+		  
+		  Boolean ok = Double.parseDouble(total) <= model.getTotal() * Double.parseDouble(percentModel.getFlag1()) / 100; 
+		  
+		  jobj.put("ok", ok);
+		  jobj.put("percent", Double.parseDouble(percentModel.getFlag1()));
+	
+		  json = CommonUtil.jsonSuccess(jobj);
+	
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+			
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		
+	}
+	
+	@Uri(method=HttpMethod.GET, value=URI_PREFIX+"/req/test")
+	public void handleTest(final WebScriptResponse response)
+	      throws Exception {
+			
+		String json = null;
+	
+		try {
+		  ///////////
+		  Map<String, String> map = new LinkedHashMap<String, String>();
+		  map.put("0", "0");
+		  
+		  log.info("map 1:"+map);
+			
+		  map = pcmReqService.removeDuplicatedBoss(map);
+		  
+		  ///////////
+		  map = new LinkedHashMap<String, String>();
+		  map.put("0", "0");
+		  map.put("1", "0");
+		  
+		  log.info("map 2:"+map);
+			
+		  map = pcmReqService.removeDuplicatedBoss(map);
+		  
+		  ///////////
+		  map = new LinkedHashMap<String, String>();
+		  map.put("0", "0");
+		  map.put("1", "1");
+		  map.put("2", "1");
+		  
+		  log.info("map 3:"+map);
+			
+		  map = pcmReqService.removeDuplicatedBoss(map);
+		  
+		  ///////////
+		  map = new LinkedHashMap<String, String>();
+		  map.put("0", "0");
+		  map.put("1", "1");
+		  map.put("2", "2");
+		  map.put("3", "1");
+		  
+		  log.info("map 4:"+map);
+			
+		  map = pcmReqService.removeDuplicatedBoss(map);
+		  
+		  ///////////
+		  map = new LinkedHashMap<String, String>();
+		  map.put("0", "0");
+		  map.put("1", "1");
+		  map.put("2", "2");
+		  map.put("3", "2");
+		  
+		  log.info("map 5:"+map);
+			
+		  map = pcmReqService.removeDuplicatedBoss(map);
+		  
+		  ///////////
+		  map = new LinkedHashMap<String, String>();
+		  map.put("0", "0");
+		  map.put("1", "0");
+		  map.put("2", "1");
+		  map.put("3", "1");
+		  map.put("4", "2");
+		  map.put("5", "2");
+		  
+		  log.info("map 6:"+map);
+			
+		  map = pcmReqService.removeDuplicatedBoss(map);
+		  
+	
+		  json = CommonUtil.jsonSuccess(1);
+	
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+			
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		
 	}	
+	
   
 }

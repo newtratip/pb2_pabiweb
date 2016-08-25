@@ -1,5 +1,6 @@
 package pb.repo.pcm.model;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -36,6 +37,7 @@ public class PcmReqModel extends SubModuleModel {
 	String costControlName;
 	
 	Integer pcmSectionId;
+	Integer pcmOrgId;
 	String location;
 
 	String isAcrossBudget;
@@ -54,6 +56,8 @@ public class PcmReqModel extends SubModuleModel {
 	Integer vatId;
 	
 	Double total;
+	
+	Timestamp contractDate;
 	
 	Integer rewarning;
 	Integer waitingDay;
@@ -270,6 +274,12 @@ public class PcmReqModel extends SubModuleModel {
 	public void setPcmSectionId(Integer pcmSectionId) {
 		this.pcmSectionId = pcmSectionId;
 	}
+	public Integer getPcmOrgId() {
+		return pcmOrgId;
+	}
+	public void setPcmOrgId(Integer pcmOrgId) {
+		this.pcmOrgId = pcmOrgId;
+	}
 	public Integer getCostControlTypeId() {
 		return costControlTypeId;
 	}
@@ -293,6 +303,12 @@ public class PcmReqModel extends SubModuleModel {
 	}
 	public void setCostControlName(String costControlName) {
 		this.costControlName = costControlName;
+	}
+	public Timestamp getContractDate() {
+		return contractDate;
+	}
+	public void setContractDate(Timestamp contractDate) {
+		this.contractDate = contractDate;
 	}
 	public List<PcmReqDtlModel> getDtlList() {
 		return dtlList;

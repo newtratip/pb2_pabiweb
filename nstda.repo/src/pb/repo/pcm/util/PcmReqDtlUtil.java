@@ -62,12 +62,19 @@ public class PcmReqDtlUtil {
 				PcmReqDtlModel model = new PcmReqDtlModel();
 				model.setMasterId(masterId);
 				model.setIsEquipment(jsonObj.getString(PcmReqDtlConstant.JFN_IS_EQUIPMENT));
+				model.setActGrp(jsonObj.getString(PcmReqDtlConstant.JFN_ACT_GRP));
+				model.setActGrpId(jsonObj.getInt(PcmReqDtlConstant.JFN_ACT_GRP_ID));
 				model.setDescription(jsonObj.getString(PcmReqDtlConstant.JFN_DESCRIPTION));
 				model.setQuantity(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_QUANTITY)));
 				model.setUnitId(jsonObj.getInt(PcmReqDtlConstant.JFN_UNIT_ID));
 				model.setUnit(jsonObj.getString(PcmReqDtlConstant.JFN_UNIT));
 				model.setPrice(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_PRICE)));
 				model.setPriceCnv(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_PRICE_CNV)));
+				model.setFiscalYear(jsonObj.get(PcmReqDtlConstant.JFN_FISCAL_YEAR)!=null 
+						&& !jsonObj.getString(PcmReqDtlConstant.JFN_FISCAL_YEAR).equals("null") 
+						&& !jsonObj.getString(PcmReqDtlConstant.JFN_FISCAL_YEAR).equals("")
+						? Integer.parseInt(jsonObj.getString(PcmReqDtlConstant.JFN_FISCAL_YEAR)) 
+						: 0);
 				model.setTotal(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_TOTAL)));
 				
 				list.add(model);

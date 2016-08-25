@@ -12,7 +12,7 @@ Ext.define('PBPcm.view.pr.SearchDlg', {
 		Ext.applyIf(me, {
 	        renderTo : Ext.getBody(),
 	        modal: true,
-	        width: 765,
+	        width: 800,
 	        height: 470,
 	        layout: 'border',
 	        resizable: false,
@@ -32,7 +32,7 @@ Ext.define('PBPcm.view.pr.SearchDlg', {
 					items:[{
 			        	xtype:'textfield',
 			        	itemId:'searchTerm',
-			        	fieldLabel:'คำค้นหา',
+			        	fieldLabel:PB.Label.m.searchTerm,
 			        	labelWidth:lbw,
 			        	width:400,
 			        	margin:'5 0 0 0',
@@ -52,7 +52,7 @@ Ext.define('PBPcm.view.pr.SearchDlg', {
 			           	}			        		
 					},{
 			        	xtype:'button',
-			        	text:'ค้นหา',
+			        	text:PB.Label.m.search,
 			        	iconCls:'icon_search',
 			        	margin:'5 0 0 10',
 		                listeners: {
@@ -72,13 +72,14 @@ Ext.define('PBPcm.view.pr.SearchDlg', {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:'PR NO.', dataIndex: 'id', width: 100 },
-	        	     { text:'ประเภท', dataIndex: 'objective_type', align:'center', width:60 },
-	        	     { text:'งบประมาณที่ใช้', dataIndex: 'budget_cc_name', flex:1 },
-	        	     { text:'วัตถุประสงค์', dataIndex: 'objective', width: 100 },
-	        	     { text:'จำนวนเงิน', dataIndex: 'total', align:'right', xtype:'numbercolumn', width: 110},
-	        	     { text:'ผู้ขอเบิก', dataIndex: 'req_by', align:'center', width: 120 },
-	        	     { text:'วันที่ขอ', dataIndex: 'created_time_show', width: 110 },
+	        	     { text:PBPcm.Label.m['prNo'], dataIndex: 'id', width: 100 },
+	        	     { text:PBPcm.Label.m['prType'], dataIndex: 'objective_type', align:'center', width:60 },
+	        	     { text:PBPcm.Label.m['budget'], dataIndex: 'budget_cc_name', flex:1 },
+	        	     { text:PBPcm.Label.m['objective'], dataIndex: 'objective', width: 100 },
+	        	     { text:PBPcm.Label.m['amount'], dataIndex: 'total', align:'right', xtype:'numbercolumn', width: 110},
+	        	     { text:PBPcm.Label.m['requester'], dataIndex: 'req_by', align:'center', width: 100 },
+	        	     { text:PBPcm.Label.m['preparer'], dataIndex: 'created_by', align:'center', width: 100 },
+	        	     { text:PBPcm.Label.m['requestTime'], dataIndex: 'created_time_show', width: 110 },
 	        	     {
 		 	        	xtype: 'actioncolumn',
 		 	        	dataIndex: 'action',
@@ -97,7 +98,7 @@ Ext.define('PBPcm.view.pr.SearchDlg', {
 	        	store:store
 	        }],
 	        buttons : [{
-	          text: 'ยืนยัน', 
+	          text: PB.Label.m.confirm, 
 	          action : 'ok',
 	          iconCls:'icon_ok',
 	          listeners: {
@@ -106,7 +107,7 @@ Ext.define('PBPcm.view.pr.SearchDlg', {
 	               }
 	          }
 	        },{
-	          text: 'ยกเลิก',
+	          text: PB.Label.m.cancel,
 	          iconCls:'icon_no',
 	          handler:this.destroy,
 	          scope:this

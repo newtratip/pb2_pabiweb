@@ -80,7 +80,6 @@ import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.dao.PcmOrdDAO;
 import pb.repo.pcm.exception.NotFoundApprovalMatrixException;
 import pb.repo.pcm.model.PcmOrdModel;
-import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.util.PcmOrdUtil;
 import pb.repo.pcm.util.PcmUtil;
 
@@ -652,7 +651,7 @@ public class PcmOrdService implements SubModuleService {
         return model;
 	}	
 	
-	public List<Map<String, Object>> listWorkflowPath(String id) {
+	public List<Map<String, Object>> listWorkflowPath(String id, String lang) {
 		
 		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id);
 		
@@ -699,11 +698,13 @@ public class PcmOrdService implements SubModuleService {
         /*
          * Convert Employeee Code to Name
          */
+        lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
+
 		for(Map<String, Object> rec:list) {
 			String empCode = (String)rec.get("U");
-			MainHrEmployeeModel empModel = adminHrEmployeeService.get(empCode);
+			Map<String, Object> empModel = adminHrEmployeeService.getWithDtl(empCode);
 			if (empModel!=null) {
-				rec.put("U", empCode + " - " + empModel.getFirstName());
+				rec.put("U", empCode + " - " + empModel.get("first_name"));
 			}
 		}
 		
@@ -792,7 +793,12 @@ public class PcmOrdService implements SubModuleService {
 		parameters.put(PcmOrdWorkflowConstant.PROP_TOTAL, model.getTotal());
 		
 		Map<String, Object> docType = adminWkfConfigService.getDocType(model.getDocType());
-		parameters.put(PcmOrdWorkflowConstant.PROP_METHOD, (String)docType.get(MainWkfConfigDocTypeConstant.TFN_DESCRIPTION));
+		String desc = (String)docType.get(MainWkfConfigDocTypeConstant.TFN_DESCRIPTION);
+		int pos = desc.indexOf("-");
+		if (pos>=0) {
+			desc = desc.substring(pos+1);
+		}
+		parameters.put(PcmOrdWorkflowConstant.PROP_METHOD, desc);
 		
 		MainHrEmployeeModel empModel = adminHrEmployeeService.get(model.getAppBy());
 		parameters.put(PcmOrdWorkflowConstant.PROP_REQUESTER, empModel.getFirstName()+" "+empModel.getLastName());
@@ -850,7 +856,7 @@ public class PcmOrdService implements SubModuleService {
 	}
 
 	@Override
-	public String getNextActionInfo() {
+	public String getNextActionInfo(SubModuleModel model) {
 		return "ฝ่ายพัสดุ";
 	}
 
@@ -1122,4 +1128,10 @@ public class PcmOrdService implements SubModuleService {
 		
 		return list;
 	}
+	
+	@Override
+	public String getFirstStatus() {
+		return PcmOrdConstant.ST_WAITING;
+	}
+	
 }

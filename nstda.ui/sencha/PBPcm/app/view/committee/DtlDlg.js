@@ -26,10 +26,10 @@ Ext.define('PBPcm.view.committee.DtlDlg', {
 						name: 'id'
 					},{
 					    xtype: 'textfield',
-					    fieldLabel : 'ชื่อ', 
+					    fieldLabel : 'คำนำหน้า', 
 					    labelWidth: 70,
 					    anchor:"-10",
-					    name : 'first_name',
+					    name : 'title',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
 					    listeners:{
@@ -39,6 +39,14 @@ Ext.define('PBPcm.view.committee.DtlDlg', {
 								},100);
 							}
 						}
+					},{
+					    xtype: 'textfield',
+					    fieldLabel : 'ชื่อ', 
+					    labelWidth: 70,
+					    anchor:"-10",
+					    name : 'first_name',
+					    msgTarget: 'side',
+					    margin: '10 0 0 10'
 					},{
 					    xtype: 'textfield',
 					    fieldLabel : 'นามสกุล', 

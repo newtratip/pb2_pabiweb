@@ -57,6 +57,10 @@ Ext.define('PBPcmOrd.Application', {
     ],
     
 	launch: function () {
+		Ext.apply(Ext.QuickTips.getQuickTip(), {
+		    dismissDelay: 0
+		});
+	
 	 	Ext.Ajax.request({
 		      url:ALF_CONTEXT+"/util/getPageSize",
 		      method: "GET",

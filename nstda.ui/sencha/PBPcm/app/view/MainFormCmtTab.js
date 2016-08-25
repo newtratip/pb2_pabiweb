@@ -16,18 +16,18 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 		var methodStore = Ext.create('PB.store.common.ComboBoxStore');
 		methodStore.getProxy().api.read = ALF_CONTEXT+'/pcm/req/cmt/list';
 		methodStore.getProxy().extraParams = {
-			objType : me.rec.objective_type ? me.rec.objective_type : "blank" 
+			objType : me.rec.objective_type ? me.rec.objective_type : "blank"
 		}
-		
-		if (!replaceIfNull(me.rec.is_across_budget, "0") == "1") { // not across budget
+
+//		if (!replaceIfNull(me.rec.is_across_budget, "0") == "1") { // not across budget
 			if (replaceIfNull(me.rec.total, 0)) {
 				methodStore.getProxy().extraParams.total = replaceIfNull(me.rec.total, 0); 
 			}
-		} else {
-			if (replaceIfNull(me.rec.across_budget, null)) {
-				methodStore.getProxy().extraParams.total = replaceIfNull(me.rec.across_budget, null);
-			}
-		}
+//		} else {
+//			if (replaceIfNull(me.rec.across_budget, null)) {
+//				methodStore.getProxy().extraParams.total = replaceIfNull(me.rec.across_budget, null);
+//			}
+//		}
 		
 		methodStore.load(function() {
 			if (me.rec.prweb_method_id) {

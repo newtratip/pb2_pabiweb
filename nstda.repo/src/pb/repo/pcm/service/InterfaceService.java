@@ -1,6 +1,5 @@
 package pb.repo.pcm.service;
 
-import java.net.URL;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,8 +16,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ibm.icu.text.DateFormat;
-
 import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
 import pb.common.util.CommonDateTimeUtil;
@@ -28,6 +25,7 @@ import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminSectionService;
+import pb.repo.admin.service.AdminUserService;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.model.PcmReqModel;
 import redstone.xmlrpc.XmlRpcClient;
@@ -54,6 +52,9 @@ public class InterfaceService {
 	@Autowired
 	AdminSectionService sectionService;
 	
+	@Autowired
+	AdminUserService userService;
+	
 	private List<Object> getInitArgs(Map<String, Object> cfg) {
 		List<Object> args = new ArrayList();
 		args.add(cfg.get("db")); // db name
@@ -63,20 +64,20 @@ public class InterfaceService {
 		return args;
 	}
 
-	private Map<String, Object> getConnectionConfig() {
+	private Map<String, Object> getConnectionConfig(String login) {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		MainMasterModel sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ODOO_URL);
-//		String host = "http://10.226.202.133:8069";
 		String host = sysCfgModel.getFlag1();
 		
 		sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ODOO_DB);
-//		String db = "PABI2";
 		String db = sysCfgModel.getFlag1();
 		
-		Integer usr = 1; // uid 1='admin'
-		String pwd = "admin"; // password
+		Map<String,Object> user = userService.getByLogin(login);
+		
+		Integer usr = (Integer)user.get("id"); // uid 1='admin'
+		String pwd = "password"; // password
 		
 		log.info("host:"+host);
 		log.info("db:"+db);
@@ -102,7 +103,7 @@ public class InterfaceService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		try {
-			Map<String, Object> cfg = getConnectionConfig();
+			Map<String, Object> cfg = getConnectionConfig("admin");
 			XmlRpcClient client = getXmlRpcClient(cfg);
 			
 			List<Map<String, Object>> list = pcmReqService.listForInf(model.getId());
@@ -124,7 +125,7 @@ public class InterfaceService {
 	        map.put("date_approve",CommonDateTimeUtil.convertToOdooFieldDate(new Timestamp(Calendar.getInstance().getTimeInMillis())));
 	        map.put("total_budget_value",data.get("total"));
 	        map.put("purchase_prototype_id.id",data.get("is_prototype").equals("1") ? "1" : "2");
-	        map.put("purchase_type_id.id", data.get("objective_type"));
+	        map.put("purchase_type_id.id", data.get("method_type"));
 	        map.put("purchase_method_id.id",data.get("method_id"));
 	        map.put("purchase_unit_id.id",data.get("pcm_section_id"));
 	        map.put("description",data.get("reason"));
@@ -138,7 +139,6 @@ public class InterfaceService {
 	        map.put("request_ref_id", data.get("ref_id"));
 	        map.put("purchase_price_range_id.id", data.get("price_range_id")!=null ? data.get("price_range_id") : "");
 	        map.put("purchase_condition_id.id", data.get("condition_id")!=null ? data.get("condition_id") : "");
-//	        map.put("purchase_confidential_id.id", data.get("confidential_id")!=null ? data.get("confidential_id") : "");
 	        map.put("purchase_condition_detail_id.id", data.get("method_cond2")!=null ? data.get("method_cond2") : "");
 	        map.put("purchase_condition_detail", data.get("method_cond2_dtl"));
 	        
@@ -156,13 +156,18 @@ public class InterfaceService {
 	        for(Map<String, Object> dtl:list) {
 		        Map<String, Object> line = new HashMap<String, Object>();
 		        line.put("product_id.id","");
+		        line.put("activity_group_id.id",dtl.get("act_grp_id")); 
 		        line.put("name",dtl.get("description")); 
 		        line.put("product_qty",dtl.get("quantity")); 
 		        line.put("price_unit",dtl.get("price")); ////////
+		        line.put("fiscal_year_id",(Integer)dtl.get("fiscal_year") != 0 ? dtl.get("fiscal_year").toString() : ""); ////////
 		        line.put("product_uom_id.id",dtl.get("unit_id")); 
-	//	        line.put("activity_id.id","");
-	//	        line.put("date_required",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("updated_time"))); 
-		        line.put("section_id.id",dtl.get("budget_cc"));
+		        line.put("date_required",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("contract_date")));
+		        if (dtl.get("budget_cc_type").equals("U")) {
+		        	line.put("section_id.id",dtl.get("budget_cc"));
+		        } else {
+		        	line.put("project_id.id",dtl.get("budget_cc"));
+		        }
 		        line.put("cost_control_id.id",dtl.get("cost_control_id")!=null ? dtl.get("cost_control_id") : "");
 		        line.put("fixed_asset","False");
 		        line.put("tax_ids",dtl.get("vat_name")!=null ? dtl.get("vat_name") : "");
@@ -185,7 +190,7 @@ public class InterfaceService {
 	        int seq = 1;
 	        for(Map<String, Object> cmtData:list) {
 		        Map<String, Object> cmt = new HashMap<String, Object>();
-		        cmt.put("name",cmtData.get("first_name")+" "+cmtData.get("last_name")); 
+		        cmt.put("name",cmtData.get("title")+" "+cmtData.get("first_name")+" "+cmtData.get("last_name")); 
 		        cmt.put("position",cmtData.get("position"));
 		        cmt.put("committee_type_id",cmtData.get("committee_id"));
 		        cmt.put("sequence", String.valueOf(seq++));
@@ -250,7 +255,7 @@ public class InterfaceService {
 		return success ? "OK" : msgs+":"+map.toString();
 	}
 	
-	public String updateStatusPD(PcmOrdModel model, String action, String user, String comment) throws Exception {
+	public String updateStatusPD(PcmOrdModel model, String action, String user, String comment, String login) throws Exception {
 		log.info("interface : updateStatusPD");
 		
 		MainMasterModel cfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_INF_PD_UPDATE_STATUS);
@@ -263,7 +268,7 @@ public class InterfaceService {
 		
 			try {
 				
-				Map<String, Object> cfg = getConnectionConfig();
+				Map<String, Object> cfg = getConnectionConfig(login);
 				XmlRpcClient client = getXmlRpcClient(cfg);
 				
 				List args = getInitArgs(cfg);
@@ -312,14 +317,14 @@ public class InterfaceService {
 		return success ? "OK" : msgs+":"+map.toString();
 	}
 	
-	public Map<String, Object> getBudgetControlLevel(Timestamp time) throws Exception {
+	public Map<String, Object> getBudgetControlLevel(Timestamp time, String login) throws Exception {
 		log.info("sub interface : getBudgetControlLevel");
 		
 		log.info("  time:"+time.toString());
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		Map<String, Object> cfg = getConnectionConfig();
+		Map<String, Object> cfg = getConnectionConfig(login);
 		XmlRpcClient client = getXmlRpcClient(cfg);
 		
 		List args = getInitArgs(cfg);
@@ -353,7 +358,7 @@ public class InterfaceService {
 		return map;
 	}
 	
-	private Map<String, Object> checkBudget(Integer fiscalId,String budgetType,String budgetLevel, Integer resourceId,Double amount) throws Exception {
+	private Map<String, Object> checkBudget(Integer fiscalId,String budgetType,String budgetLevel, Integer resourceId,Double amount, String login) throws Exception {
 		log.info("sub interface : checkBudget");
 		
 		log.info("  fiscalId:"+fiscalId);
@@ -364,7 +369,7 @@ public class InterfaceService {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		Map<String, Object> cfg = getConnectionConfig();
+		Map<String, Object> cfg = getConnectionConfig(login);
 		XmlRpcClient client = getXmlRpcClient(cfg);
 		
 		List args = getInitArgs(cfg);
@@ -405,13 +410,13 @@ public class InterfaceService {
 		return map;
 	}	
 	
-	public Map<String, Object> checkBudget(String budgetCcType, Integer budgetCc, Double amount) throws Exception {
+	public Map<String, Object> checkBudget(String budgetCcType, Integer budgetCc, Double amount, String login) throws Exception {
 		log.info("interface : checkBudget");
 		log.info(" - budgetCcType : "+budgetCcType);
 		log.info(" - budgetCc : "+budgetCc);
 		log.info(" - amount : "+amount);
 		
-		Map<String, Object> budgetLevel = getBudgetControlLevel(new Timestamp(Calendar.getInstance(Locale.US).getTimeInMillis()));
+		Map<String, Object> budgetLevel = getBudgetControlLevel(new Timestamp(Calendar.getInstance(Locale.US).getTimeInMillis()), login);
 		for(String k : budgetLevel.keySet()) {
 			log.info(" -- "+k+":"+budgetLevel.get(k));
 		}
@@ -435,7 +440,8 @@ public class InterfaceService {
 				budgetType,
 				(String)budgetLevel.get(budgetType),
 				resourceId,
-				amount
+				amount,
+				login
 		);
 		
 		return budget;

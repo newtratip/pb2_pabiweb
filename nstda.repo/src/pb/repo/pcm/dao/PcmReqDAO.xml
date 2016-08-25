@@ -20,6 +20,7 @@
         <result property="isPrototype" column="is_prototype"/>
         <result property="prototype" column="prototype"/>
         <result property="prototypeContractNo" column="prototype_contract_no"/>
+        <result property="contractDate" column="contract_date"/>
         <result property="costControlTypeId" column="cost_control_type_id"/>
         <result property="costControlTypeName" column="cost_control_type_name"/>
         <result property="costControlId" column="cost_control_id"/>
@@ -37,6 +38,7 @@
         <result property="vat" column="vat"/>
         <result property="vatId" column="vat_id"/>
         <result property="workflowInsId" column="workflow_ins_id"/>
+        <result property="refDocRef" column="ref_doc_ref"/>
         <result property="docRef" column="doc_ref"/>
         <result property="folderRef" column="folder_ref"/>
         <result property="waitingLevel" column="waiting_level"/>
@@ -51,15 +53,15 @@
     
     <select id="list" resultMap="result" parameterType="map">
         SELECT
-		    REQ.ID, total, objective_type, objective, 
-		    	budget_cc, budget_cc_type, b.name budget_cc_name,
-				WF_STATUS, STATUS, reason, 
+		    REQ.ID, total, CASE WHEN #{lang}='' THEN mm.flag2 ELSE mm.name END objective_type, objective, 
+		    	budget_cc, budget_cc_type, CASE WHEN #{lang}='' THEN b.name ELSE b.name_th END budget_cc_name,
+				WF_STATUS, STATUS, reason, currency,
 				cost_control_id, cost_control_type_id, 
 				location, 
 				prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				WORKFLOW_INS_ID, TASK_ID,
-				UPDATED_TIME, UPDATED_BY, CREATED_TIME, 
-				FOLDER_REF, DOC_REF,
+				REQ.UPDATED_TIME, REQ.UPDATED_BY, REQ.CREATED_TIME, 
+				FOLDER_REF, DOC_REF, contract_date,
   			CASE 
   				WHEN STATUS='D' THEN '1'
             	WHEN STATUS='W2' THEN '2'
@@ -71,33 +73,78 @@
             	WHEN STATUS='X2' THEN '8'
             	ELSE STATUS
        		END ORDER_FIELD,
-	      	COALESCE(CBY ,CREATED_BY) CREATED_BY,
+	      	COALESCE(CBY ,REQ.CREATED_BY) CREATED_BY,
 	      	COALESCE(RBY ,REQ_BY) REQ_BY,
 		    COUNT(*) OVER() totalRowCount
 		FROM
-		    (SELECT ID, total, objective_type, objective, budget_cc, budget_cc_type,
+		    (SELECT ID, total, objective_type, objective, budget_cc, budget_cc_type, contract_date, currency,
 				NULL WF_STATUS, STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				WORKFLOW_INS_ID, NULL TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
-				(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = pb2_pcm_req.created_by) CBY,
+				(select CASE 
+					WHEN #{lang}='' THEN 
+						first_name
+					ELSE
+						coalesce((select value
+						from pb2_ext_ir_translation
+						where name = 'hr.employee,first_name'
+						and type = 'model' and lang='th_TH'
+						and res_id = e3.id), e3.first_name)
+					END
+					first_name
+				from pb2_ext_hr_employee e3 where lpad(employee_code,6,'0') = pb2_pcm_req.created_by) CBY,
 				FOLDER_REF, DOC_REF, REQ_BY,
-				(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = pb2_pcm_req.req_by) RBY
+				(select CASE 
+					WHEN #{lang}='' THEN 
+						first_name
+					ELSE
+						coalesce((select value
+						from pb2_ext_ir_translation
+						where name = 'hr.employee,first_name'
+						and type = 'model' and lang='th_TH'
+						and res_id = e4.id), e4.first_name)
+					END
+					first_name
+				from pb2_ext_hr_employee e4 where lpad(employee_code,6,'0') = pb2_pcm_req.req_by) RBY
 			FROM pb2_pcm_req
 			WHERE STATUS='D' AND CREATED_BY=#{loginE}
  			UNION
-			SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type,
+			SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type, contract_date, currency,
 				CASE WHEN (W.STATUS IS NULL) THEN ''
 				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
 				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				M.WORKFLOW_INS_ID, TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
-				(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = M.created_by) CBY,
+				(select CASE 
+					WHEN #{lang}='' THEN 
+						first_name
+					ELSE
+						coalesce((select value
+						from pb2_ext_ir_translation
+						where name = 'hr.employee,first_name'
+						and type = 'model' and lang='th_TH'
+						and res_id = e1.id), e1.first_name)
+					END
+					first_name
+				from pb2_ext_hr_employee e1 where lpad(employee_code,6,'0') = M.created_by) CBY,
 				FOLDER_REF, DOC_REF, REQ_BY,
-				(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = M.req_by) RBY 
-			FROM pb2_pcm_req M LEFT JOIN 
+				(select CASE 
+					WHEN #{lang}='' THEN 
+						first_name
+					ELSE
+						coalesce((select value
+						from pb2_ext_ir_translation
+						where name = 'hr.employee,first_name'
+						and type = 'model' and lang='th_TH'
+						and res_id = e2.id), e2.first_name)
+					END
+					first_name
+				from pb2_ext_hr_employee e2 where lpad(employee_code,6,'0') = M.req_by) RBY 
+			FROM pb2_pcm_req M 
+			LEFT JOIN 
 			(
 			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
-			FROM pb2_main_workflow w  left join pb2_ext_hr_employee${lang} e on w.by = lpad(e.employee_code,6,'0')
+			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
 			WHERE TYPE='PCM_REQ' AND 
 			w.ID IN (
 				SELECT MAX(ID)
@@ -123,12 +170,25 @@
 		) REQ
 		LEFT JOIN
 		(
-			select 'U' _type,id,name
-			from pb2_ext_res_section
+			select 'U' _type,id,concat('[',trim(code),'] ',name) "name", concat('[',trim(code),'] ',name_th) name_th
+			from (select code,id,name,
+				coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'res.section,name'
+					and type = 'model' and lang='th_TH'
+					and res_id = sec.id), name) as name_th
+				from pb2_ext_res_section sec) s
 			union
-			select 'P' _type,id,p.name||' - '||p.description
-			from pb2_ext_res_project p
+			select 'P' _type,id,concat('[',trim(code),'] ',name) "name", concat('[',trim(code),'] ',name_th) name_th
+			from (select p.id,p.name, p.code,
+			coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'res.project,name'
+				and type = 'model' and lang='th_TH'
+				and res_id = p.id), p.name) as name_th
+				FROM pb2_ext_res_project p) pro
 		) b on (REQ.budget_cc_type = b._type and REQ.budget_cc = b.id)
+		LEFT JOIN pb2_main_master mm on (REQ.objective_type=mm.code and mm.type='PC')
 		
 		WHERE
 			1=1
@@ -154,9 +214,9 @@
       		(SELECT ID, M.total, objective_type, objective, budget_cc, budget_cc_type, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
     		M.WORKFLOW_INS_ID ,
     		UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
-    		(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = M.created_by) CBY,
+    		(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.created_by) CBY,
     		FOLDER_REF, DOC_REF, REQ_BY,
-    		(select first_name from pb2_ext_hr_employee${lang} where lpad(employee_code,6,'0') = M.req_by) RBY 
+    		(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.req_by) RBY, is_ref_id
    			FROM pb2_pcm_req M  
    			WHERE M.STATUS not in ('D','X1','X2')
   			) REQ
@@ -165,15 +225,23 @@
    			select 'U' _type,id,name
    			from pb2_ext_res_section
    			union
-   			select 'P' _type,id,p.name||' - '||p.description
+   			select 'P' _type,id,p.code||' - '||p.name
    			from pb2_ext_res_project p
   		) b on (REQ.budget_cc_type = b._type and REQ.budget_cc = b.id)
-  		WHERE ((created_by = #{loginE}) or (req_by = #{loginE}))
+  		WHERE (
+  			created_by = #{loginE} 
+  			AND is_ref_id='0'
+  			AND REQ.ID not in (select ref_id from pb2_pcm_req where is_ref_id='1' and status not in ('X1','X2'))
+  			AND status not in ('X1','X2')
+  		)
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
 	    			concat(REQ.id, ' ', objective_type, ' ', objective, ' ', reason, ' ', location, ' ', method_cond2_rule, ' ', method_cond2, ' ', method_cond2_dtl) ILIKE '%'||#{item}||'%'
 	   		</foreach>
-   		</if>  
+   		</if>
+   		<if test="objective_type != null">
+			AND objective_type=#{objective_type}
+		</if> 
 		ORDER BY ${orderBy}
 		LIMIT #{limit}
 		OFFSET #{start}
@@ -203,7 +271,8 @@
 	    	,method_cond2_rule,method_cond2,method_cond2_dtl
 	    	,vat,vat_id
 	    	,total
-	    	,doc_ref,folder_ref
+	    	,contract_date
+	    	,doc_ref,folder_ref,ref_doc_ref
 	    	,waiting_level,status
 	    	,created_by,updated_by
 	    ) VALUES (
@@ -222,7 +291,8 @@
 	    	,#{methodCond2Rule},#{methodCond2},#{methodCond2Dtl}
 	    	,#{vat},#{vatId}
     		,#{total}
-    		,#{docRef},#{folderRef}
+    		,#{contractDate}
+    		,#{docRef},#{folderRef},#{refDocRef}
     		,#{waitingLevel},#{status}
     		,#{createdBy},#{updatedBy}
     	)
@@ -283,6 +353,8 @@
 	    ,vat =#{vat}
 	    ,vat_id =#{vatId}
 	    ,total =#{total}
+	    ,contract_date =#{contractDate}
+	    ,ref_doc_ref =#{refDocRef}
 	    ,doc_ref =#{docRef}
 	    ,folder_ref =#{folderRef}
 	    ,waiting_level =#{waitingLevel}
@@ -303,10 +375,10 @@
 		    pb2_pcm_req r
 		LEFT JOIN
 		(
-		select 'U' _type,id,name
+		select 'U' _type,id,'['||trim(code)||'] '||name as name
 		from pb2_ext_res_section
 		union
-		select 'P' _type,id,p.name||' - '||p.description as name
+		select 'P' _type,id,'['||trim(code)||'] '||name as name
 		from pb2_ext_res_project p
 		) b on (r.budget_cc_type = b._type and r.budget_cc = b.id)
 		
@@ -360,10 +432,12 @@
 		select 
 			r.id req_id,
 			r.req_by,
+			r.contract_date,
 			a.actor_user rp_id,
-			case when (r.is_across_budget = '1') then across_budget else 0 end total,
+			<!-- case when (r.is_across_budget = '1') then across_budget else 0 end total, -->
+			case when (r.is_across_budget = '1') then r.total else 0 end total,
 			r.prototype, 
-			m.flag1 objective_type,
+			pm.type_id method_type,
 			r.stock_section_id,
 			r.pcm_section_id,
 			r.reason,
@@ -383,7 +457,7 @@
 			w.by last_approver,
 			w.by_time,
 			case when (r.is_ref_id = '1') then ref_id else '' end ref_id,
-			pm.price_range_id,pm.condition_id,pm.confidential_id
+			pm.price_range_id,pm.condition_id
 		from pb2_pcm_req r
 		left join pb2_main_workflow_next_actor a on r.id = a.master_id --Next Actor
 		left join pb2_ext_res_currency c on r.currency = c.name
@@ -392,17 +466,35 @@
 			from pb2_ext_wkf_config_purchase_unit p, pb2_ext_wkf_config_doctype d
 			where p.doctype_id = d.id and d.name = 'PR' ) pu on r.pcm_section_id = pu.id
 		left join pb2_main_workflow w on w.master_id = r.id --Last Approver
-		left join pb2_main_master m on objective_type=m.code and m.type='PC'
 		left join pb2_ext_prweb_purchase_method pm on prweb_method_id = pm.id
 		where r.id = #{id}
     </select>
     
     <select id="getFirstApprover" parameterType="string" resultType="map">
-		SELECT e.first_name||' '||e.last_name approver, h.time
+		SELECT coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'res.partner.title,name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.title_id), t.name) 
+				||' '||
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,first_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.first_name)
+				||' '||
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,last_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.last_name)
+		approver
+		, h.time
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
 		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
+		LEFT JOIN pb2_ext_res_partner_title t on e.title_id = t.id
 		WHERE w.type='PCM_REQ'
 		AND r.master_id=#{id}
 		AND r.level=1
@@ -411,11 +503,30 @@
     </select>
     
     <select id="getLastApprover" parameterType="string" resultType="map">
-		SELECT e.first_name||' '||e.last_name approver, h.time
+		SELECT
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'res.partner.title,name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.title_id), t.name) 
+				||' '||
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,first_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.first_name)
+				||' '||
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,last_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.last_name)
+		approver, h.time
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
 		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
+		LEFT JOIN pb2_ext_res_partner_title t on e.title_id = t.id
 		WHERE w.type='PCM_REQ'
 		AND r.master_id=#{id}
 		AND r.level=(select max(level) from pb2_main_workflow_reviewer where master_id=#{id})

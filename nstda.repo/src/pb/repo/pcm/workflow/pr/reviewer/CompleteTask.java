@@ -1,5 +1,6 @@
 package pb.repo.pcm.workflow.pr.reviewer;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -152,7 +153,8 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_REJECT)) {
 							Object comment = task.getVariable("bpm_comment");
 							if (comment==null || comment.toString().trim().equals("")) {
-								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", new Locale(lang));
 								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
@@ -165,7 +167,7 @@ public class CompleteTask implements TaskListener {
 							Boolean checkBudget = chkBudgetModel.getFlag1().equals(CommonConstant.V_ENABLE);
 
 							if (checkBudget) {
-								Map<String, Object> chkResult = interfaceService.checkBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getTotal());
+								Map<String, Object> chkResult = interfaceService.checkBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getTotal(), model.getCreatedBy());
 								
 								if (!(Boolean)chkResult.get("budget_ok")) {
 									throw new FormException(CommonConstant.FORM_ERR+chkResult.get("message"));
@@ -197,7 +199,9 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_CONSULT)) {
 							Object  consultant = task.getVariable(WF_PREFIX+"consultant");
 							if (consultant==null || consultant.equals("")) {
-								throw new FormException(CommonConstant.FORM_ERR+"Please specify Consultant before press Consult button");
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_CONSULT_NO_CONSULTANT", new Locale(lang));
+								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
 							model.setStatus(PcmReqConstant.ST_CONSULT);
@@ -230,7 +234,7 @@ public class CompleteTask implements TaskListener {
 							taskComment = tmpComment.toString();
 						}
 						
-						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
+						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level, model.getStatus());
 						
 						if (finalAction.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE) && lastLevel.equals(level)) {
 							model.setDtlList(pcmReqService.listDtlByMasterId(model.getId()));

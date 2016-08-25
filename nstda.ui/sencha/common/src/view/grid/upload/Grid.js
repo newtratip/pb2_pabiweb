@@ -13,9 +13,17 @@ Ext.define('PB.view.common.upload.Grid', {
 		        	dataIndex: 'action',
 		        	itemId : 'actionGrid',
 		        	text: '',
-		            width: 60,
+		            width: 70,
 		            align: 'center',
 		            items: [{
+		                tooltip: 'Edit Description',
+		        	    getClass: function(v) {
+		        	    	return getActionIcon(v, "E", 'edit');
+		                }, 
+		                handler: function(grid, rowIndex, colIndex) {
+		                    me.fireEvent('editFile',me, rowIndex, colIndex);
+			            }
+		            },{
 		                tooltip: 'Delete',
 		        	    getClass: function(v) {
 		        	    	return getActionIcon(v, "D", 'delete');
@@ -32,24 +40,34 @@ Ext.define('PB.view.common.upload.Grid', {
 			    tbar:[{
 		    	    xtype:'label',
 		    	    html:"&nbsp;&nbsp;"+PB.Label.u.file+":"
+//		        },{
+//            		xtype: 'filefield',
+//	            	padding: '0px 0px 0px 5px',
+//	                name: 'file',
+//	                msgTarget: 'side',
+//	                width : 335,
+//	                buttonConfig: {
+//	                    text: PB.Label.u.browse,
+//                        iconCls: "icon_search"               
+//	                }
 		        },{
-            		xtype: 'filefield',
+            		xtype: 'multifilefield',
 	            	padding: '0px 0px 0px 5px',
 	                name: 'file',
 	                msgTarget: 'side',
-	                width : 335,
+	                flex : 1,
 	                buttonConfig: {
 	                    text: PB.Label.u.browse,
                         iconCls: "icon_search"               
 	                }
-            	},{
-            		xtype:'textfield',
-            		fieldLabel:PB.Label.u.desc,
-            		labelWidth:80,
-            		name:'desc',
-            		width:335,
-            		maxLength:100,
-            		margin:'0 0 0 20'
+//            	},{
+//            		xtype:'textfield',
+//            		fieldLabel:PB.Label.u.desc,
+//            		labelWidth:80,
+//            		name:'desc',
+//            		width:335,
+//            		maxLength:100,
+//            		margin:'0 0 0 20'
             	},{
             		xtype: 'button',
 	                text: PB.Label.u.upload,

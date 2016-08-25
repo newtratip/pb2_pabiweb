@@ -47,7 +47,7 @@
 	</select>
 
 	<select id="listByProject" resultType="map" parameterType="map">
-		select	e.employee_code, e.first_name, e.last_name, po.name "position" , concat(p.name,' - ',p.description) utype, e.position_id 
+		select	e.employee_code, e.first_name, e.last_name, po.name "position" , concat('[',trim(p.code),'] ',p.name) utype, e.position_id 
 		from	pb2_ext_res_project_member pm, pb2_ext_hr_employee e ,pb2_ext_hr_position po, pb2_ext_res_project p
 		where	e.id = pm.employee_id
 		and 	e.position_id = po.id
@@ -55,7 +55,7 @@
 		and	pm.project_id = #{code}
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-	    			concat(e.employee_code, ' ', e.first_name, ' ', e.last_name, ' ', po.name, ' ', p.name, ' ',p.description) ILIKE '%'||#{item}||'%'
+	    			concat(e.employee_code, ' ', e.first_name, ' ', e.last_name, ' ', po.name, ' ', p.name, ' ',p.code) ILIKE '%'||#{item}||'%'
 	   		</foreach>
    		</if>  		
 		order by 	first_name,last_name
@@ -64,26 +64,104 @@
 	<select id="listForSearch" resultType="map" parameterType="map">
 		select * from
 		(
-			select e.employee_code, e.first_name,e.last_name ,po.name "position",s.description utype, e.position_id
-			from pb2_ext_hr_employee${lang} e, pb2_ext_res_org o ,pb2_ext_res_section s,pb2_ext_hr_position po
-			where e.org_id = o.id
-			and e.section_id = s.id
-			and e.position_id = po.id
-		union
-			select e.employee_code, e.first_name, e.last_name, po.name "position" , concat(p.name,' - ',p.description) utype, e.position_id
-			from pb2_ext_res_project_member pm, pb2_ext_hr_employee${lang} e ,pb2_ext_hr_position po, pb2_ext_res_project p
-			where e.id = pm.employee_id
-			and e.position_id = po.id
-			and pm.project_id = p.id
+			select e.employee_code,t.name title
+				,coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'res.partner.title,name'
+					and type = 'model' and lang='th_TH'
+					and res_id = e.title_id), t.name) as title_th,
+					e.first_name,e.last_name ,po.name "position",concat('[',trim(s.code),'] ',s.name) utype, e.position_id
+				,coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'hr.employee,first_name'
+					and type = 'model' and lang='th_TH'
+					and res_id = e.id), e.first_name) as first_name_th
+				,coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'hr.employee,last_name'
+					and type = 'model' and lang='th_TH'
+					and res_id = e.id), e.last_name) as last_name_th
+				,concat('[',trim(s.code),'] ',coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'res.section,name'
+					and type = 'model' and lang='th_TH'
+					and res_id = e.section_id), s.name)) as utype_th
+			   , coalesce((select value
+				    from pb2_ext_ir_translation
+				    where name = 'hr.position,name'
+				    and type = 'model' and lang='th_TH'
+				    and res_id = e.position_id), po.name) as position_th
+				from pb2_ext_hr_employee e,pb2_ext_res_org o, pb2_ext_res_section s,pb2_ext_hr_position po,pb2_ext_res_partner_title t
+				where e.org_id = o.id
+				and e.section_id = s.id
+				and e.position_id = po.id
+				and e.title_id = t.id
+				and e.id!=1
+			union
+			select e.employee_code,t.name title
+				,coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'res.partner.title,name'
+					and type = 'model' and lang='th_TH'
+					and res_id = e.title_id), t.name) as title_th,
+					e.first_name, e.last_name, po.name "position" , concat('[', trim(p.code),'] ',p.name) utype, e.position_id
+				,coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'hr.employee,first_name'
+					and type = 'model' and lang='th_TH'
+					and res_id = e.id), e.first_name) as first_name_th
+				,coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'hr.employee,first_name'
+					and type = 'model' and lang='th_TH'
+					and res_id = e.id), e.last_name) as last_name_th
+				,concat('[',trim(p.code),'] ',coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'res.project,name'
+					and type = 'model' and lang='th_TH'
+					and res_id = pm.project_id), p.name)) as utype_th
+				,coalesce((select value
+				    from pb2_ext_ir_translation
+				    where name = 'hr.position,name'
+				    and type = 'model' and lang='th_TH'
+				    and res_id = e.position_id),  po.name) as position_th
+				from pb2_ext_res_project_member pm, pb2_ext_hr_employee e ,pb2_ext_hr_position po, pb2_ext_res_project p,pb2_ext_res_partner_title t
+				where e.id = pm.employee_id
+				and e.position_id = po.id
+				and pm.project_id = p.id
+				and e.title_id = t.id
+				and e.id!=1
 		) a
 		WHERE 1=1
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-	    			concat(employee_code, ' ', first_name, ' ', last_name, ' ', position, ' ', utype) ILIKE '%'||#{item}||'%'
+	    			concat(employee_code, ' ', first_name, ' ', last_name, ' ', position, ' ', position_th, ' ', utype, ' ', first_name_th, ' ', last_name_th, ' ', utype_th,' ',title,' ', title_th) ILIKE '%'||#{item}||'%'
 	   		</foreach>
 		</if>  		
-		order by employee_code,first_name,last_name,utype,"position"
+		order by employee_code
 	</select>
+	
+	<select id="listPcmMember" resultType="map" parameterType="map">
+		select e.employee_code
+		from pb2_ext_hr_employee e
+		inner join pb2_ext_res_users u ON u.login = e.employee_code
+		inner join pb2_ext_res_groups_users_rel g ON g.uid = u.id
+		inner join pb2_ext_ir_model_data ir ON ir.res_id = g.gid
+		where ir.module = 'purchase' and ir.name = 'group_purchase_user'
+		and e.org_id = #{orgId}
+	</select>	
+	
+	<select id="listExpMember" resultType="map" parameterType="map">
+		SELECT HR.employee_code
+<!-- 		, HR.first_name
+		, HR.last_name
+		, HR.org_id -->
+		FROM pb2_ext_hr_employee HR
+		INNER JOIN pb2_ext_res_users USR ON USR.login = HR.employee_code
+		INNER JOIN pb2_ext_res_groups_users_rel GU ON GU.uid =  USR.id
+		INNER JOIN pb2_ext_ir_model_data IR ON IR.res_id = GU.gid
+		WHERE IR.module = 'account' and IR.name = 'group_account_user'		
+	</select>	
 	
 	<select id="count"  resultType="long">
         select
@@ -109,15 +187,56 @@
 			e.last_name,
 			e.work_phone,
 			e.mobile_phone,
-			o.description org_desc,
+			concat('[',trim(o.code),'] ', o.name) org_desc,
 			o.name org_name, 
 			s.id section_id,
-			s.description section_desc,
+			concat('[',trim(s.code),'] ', s.name) section_desc,
 			s.name section_name,
 			d.name div_name,
+			coalesce((select value
+from pb2_ext_ir_translation
+where name = 'hr.employee,first_name'
+and type = 'model' and lang='th_TH'
+and res_id = e.id), e.first_name) as first_name_th,
+coalesce((select value
+from pb2_ext_ir_translation
+where name = 'hr.employee,last_name'
+and type = 'model' and lang='th_TH'
+and res_id = e.id), e.last_name) as last_name_th,
+concat('[',trim(o.code),'] ',
+coalesce((select value
+from pb2_ext_ir_translation
+where name = 'res.org,name'
+and type = 'model' and lang='th_TH'
+and res_id = e.org_id), o.name)) as org_desc_th,
+concat('[',trim(s.code),'] ',
+coalesce((select value
+from pb2_ext_ir_translation
+where name = 'res.section,name'
+and type = 'model' and lang='th_TH'
+and res_id = e.section_id), s.name)) as section_desc_th,
+coalesce((select value
+from pb2_ext_ir_translation
+where name = 'res.division,name'
+and type = 'model' and lang='th_TH'
+and res_id = d.id), d.name) as div_name_th,
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.position,name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.position_id), po.name) as position_th,
+		    po.name "position",
+		    	coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'res.partner.title,name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.title_id), t.name) as title_th,
+		    t.name title,
 			e.section_id,
 			e.org_id
-		from pb2_ext_hr_employee${lang} e left join pb2_ext_res_org o on e.org_id = o.id
+		from pb2_ext_hr_employee e left join pb2_ext_res_org o on e.org_id = o.id
+		left join pb2_ext_hr_position po on e.position_id = po.id
+		left join pb2_ext_res_partner_title t on e.title_id = t.id
 		left join pb2_ext_res_section s on e.section_id = s.id
 		left join pb2_ext_res_division d on d.id = s.division_id
 		where lpad(e.employee_code, 6 ,'0')=lpad(#{code}, 6 ,'0')    

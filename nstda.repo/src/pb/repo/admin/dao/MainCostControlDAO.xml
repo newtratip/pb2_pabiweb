@@ -12,18 +12,25 @@
     </resultMap>
 
 	<select id="list" resultType="map" parameterType="map">
-		SELECT 	c.id, t.name, c.name description
-		FROM 	pb2_ext_cost_control c left join pb2_ext_cost_control_type t on c.cost_control_type_id = t.id
+		SELECT * FROM (
+		SELECT 	c.*,
+			coalesce((select value
+			from pb2_ext_ir_translation
+			where name = 'cost.control,name'
+			and type = 'model' and lang='th_TH'
+			and res_id = c.id), c.name) as name_th
+		FROM pb2_ext_cost_control c
+		) qry
 		WHERE 1=1
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-	    			concat(t.name, ' ', c.name, ' ', c.description) ILIKE '%'||#{item}||'%'
+	    			concat(name, ' ', name_th) ILIKE '%'||#{item}||'%'
 	   		</foreach>
    		</if>
-		<if test="type != null">
-			AND t.id=#{type}
-		</if>
-		ORDER BY t.name, c.name
+		<if test="terms != null">
+			AND cost_control_type_id=#{type}
+   		</if>
+		ORDER BY ${orderBy}
 	</select>
 	
 	<select id="count"  resultType="long">

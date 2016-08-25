@@ -15,6 +15,7 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 		        	dataIndex: 'action',
 		        	text: '', 
 		            width: 80,
+		            align:'center',
 		            items: [{
 		                tooltip: 'Edit', 
 		                action : 'edit',
@@ -28,8 +29,17 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 		        	    	return getActionIcon(v, "D", 'delete');
 		        	    }
 		            }]
-	        	},			
-//				{ text: 'ค่าใช้จ่าย/ครุภัณฑ์',  dataIndex: 'isEquipment', width:130, renderer:me.equipmentRenderer, align:'center'},
+	        	}
+	    );
+		
+		if (replaceIfNull(me.rec.is_across_budget, "0") == "1") {
+			columns.push(
+				{ text: PBPcm.Label.t.fiscalYear,  dataIndex: 'fiscalYear', width:80}
+			);
+		}
+		
+		columns.push(
+				{ text: PBPcm.Label.t.actGrp,  dataIndex: 'actGrp', flex:0.75},
 				{ text: PBPcm.Label.t.name,  dataIndex: 'description', flex:1},
 				{ text: PBPcm.Label.t.qty,  dataIndex: 'quantity', width:80, align:'right', xtype: 'numbercolumn', format:'0,000'},
 				{ text: PBPcm.Label.t.uom,  dataIndex: 'unit', width:110, align:'center'},

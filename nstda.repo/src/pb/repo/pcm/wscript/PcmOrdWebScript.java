@@ -23,6 +23,7 @@ import pb.common.model.FileModel;
 import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminTestSystemService;
@@ -276,68 +277,68 @@ public class PcmOrdWebScript {
     
   }
   
-  @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/finish")
-  public void handleFinish(@RequestParam(required=false) final String id
-		  				,@RequestParam(required=false) final String field1
-		  				,@RequestParam(required=false) final String field2
-		  				,@RequestParam(required=false) final String field3
-		  				,@RequestParam(required=false) final String field4
-		  				,@RequestParam(required=false) final String field5
-		  				,@RequestParam(required=false) final String field6
-		  				,@RequestParam(required=false) final String field7
-		  				,@RequestParam(required=false) final String field8
-		  				,@RequestParam(required=false) final String field9
-		  				,@RequestParam(required=false) final String field10
-		  				,@RequestParam(required=false) final String remark
-		  				,@RequestParam(required=false) final String requested_time
-		  				,@RequestParam(required=false) final String status
-		  				,@RequestParam final String content1
-		  				,@RequestParam final Long hId
-		  				,@RequestParam final Long format_id
-		  				,@RequestParam final String workflow_id
-		  				,@RequestParam final Long approval_matrix_id
-		  				,@RequestParam final String dtls
-		  				,@RequestParam(required=false) final String aug
-		  				,@RequestParam(required=false) final String rug
-		  				,@RequestParam(required=false) final String files
-		  				,final WebScriptResponse response) throws Exception {
-	
-	String json = null;
-	
-	try {
-		PcmOrdModel model = null;
-		
-		if (CommonUtil.isValidId(id)) {
-			model = pcmOrdService.get(id);
-		}
-		
-		if (model==null) {
-			model = new PcmOrdModel();
-		}
-		
-		JSONObject validateResult = pcmOrdService.validateAssignee(model);
-		if (!(Boolean)validateResult.get("valid")) {
-			json = CommonUtil.jsonFail(validateResult);
-		}
-		else {
-//			model = pcmOrdService.save(model, dtls, files, true);
-			mainWorkflowService.setModuleService(pcmOrdService);
-			mainWorkflowService.updateWorkflow(model, aug, rug);
-			
-			JSONObject jsObj = new JSONObject();
-			jsObj.put("id", model.getId());
-			json = CommonUtil.jsonSuccess(jsObj);
-		}
-		
-	} catch (Exception ex) {
-		log.error("", ex);
-		json = CommonUtil.jsonFail(ex.toString());
-		throw ex;
-	} finally {
-		CommonUtil.responseWrite(response, json);
-	}
-	  
-  }
+//  @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/finish")
+//  public void handleFinish(@RequestParam(required=false) final String id
+//		  				,@RequestParam(required=false) final String field1
+//		  				,@RequestParam(required=false) final String field2
+//		  				,@RequestParam(required=false) final String field3
+//		  				,@RequestParam(required=false) final String field4
+//		  				,@RequestParam(required=false) final String field5
+//		  				,@RequestParam(required=false) final String field6
+//		  				,@RequestParam(required=false) final String field7
+//		  				,@RequestParam(required=false) final String field8
+//		  				,@RequestParam(required=false) final String field9
+//		  				,@RequestParam(required=false) final String field10
+//		  				,@RequestParam(required=false) final String remark
+//		  				,@RequestParam(required=false) final String requested_time
+//		  				,@RequestParam(required=false) final String status
+//		  				,@RequestParam final String content1
+//		  				,@RequestParam final Long hId
+//		  				,@RequestParam final Long format_id
+//		  				,@RequestParam final String workflow_id
+//		  				,@RequestParam final Long approval_matrix_id
+//		  				,@RequestParam final String dtls
+//		  				,@RequestParam(required=false) final String aug
+//		  				,@RequestParam(required=false) final String rug
+//		  				,@RequestParam(required=false) final String files
+//		  				,final WebScriptResponse response) throws Exception {
+//	
+//	String json = null;
+//	
+//	try {
+//		PcmOrdModel model = null;
+//		
+//		if (CommonUtil.isValidId(id)) {
+//			model = pcmOrdService.get(id);
+//		}
+//		
+//		if (model==null) {
+//			model = new PcmOrdModel();
+//		}
+//		
+//		JSONObject validateResult = pcmOrdService.validateAssignee(model);
+//		if (!(Boolean)validateResult.get("valid")) {
+//			json = CommonUtil.jsonFail(validateResult);
+//		}
+//		else {
+////			model = pcmOrdService.save(model, dtls, files, true);
+//			mainWorkflowService.setModuleService(pcmOrdService);
+//			mainWorkflowService.updateWorkflow(model, aug, rug);
+//			
+//			JSONObject jsObj = new JSONObject();
+//			jsObj.put("id", model.getId());
+//			json = CommonUtil.jsonSuccess(jsObj);
+//		}
+//		
+//	} catch (Exception ex) {
+//		log.error("", ex);
+//		json = CommonUtil.jsonFail(ex.toString());
+//		throw ex;
+//	} finally {
+//		CommonUtil.responseWrite(response, json);
+//	}
+//	  
+//  }
   
 	@Uri(URI_PREFIX + "/userTask")
 	public void handleUserTask(final WebScriptResponse response)

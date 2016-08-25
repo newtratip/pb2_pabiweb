@@ -77,7 +77,6 @@ import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
-import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainWorkflowHistoryModel;
 import pb.repo.admin.model.MainWorkflowNextActorModel;
@@ -100,16 +99,17 @@ import pb.repo.common.mybatis.DbConnectionFactory;
 import pb.repo.exp.constant.ExpBrwAttendeeConstant;
 import pb.repo.exp.constant.ExpUseConstant;
 import pb.repo.exp.constant.ExpUseWorkflowConstant;
+import pb.repo.exp.dao.ExpUseAttendeeDAO;
 import pb.repo.exp.dao.ExpUseDAO;
 import pb.repo.exp.dao.ExpUseDtlDAO;
-import pb.repo.exp.dao.ExpUseAttendeeDAO;
+import pb.repo.exp.model.ExpUseAttendeeModel;
 import pb.repo.exp.model.ExpUseDtlModel;
 import pb.repo.exp.model.ExpUseModel;
-import pb.repo.exp.model.ExpUseAttendeeModel;
+import pb.repo.exp.util.ExpUseAttendeeUtil;
 import pb.repo.exp.util.ExpUseDtlUtil;
 import pb.repo.exp.util.ExpUseUtil;
-import pb.repo.exp.util.ExpUseAttendeeUtil;
 import pb.repo.exp.util.ExpUtil;
+import pb.repo.pcm.constant.PcmOrdConstant;
 
 @Service
 public class ExpUseService implements SubModuleService {
@@ -686,12 +686,12 @@ public class ExpUseService implements SubModuleService {
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", model.getId() != null ? model.getId() : "");
 		
-		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy(), lang);
+		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy());
 		map.put("reqBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
 		map.put("reqOrg", empDtl.get("org_desc"));
 		map.put("reqSection", empDtl.get("section_name"));
 		
-		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName(), lang);
+		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
 		map.put("createdBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
 		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
 		map.put("createdPhone", StringUtils.defaultIfBlank((String)empDtl.get("work_phone"),""));
@@ -1706,7 +1706,7 @@ public class ExpUseService implements SubModuleService {
 
 	}
 	
-	public List<Map<String, Object>> listWorkflowPath(String id) {
+	public List<Map<String, Object>> listWorkflowPath(String id,String lang) {
 		
 		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id);
 		
@@ -1747,9 +1747,9 @@ public class ExpUseService implements SubModuleService {
          */
 		for(Map<String, Object> rec:list) {
 			String empCode = (String)rec.get("U");
-			MainHrEmployeeModel empModel = adminHrEmployeeService.get(empCode);
+			Map<String,Object> empModel = adminHrEmployeeService.getWithDtl(empCode);
 			if (empModel!=null) {
-				rec.put("U", empCode + " - " + empModel.getFirstName());
+				rec.put("U", empCode + " - " + empModel.get("first_name"));
 			}
 		}
 		
@@ -1789,7 +1789,7 @@ public class ExpUseService implements SubModuleService {
 		return CommonConstant.SUB_MODULE_EXP_USE;
 	}
 	
-	public String copy(String id, String lang) throws Exception {
+	public String copy(String id) throws Exception {
 		
         SqlSession session = ExpUtil.openSession(dataSource);
         
@@ -1810,7 +1810,7 @@ public class ExpUseService implements SubModuleService {
              */
             model.setStatus(ExpUseConstant.ST_DRAFT);
             
-            Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName(), lang);
+            Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName());
             
         	model.setReqBy(authService.getCurrentUserName());
         	model.setReqSectionId((Integer)reqBy.get("section_id"));
@@ -2000,7 +2000,7 @@ public class ExpUseService implements SubModuleService {
 	}
 
 	@Override
-	public String getNextActionInfo() {
+	public String getNextActionInfo(SubModuleModel model) {
 		return "ฝ่ายพัสดุ";
 	}
 	
@@ -2488,6 +2488,11 @@ public class ExpUseService implements SubModuleService {
 	public List<String> getSpecialUserForAddPermission(SubModuleModel model) {
 		// TODO Auto-generated method stub
 		return null;
-	}	
+	}
+	
+	@Override
+	public String getFirstStatus() {
+		return ExpUseConstant.ST_WAITING;
+	}
 	
 }

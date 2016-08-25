@@ -78,7 +78,7 @@ public class PcmReqInvocationHandler
 	    	pcmReqService.update(pcmReqModel);
     		
 	    	mainWorkflowService.setModuleService(pcmReqService);
-			mainWorkflowService.saveWorkflowHistory(null, by, "ผู้จัดซื้อ" , comment, statusDesc, null,  prNo, null);
+			mainWorkflowService.saveWorkflowHistory(null, by, "ผู้จัดซื้อ" , comment, statusDesc, null,  prNo, null, type);
 			
 			result.put("success",true);
 			result.put("message","Success");

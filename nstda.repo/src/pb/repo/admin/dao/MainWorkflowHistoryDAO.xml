@@ -11,6 +11,7 @@
         <result property="task" column="task"/>
         <result property="comment" column="comment"/>
         <result property="level" column="level"/>
+        <result property="status" column="status"/>
     </resultMap>
     
     <insert
@@ -22,21 +23,20 @@
 		useGeneratedKeys="true"
 		>
 	    INSERT INTO pb2_main_workflow_history(
-	    	master_id,time,by,action,task,comment,level
+	    	master_id,time,by,action,task,comment,level,status
 	    ) VALUES (
-	    	#{masterId},#{time},#{by},#{action},#{task},#{comment},#{level}
+	    	#{masterId},#{time},#{by},#{action},#{task},#{comment},#{level},#{status}
     	)
 		
 	</insert>
 	
 	<select id="listHistory" parameterType="map" resultMap="result" >
-    
-        select pb2_main_workflow_history.*, COUNT(*) OVER() totalRowCount from pb2_main_workflow_history ,pb2_main_workflow 
-
-		where pb2_main_workflow.id = pb2_main_workflow_history.master_id and pb2_main_workflow.master_id = #{masterId}
-		
+        SELECT h.*, COUNT(*) OVER() totalRowCount
+        FROM pb2_main_workflow_history h,pb2_main_workflow w 
+		WHERE w.id = h.master_id
+		AND w.master_id = #{masterId}
 		<if test="orderDesc != null">
-		ORDER BY pb2_main_workflow_history.id DESC
+			ORDER BY h.id DESC
 		</if>
     </select>
     

@@ -71,7 +71,7 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 				    	valueField:'id',
 				        emptyText : "โปรดเลือก",
 				        store: astore,
-				        queryMode: 'local',
+//				        queryMode: 'local',
 				        typeAhead:true,
 				        multiSelect:false,
 				        forceSelection:true,
@@ -87,8 +87,7 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 						},
 				        listeners:{
 							beforequery : function(qe) {
-								qe.query = new RegExp(qe.query, 'i');
-				//				qe.forceAll = true;
+								qe.query = getLang()+" "+qe.query;
 							},
 							select : function(combo, rec){
 		    	       		    me.fireEvent("selectActivity",combo, rec);

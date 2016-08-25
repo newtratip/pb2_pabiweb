@@ -273,8 +273,6 @@ public class CommonUtil {
 		
 		String lang = localeArr[0];
 		
-		log.info("lang:"+lang);
-		
 		if (!lang.startsWith(CommonConstant.ENGLISH)) {
 			resName += "_"+lang;
 		}

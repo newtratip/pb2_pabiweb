@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pb.repo.admin.dao.MainModuleDAO">
+    
+    <select id="getTotalPreBudget" resultType="map" parameterType="map">
+		select sum(total) pre
+		from ( 
+			select sum(total) as total
+			from pb2_pcm_req
+			where status in ('W1','W2')
+			and  budget_cc = #{budgetCc}
+			and  budget_cc_type= #{budgetCcType}   
+			union
+			select sum(total) as total
+			from pb2_exp_use
+			where status in ('W1','W2')
+			and  budget_cc = #{budgetCc}
+			and  budget_cc_type= #{budgetCcType}   
+		) qry
+    </select>    
+    	
+</mapper>

@@ -45,7 +45,7 @@ public class AdminMainCostControlWebScript {
 		String json = null;
 		
 		try {
-			List<Map<String, Object>> list = costControlService.list(Integer.parseInt(type), null);
+			List<Map<String, Object>> list = costControlService.list(Integer.parseInt(type), null, null);
 			json = CommonUtil.jsonSuccess(list);
 			
 		} catch (Exception ex) {

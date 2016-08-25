@@ -2,12 +2,9 @@
 <#include "/pb/components/form/controls/association.ftl" />
 <#macro setPackageItemOptions field>
 
-   <#local documentLinkResolver>function(item){ return Alfresco.util.siteURL("document-details?nodeRef=" + item.nodeRef, { site: item.site }); }</#local>
+   <#local documentLinkResolver>function(item){ return Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/" + item.nodeRef.replace("://","/")+"/"+item.name; }</#local>
    <#local allowAddAction = false>
    <#local allowRemoveAllAction = false>
-   <#-- qs
-   <#local allowRemoveAction = false>
-   -->
    <#-- qs -->
    <#local allowRemoveAction = false>
    <#local allowUploadAction = false>
@@ -16,11 +13,17 @@
    <#local allowWatermarkAction = false>
    <#local allowDownloadAction = false>
    <#local allowGenDocAction = false>
+   <#local allowEditDescAction = false>
 
    <#assign buttons="">
    <#if field.control.params.buttons??>
 	<#local buttons = field.control.params.buttons>	
    </#if>
+   
+   <#assign moreAction="">
+   <#if field.control.params.moreAction??>
+	<#local moreAction = field.control.params.moreAction>
+   </#if>   
    
    <#assign targetFolder="">
    <#if form.data['prop_pcmreqwf_folderRef']??>
@@ -29,8 +32,11 @@
    <#if form.data['prop_pcmordwf_folderRef']??>
    		<#assign targetFolder=form.fields["prop_pcmordwf_folderRef"].value>
    </#if>
-   <#if form.data['prop_cpwf_folderRef']??>
-   		<#assign targetFolder=form.fields["prop_cpwf_folderRef"].value>
+   <#if form.data['prop_expbrwwf_folderRef']??>
+   		<#assign targetFolder=form.fields["prop_expbrwwf_folderRef"].value>
+   </#if>
+   <#if form.data['prop_expusewf_folderRef']??>
+   		<#assign targetFolder=form.fields["prop_expusewf_folderRef"].value>
    </#if>
    
    <#assign fieldID="">
@@ -49,69 +55,11 @@
 	<#assign pdFolder=form.fields["prop_sd_pdFolderNodeRef"].value>
    </#if>
    
-   <#assign urdFolder="">
-   <#if form.data['prop_sd_urdFolderNodeRef']??>
-	<#assign urdFolder=form.fields["prop_sd_urdFolderNodeRef"].value>
-   </#if>
-
-   <#assign designFolder="">
-   <#if form.data['prop_sd_designFolderNodeRef']??>
-	<#assign designFolder=form.fields["prop_sd_designFolderNodeRef"].value>
-   </#if>
-   
-   <#assign constructionFolder="">
-   <#if form.data['prop_sd_constructionFolderNodeRef']??>
-	<#assign constructionFolder=form.fields["prop_sd_constructionFolderNodeRef"].value>
-   </#if>
-   
-   <#assign trainingFolder="">
-   <#if form.data['prop_sd_trainingFolderNodeRef']??>
-	<#assign trainingFolder=form.fields["prop_sd_trainingFolderNodeRef"].value>
-   </#if>
-	
-   <#assign uatFolder="">
-   <#if form.data['prop_sd_uatFolderNodeRef']??>
-	<#assign uatFolder=form.fields["prop_sd_uatFolderNodeRef"].value>
-   </#if>
-   
-   <#assign deploymentFolder="">
-   <#if form.data['prop_sd_deploymentFolderNodeRef']??>
-	<#assign deploymentFolder=form.fields["prop_sd_deploymentFolderNodeRef"].value>
-   </#if>
-
-   <#assign goliveFolder="">
-   <#if form.data['prop_sd_goliveFolderNodeRef']??>
-	<#assign goliveFolder=form.fields["prop_sd_goliveFolderNodeRef"].value>
-   </#if>
-
-   <#assign postImpFolder="">
-   <#if form.data['prop_sd_postFolderNodeRef']??>
-	<#assign postImpFolder=form.fields["prop_sd_postFolderNodeRef"].value>
-   </#if>
-
    <#assign srcNodeRef="">
    <#if form.data["${fieldID}"]??>
 	<#assign srcNodeRef=form.fields["${fieldID}"].value>
    </#if>
 	
-   <#assign pdfTempFolderNodeRef="">
-   <#if form.data['prop_isowf_pdfNodeRef']??>
-	<#assign pdfTempFolderNodeRef=form.fields["prop_isowf_pdfNodeRef"].value>
-   </#if>
-	
-   <#assign docNumber="">
-   <#if form.data['prop_isowf_docNumber']??>
-	<#assign docNumber=form.fields["prop_isowf_docNumber"].value>
-   </#if>
-   
-   <#assign effectiveDate="">
-   <#if form.data['prop_isowf_effectiveDate']??>
-	<#assign effectiveDate=form.fields["prop_isowf_effectiveDate"].value>
-   </#if>
-   
-
-   <#local actions = []>
-
    <#if form.data['prop_bpm_packageActionGroup']?? && form.data['prop_bpm_packageActionGroup']?is_string && form.data['prop_bpm_packageActionGroup']?length &gt; 0>
       <#local allowAddAction = true>
    </#if>
@@ -139,6 +87,12 @@
    		<#local allowGenDocAction = true>
    </#if>
    
+   <#if buttons?contains("e")>
+   		<#local allowEditDescAction = true>
+   </#if>
+   
+   <#local actions = []>
+   
    <#assign removeAction="">
    <#if field.control.params.removeAction??>
 	 <#local allowRemoveAction = field.control.params.removeAction>
@@ -146,16 +100,20 @@
    
    <#if form.data['prop_bpm_packageItemActionGroup']?? && form.data['prop_bpm_packageItemActionGroup']?is_string && form.data['prop_bpm_packageItemActionGroup']?length &gt; 0>
       <#local packageItemActionGroup = form.data['prop_bpm_packageItemActionGroup']>
-      <#local viewMoreAction = { "name": "view_more_actions", "label": "form.control.object-picker.workflow.view_more_actions", "link": documentLinkResolver }>
+      <#if moreAction=="true">
+      	<#local viewMoreAction = [{ "name": "view_more_actions", "label": "form.control.object-picker.workflow.view_more_actions", "link": documentLinkResolver }]>
+      <#else>
+      	<#local viewMoreAction = []>
+      </#if>
       <#if packageItemActionGroup == "read_package_item_actions" || packageItemActionGroup == "edit_package_item_actions">
-         <#local actions = actions + [viewMoreAction]>
+         <#local actions = actions + viewMoreAction>
       <#elseif packageItemActionGroup == "remove_package_item_actions" || packageItemActionGroup == "start_package_item_actions" || packageItemActionGroup == "edit_and_remove_package_item_actions">
-         <#local actions = actions + [viewMoreAction]>
+         <#local actions = actions + viewMoreAction>
          <#local allowRemoveAllAction = true>
          <#local allowRemoveAction = true>
       <#elseif packageItemActionGroup >
       <#else>
-         <#local actions = actions + [viewMoreAction]>      
+         <#local actions = actions + viewMoreAction>      
       </#if>
    </#if>
 
@@ -199,28 +157,17 @@
 	 allowWatermarkAction: ${allowWatermarkAction?string},
 	 allowDownloadAction: ${allowDownloadAction?string},
 	 allowGenDocAction: ${allowGenDocAction?string},
+	 allowEditDescAction: ${allowEditDescAction?string},
          selectActionLabel: "${field.control.params.selectActionLabel!msg("button.add")}",
-		 controlId:"${fieldHtmlId}",
 		 pdFolder:"${pdFolder}",
-		 urdFolder:"${urdFolder}",
-		 designFolder:"${designFolder}",
-		 constructionFolder:"${constructionFolder}",
-		 trainingFolder:"${trainingFolder}",
-		 uatFolder:"${uatFolder}",
-		 deploymentFolder:"${deploymentFolder}",
-		 goliveFolder:"${goliveFolder}",
 		 srcNodeRef:"${srcNodeRef}",
-		 pdfTempFolderNodeRef:"${pdfTempFolderNodeRef}",
-		 docNumber:"${docNumber}",
-		 effectiveDate:"${effectiveDate}",
 	 <#if field.control.params.targetFolder??>
 		targetFolder:"${field.control.params.targetFolder}",
 	 </#if>
 	 <#if targetFolder??>
 		targetFolder:"${targetFolder}",
 	 </#if>
-
-	 postImpFolder:"${postImpFolder}"
+		 controlId:"${fieldHtmlId}"
 
       });
    })();

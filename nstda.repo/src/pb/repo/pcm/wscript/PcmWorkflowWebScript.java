@@ -33,7 +33,8 @@ public class PcmWorkflowWebScript {
 	 * id = pr id
 	 */
 	@Uri(URI_PREFIX + "/assignee/list")
-	public void handleAssigneeList(@RequestParam final String id
+	public void handleAssigneeList(@RequestParam final String id,
+								   @RequestParam(required=false) final String lang
 								, final WebScriptResponse response)
 								throws Exception {
 
@@ -41,7 +42,7 @@ public class PcmWorkflowWebScript {
 
 		try {
 			workflowService.setModuleService(pcmReqService);
-			JSONArray jsArr = workflowService.listAssignee(id);
+			JSONArray jsArr = workflowService.listAssignee(id, lang);
 			
 			json = CommonUtil.jsonSuccess(jsArr);
 		} catch (Exception ex) {
@@ -64,6 +65,7 @@ public class PcmWorkflowWebScript {
 		String json = null;
 
 		try {
+			workflowService.setModuleService(pcmReqService);
 			JSONArray jsArr = workflowService.listTask(id);
 			json = CommonUtil.jsonSuccess(jsArr);
 
@@ -82,14 +84,16 @@ public class PcmWorkflowWebScript {
 	 * id = pr id
 	 */
 	@Uri(URI_PREFIX + "/dtl/list")
-	public void handleDetailList(@RequestParam final String id
+	public void handleDetailList(@RequestParam final String id,
+								 @RequestParam(required=false) final String lang
 								, final WebScriptResponse response)
 								throws Exception {
 
 		String json = null;
 
 		try {
-			JSONArray jsArr = workflowService.listDetail(id);
+			workflowService.setModuleService(pcmReqService);
+			JSONArray jsArr = workflowService.listDetail(id, lang);
 			json = CommonUtil.jsonSuccess(jsArr);
 
 		} catch (Exception ex) {

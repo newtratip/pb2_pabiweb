@@ -23,7 +23,7 @@ public class AdminSectionService {
 	@Autowired
 	DataSource dataSource;
 
-	public List<Map<String, Object>> list(String searchTerm) {
+	public List<Map<String, Object>> list(String searchTerm, String lang) {
 
 		List<Map<String, Object>> list = null;
 
@@ -38,6 +38,9 @@ public class AdminSectionService {
 
         		params.put("terms", terms);
         	}
+        	lang = lang!=null && lang.startsWith("th") ? "_th" : "";
+        	params.put("orderBy", "name"+lang+", description"+lang+", costcenter"+lang);
+        	params.put("lang", lang);
         	
             list = dao.list(params);
             

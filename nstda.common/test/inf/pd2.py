@@ -18,13 +18,13 @@ att1 = b64str('PR_FORM.pdf')
 
 arg = {
 	'action':'2',
-	'pdNo':'PD16000001',
+	'pdNo':'PD16000021',
 	'sectionId':'44',
 	'prNo':'PR16000001',
 	'docType':'PD1',
 	'objective':u'Buy Something 2 piece ทดสอบ resubmit',
 	'total':'15001.00',
-	'reqBy':'002648',
+	'reqBy':'001509',
 	'appBy':'001509',
 	'comment':'Resubmit Document',
 	'doc':{'name':'PD16000002.pdf','content':doc},

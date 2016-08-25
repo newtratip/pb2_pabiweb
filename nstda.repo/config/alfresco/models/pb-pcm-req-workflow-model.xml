@@ -88,6 +88,9 @@
 				<property name="pcmreqwf:currentTaskKey">
 					<type>d:text</type>
 				</property>
+				<property name="pcmreqwf:lang">
+					<type>d:text</type>
+				</property>
 			</properties>
 			
 			<associations>

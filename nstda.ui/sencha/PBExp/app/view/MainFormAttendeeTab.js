@@ -293,7 +293,7 @@ Ext.define('PBExp.view.MainFormAttendeeTab', {
 					    	xtype:'tbfill'
 					    },{
 			        		xtype: 'button',
-			                text: "Add",
+			                text: PB.Label.m.add,
 			                iconCls: "icon_add",
 			                action:'addEmp'
 			        	}]
@@ -313,7 +313,7 @@ Ext.define('PBExp.view.MainFormAttendeeTab', {
 					    	xtype:'tbfill'
 					    },{
 			        		xtype: 'button',
-			                text: "Add",
+			                text: PB.Label.m.add,
 			                iconCls: "icon_add",
 			                action:'addOth'
 			        	}]

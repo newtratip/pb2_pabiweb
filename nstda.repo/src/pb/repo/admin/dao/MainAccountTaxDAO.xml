@@ -18,6 +18,8 @@
 	   WHERE type_tax_use='purchase'
 	   and is_wht is false
 	   and is_undue_tax is false
+	   and type = 'percent'
+	   and amount>0
 	   ORDER BY id DESC
     </select>
     

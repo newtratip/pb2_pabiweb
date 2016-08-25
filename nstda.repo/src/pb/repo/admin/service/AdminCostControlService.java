@@ -24,7 +24,7 @@ public class AdminCostControlService {
 	@Autowired
 	DataSource dataSource;
 
-	public List<Map<String, Object>> list(Integer type,String searchTerm) {
+	public List<Map<String, Object>> list(Integer type,String searchTerm,String lang) {
 		
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		
@@ -41,14 +41,18 @@ public class AdminCostControlService {
         		params.put("terms", terms);
         	}
         	
+        	lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
+    		String name = "name"+lang;
+        	params.put("orderBy", name);
+        	
     		List<Map<String,Object>> tmpList = dao.list(params);
+    		
     		
         	for(Map<String, Object> tmpMap : tmpList) {
         		Map<String, Object> map = new HashMap<String, Object>();
         		
         		map.put("id", tmpMap.get("id"));
-        		map.put("type", tmpMap.get("name"));
-        		map.put("name", tmpMap.get("description"));
+        		map.put("name", tmpMap.get(name));
         		
         		list.add(map);
         	}
@@ -63,15 +67,33 @@ public class AdminCostControlService {
 		return list;
 	}
 	
-	public List<Map<String, Object>> listType() {
+	public List<Map<String, Object>> listType(String lang) {
 		
-		List<Map<String, Object>> list = null;
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		
         SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
         	MainCostControlTypeDAO dao = session.getMapper(MainCostControlTypeDAO.class);
         	
-    		list = dao.list();
+        	Map<String, Object> params = new HashMap<String, Object>();
+        	
+        	lang = (lang!=null && lang.startsWith("th")) ? "_th" : "";
+        	
+        	String name = "name"+lang;
+        	
+        	params.put("orderBy", name);
+        	log.info("pass 1");
+    		List<Map<String, Object>> tmpList = dao.list(params);
+        	log.info("pass 2 "+tmpList.size());
+    		
+        	for(Map<String, Object> tmpMap : tmpList) {
+        		Map<String, Object> map = new HashMap<String, Object>();
+        		
+        		map.put("id", tmpMap.get("id"));
+        		map.put("name", tmpMap.get(name));
+        		
+        		list.add(map);
+        	}
     		
         } catch (Exception ex) {
         	log.error(ex);

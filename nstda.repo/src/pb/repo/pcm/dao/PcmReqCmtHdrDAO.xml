@@ -70,19 +70,36 @@
 	</delete>   
 	
     <select id="listForInf" resultType="map" parameterType="map">
-		select	
-			r.id, 
-			h.committee,
-			h.committee_id,
-			d.first_name,
-			d.last_name,
-			d.position
-			
-		from  pb2_pcm_req_committee_dtl d left join pb2_pcm_req_committee_hdr h on h.id = d.master_id
-		left join pb2_pcm_req r on r.id = h.pcm_req_id
-		left join pb2_ext_pr_method_view m on r.prweb_method_id = m.id			
-		where 	r.id = #{id}
-		order by	h.committee,d.id
+		select 
+		   r.id, 
+		   h.committee,
+		   h.committee_id, 
+		   d.position,
+		   case when d.employee_code='' then title  else  
+		   coalesce((select value
+		     from pb2_ext_ir_translation
+		     where name = 'res.partner.title,name'
+		     and type = 'model' and lang='th_TH'
+		     and res_id = e.title_id), t.name) end as  title ,
+		   case when d.employee_code='' then d.first_name  else  
+		   coalesce((select value
+		    from pb2_ext_ir_translation
+		    where name = 'hr.employee,first_name'
+		    and type = 'model' and lang='th_TH'
+		    and res_id = e.id), d.first_name) end as first_name ,
+		   case when d.employee_code='' then d.last_name  else 
+		    coalesce((select value
+		    from pb2_ext_ir_translation
+		    where name = 'hr.employee,last_name'
+		    and type = 'model' and lang='th_TH'
+		    and res_id = e.id), d.last_name) end as last_name
+		  from  pb2_pcm_req_committee_dtl d left join pb2_pcm_req_committee_hdr h on h.id = d.master_id
+		  left join pb2_pcm_req r on r.id = h.pcm_req_id
+		  left join pb2_ext_pr_method_view m on r.prweb_method_id = m.id   
+		  left join pb2_ext_hr_employee e on d.employee_code = e.employee_code
+		  left join pb2_ext_res_partner_title t on e.title_id = t.id
+		  where  r.id = #{id}
+		  order by h.committee,d.id
     </select>	 
     
 </mapper>

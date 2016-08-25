@@ -38,6 +38,7 @@ import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.PersonUtil;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.model.MainMasterModel;
+import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
@@ -81,6 +82,9 @@ public class PcmOrdSignatureService {
 	
 	@Autowired
 	SearchService searchService;
+	
+	@Autowired
+	AdminHrEmployeeService adminHrEmployeeService;
 	
 	public NodeRef addSignature(final DelegateTask task, final String curUser, final Integer level) {
 
@@ -181,15 +185,13 @@ public class PcmOrdSignatureService {
 	        log.info("x::"+signPos[0]);
 	        log.info("y::"+signPos[1]);
 	        
-	        PersonUtil putil = new PersonUtil();
-	        putil.setNodeService(nodeService);
-	        NodeRef person = PersonUtil.getPerson(curUser, personService);
+	        Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(curUser);
 	        
 	     	pageContent.beginText();
 		    pageContent.setFontAndSize(baseFont, fontSize);
 		    
 		    pageContent.setTextMatrix(signPos[0], signPos[1]);
-		    pageContent.showText(putil.getFullName(person));
+		    pageContent.showText(empDtl.get("first_name_th")+" "+empDtl.get("last_name_th"));
 		    
 		    if (Float.parseFloat(off[0])!=0 || Float.parseFloat(off[1])!=0) {
 			    pageContent.setTextMatrix(signPos[0]+Float.parseFloat(off[0]), signPos[1]+Float.parseFloat(off[1]));

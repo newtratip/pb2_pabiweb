@@ -96,7 +96,8 @@ Ext.define('PBExpUse.controller.Main', {
 							store.getProxy().extraParams = {
 								p1 : params[0],
 								orderBy : 'code',
-								all : true
+								all : true,
+								lang : getLang()
 							}
 							if (params.length>1) {
 								store.getProxy().extraParams.p2 = params[1];
@@ -228,7 +229,8 @@ Ext.define('PBExpUse.controller.Main', {
 		      url:me.MSG_URL+"/list",
 		      method: "GET",
 		      params: {
-		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO_2,TAB_TITLE_ITEM,TAB_TITLE_ATTENDEE,TAB_TITLE_FILE"
+		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO_2,TAB_TITLE_ITEM,TAB_TITLE_ATTENDEE,TAB_TITLE_FILE",
+		    	  lang : getLang()
 		      },
 		      success: function(response){
 		    	  
@@ -262,6 +264,9 @@ Ext.define('PBExpUse.controller.Main', {
 		Ext.Ajax.request({
 		      url:me.URL+"/userDtl",
 		      method: "GET",
+		      params:{
+					lang:getLang()
+			  },
 		      success: function(response){
 		    	  
 		    	var json = Ext.decode(response.responseText);

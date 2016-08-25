@@ -30,11 +30,11 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 	        border : 0,
 	        items:[{
 			    xtype: 'textfield',
-			    fieldLabel : mandatoryLabel(PB.Label.m.fname), 
+			    fieldLabel : mandatoryLabel(PB.Label.m.title), 
 			    labelWidth: lbw,
 			    anchor:"-10",
 			    hideTrigger:true,
-			    name : 'fname',
+			    name : 'title',
 			    msgTarget: 'side',
 			    margin: '10 0 0 10',
 			    allowBlank:false,
@@ -45,6 +45,17 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 						},100);
 					}
 				},
+			    value:me.rec ? replaceIfNull(me.rec.get("title"), null) : null 
+			},{
+			    xtype: 'textfield',
+			    fieldLabel : mandatoryLabel(PB.Label.m.fname), 
+			    labelWidth: lbw,
+			    anchor:"-10",
+			    hideTrigger:true,
+			    name : 'fname',
+			    msgTarget: 'side',
+			    margin: '10 0 0 10',
+			    allowBlank:false,
 			    value:me.rec ? replaceIfNull(me.rec.get("fname"), null) : null 
 			},{
 			    xtype: 'textfield',

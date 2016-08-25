@@ -41,14 +41,25 @@ public class AdminMainAccountActivityWebScript {
    * @throws Exception
    */
   @Uri(URI_PREFIX+"/list")
-  public void handleList(@RequestParam(required=true) final String name,
+  public void handleList(@RequestParam(required=true) String query,
 		  				final WebScriptResponse response)  throws Exception {
     
 		String json = null;
 		
 		try {
     		Map<String, Object> params = new HashMap<String, Object>();
-    		params.put("name", "%"+name+"%");
+    		
+        	if (query!=null) {
+        		int pos = query.indexOf(" ");
+        		String lang = query.substring(0,  pos);
+        		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
+        		params.put("lang",  lang);
+        		params.put("orderBy", "name"+lang);
+        		
+        		String[] terms = query.substring(pos+1).split(" ");
+        	
+        		params.put("terms", terms);
+        	}
     		
 			List<Map<String, Object>> list = activityService.list(params);
 			

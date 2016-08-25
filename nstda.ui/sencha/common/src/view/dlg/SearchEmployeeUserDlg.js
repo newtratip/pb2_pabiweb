@@ -135,7 +135,7 @@ Ext.define('PB.view.common.SearchEmployeeUserDlg', {
 	    	margin:'5 0 0 0',
 	    	columns:[
 	    	     { text:PB.Label.m.ecode, dataIndex: 'code', width: 100 },
-	    	     { text:PB.Label.m.fullname, dataIndex: 'fname', flex: 1, renderer:function(v,m,r){return r.get('fname')+' '+r.get('lname')}},
+	    	     { text:PB.Label.m.fullname, dataIndex: 'fname', flex: 1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
 	    	     { text:PB.Label.m.section +" / "+ PB.Label.m.project, dataIndex: 'utype', flex: 1 },
 	    	     { text:PB.Label.m.pos, dataIndex: 'position', flex:1 }
 	    	],

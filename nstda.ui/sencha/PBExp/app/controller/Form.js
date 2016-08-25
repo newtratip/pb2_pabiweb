@@ -209,7 +209,7 @@ Ext.define('PBExp.controller.Form', {
 			}
 		} else {
 			var msg = this.listInvalidField(form);
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
 		}
 	},
 	
@@ -274,7 +274,7 @@ Ext.define('PBExp.controller.Form', {
 					   		}
 				   		}
 				   		
-			   			PB.Dlg.error(null, MODULE_EXP, {msg:msg});
+			   			PB.Dlg.warn(null, MODULE_EXP, {msg:msg});
 			   		}
 			   		else {
 				   		PB.Dlg.error('ERR_'+me.SEND_MSG_KEY, MODULE_EXP);
@@ -362,7 +362,7 @@ Ext.define('PBExp.controller.Form', {
 		if(!validForm(form)){
 			var msg = this.listInvalidField(form);			
 			
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
 			return;
 		}
 
@@ -504,7 +504,7 @@ Ext.define('PBExp.controller.Form', {
 			}
 		} else {
 			var msg = this.listInvalidField(form);
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
 		}
 	},
 	
@@ -567,7 +567,7 @@ Ext.define('PBExp.controller.Form', {
 							}
 						}
 						
-						PB.Dlg.error(null, MODULE_EXP, {msg:msg});
+						PB.Dlg.warn(null, MODULE_EXP, {msg:msg});
 					}
 					else {
 						PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_EXP);
@@ -624,7 +624,7 @@ Ext.define('PBExp.controller.Form', {
 		if(!validForm(form)){
 			var msg = this.listInvalidField(form);
 			
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
 			return;
 		}		
 		

@@ -10,10 +10,21 @@
     </resultMap>
     
     <select id="list" resultType="hashmap" parameterType="map">
-       SELECT 		*
-	   FROM 		pb2_ext_account_activity
-	   WHERE name like #{name}
-	   ORDER BY name
+        SELECT * FROM
+	    (SELECT a.*,
+			coalesce((select value
+		    from pb2_ext_ir_translation
+		    where name = 'account_activity,name'
+		    and type = 'model' and lang='th_TH'
+		    and res_id = a.id), name) as name_th  
+		FROM   pb2_ext_account_activity a
+		) b
+	   <if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="WHERE (" separator=" AND " close=")">
+	    			concat(name,' ',name_th) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  
+	   ORDER BY ${orderBy}
     </select>
     
     <select id="get" resultType="map" parameterType="int">

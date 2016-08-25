@@ -28,6 +28,7 @@ Ext.define('PBPcm.view.MainFormFileTab', {
 	            	border:0,
 	            	uploadUrl:ALF_CONTEXT+"/pcm/file/upload",
 	            	deleteUrl:ALF_CONTEXT+"/pcm/file/delete",
+	            	editUrl:ALF_CONTEXT+"/pcm/file/edit",
 	            	store:fileStore
 	            }]
 			}]

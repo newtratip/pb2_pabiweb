@@ -5,7 +5,16 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 	initComponent: function(config) {
 		var me = this;
 		
-		var store = Ext.create('PB.store.common.ComboBoxStore');
+		var astore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
+		astore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/group/list';
+		if (me.rec) {
+			astore.getProxy().extraParams = {
+				query : getLang()+' '+me.rec.get('actGrp')
+			}
+		}
+		astore.load();		
+		
+		var store = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
 		store.getProxy().api.read = ALF_CONTEXT+'/admin/main/product/uom/list';
 		store.getProxy().extraParams = {
 		}
@@ -44,7 +53,62 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 //					           {name:'isEqmt',boxLabel:'ไม่ใช่',inputValue:'0',checked:true},
 //					           {name:'isEqmt',boxLabel:'ใช่',inputValue:'1'}
 //					    ]
-					 },{
+					},{
+					    xtype: 'numberfield',
+					    fieldLabel : mandatoryLabel(PBPcm.Label.t.fiscalYear), 
+					    labelWidth: lbw,
+					    anchor:"-10",
+					    hideTrigger:true,
+					    name : 'fiscalYear',
+					    msgTarget: 'side',
+					    margin: '10 0 0 10',
+					    allowBlank:true,
+					    hidden:!me.acrossBudget,
+				        listeners:{
+							afterrender:function(txt) {
+								Ext.defer(function(){
+									txt.focus();
+								},300);
+							}
+						}
+					    
+					},{
+						xtype:'combo',
+						name:'actGrp',
+						fieldLabel:mandatoryLabel(PBPcm.Label.t.actGrp),
+				    	displayField:'name',
+				    	valueField:'id',
+				        emptyText : "โปรดเลือก",
+				        store: astore,
+//				        queryMode: 'local',
+				        typeAhead:true,
+				        multiSelect:false,
+				        forceSelection:true,
+				        anchor:"-10",
+						labelWidth:lbw,
+						margin: '10 0 0 10',
+						allowBlank:false,
+				        listConfig : {
+						    getInnerTpl: function () {
+								return '<div>{name}</div>';
+						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
+						    }
+						},
+				        listeners:{
+							beforequery : function(qe) {
+								qe.query = getLang()+" "+qe.query;
+							},
+							select : function(combo, rec){
+		    	       		    me.fireEvent("selectActGrp",combo, rec);
+		    	       	    },
+							afterrender:function(cmb) {
+								Ext.defer(function(){
+									cmb.focus();
+								},100);
+							}
+						}
+//						,value:me.rec ? me.rec.get("actGrpId") : null
+					},{
 					    xtype: 'textfield',
 					    fieldLabel : mandatoryLabel(PBPcm.Label.t.name), 
 					    labelWidth: lbw,
@@ -53,14 +117,7 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					    name : 'desc',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
-					    allowBlank:false,
-					    listeners:{
-							afterrender:function(txt) {
-								Ext.defer(function(){
-									txt.focus();
-								},100);
-							}
-						}
+					    allowBlank:false
 					},{
 					    xtype: 'numericfield',
 					    fieldLabel : mandatoryLabel(PBPcm.Label.t.qty), 
@@ -98,7 +155,7 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 								qe.query = new RegExp(qe.query, 'i');
 				//				qe.forceAll = true;
 							}
-						}			
+						}
 					},{
 					    xtype: 'numericfield',
 					    fieldLabel : mandatoryLabel(PBPcm.Label.t.dlg_prc), 

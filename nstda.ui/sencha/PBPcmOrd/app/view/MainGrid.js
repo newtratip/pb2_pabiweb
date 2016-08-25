@@ -5,7 +5,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 	initComponent: function(config) {
 		var me = this;
 		
-		me.lang = getLanguage().split("-")[0].toLowerCase();
+		me.lang = getLang().split("_")[0].toLowerCase();
 	
 		var columns = [
 		      {

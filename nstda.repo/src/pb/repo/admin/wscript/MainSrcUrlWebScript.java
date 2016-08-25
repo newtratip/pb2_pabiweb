@@ -51,14 +51,15 @@ public class MainSrcUrlWebScript {
 								,@RequestParam(required=false) final String p2
 								,@RequestParam(required=false) final String orderBy
 								,@RequestParam(required=false) final Boolean all
+								,@RequestParam(required=false) final String lang
 								, final WebScriptResponse response)
 			throws Exception {
 
-		log.info("handleMainMaster:p1:"+p1+",p2:"+p2+",orderBy:"+orderBy+",all:"+all);
+		log.info("handleMainMaster:p1:"+p1+",p2:"+p2+",orderBy:"+orderBy+",all:"+all+",lang:"+lang);
 		String json = null;
 
 		try {
-			Map<String, Object> map = mainSrcUrlService.listMainMaster(p1, p2, orderBy, all);
+			Map<String, Object> map = mainSrcUrlService.listMainMaster(p1, p2, orderBy, all, lang);
 			json = CommonUtil.jsonSuccess(map);
 
 		} catch (Exception ex) {

@@ -244,6 +244,7 @@ public class MainWorkflowService {
 			workflowHistoryModel.setBy(model.getCreatedBy());
 			workflowHistoryModel.setTask(stateTask);
 			workflowHistoryModel.setComment(moduleService.getFirstComment(model));
+			workflowHistoryModel.setStatus(moduleService.getFirstStatus());
 	        addWorkflowHistory(workflowHistoryModel);
 	        
 	        
@@ -356,12 +357,14 @@ public class MainWorkflowService {
     	    {
     			public String doWork() throws Exception
     			{
+    				deleteNextActorByMasterId(model.getId());
+    				    				
     		    	List<MainWorkflowNextActorModel> list = moduleService.listNextActor(model);
     		    	for(MainWorkflowNextActorModel actorModel : list) {
     		    		addNextActor(actorModel);
 
     		    		String u = MainUserGroupUtil.code2login(actorModel.getActorUser());
-		        		if(!permissionService.getPermissions(folderNodeRef).contains(u)) {
+		        		if(u!=null && !u.equals(CommonConstant.DUMMY_EMPLOYEE_CODE) && !permissionService.getPermissions(folderNodeRef).contains(u)) {
 		        			permissionService.setPermission(folderNodeRef, u, "SiteCollaborator", true);
 		        		}
     		    	}
@@ -583,7 +586,7 @@ public class MainWorkflowService {
         }
 	}
 	
-	public void updateWorkflowHistory(MainWorkflowHistoryModel memoWorkflowHistoryModel) {
+	public void updateWorkflowHistory(MainWorkflowHistoryModel workflowHistoryModel) {
 		
 		SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
 		
@@ -591,7 +594,7 @@ public class MainWorkflowService {
 			
             MainWorkflowHistoryDAO dao = session.getMapper(MainWorkflowHistoryDAO.class);
             
-            dao.update(memoWorkflowHistoryModel);
+            dao.update(workflowHistoryModel);
             
             session.commit();
             
@@ -625,7 +628,7 @@ public class MainWorkflowService {
 	}
 	
 
-	public String updateWorkflow(SubModuleModel model, String actionUserGroups, String relatedUserGroups) throws Exception {
+	public String updateWorkflow(SubModuleModel model, String actionUserGroups, String relatedUserGroups, String docType) throws Exception {
 		
 		WorkflowTaskQuery query = new WorkflowTaskQuery();
 
@@ -633,6 +636,7 @@ public class MainWorkflowService {
 		query.setProcessId(model.getWorkflowInsId());
 
 		List<WorkflowTask> tasks = workflowService.queryTasks(query, true);
+		final NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
 
 		if (tasks.size() > 0) {
 		     Map<QName, Serializable> params = new HashMap<QName, Serializable>();
@@ -640,6 +644,12 @@ public class MainWorkflowService {
 //	         NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
 	        
 	         //setRelatedAssignee(params, relatedUserGroups, folderNodeRef);
+		     
+	         setReviewer(params, model, folderNodeRef, docType);
+	        
+	         setNextActor(model, folderNodeRef);
+	        
+	         setSpecialUserPermission(folderNodeRef, model);
 			
 	         List<NodeRef> docList = new ArrayList<NodeRef>();
 	         docList.add(new NodeRef(model.getDocRef()));
@@ -798,7 +808,7 @@ public class MainWorkflowService {
         return list;
 	}
 	
-	public JSONArray listAssignee(String id) throws Exception {
+	public JSONArray listAssignee(String id, String lang) throws Exception {
 		JSONArray jsArr = new JSONArray();
 
 		MainWorkflowModel mainWorkflowModel = new MainWorkflowModel();
@@ -806,7 +816,7 @@ public class MainWorkflowService {
 		mainWorkflowModel = getLastWorkflow(mainWorkflowModel);
 		
 		int index = 0;
-		List<Map<String, Object>> list = moduleService.listWorkflowPath(id);
+		List<Map<String, Object>> list = moduleService.listWorkflowPath(id, lang);
 		for (Map<String, Object> map : list) {
 			jsArr.put(MainWorkflowUtil.createAssigneeGridModel(index++, (String)map.get("LEVEL"), (String)map.get("U") , (String)map.get("G"), (Boolean)map.get("IRA")));
 		}
@@ -891,7 +901,7 @@ public class MainWorkflowService {
 			}
 			
 			if (jsArr.length()==0) {
-				jsArr.put(createTaskGridModel(index++, moduleService.getNextActionInfo(), "", ""));
+				jsArr.put(createTaskGridModel(index++, moduleService.getNextActionInfo(model), "", ""));
 			}
 			
 		 } catch (Exception ex) {
@@ -912,7 +922,7 @@ public class MainWorkflowService {
 		return jsObj;
 	}
 	
-	public JSONArray listDetail(String id) throws Exception {
+	public JSONArray listDetail(String id, String lang) throws Exception {
 		JSONArray jsArr = new JSONArray();
 
 		int index = 0;
@@ -933,11 +943,12 @@ public class MainWorkflowService {
 //			}
 //			Collections.reverse(hList);
 //		}
+		lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
 		
 		for (MainWorkflowHistoryModel model : hList) {
-			MainHrEmployeeModel empModel = adminHrEmployeeService.get(model.getBy());
+			Map<String, Object> empModel = adminHrEmployeeService.getWithDtl(model.getBy());
 
-			jsArr.put(createDetailGridModel(index++, model.getTime(), empModel!=null ? empModel.getFirstName() : model.getBy(), model.getAction(), model.getTask(), StringUtils.defaultIfBlank(model.getComment(),"").replace("\\n", "<br>").replace("'", "\\'")));
+			jsArr.put(createDetailGridModel(index++, model.getTime(), empModel!=null ? (String)empModel.get("first_name"+lang) : model.getBy(), model.getAction(), model.getTask(), StringUtils.defaultIfBlank(model.getComment(),"").replace("\\n", "<br>").replace("'", "\\'")));
 		}
 
 		return jsArr;
@@ -1096,6 +1107,20 @@ public class MainWorkflowService {
         }
 	}
 	
+	public void deleteNextActorByMasterId(String id) throws Exception {
+		SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+            MainWorkflowNextActorDAO dao = session.getMapper(MainWorkflowNextActorDAO.class);
+            dao.deleteByMasterId(id);
+            session.commit();
+        } catch (Exception ex) {
+			log.error("", ex);
+        	session.rollback();
+        } finally {
+        	session.close();
+        }
+	}
+	
 	public Integer getLastReviewerLevel(String id) throws Exception {
 		Integer lastLevel = null;
 		
@@ -1112,7 +1137,7 @@ public class MainWorkflowService {
         return lastLevel;
 	}
 	
-	public String saveWorkflowHistory(DelegateExecution execution, String user, String stateTask, String taskComment, String action, DelegateTask task, String id, Integer level) throws Exception {
+	public String saveWorkflowHistory(DelegateExecution execution, String user, String stateTask, String taskComment, String action, DelegateTask task, String id, Integer level, String status) throws Exception {
 		
 		Timestamp now = CommonDateTimeUtil.now();
 		action = moduleService.getActionCaption(action);
@@ -1159,6 +1184,7 @@ public class MainWorkflowService {
 			workflowHistoryModel.setComment((taskComment!=null && !taskComment.equalsIgnoreCase(""))?taskComment:null);
 			workflowHistoryModel.setMasterId(workflowModel.getId());
 			workflowHistoryModel.setLevel(level);
+			workflowHistoryModel.setStatus(status);
 			addWorkflowHistory(workflowHistoryModel);
 			
 			workflowModel.setStatus(action);
@@ -1229,5 +1255,7 @@ public class MainWorkflowService {
 		    	return null;
 			}
 	    }, AuthenticationUtil.getAdminUserName());
-	}	
+	}
+	
+	
 }

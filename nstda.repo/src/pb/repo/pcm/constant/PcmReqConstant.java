@@ -43,6 +43,8 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String TFN_PCM_SECTION_ID = "PCM_SECTION_ID";
 	public static final String TFN_LOCATION = "LOCATION";
 	
+	public static final String TFN_CONTRACT_DATE = "CONTRACT_DATE";
+	
 	public static final String TFN_IS_ACROSS_BUDGET = "IS_ACROSS_BUDGET";
 	public static final String TFN_ACROSS_BUDGET = "ACROSS_BUDGET";
 	
@@ -80,6 +82,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_OBJECTIVE_TYPE = "objective_type"; // buy, employ, hire
 	public static final String JFN_OBJECTIVE = "objective";
 	public static final String JFN_REASON = "reason";
+	public static final String JFN_REASON_OTH = "reasonOth";
 	
 	public static final String JFN_CURRENCY = "currency"; // THB, USD, EUR, JPY, CNY
 	public static final String JFN_CURRENCY_RATE = "currency_rate";
@@ -104,6 +107,8 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_PCM_SECTION_ID = "pcm_ou";
 	public static final String JFN_LOCATION = "location";
 	
+	public static final String JFN_CONTRACT_DATE = "contract_date";
+	
 	public static final String JFN_IS_ACROSS_BUDGET = "is_across_budget";
 	public static final String JFN_ACROSS_BUDGET = "across_budget";
 	
@@ -126,6 +131,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_CREATED_TIME_SHOW = "created_time_show";
 	public static final String JFN_TEL_NO = "tel_no";
 
+	public static final String JFN_FILE_NAME = "file_name";
 	
 	/*
 	 * Status

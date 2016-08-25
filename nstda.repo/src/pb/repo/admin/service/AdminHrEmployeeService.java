@@ -48,7 +48,7 @@ public class AdminHrEmployeeService {
         return model;
 	}
 	
-	public Map<String, Object> getWithDtl(String id, String lang) {
+	public Map<String, Object> getWithDtl(String id) {
 		
 		Map<String, Object> map = null;
 		
@@ -59,7 +59,6 @@ public class AdminHrEmployeeService {
         	Map<String, Object> params = new HashMap<String, Object>();
 
         	params.put("code", id);
-        	params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
         	
     		map = dao.getWithDtl(params);
             
@@ -143,7 +142,8 @@ public class AdminHrEmployeeService {
         		params.put("terms", terms);
         	}
         	
-        	params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
+        	lang = lang!=null && lang.startsWith("th") ? "_th" : "";
+        	params.put("lang", lang);
         	
         	log.info("params="+params);
         	
@@ -152,13 +152,14 @@ public class AdminHrEmployeeService {
         	for(Map<String, Object> tmpMap : tmpList) {
         		Map<String, Object> map = new HashMap<String, Object>();
         		
-        		String name = tmpMap.get("first_name")+" "+tmpMap.get("last_name");
+        		String name = tmpMap.get("title"+lang)+" "+tmpMap.get("first_name"+lang)+" "+tmpMap.get("last_name"+lang);
         		map.put("id", tmpMap.get("employee_code")+"|"+name);
         		map.put("code", tmpMap.get("employee_code"));
-        		map.put("fname", tmpMap.get("first_name"));
-        		map.put("lname", tmpMap.get("last_name"));
-        		map.put("utype", tmpMap.get("utype"));
-        		map.put("position", tmpMap.get("position"));
+        		map.put("title", tmpMap.get("title"+lang));
+        		map.put("fname", tmpMap.get("first_name"+lang));
+        		map.put("lname", tmpMap.get("last_name"+lang));
+        		map.put("utype", tmpMap.get("utype"+lang));
+        		map.put("position", tmpMap.get("position"+lang));
         		map.put("position_id", tmpMap.get("position_id"));
         		
         		list.add(map);
@@ -171,6 +172,51 @@ public class AdminHrEmployeeService {
         }
 		
 		return list;
+	}
+	
+	public List<Map<String, Object>> listPcmMember(Integer orgId) {
+		
+		List<Map<String, Object>> list = null;
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+        	MainHrEmployeeDAO dao = session.getMapper(MainHrEmployeeDAO.class);
+            
+        	Map<String, Object> params = new HashMap<String, Object>();
+
+        	params.put("orgId", orgId);
+        	
+        	log.info("params="+params);
+        	
+            list = dao.listPcmMember(params);
+    	
+        } catch (Exception ex) {
+        	log.error(ex);
+        } finally {
+        	session.close();
+        }
+		
+		return list;
 	}	
 	
+	public List<Map<String, Object>> listExpMember() {
+		
+		List<Map<String, Object>> list = null;
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+        	MainHrEmployeeDAO dao = session.getMapper(MainHrEmployeeDAO.class);
+            
+        	Map<String, Object> params = new HashMap<String, Object>();
+
+            list = dao.listExpMember(params);
+    	
+        } catch (Exception ex) {
+        	log.error(ex);
+        } finally {
+        	session.close();
+        }
+		
+		return list;
+	}	
 }

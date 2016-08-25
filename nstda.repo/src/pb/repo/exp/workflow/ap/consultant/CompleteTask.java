@@ -161,7 +161,7 @@ public class CompleteTask implements TaskListener {
 						taskComment = tmpComment.toString();
 					}
 					
-					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
+					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level, model.getStatus());
 
 				}
 				catch (Exception ex) {

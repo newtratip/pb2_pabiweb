@@ -8,6 +8,8 @@ public class PcmReqDtlModel extends BaseDataModel {
 	
 	Long id;
 	String masterId;
+	Integer actGrpId;
+	String actGrp;
 	String description;
 	Double quantity;
 	Integer unitId;
@@ -16,6 +18,7 @@ public class PcmReqDtlModel extends BaseDataModel {
 	Double priceCnv;
 	Double total;
 	String isEquipment;
+	Integer fiscalYear;
 	
 	Timestamp createdTime;
 	String createdBy;
@@ -40,6 +43,22 @@ public class PcmReqDtlModel extends BaseDataModel {
 		this.masterId = masterId;
 	}
 	
+	public Integer getActGrpId() {
+		return actGrpId;
+	}
+
+	public void setActGrpId(Integer actGrpId) {
+		this.actGrpId = actGrpId;
+	}
+
+	public String getActGrp() {
+		return actGrp;
+	}
+
+	public void setActGrp(String actGrp) {
+		this.actGrp = actGrp;
+	}
+
 	public String getDescription() {
 		return description;
 	}
@@ -102,6 +121,14 @@ public class PcmReqDtlModel extends BaseDataModel {
 
 	public void setUnit(String unit) {
 		this.unit = unit;
+	}
+	
+	public Integer getFiscalYear() {
+		return fiscalYear;
+	}
+
+	public void setFiscalYear(Integer fiscalYear) {
+		this.fiscalYear = fiscalYear;
 	}
 
 	public Timestamp getCreatedTime() {

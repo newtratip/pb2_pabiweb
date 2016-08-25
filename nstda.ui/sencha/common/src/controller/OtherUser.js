@@ -8,6 +8,9 @@ Ext.define('PB.controller.common.OtherUser', {
     	ref:'form',
 		selector:'#formDetail'
 	},{
+    	ref:'txtTitle',
+    	selector:'searchOtherUserDlg field[name=title]'
+	},{
     	ref:'txtFName',
     	selector:'searchOtherUserDlg field[name=fname]'
 	},{
@@ -58,6 +61,7 @@ Ext.define('PB.controller.common.OtherUser', {
 		if (validForm(me.getForm())) {
 			var r = Ext.create("PB.model.common.EmployeeUserModel");
 			
+			r.data.title = me.getTxtTitle().getValue();
 			r.data.fname = me.getTxtFName().getValue();
 			r.data.lname = me.getTxtLName().getValue();
 			

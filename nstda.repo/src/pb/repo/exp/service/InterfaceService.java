@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.alfresco.service.cmr.security.AuthenticationService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminSectionService;
+import pb.repo.admin.service.AdminUserService;
 import pb.repo.exp.constant.ExpBrwAttendeeConstant;
 import pb.repo.exp.model.ExpBrwModel;
 import pb.repo.exp.model.ExpBrwAttendeeModel;
@@ -46,6 +48,9 @@ public class InterfaceService {
 	@Autowired
 	AdminSectionService sectionService;
 	
+	@Autowired
+	AdminUserService userService;
+	
 	private List<Object> getInitArgs(Map<String, Object> cfg) {
 		List<Object> args = new ArrayList();
 		args.add(cfg.get("db")); // db name
@@ -55,7 +60,7 @@ public class InterfaceService {
 		return args;
 	}
 
-	private Map<String, Object> getConnectionConfig() {
+	private Map<String, Object> getConnectionConfig(String login) {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
@@ -65,8 +70,10 @@ public class InterfaceService {
 		sysCfgModel = masterService.getSystemConfig(MainMasterConstant.SCC_EXP_ODOO_DB);
 		String db = sysCfgModel.getFlag1();
 		
-		Integer usr = 1; // uid 1='admin'
-		String pwd = "admin"; // password
+		Map<String,Object> user = userService.getByLogin(login);
+		
+		Integer usr = (Integer)user.get("id"); // uid 1='admin'
+		String pwd = "password"; // password
 		
 		log.info("host:"+host);
 		log.info("db:"+db);
@@ -92,7 +99,7 @@ public class InterfaceService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		try {
-			Map<String, Object> cfg = getConnectionConfig();
+			Map<String, Object> cfg = getConnectionConfig(model.getCreatedBy());
 			XmlRpcClient client = getXmlRpcClient(cfg);
 			
 			List<Map<String, Object>> list = expBrwService.listForInf(model.getId());
@@ -118,10 +125,10 @@ public class InterfaceService {
 	        map.put("is_employee_advance", "True");
 	        map.put("number",data.get("av_id"));
 	        map.put("employee_code",data.get("req_by"));
-	        map.put("date",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("by_time")));
+	        map.put("date",CommonDateTimeUtil.convertToOdooFieldDate(data.get("by_time")!=null ? (Timestamp) data.get("by_time") : CommonDateTimeUtil.now()));
 	        map.put("write_date",CommonDateTimeUtil.convertToOdooFieldDateTime((Timestamp) data.get("updated_time")));
 	        map.put("advance_type",data.get("objective_type"));
-	        map.put("date_back",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("cost_control_to")));
+	        map.put("date_back",CommonDateTimeUtil.convertToOdooFieldDate(data.get("cost_control_to")!=null ? (Timestamp) data.get("cost_control_to") : CommonDateTimeUtil.now()));
 	        map.put("name", data.get("objective"));
 	        map.put("apweb_ref_url", "");
 	        //map.put("operating_unit_id.id", 14);
@@ -302,7 +309,7 @@ public class InterfaceService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		try {
-			Map<String, Object> cfg = getConnectionConfig();
+			Map<String, Object> cfg = getConnectionConfig(model.getCreatedBy());
 			XmlRpcClient client = getXmlRpcClient(cfg);
 			
 			List<Map<String, Object>> list = expBrwService.listForInf(model.getId());

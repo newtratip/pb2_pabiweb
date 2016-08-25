@@ -34,19 +34,28 @@ public class PcmReqCmtDtlUtil {
 //		return jsonObj.toString();
 //	}
 	
-	public static String jsonSuccess(List<Map<String, Object>> list) throws JSONException {
+	public static String jsonSuccess(List<Map<String, Object>> list, String lang) throws JSONException {
 		
 		JSONObject jsonObj = new JSONObject();
 		
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+		
+		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
 		
 		for(Map<String, Object> model : list) {
 			Map<String, Object> map = new HashMap<String,Object>();
 			map.put(PcmReqCmtDtlConstant.JFN_ID, model.get(PcmReqCmtDtlConstant.TFN_ID));
 			String code = (String)model.get(PcmReqCmtDtlConstant.TFN_EMPLOYEE_CODE);
 			map.put(PcmReqCmtDtlConstant.JFN_EMPLOYEE_CODE, code);
-			map.put(PcmReqCmtDtlConstant.JFN_FIRST_NAME, model.get(PcmReqCmtDtlConstant.TFN_FIRST_NAME));
-			map.put(PcmReqCmtDtlConstant.JFN_LAST_NAME, model.get(PcmReqCmtDtlConstant.TFN_LAST_NAME));
+			if (code!=null && !code.equalsIgnoreCase("")) {
+				map.put(PcmReqCmtDtlConstant.JFN_TITLE, model.get("etitle"+lang));
+				map.put(PcmReqCmtDtlConstant.JFN_FIRST_NAME, model.get("efirst_name"+lang));
+				map.put(PcmReqCmtDtlConstant.JFN_LAST_NAME, model.get("elast_name"+lang));
+			} else {
+				map.put(PcmReqCmtDtlConstant.JFN_TITLE, model.get(PcmReqCmtDtlConstant.TFN_TITLE));
+				map.put(PcmReqCmtDtlConstant.JFN_FIRST_NAME, model.get(PcmReqCmtDtlConstant.TFN_FIRST_NAME));
+				map.put(PcmReqCmtDtlConstant.JFN_LAST_NAME, model.get(PcmReqCmtDtlConstant.TFN_LAST_NAME));
+			}
 			map.put(PcmReqCmtDtlConstant.JFN_POSITION, model.get(PcmReqCmtDtlConstant.TFN_POSITION));
 
 			if (code!=null && !code.equals("")) {
@@ -75,6 +84,7 @@ public class PcmReqCmtDtlUtil {
 			jsObj.put(PcmReqCmtDtlConstant.JFN_ID, model.getId());
 			jsObj.put(PcmReqCmtDtlConstant.JFN_MASTER_ID, model.getMasterId());
 			jsObj.put(PcmReqCmtDtlConstant.JFN_EMPLOYEE_CODE, model.getEmployeeCode());
+			jsObj.put(PcmReqCmtDtlConstant.JFN_TITLE, model.getTitle());
 			jsObj.put(PcmReqCmtDtlConstant.JFN_FIRST_NAME, model.getFirstName());
 			jsObj.put(PcmReqCmtDtlConstant.JFN_LAST_NAME, model.getLastName());
 			jsObj.put(PcmReqCmtDtlConstant.JFN_POSITION, String.valueOf(model.getPosition()));

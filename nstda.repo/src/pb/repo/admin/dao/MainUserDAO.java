@@ -7,4 +7,6 @@ public interface MainUserDAO {
 
 	public List<Map<String, Object>> list(Map<String, Object> params);
 	
+	public Map<String, Object> getByLogin(Map<String, Object> params);
+	
 }

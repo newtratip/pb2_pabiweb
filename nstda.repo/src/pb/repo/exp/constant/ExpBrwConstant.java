@@ -132,8 +132,7 @@ public class ExpBrwConstant extends SubModuleConstant {
     /*
      * Next Actor
      */
-    public static final String NA_BOSS = "หัวหน้าพัสดุ";
-    public static final String NA_OFFICER = "เจ้าหน้าที่พัสดุ";
+    public static final String NA_OFFICER = "เจ้าหน้าที่การเงิน";
     
     /*
      * Budget CC Type

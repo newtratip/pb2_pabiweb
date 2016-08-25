@@ -65,7 +65,8 @@ Ext.define('PBPcmOrd.controller.Main', {
 							store.getProxy().extraParams = {
 								p1 : params[0],
 								orderBy : 'code',
-								all : true
+								all : true,
+								lang : getLang()
 							}
 							if (params.length>1) {
 								store.getProxy().extraParams.p2 = params[1];
@@ -306,14 +307,16 @@ Ext.define('PBPcmOrd.controller.Main', {
 		// Path
 		var store = dlg.items.items[0].items.items[1].getStore(); 
 		store.getProxy().extraParams = {
-			id : id
+			id : id,
+			lang : getLang()
 		}
 		store.load();
 		
 		// History
 		store = dlg.items.items[1].getStore();
 		store.getProxy().extraParams = {
-		   	id : id
+		   	id : id,
+		   	lang : getLang()
 		};
 		store.load();
 		

@@ -9,7 +9,7 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 		
 		var typeStore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
 		typeStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/costcontrol/type/list';
-		typeStore.load();
+		typeStore.load({params:{lang:getLang()}});
 		
 		var store = Ext.create('PB.store.common.CostControlStore');
 		
@@ -111,7 +111,6 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:PB.Label.m.type, dataIndex: 'type', width: 150 },
 	        	     { text:PB.Label.m.name, dataIndex: 'name', flex:1 }
 	        	],
 	        	store:store

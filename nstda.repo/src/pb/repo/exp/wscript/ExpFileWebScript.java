@@ -2,7 +2,6 @@ package pb.repo.exp.wscript;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,36 +62,30 @@ public class ExpFileWebScript {
         
         String desc = null;
         
+		String path = "alf_"+uuid.toString();
+		
+        String fullPath = FolderUtil.getTmpDir() + sep + path;
+		log.info(fullPath);
+		new File(fullPath).mkdirs();
+		
+		List<FileModel> files = new ArrayList<FileModel>();
+        
         for (FormField field : fields) {
         	if (field.getIsFile()) {
         		String name = field.getFilename();
-        		try {
+				log.info(" - "+name);
         			
-					String path = "alf_"+uuid.toString();
-					
-					byte[] fileContent = IOUtils.toByteArray(field.getInputStream());
-					String fullPath = FolderUtil.getTmpDir() + sep + path;
-					log.info(fullPath);
-					new File(fullPath).mkdirs();
-					
-					OutputStream out = new FileOutputStream(fullPath + sep + name);
-					out.write(fileContent);
-					out.close();
-					
-					List<FileModel> files = new ArrayList<FileModel>();
-					FileModel fileModel = new FileModel();
-					fileModel.setName(name);
-					fileModel.setDesc(desc);
-					fileModel.setPath(path);
-					files.add(fileModel);
-					json = FileUtil.jsonSuccess(files);
-					
-				} catch (IOException ex) {
-					
-					json = CommonUtil.jsonFail(ex.toString());
-					log.error("", ex);
-					throw ex;
-				}
+				byte[] fileContent = IOUtils.toByteArray(field.getInputStream());
+				
+				OutputStream out = new FileOutputStream(fullPath + sep + name);
+				out.write(fileContent);
+				out.close();
+				
+				FileModel fileModel = new FileModel();
+				fileModel.setName(name);
+				fileModel.setDesc(desc);
+				fileModel.setPath(path);
+				files.add(fileModel);
         	}
         	else {
         		if (field.getName().equals("desc")) {
@@ -101,6 +94,8 @@ public class ExpFileWebScript {
         	}
         }
 		 
+		json = FileUtil.jsonSuccess(files);
+		
 	} catch (Exception ex) {
 		log.error("", ex);
 		json = CommonUtil.jsonFail(ex.toString());

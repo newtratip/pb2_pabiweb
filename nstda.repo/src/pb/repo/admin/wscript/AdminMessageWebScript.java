@@ -116,6 +116,7 @@ public class AdminMessageWebScript {
 	  lbl.put("yes", MainUtil.getMessage(prefix+"yes", locale));
 	  lbl.put("no", MainUtil.getMessage(prefix+"no", locale));
 	  lbl.put("confirm", MainUtil.getMessage(prefix+"confirm", locale));
+	  lbl.put("ok", MainUtil.getMessage(prefix+"ok", locale));
 	  
 	  lbl.put("org", MainUtil.getMessage(prefix+"org", locale));
 	  lbl.put("section", MainUtil.getMessage(prefix+"section", locale));
@@ -123,6 +124,7 @@ public class AdminMessageWebScript {
 	  lbl.put("emp", MainUtil.getMessage(prefix+"employee", locale));
 	  lbl.put("ecode", MainUtil.getMessage(prefix+"employeeCode", locale));
 	  lbl.put("nonemp", MainUtil.getMessage(prefix+"nonEmployee", locale));
+	  lbl.put("title", MainUtil.getMessage(prefix+"title", locale));
 	  lbl.put("name", MainUtil.getMessage(prefix+"name", locale));
 	  lbl.put("fullname", MainUtil.getMessage(prefix+"fullName", locale));
 	  lbl.put("fname", MainUtil.getMessage(prefix+"firstName", locale));
@@ -147,7 +149,7 @@ public class AdminMessageWebScript {
 	  jObj.put("u", lbl);
 	  
 	  /*
-	   * Upload
+	   * Budget Source
 	   */
 	  lbl = new JSONObject();
 	  prefix = "budgetSrc.";
@@ -164,6 +166,17 @@ public class AdminMessageWebScript {
 	  lbl.put("bamt", MainUtil.getMessage(prefix+"budgetAmt", locale));
 	  
 	  jObj.put("b", lbl);
+	  
+	  /*
+	   * Budget Source
+	   */
+	  lbl = new JSONObject();
+	  prefix = "checkBudget.";
+	  lbl.put("balance", MainUtil.getMessage(prefix+"balance", locale));
+	  lbl.put("preAppBudget", MainUtil.getMessage(prefix+"preAppBudget", locale));
+	  lbl.put("expBalance", MainUtil.getMessage(prefix+"expBalance", locale));
+	  
+	  jObj.put("cb", lbl);
 
 	  String json = jObj.toString();
 	  

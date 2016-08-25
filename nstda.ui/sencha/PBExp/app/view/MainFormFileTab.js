@@ -28,6 +28,7 @@ Ext.define('PBExp.view.MainFormFileTab', {
 	            	border:0,
 	            	uploadUrl:ALF_CONTEXT+"/exp/file/upload",
 	            	deleteUrl:ALF_CONTEXT+"/exp/file/delete",
+	            	editUrl:ALF_CONTEXT+"/exp/file/edit",
 	            	store:fileStore
 	            }]
 			}]

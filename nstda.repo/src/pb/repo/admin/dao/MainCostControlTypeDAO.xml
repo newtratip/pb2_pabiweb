@@ -10,10 +10,15 @@
         
     </resultMap>
 
-	<select id="list" resultType="map">
-		SELECT 	*, COUNT(*) OVER() totalRowCount
-		FROM 	pb2_ext_cost_control_type
-		ORDER BY name
+	<select id="list" resultType="map" parameterType="map">
+		select id,name ,
+		coalesce((select value
+		    from pb2_ext_ir_translation
+		    where name = 'cost.control.type,name'
+		    and type = 'model' and lang='th_TH'
+		    and res_id = t.id), name) as name_th  
+		from pb2_ext_cost_control_type t
+		order by ${orderBy}
 	</select>
 	
 	<select id="count" resultType="long">

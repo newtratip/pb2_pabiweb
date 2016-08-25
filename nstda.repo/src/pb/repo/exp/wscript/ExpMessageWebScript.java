@@ -128,7 +128,7 @@ public class ExpMessageWebScript {
 	   * User Tab
 	   */
 	  lbl = new JSONObject();
-	  prefix = "pr.form.tab.usr.";
+	  prefix = "av.form.tab.usr.";
 	  lbl.put("lbw", ExpBrwUtil.getMessage(prefix+"lbw", locale));
 	  lbl.put("reqBy", ExpBrwUtil.getMessage(prefix+"reqBy", locale));
 	  lbl.put("reqBu", ExpBrwUtil.getMessage(prefix+"reqBu", locale));
@@ -143,30 +143,29 @@ public class ExpMessageWebScript {
 	   * Info
 	   */
 	  lbl = new JSONObject();
-	  prefix = "pr.form.tab.info.";
+	  prefix = "av.form.tab.info.";
 	  lbl.put("lbw", ExpBrwUtil.getMessage(prefix+"lbw", locale));
 	  lbl.put("objType", ExpBrwUtil.getMessage(prefix+"objectiveType", locale));
 	  lbl.put("err_objType", ExpBrwUtil.getMessage(prefix+"err.objectiveType", locale));
 	  lbl.put("obj", ExpBrwUtil.getMessage(prefix+"objective", locale));
-	  lbl.put("reason", ExpBrwUtil.getMessage(prefix+"reason", locale));
-	  lbl.put("currency", ExpBrwUtil.getMessage(prefix+"currency", locale));
-	  lbl.put("currencyRate", ExpBrwUtil.getMessage(prefix+"currencyRate", locale));
+	  lbl.put("item", ExpBrwUtil.getMessage(prefix+"item", locale));
+	  lbl.put("amount", ExpBrwUtil.getMessage(prefix+"amount", locale));
+	  lbl.put("total", ExpBrwUtil.getMessage(prefix+"total", locale));
 	  lbl.put("budgetSrc", ExpBrwUtil.getMessage(prefix+"budgetSrc", locale));
 	  lbl.put("invAsset", ExpBrwUtil.getMessage(prefix+"invAsset", locale));
 	  lbl.put("constr", ExpBrwUtil.getMessage(prefix+"construction", locale));
-	  lbl.put("isPtt", ExpBrwUtil.getMessage(prefix+"isPrototype", locale));
-	  lbl.put("err_isPtt", ExpBrwUtil.getMessage(prefix+"err.isPrototype", locale));
-	  lbl.put("ptt", ExpBrwUtil.getMessage(prefix+"prototype", locale));
-	  lbl.put("contract", ExpBrwUtil.getMessage(prefix+"contract", locale));
-	  lbl.put("err_contract", ExpBrwUtil.getMessage(prefix+"err.contract", locale));
-	  lbl.put("cc", ExpBrwUtil.getMessage(prefix+"costControl", locale));
-	  lbl.put("loc", ExpBrwUtil.getMessage(prefix+"location", locale));
-	  lbl.put("isAB", ExpBrwUtil.getMessage(prefix+"isAcrossBudget", locale));
-	  lbl.put("total", ExpBrwUtil.getMessage(prefix+"total", locale));
-	  lbl.put("err_total", ExpBrwUtil.getMessage(prefix+"err.total", locale));
-	  lbl.put("isRefId", ExpBrwUtil.getMessage(prefix+"isRefId", locale));
-	  lbl.put("refId", ExpBrwUtil.getMessage(prefix+"refId", locale));
+	  lbl.put("itemTitle", ExpBrwUtil.getMessage(prefix+"item.title", locale));
+	  lbl.put("reason", ExpBrwUtil.getMessage(prefix+"reason", locale));
 	  lbl.put("err_refId", ExpBrwUtil.getMessage(prefix+"err.refId", locale));
+	  lbl.put("itemTitle", ExpBrwUtil.getMessage(prefix+"item.title", locale));
+	  lbl.put("oweTitle", ExpBrwUtil.getMessage(prefix+"owe.title", locale));
+	  lbl.put("oweDocNo", ExpBrwUtil.getMessage(prefix+"owe.docno", locale));
+	  lbl.put("oweWait", ExpBrwUtil.getMessage(prefix+"owe.wait", locale));
+	  lbl.put("oweBalance", ExpBrwUtil.getMessage(prefix+"owe.balance", locale));
+	  lbl.put("methodTitle", ExpBrwUtil.getMessage(prefix+"method.title", locale));
+	  lbl.put("bankBbl", ExpBrwUtil.getMessage(prefix+"bank.bbl", locale));
+	  lbl.put("bank", ExpBrwUtil.getMessage(prefix+"bank", locale));
+	  lbl.put("bankWarn", ExpBrwUtil.getMessage(prefix+"bank.warn", locale));
 	  
 	  jObj.put("n", lbl);
 	  
@@ -184,7 +183,7 @@ public class ExpMessageWebScript {
 	   * File
 	   */
 	  lbl = new JSONObject();
-	  prefix = "pr.form.tab.file.";
+	  prefix = "av.form.tab.file.";
 	  lbl.put("lbw", ExpBrwUtil.getMessage(prefix+"lbw", locale));
 	  
 	  jObj.put("f", lbl);

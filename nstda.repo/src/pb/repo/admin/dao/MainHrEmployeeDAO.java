@@ -11,6 +11,8 @@ public interface MainHrEmployeeDAO {
 	public List<Map<String, Object>> listBySection(Map<String, Object> params);
 	public List<Map<String, Object>> listByProject(Map<String, Object> params);
 	public List<Map<String, Object>> listForSearch(Map<String, Object> params);
+	public List<Map<String, Object>> listPcmMember(Map<String, Object> params);
+	public List<Map<String, Object>> listExpMember(Map<String, Object> params);
 	
 	public Long count();
 	

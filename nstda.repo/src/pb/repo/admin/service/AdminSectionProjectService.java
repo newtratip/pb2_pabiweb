@@ -26,15 +26,18 @@ public class AdminSectionProjectService {
 	
 	@Autowired
 	AdminSectionService sectionService;
+	
+	@Autowired
+	private AdminHrEmployeeService adminHrEmployeeService;
 
-	public List<Map<String, Object>> list(String type,String searchTerm) {
+	public List<Map<String, Object>> list(String type,String searchTerm, String lang) {
 		
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		
         try {
         	List<Map<String, Object>> tmpList;
         	if (type.equals("U")) {
-        		tmpList = sectionService.list(searchTerm);
+        		tmpList = sectionService.list(searchTerm,lang);
         		
             	for(Map<String, Object> tmpMap : tmpList) {
             		Map<String, Object> map = new HashMap<String, Object>();
@@ -49,15 +52,18 @@ public class AdminSectionProjectService {
         	}
         	else
         	if (type.equals("P")) {
-        		tmpList = projectService.list(searchTerm);
+        		tmpList = projectService.list(searchTerm,lang);
+        		
+        		lang = (lang!=null && lang.startsWith("th")) ? "_th" : "";
         		
             	for(Map<String, Object> tmpMap : tmpList) {
             		Map<String, Object> map = new HashMap<String, Object>();
             		
-            		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("name")+" - "+tmpMap.get("description"));
+            		map.put("id", tmpMap.get("id")+"|"+"["+((String)tmpMap.get("code")).trim() + "] "+tmpMap.get("name"));
             		map.put("type", tmpMap.get("name"));
-            		map.put("name", tmpMap.get("name") + " - " + tmpMap.get("description"));
-            		map.put("cc", tmpMap.get("pm_code")+" - "+tmpMap.get("pm_name")); // project manager
+            		map.put("name", "["+((String)tmpMap.get("code")).trim() + "] " + tmpMap.get("name"));
+            		Map<String,Object> dtl = adminHrEmployeeService.getWithDtl((String)tmpMap.get("pm_code"));
+            		map.put("cc", "["+((String)tmpMap.get("pm_code")).trim() + "] "+dtl.get("first_name"+lang) + " " + dtl.get("last_name"+lang)); // project manager
             		map.put("org", tmpMap.get("org_name"));
             		
             		list.add(map);

@@ -6,6 +6,7 @@
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
         <result property="employeeCode" column="employee_code"/>
+        <result property="title" column="title"/>
         <result property="firstName" column="first_name"/>
         <result property="lastName" column="last_name"/>
         <result property="position" column="position"/>
@@ -26,6 +27,7 @@
 	    INSERT INTO pb2_pcm_req_committee_dtl(
 	    	master_id
 	    	,employee_code
+	    	,title
 	    	,first_name
 	    	,last_name
 	    	,position
@@ -33,6 +35,7 @@
 	    )VALUES( 
     		#{masterId}
     		,#{employeeCode}
+    		,#{title}
     		,#{firstName}
     		,#{lastName}
     		,#{position}
@@ -43,18 +46,38 @@
     
     <select id="list" resultType="hashmap" parameterType="map">
         SELECT
-		    d.*,		    
+			d.title,
+			t.name etitle,
+			coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'res.partner.title,name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.title_id), t.name) as etitle_th,
+			d.master_id,d.employee_code,d.first_name,d.last_name,position,
+				e.first_name efirst_name,e.last_name elast_name,
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,first_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.first_name) as efirst_name_th,
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,last_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.last_name) as elast_name_th,		    
 		    COUNT(*) OVER() totalRowCount
 		FROM
 		    pb2_pcm_req_committee_dtl d
 		LEFT JOIN
 			pb2_pcm_req_committee_hdr h
 		ON h.id=d.master_id
+		left join pb2_ext_hr_employee e on d.employee_code = e.employee_code
+		left join pb2_ext_res_partner_title t on e.title_id= t.id
 		WHERE
 			h.pcm_req_id=#{id}
 		AND
 			h.committee_id=#{cmt}	
-		ORDER BY id
+		ORDER BY d.id
     </select>
     
     <select id="listByMasterId" resultMap="result" parameterType="map">

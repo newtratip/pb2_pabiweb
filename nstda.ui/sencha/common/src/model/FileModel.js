@@ -6,5 +6,6 @@ Ext.define('PB.model.common.FileModel', {
     		 , {name : 'path'}
     		 , {name : 'nodeRef'}
     		 , {name : 'action'}
-    ]
+    ],
+    idProperty:'name'
 });

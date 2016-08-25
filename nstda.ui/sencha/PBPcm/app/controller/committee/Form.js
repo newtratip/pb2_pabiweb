@@ -186,6 +186,7 @@ Ext.define('PBPcm.controller.committee.Form', {
 			});
 			
 			rec.set("code", items[a].data['code']);
+			rec.set("title", items[a].data['title']);
 			rec.set("fname", items[a].data['fname']);
 			rec.set("lname", items[a].data['lname']);
 //			rec.set("unit_type", items[a].data['utype']);
@@ -289,7 +290,8 @@ Ext.define('PBPcm.controller.committee.Form', {
 			rec = me.rec;
 		}
 	
-		rec.set("fname", r.data.fname); 		
+		rec.set("title", r.data.title);	
+		rec.set("fname", r.data.fname);	
 		rec.set("lname", r.data.lname); 		
 		rec.set("position", COMMITTEE);
 		
@@ -392,9 +394,15 @@ Ext.define('PBPcm.controller.committee.Form', {
 		store.remove(me.selectedRec);
 		
 		var CHAIRMAN = "ประธานกรรมการ";
+		var COMMITTEE = "กรรมการ";
 
 		if (store.getCount()>1) {
 			store.getAt(0).set('position', CHAIRMAN);
+			store.getAt(0).commit();
+		}
+		else
+		if (store.getCount()==1) {
+			store.getAt(0).set('position', COMMITTEE);
 			store.getAt(0).commit();
 		}
 	},	
@@ -429,7 +437,7 @@ Ext.define('PBPcm.controller.committee.Form', {
 	            }]
 	          },
 			  { text: PB.Label.m.ecode,  dataIndex: 'code', width:100},
-			  { text: PB.Label.m.fullname,  dataIndex: 'fname', flex:1, renderer:function(v,m,r){return r.get('fname')+' '+r.get('lname')}},
+			  { text: PB.Label.m.fullname,  dataIndex: 'fname', flex:1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
 			  { text: PB.Label.m.pos,  dataIndex: 'position', width:150}
 		);
 		
@@ -445,7 +453,8 @@ Ext.define('PBPcm.controller.committee.Form', {
 			if (id.getValue()) {
 				store.getProxy().extraParams = {
     				id:id.getValue(),
-    				cmt:cmt.id
+    				cmt:cmt.id,
+    				lang:getLang()
     			}
 				store.load();
 			}

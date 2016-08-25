@@ -220,5 +220,11 @@ public class CommonConstant {
     /*
      * Error
      */
-    public static final String FORM_ERR = "|PB_ERR|"; 
+    public static final String FORM_ERR = "|PB_ERR|";
+    
+    /*
+     * Dummy
+     */
+    public static final String DUMMY_EMPLOYEE_CODE = "XXXXXX"; 
+
 }

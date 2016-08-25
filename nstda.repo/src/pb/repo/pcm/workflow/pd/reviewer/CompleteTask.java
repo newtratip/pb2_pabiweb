@@ -1,5 +1,6 @@
 package pb.repo.pcm.workflow.pd.reviewer;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
@@ -105,6 +106,9 @@ public class CompleteTask implements TaskListener {
 	@Autowired
 	InterfaceService interfaceService;
 	
+	@Autowired
+	AuthenticationService authService;
+	
 	private static final String WF_PREFIX = PcmOrdWorkflowConstant.MODEL_PREFIX;
 	
 	public void notify(final DelegateTask task) {
@@ -146,11 +150,12 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_REJECT)) {
 							Object comment = task.getVariable("bpm_comment");
 							if (comment==null || comment.toString().trim().equals("")) {
-								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", new Locale(lang));
 								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
-							String result = interfaceService.updateStatusPD(model, finalAction, curUser, (String)comment);
+							String result = interfaceService.updateStatusPD(model, finalAction, curUser, (String)comment, authService.getCurrentUserName());
 							
 							if (!result.equals("OK")) {
 								throw new FormException(CommonConstant.FORM_ERR+result);
@@ -173,7 +178,7 @@ public class CompleteTask implements TaskListener {
 								if (comment==null) {
 									comment = "";
 								}
-								String result = interfaceService.updateStatusPD(model, finalAction, curUser, (String)comment);
+								String result = interfaceService.updateStatusPD(model, finalAction, curUser, (String)comment, model.getCreatedBy());
 								
 								if (!result.equals("OK")) {
 									throw new FormException(CommonConstant.FORM_ERR+result);
@@ -196,7 +201,9 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_CONSULT)) {
 							Object  consultant = task.getVariable(WF_PREFIX+"consultant");
 							if (consultant==null || consultant.equals("")) {
-								throw new FormException(CommonConstant.FORM_ERR+"Please choose Consultant before press Consult button");
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_CONSULT_NO_CONSULTANT", new Locale(lang));
+								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
 							model.setStatus(PcmReqConstant.ST_CONSULT);
@@ -230,7 +237,7 @@ public class CompleteTask implements TaskListener {
 							taskComment = tmpComment.toString();
 						}
 						
-						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level);
+						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level, model.getStatus());
 						
 						if (finalAction.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE) && level.equals(lastLevel)) {
 							signatureService.addSignature(task, curUser, lastLevel);

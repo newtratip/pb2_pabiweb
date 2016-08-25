@@ -14,6 +14,7 @@ public class MainWorkflowHistoryModel {
 	String task;
 	String comment;
 	Integer level;
+	String status;
 	
     public MainWorkflowHistoryModel() {
     }
@@ -24,6 +25,7 @@ public class MainWorkflowHistoryModel {
         action = jobj.getString("action");
         task = jobj.getString("task");
         comment = jobj.getString("comment");
+        status = jobj.getString("status");
     }
     
 	public Long getId() {
@@ -74,7 +76,11 @@ public class MainWorkflowHistoryModel {
 	public void setLevel(Integer level) {
 		this.level = level;
 	}
-	
-	
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	
 }

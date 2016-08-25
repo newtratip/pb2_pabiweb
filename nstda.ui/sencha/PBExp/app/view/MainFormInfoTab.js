@@ -12,7 +12,8 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		store.getProxy().extraParams = {
 			p1 : "type='BRW_TYPE'",
 			orderBy : 'flag1',
-			all : true
+			all : true,
+			lang : getLang()
 		}
 		store.load();
 		
@@ -41,20 +42,20 @@ Ext.define('PBExp.view.MainFormInfoTab', {
         	flex:1
 	    },{
 	        dataIndex: 'number',
-        	text: 'เลขที่เอกสาร AV', 
+        	text: PBExp.Label.n.oweDocNo, 
         	flex:1,
         	align:'center'
 	    },{
 	    	xtype:'numbercolumn',
 	        dataIndex: 'waitamt',
-        	text: 'เงินยืมรอหักล้าง', 
+        	text: PBExp.Label.n.oweWait, 
         	flex:1,
         	align:'right',
         	format:DEFAULT_MONEY_FORMAT        		
 	    },{
 	    	xtype:'numbercolumn',
 	        dataIndex: 'balance',
-        	text: 'เงินยืมคงเหลือ', 
+        	text: PBExp.Label.n.oweBalance, 
         	flex:1,
         	align:'right',
         	format:DEFAULT_MONEY_FORMAT
@@ -85,8 +86,8 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		        	    }
 		            }]
 	        	},			
-				{ text: 'รายการยืมเงิน',  dataIndex: 'activity', flex:1},
-				{ text: 'จำนวนเงิน',  dataIndex: 'amount', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
+				{ text: PBExp.Label.n.item,  dataIndex: 'activity', flex:1},
+				{ text: PBExp.Label.n.amount,  dataIndex: 'amount', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
 		];		
 		
 		Ext.applyIf(me, {
@@ -98,7 +99,8 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				items:[{
 					xtype:'combo',
 					name:'objectiveType',
-					fieldLabel:mandatoryLabel('ประเภทการยืมเงิน'),
+					fieldLabel:mandatoryLabel(PBExp.Label.n.objType),
+					errLabel:PBExp.Label.n.err_objType,
 			    	displayField:'name',
 			    	valueField:'id',
 			        emptyText : "โปรดเลือก",
@@ -129,8 +131,8 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				},{
 					xtype:'textfield',
 					name:'objective',
-					fieldLabel:mandatoryLabel('วัตถุประสงค์'),
-					labelWidth:90,
+					fieldLabel:mandatoryLabel(PBExp.Label.n.obj),
+					labelWidth:160,
 					margin:"0 0 0 15",
 					flex:1,
 					allowBlank:false,
@@ -151,7 +153,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				},{
 					xtype:'trigger',
 					name:'budgetCcTypeName',
-					fieldLabel:mandatoryLabel('แหล่งงบประมาณที่ใช้'),
+					fieldLabel:mandatoryLabel(PBExp.Label.n.budgetSrc),
 					width:lbw+180,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
@@ -178,7 +180,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				}]
 			},{
 				xtype:'panel',
-				title:'รายละเอียดเงินยืมคงค้าง',
+				title:PBExp.Label.n.oweTitle,
 				layout:'border',
 				margin:'5 0 0 0',
 				height:140,
@@ -195,12 +197,12 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					layout:'fit',
 					split:true,
 					collapsible:true,
-					title:mandatoryLabel('เหตุผลคงค้างเงินยืม'),
+					title:mandatoryLabel(PBExp.Label.n.reason),
 					items:[{
 						xtype:'textarea',
 						name:'reason',
 						hideLabel:true,
-						fieldLabel:'เหตุผลคงค้างเงินยืม',
+						fieldLabel:PBExp.Label.n.reason,
 						margin:"0 0 0 0",
 //						fieldLabel:,
 //						labelWidth:130,
@@ -211,7 +213,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					}]
 				}]
 			},{
-				title:'ข้อมูลรายละเอียดเพื่อเบิกจ่าย',
+				title:PBExp.Label.n.itemTitle,
 				margin:'0 0 0 0',
 				xtype:'grid',
 				itemId:'itemGrid',
@@ -224,7 +226,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				    	xtype:'tbfill'
 				    },{
 		        		xtype: 'button',
-		                text: "Add",
+		                text: PB.Label.m.add,
 		                iconCls: "icon_add",
 		                action:'addItem'
 		        	}]
@@ -234,7 +236,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 			    		xtype:'tbfill'
 			    	},{
 			    		xtype:'label',
-			    		text:'จำนวนเงินรวม'
+			    		text:PBExp.Label.n.total
 			    	},{
 			    		xtype:'label',
 			    		name:'total',
@@ -245,12 +247,12 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 			    }
 			},{
 				xtype:'panel',
-				title:'วิธีการรับเงิน',
+				title:PBExp.Label.n.methodTitle,
 				margin:'0 0 0 0',
 				items:[{
 					xtype:'radio',
 					name:'bankType',
-					boxLabel:'ธนาคาร กรุงเทพ (ระบบ e-Payment)',
+					boxLabel:PBExp.Label.n.bankBbl,
 					inputValue:'0',
 					margin:'5 0 0 10',
 					checked:replaceIfNull(me.rec.bank_type, "0") == "0", 
@@ -269,7 +271,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					items:[{
 						xtype:'radio',
 						name:'bankType',
-						boxLabel:'ธนาคาร',
+						boxLabel:PBExp.Label.n.bank,
 						inputValue:'1',
 						margin:'5 0 0 5',
 						checked:replaceIfNull(me.rec.bank_type, "0") == "1",
@@ -311,7 +313,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 						value:replaceIfNull(me.rec.bank, null)						
 					},{
 						xtype:'label',
-						html:'<font color="red">*** กรณีที่ท่านเลือกธนาคารอื่น ให้แนบเอกสารหน้า Book Bank ที่มี ชื่อธนาคาร , เลขที่บัญชี และ ชื่อ-นามสกุล ***</font>',
+						html:'<font color="red">'+PBExp.Label.n.bankWarn+'</font>',
 						margin:'5 10 0 5'
 					}]
 				}]

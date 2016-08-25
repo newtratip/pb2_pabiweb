@@ -94,7 +94,7 @@ public class MainSrcUrlService {
 		return SQL();
 	}
 	
-	public Map<String, Object> listMainMaster(String cond, String codeValue, String orderBy, Boolean all) throws Exception {
+	public Map<String, Object> listMainMaster(String cond, String codeValue, String orderBy, Boolean all, String lang) throws Exception {
 		
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 		Connection conn = dataSource.getConnection();
@@ -110,13 +110,24 @@ public class MainSrcUrlService {
     		
     		List<Map<String,Object>> tmpList = sqlRunner.selectAll(sql.getSql());
     		
+    		String allLbl = null;
+    		String name = null;
+    		if (lang!=null && lang.startsWith("th")) {
+    			name = MainMasterConstant.TFN_NAME;
+    			allLbl = "ทั้งหมด";
+    		} else {
+    			name = MainMasterConstant.TFN_FLAG2;
+    			allLbl = "All";
+    		}
+    		log.info("lang name:"+name);
+    		
     		if (all!=null && all) {
-    			map.put("", "== ทั้งหมด ==");
+    			map.put("", "== "+allLbl+" ==");
     		}
     		
     		String codeField = (codeValue!=null) && (codeValue.toLowerCase().equals("n")) ? MainMasterConstant.TFN_NAME : MainMasterConstant.TFN_CODE;
     		for(Map<String,Object> tmpMap : tmpList) {
-	    		map.put((String)tmpMap.get(codeField), (String)tmpMap.get(MainMasterConstant.TFN_NAME));
+	    		map.put((String)tmpMap.get(codeField), (String)tmpMap.get(name));
     		}
 
         } finally {

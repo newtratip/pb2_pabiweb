@@ -25,6 +25,7 @@ import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
@@ -34,11 +35,11 @@ import pb.repo.exp.model.ExpBrwDtlModel;
 import pb.repo.exp.model.ExpBrwModel;
 import pb.repo.exp.model.ExpBrwAttendeeModel;
 import pb.repo.exp.service.ExpBrwService;
+import pb.repo.exp.service.ExpBrwWorkflowService;
 import pb.repo.exp.service.InterfaceService;
 import pb.repo.exp.util.ExpBrwDtlUtil;
 import pb.repo.exp.util.ExpBrwUtil;
 import pb.repo.exp.util.ExpBrwAttendeeUtil;
-import pb.repo.pcm.constant.PcmReqConstant;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
@@ -70,6 +71,9 @@ public class ExpWebScript {
 	
 	@Autowired
 	private InterfaceService interfaceService;
+	
+	@Autowired
+	private ExpBrwWorkflowService mainWorkflowService;
 	
     @Uri(URI_PREFIX+"/brw/list")
     public void handleList(@RequestParam(required=false) final String s
@@ -261,7 +265,7 @@ public class ExpWebScript {
 		  
 		  String reqUser = (r!=null) ? r : authService.getCurrentUserName();
 		  
-		  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser, lang);
+		  Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(reqUser);
 		  
 		  map.put(ExpBrwConstant.JFN_REQ_BY, reqUser);
 		  
@@ -269,7 +273,7 @@ public class ExpWebScript {
 		  
 		  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
 		  if (!createdUser.equals(reqUser)) {
-			  dtl = adminHrEmployeeService.getWithDtl(createdUser, lang);
+			  dtl = adminHrEmployeeService.getWithDtl(createdUser);
 			  ename = dtl.get("first_name") + " " + dtl.get("last_name");
 		  }
 		  
@@ -501,17 +505,33 @@ public class ExpWebScript {
 				model.setWaitingLevel(1);
 			}
 			
-			log.info("model="+model);
-			model = expBrwService.save(model, items, attendees, files, false);
+			JSONObject jobj = new JSONObject(model); 
+			log.info("model="+jobj.toString());
+			
+			JSONObject validateResult = expBrwService.validateAssignee(model);
+			if (!(Boolean)validateResult.get("valid")) {
+				json = CommonUtil.jsonFail(validateResult);
+			}
+			else {
+				JSONObject validateWfPath = expBrwService.validateWfPath(model);
+				if (!(Boolean)validateWfPath.get("valid")) {
+					json = CommonUtil.jsonFail(validateWfPath);
+				}
+				else {
+					model = expBrwService.save(model, items, attendees, files, true);
+					
+					mainWorkflowService.setModuleService(expBrwService);
+					mainWorkflowService.startWorkflow(model, MainWkfConfigDocTypeConstant.DT_PR);
+					
+					JSONObject jsObj = new JSONObject();
+					jsObj.put("id", model.getId());
+					json = CommonUtil.jsonSuccess(jsObj);
+				}
+			}		
 
-			String createResult = interfaceService.createAV(model);
-			log.info("createAVResult="+createResult);
+//			String createResult = interfaceService.createAV(model);
+//			log.info("createAVResult="+createResult);
 			
-			JSONObject jsObj = new JSONObject();
-			jsObj.put("id", model.getId());
-			jsObj.put("status", model.getStatus());
-			
-			json = CommonUtil.jsonSuccess(jsObj);
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -581,7 +601,7 @@ public class ExpWebScript {
 		String json = null;
 	
 		try {
-		  String newId = expBrwService.copy(id, lang);
+		  String newId = expBrwService.copy(id);
 	
 		  json = CommonUtil.jsonSuccess(newId);
 	
@@ -705,8 +725,8 @@ public class ExpWebScript {
 			
 			log.info("model="+model);
 			
-			if (model.getId() == null || (status!=null && status.equals(PcmReqConstant.ST_DRAFT))) {
-				model.setStatus(PcmReqConstant.ST_WAITING);
+			if (model.getId() == null || (status!=null && status.equals(ExpBrwConstant.ST_DRAFT))) {
+				model.setStatus(ExpBrwConstant.ST_WAITING);
 				model.setWaitingLevel(1);
 			}
 			

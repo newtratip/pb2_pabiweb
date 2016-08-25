@@ -1,5 +1,6 @@
 package pb.repo.admin.wscript;
 
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
@@ -14,9 +15,11 @@ import pb.common.util.CommonUtil;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
+import pb.repo.admin.service.AdminModuleService;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.AuthenticationType;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 
@@ -32,6 +35,8 @@ public class AdminModuleWebScript {
 	@Autowired
 	private AdminMasterService masterService;
 
+	@Autowired
+	private AdminModuleService moduleService;
 
   /**
    * Handles the "list" request. Note the use of Spring MVC-style annotations to map the Web Script URI configuration
@@ -260,4 +265,5 @@ public class AdminModuleWebScript {
 		}
     
   }
+  
 }

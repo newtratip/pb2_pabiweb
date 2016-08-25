@@ -29,8 +29,11 @@ Ext.define('PBPcm.controller.Form', {
         ref: 'txtObjective',
         selector: 'pcmReqMainForm field[name=objective]'
     },{
-        ref: 'txtReason',
+        ref: 'cmbReason',
         selector: 'pcmReqMainForm field[name=reason]'
+    },{
+        ref: 'txtReasonOth',
+        selector: 'pcmReqMainForm field[name=reasonOth]'
     },{
         ref: 'cmbCurrency',
         selector: 'pcmReqMainForm field[name=currency]'
@@ -73,6 +76,9 @@ Ext.define('PBPcm.controller.Form', {
     },{
         ref: 'cmbPcmOu',
         selector: 'pcmReqMainForm field[name=pcmOu]'
+    },{
+        ref: 'txtContractDate',
+        selector: 'pcmReqMainForm field[name=contractDate]'
     },{
         ref: 'txtLocation',
         selector: 'pcmReqMainForm field[name=location]'
@@ -160,12 +166,16 @@ Ext.define('PBPcm.controller.Form', {
 			'pcmReqUserTab':{
 				selectReqBy:me.selectReqBy
 			},
+			'pcmReqInfoTab [action=showBudget]':{
+				click : me.showBudget
+			},
 			'pcmReqInfoTab':{
 				selectObjective:me.selectObjective,
 				selectCurrency:me.selectCurrency,
 				selectBudgetCc:me.selectBudgetCc,
 				selectCostControl:me.selectCostControl,
 				selectPR:me.selectPR,
+				selectReason:me.selectReason,
 				clearCostControl:me.clearCostControl,
 				selectPrototype:me.selectPrototype,
 				notStock:me.notStock,
@@ -221,20 +231,19 @@ Ext.define('PBPcm.controller.Form', {
 			}
 			
 			// check total with across budget
-			if (me.getChkAcrossBudget().getValue()) {
-				var acbg = parseFloat(me.getTxtAcrossBudget().getValue());
-				if (acbg > 0) {
-					var total = me.getHidTotal().getValue(); 
-					if (total > acbg) {
-						if (msg) {
-							msg +="<br/>";
-						}
-						msg += i+".จำนวนเงินรวมในรายการมากกว่าจำนวนเงินงบประมาณข้ามปี ("+total + '>' + acbg+")";
-						i++;
-//								PB.Dlg.error('ERR_TOTAL_OVER_ACROSS_BUDGET', MODULE_PCM, {msg:total + '>' + acbg});
-					}
-				}
-			}
+//			if (me.getChkAcrossBudget().getValue()) {
+//				var acbg = parseFloat(me.getTxtAcrossBudget().getValue());
+//				if (acbg > 0) {
+//					var total = me.getHidTotal().getValue(); 
+//					if (total > acbg) {
+//						if (msg) {
+//							msg +="<br/>";
+//						}
+//						msg += i+".จำนวนเงินรวมในรายการมากกว่าจำนวนเงินงบประมาณข้ามปี ("+total + '>' + acbg+")";
+//						i++;
+//					}
+//				}
+//			}
 
 			Ext.Ajax.request({
 			    url:ALF_CONTEXT+"/srcUrl/main/masterField",
@@ -312,6 +321,35 @@ Ext.define('PBPcm.controller.Form', {
 		return result;
 	},
 	
+	validFormRefId:function(fn) {
+		var me = this;
+		var result = true;
+		
+		if (me.getChkRefId().getValue()) {
+			Ext.Ajax.request({
+			    url:me.URL+"/req/checkRefPR",
+			    method: "POST",
+			    params: {
+					refId:me.getTxtRefId().getValue(),
+					total:me.getHidTotal().getValue()
+			    },
+			    async:false,
+			    success: function(response){
+				
+					var json = Ext.decode(response.responseText);
+					
+					if (json.success && !json.data.ok) {
+						PB.Dlg.warn('ERR_REF_ID_TOTAL_OVER', MODULE_PCM, {val:[json.data.percent]});
+						result = false;
+					}
+				},
+			    headers: getAlfHeader()
+			});
+		}
+				
+		return result;
+	},
+	
 	listInvalidField:function(form) {
 		var ifield = form.query("field{isValid()==false}");
 		var msg = "";
@@ -362,11 +400,13 @@ Ext.define('PBPcm.controller.Form', {
 		
 		var msg = me.validForm(false);
 		if (!msg) {
-			if (me.validForm2('doSend')) {
-				PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doSend', MODULE_PCM);
+			if (me.validFormRefId()) {
+				if (me.validForm2('doSend')) {
+					PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doSend', MODULE_PCM);
+				}
 			}
 		} else {
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
 			return;
 		}
 	},
@@ -432,7 +472,7 @@ Ext.define('PBPcm.controller.Form', {
 					   		}
 				   		}
 				   		
-			   			PB.Dlg.error(null, MODULE_PCM, {msg:msg});
+			   			PB.Dlg.warn(null, MODULE_PCM, {msg:msg});
 			   		}
 			   		else {
 				   		PB.Dlg.error('ERR_'+me.SEND_MSG_KEY, MODULE_PCM);
@@ -458,6 +498,12 @@ Ext.define('PBPcm.controller.Form', {
 	
 	prepareParams : function() {
 		var me = this;
+		
+		var reason = me.getCmbReason().getValue();
+		if (reason == "อื่นๆ") {
+			reason = "อื่นๆ " + me.getTxtReasonOth().getValue();
+		}
+
 		var params = {
   			id:me.getHidId().getValue(),
   			status:me.getHidStatus().getValue(),
@@ -467,7 +513,7 @@ Ext.define('PBPcm.controller.Form', {
   			
 			objectiveType:me.getCmbObjectiveType().getValue(),
 			objective:me.getTxtObjective().getValue(),
-			reason:me.getTxtReason().getValue()
+			reason:reason
   		};
 		
 		params.currency = me.getCmbCurrency().getValue();
@@ -485,12 +531,14 @@ Ext.define('PBPcm.controller.Form', {
 		
 		params.costControlTypeId = me.getHidCostControlTypeId().getValue();
 		params.costControlId = me.getHidCostControlId().getValue();
+
+		params.contractDate = me.getTxtContractDate().getValue();
 		
 		params.pcmOu = me.getCmbPcmOu().getValue();
 		params.location = me.getTxtLocation().getValue();
 		
 		params.isAcrossBudget = (me.getChkAcrossBudget().getValue() ? "1" : "0");
-		params.acrossBudget = me.getTxtAcrossBudget().getValue();
+//		params.acrossBudget = me.getTxtAcrossBudget().getValue();
 		
 		params.isRefId = (me.getChkRefId().getValue() ? "1" : "0");
 		params.refId = me.getTxtRefId().getValue();
@@ -532,7 +580,7 @@ Ext.define('PBPcm.controller.Form', {
 	
 		var msg = me.validForm(true);
 		if (msg) {
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
 			return;
 		}
 		
@@ -681,11 +729,13 @@ Ext.define('PBPcm.controller.Form', {
 		var me = this;
 		var msg = me.validForm(false);
 		if (!msg) {
-			if(me.validForm2('doFinish')) {
-				PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doFinish', MODULE_PCM);
+			if (me.validFormRefId()) {
+				if(me.validForm2('doFinish')) {
+					PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doFinish', MODULE_PCM);
+				}
 			}
 		} else {
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
 			return;
 		}
 	},
@@ -749,7 +799,7 @@ Ext.define('PBPcm.controller.Form', {
 							}
 						}
 						
-						PB.Dlg.error(null, MODULE_PCM, {msg:msg});
+						PB.Dlg.warn(null, MODULE_PCM, {msg:msg});
 					}
 					else {
 						PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
@@ -804,15 +854,15 @@ Ext.define('PBPcm.controller.Form', {
 			objType : objType
 		}
 		
-		if (!me.getChkAcrossBudget().getValue()) { // not across budget
+//		if (!me.getChkAcrossBudget().getValue()) { // not across budget
 			if (me.getHidTotal().getValue()) {
 				methodStore.getProxy().extraParams.total = me.getHidTotal().getValue(); 
 			}
-		} else {
-			if (me.getTxtAcrossBudget().getValue()) {
-				methodStore.getProxy().extraParams.total = me.getTxtAcrossBudget().getValue();
-			}
-		}
+//		} else {
+//			if (me.getTxtAcrossBudget().getValue()) {
+//				methodStore.getProxy().extraParams.total = me.getTxtAcrossBudget().getValue();
+//			}
+//		}
 		
 		methodStore.load(function(s, recs) {
 			var rec = methodStore.getById(parseInt(me.getCmbMethod().getValue()));
@@ -879,7 +929,7 @@ Ext.define('PBPcm.controller.Form', {
 		
 		var msg = me.validForm(false);
 		if (msg) {
-			PB.Dlg.error('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
 			return;
 		}
 		
@@ -959,6 +1009,8 @@ Ext.define('PBPcm.controller.Form', {
 		setValue(tab, 'budgetCcName', ids[1]);
 		setValue(tab, 'budgetCcType', type);
 		setValue(tab, 'budgetCcTypeName', typeName);
+		
+		tab.down("button[action='showBudget']").show();
 	},
 	
 	selectBudgetCc:function() {
@@ -1029,21 +1081,65 @@ Ext.define('PBPcm.controller.Form', {
 	
 	isAcrossBudget:function(chk, v) {
 		var me = this;
-		var txt = this.getInfoTab().down("[name=acrossBudget]");
+		var columns = [];
+		
+		columns.push(
+	        	{
+	        		xtype: 'actioncolumn',
+		        	dataIndex: 'action',
+		        	text: '', 
+		            width: 80,
+		            align:'center',
+		            items: [{
+		                tooltip: 'Edit', 
+		                action : 'edit',
+		        	    getClass: function(v) {
+		        	    	return getActionIcon(v, "E", 'edit');
+			            }
+		            }, {
+		                tooltip: 'Delete', 
+		                action : 'del',
+		        	    getClass: function(v) {
+		        	    	return getActionIcon(v, "D", 'delete');
+		        	    }
+		            }]
+	        	}
+	    );		
+//		var txt = this.getInfoTab().down("[name=acrossBudget]");
+		
 		if (v) {
-			txt.enable();
+//			txt.enable();
+			me.getChkRefId().setValue(false);
+					
+			columns.push(
+				{ text: PBPcm.Label.t.fiscalYear,  dataIndex: 'fiscalYear', width:80}
+			);
 		} else {
-			txt.disable();
-			txt.setValue(null);
+//			txt.disable();
+//			txt.setValue(null);
 		}
 		
 		me.filterMethod(me.getCmbObjectiveType().getValue());
+		
+		columns.push(
+				{ text: PBPcm.Label.t.actGrp,  dataIndex: 'actGrp', flex:0.75},
+				{ text: PBPcm.Label.t.name,  dataIndex: 'description', flex:1},
+				{ text: PBPcm.Label.t.qty,  dataIndex: 'quantity', width:80, align:'right', xtype: 'numbercolumn', format:'0,000'},
+				{ text: PBPcm.Label.t.uom,  dataIndex: 'unit', width:110, align:'center'},
+				{ text: PBPcm.Label.t.prc,  dataIndex: 'price', width:100, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
+				{ text: PBPcm.Label.t.prcCnv,  dataIndex: 'priceCnv', width:185, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
+				{ text: PBPcm.Label.t.subtotal,  dataIndex: 'total', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
+		);
+		
+		me.getItemGrid().reconfigure(undefined,columns);
 	},
 	
 	isRefId:function(chk, v) {
+		var me = this;
 		var txt = this.getInfoTab().down("[name=refId]");
 		if (v) {
 			txt.enable();
+			me.getChkAcrossBudget().setValue(false);
 		} else {
 			txt.disable();
 			txt.setValue(null);
@@ -1066,13 +1162,19 @@ Ext.define('PBPcm.controller.Form', {
 	searchPR:function(sender) {
 		var me = this;
 		
-		var store = sender.up("window").down("grid").getStore();
-		
-		store.getProxy().extraParams = {
-			s:sender.up("container").down("field[itemId=searchTerm]").getValue()
+		if (me.getCmbObjectiveType().getValue()) {
+			var store = sender.up("window").down("grid").getStore();
+			
+			store.getProxy().extraParams = {
+				s:sender.up("container").down("field[itemId=searchTerm]").getValue(),
+				fields:"{objective_type:'"+me.getCmbObjectiveType().getValue()+"'}",
+				lang:getLang()
+			}
+			
+			store.load();
+		} else {
+			PB.Dlg.warn('ERR_NOT_CHOOSE_OBJECTIVE_TYPE', MODULE_PCM);
 		}
-		
-		store.load();
 	},
 	
 	confirmPR:function(sender) {
@@ -1096,6 +1198,43 @@ Ext.define('PBPcm.controller.Form', {
 	
 	viewPRDetail:function(r) {
 		window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/"+nodeRef2Url(r.get("doc_ref")),"_new");
+	},
+	
+	selectReason:function(cmb, newV, oldV) {
+		var me = this;
+		
+		me.getTxtReasonOth().setDisabled(newV != "อื่นๆ");
+		if (newV != "อื่นๆ") {
+			me.getTxtReasonOth().setValue(null);
+		}
+	},
+	
+	showBudget:function() {
+		var me = this;
+		
+		Ext.Ajax.request({
+		    url:ALF_CONTEXT+"/admin/main/totalPreBudget",
+		    method: "GET",
+		    params: {budgetCc:me.getHidBudgetCc().getValue(), budgetCcType:me.getHidBudgetCcType().getValue()},
+		    async:false,
+		    success: function(response){
+			
+				var json = Ext.decode(response.responseText);
+				
+				var tab = me.getInfoTab();
+				var rec = {
+						name : tab.down("field[name=budgetCcTypeName]").getValue()+" "+tab.down("field[name=budgetCcName]").getValue(),
+						balance : json.data.balance,
+						preAppBudget : json.data.pre,
+						expBalance : json.data.ebalance
+				}
+			
+				Ext.create("PB.view.common.CheckBudgetDlg",{
+					title:'งบประมาณ',
+					rec:rec
+				}).show();
+		    }
+		});		
 	}
 
 });
