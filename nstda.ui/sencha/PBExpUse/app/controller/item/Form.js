@@ -23,8 +23,11 @@ Ext.define('PBExpUse.controller.item.Form', {
         ref: 'hidId',     
         selector:'expUseItemDtlDlg field[name=id]'
     },{
-        ref: 'cmbActivityId',
-        selector:'expUseItemDtlDlg field[name=activityId]'
+        ref: 'cmbActGrpId',
+        selector:'expUseItemDtlDlg field[name=actGrpId]'
+    },{
+        ref: 'cmbActId',
+        selector:'expUseItemDtlDlg field[name=actId]'
     },{
         ref: 'cmbCondition1',
         selector:'expUseItemDtlDlg field[name=condition1]'
@@ -34,18 +37,18 @@ Ext.define('PBExpUse.controller.item.Form', {
     },{
         ref: 'gridAct',
         selector:'expUseItemDtlDlg grid'
-    },{
-        ref: 'lblGrossAmt',
-        selector:'expUseItemTab label[name=grossAmt]'
-    },{
-        ref: 'lblVatAmt',
-        selector:'expUseItemTab label[name=vatAmt]'
+//    },{
+//        ref: 'lblGrossAmt',
+//        selector:'expUseItemTab label[name=grossAmt]'
+//    },{
+//        ref: 'lblVatAmt',
+//        selector:'expUseItemTab label[name=vatAmt]'
     },{
         ref: 'lblNetAmt',
         selector:'expUseItemTab label[name=netAmt]'
-    },{
-        ref: 'hidVat',     
-        selector:'expUseItemTab field[name=vat]'
+//    },{
+//        ref: 'hidVat',     
+//        selector:'expUseItemTab field[name=vat]'
     },{
         ref: 'hidTotal',     
         selector:'expUseItemTab field[name=total]'
@@ -59,6 +62,7 @@ Ext.define('PBExpUse.controller.item.Form', {
 				click : me.ok
 			},
 			'expUseItemDtlDlg': {
+				selectActivityGroup : me.selectActivityGroup,
 				selectActivity : me.selectActivity,
 				selectCond1 : me.selectCond1,
 				cond1Load : me.cond1Load
@@ -71,7 +75,7 @@ Ext.define('PBExpUse.controller.item.Form', {
 				del:me.del
 			},
 			'expUseItemTab': {
-				selectVat : me.selectVat,
+//				selectVat : me.selectVat,
 				itemStoreLoad:me.calSummary
 			}
 		});
@@ -113,10 +117,16 @@ Ext.define('PBExpUse.controller.item.Form', {
 			} else {
 				rec = me.selectedRec;
 			}
-			rec.set("activityId",me.getCmbActivityId().getValue());
-			me.getCmbActivityId().getStore().each(function(r){
-				if (r.get("id")==me.getCmbActivityId().getValue()) {
-					rec.set("activityName", r.get("name"));
+			rec.set("actGrpId",me.getCmbActGrpId().getValue());
+			me.getCmbActGrpId().getStore().each(function(r){
+				if (r.get("id")==me.getCmbActGrpId().getValue()) {
+					rec.set("actGrpName", r.get("name"));
+				}
+			});
+			rec.set("actId",me.getCmbActId().getValue());
+			me.getCmbActId().getStore().each(function(r){
+				if (r.get("id")==me.getCmbActId().getValue()) {
+					rec.set("actName", r.get("name"));
 				}
 			});
 			rec.set("position", "");
@@ -141,7 +151,7 @@ Ext.define('PBExpUse.controller.item.Form', {
 	add:function() {
 		var me = this;
 	
-		this.createDlg('เพิ่ม').show();
+		this.createDlg(PB.Label.m.add).show();
 	},
 	
 	createDlg:function(title, rec) {
@@ -162,7 +172,7 @@ Ext.define('PBExpUse.controller.item.Form', {
 		me.getGrid().getView().getSelectionModel().select(rec);
 		me.selectedRec = rec;		
 	
-		var dialog = me.createDlg('แก้ไข',rec);
+		var dialog = me.createDlg(PB.Label.m.edit,rec);
 		
 //		me.getHidId().setValue(rec.get("id"));
 //		me.getCmbActivityId().setValue(rec.get("activityId"));
@@ -196,29 +206,43 @@ Ext.define('PBExpUse.controller.item.Form', {
 			grossAmt += rec.data.amount;
 		});
 		
-		var vat = parseFloat(me.getHidVat().getValue());
-		var vatAmt = grossAmt * vat;
-		var netAmt = grossAmt+vatAmt;
+//		var vat = parseFloat(me.getHidVat().getValue());
+//		var vatAmt = grossAmt * vat;
+//		var netAmt = grossAmt+vatAmt;
+		var netAmt = grossAmt;
 		
-		me.getLblGrossAmt().setText(Ext.util.Format.number(grossAmt, DEFAULT_MONEY_FORMAT));
-		me.getLblVatAmt().setText(Ext.util.Format.number(vatAmt, DEFAULT_MONEY_FORMAT));
+//		me.getLblGrossAmt().setText(Ext.util.Format.number(grossAmt, DEFAULT_MONEY_FORMAT));
+//		me.getLblVatAmt().setText(Ext.util.Format.number(vatAmt, DEFAULT_MONEY_FORMAT));
 		me.getLblNetAmt().setText(Ext.util.Format.number(netAmt, DEFAULT_MONEY_FORMAT));
 		
 		me.getHidTotal().setValue(netAmt);
 	},
 	
-	selectVat:function(cmb, rec) {
+//	selectVat:function(cmb, rec) {
+//		var me = this;
+//		
+//		if (rec[0].data.data.amount) {
+//			me.getHidVat().setValue(rec[0].data.data.amount);
+//		} else {
+//			me.getHidVat().setValue(0);
+//		}
+//		
+//		me.calSummary();
+//	},
+	
+	selectActivityGroup:function(cmb, rec) {
 		var me = this;
 		
-		if (rec[0].data.data.amount) {
-			me.getHidVat().setValue(rec[0].data.data.amount);
-		} else {
-			me.getHidVat().setValue(0);
+//		console.log("id:"+rec[0].data.id);
+
+		var store = me.getCmbActId().getStore();
+		store.getProxy().extraParams = {
+			actGrpId:rec[0].data.id,
+			query:getLang()+" "
 		}
-		
-		me.calSummary();
+		store.load();
 	},
-	
+
 	selectActivity:function(cmb, rec) {
 		var me = this;
 		

@@ -29,6 +29,9 @@ Ext.define('PBExp.controller.Form', {
         ref: 'txtObjective',
         selector: 'expBrwMainForm field[name=objective]'
     },{
+        ref: 'txtDateBack',
+        selector: 'expBrwMainForm field[name=dateBack]'
+    },{
         ref: 'pnlOldAV',
         selector: 'expBrwInfoTab panel[itemId=oldAV]'
     },{
@@ -41,6 +44,9 @@ Ext.define('PBExp.controller.Form', {
         ref: 'hidBudgetCc',
         selector: 'expBrwMainForm field[name=budgetCc]'
     },{
+        ref: 'hidFundId',
+        selector: 'expBrwMainForm field[name=fundId]'
+    },{
         ref: 'cmbBank',     
         selector: 'expBrwMainForm field[name=bank]'
     },{
@@ -49,30 +55,15 @@ Ext.define('PBExp.controller.Form', {
     },{
         ref: 'hidTotal',     
         selector: 'expBrwMainForm field[name=total]'
+	},{
+	    ref: 'hidCostControlTypeId',
+	    selector: 'expBrwMainForm field[name=costControlTypeId]'
+	},{
+	    ref: 'hidCostControlId',
+	    selector: 'expBrwMainForm field[name=costControlId]'
     },{
-        ref: 'txtActivity',
-        selector: 'expBrwMainForm field[name=activity]'
-    },{
-        ref: 'radCostControlTypeId',
-        selector: 'expBrwMainForm field[name=costControlTypeId]'
-    },{
-        ref: 'cmbCostControlId',
-        selector: 'expBrwMainForm field[name=costControlId]'
-    },{
-        ref: 'txtCostControl',
-        selector: 'expBrwMainForm field[name=costControl]'
-    },{
-        ref: 'txtCc1From',
-        selector: 'expBrwMainForm field[name=cc1From]'
-    },{
-        ref: 'txtCc1To',
-        selector: 'expBrwMainForm field[name=cc1To]'
-    },{
-        ref: 'txtCc2From',
-        selector: 'expBrwMainForm field[name=cc2From]'
-    },{
-        ref: 'txtCc2To',
-        selector: 'expBrwMainForm field[name=cc2To]'
+        ref: 'txtDateBack',
+        selector: 'expBrwMainForm field[name=dateBack]'
     },{
     	ref:'fileTab',
 		selector:'expBrwFileTab'
@@ -127,13 +118,19 @@ Ext.define('PBExp.controller.Form', {
 			'expBrwUserTab':{
 				selectReqBy:me.selectReqBy
 			},
+			'expBrwInfoTab [action=showBudget]':{
+				click : me.showBudget
+			},
 			'expBrwInfoTab':{
 				selectBudgetCc:me.selectBudgetCc,
 				selectMainBank:me.selectMainBank,
+				selectObjectiveType:me.selectObjectiveType,
+				selectCostControl:me.selectCostControl,
+				clearCostControl:me.clearCostControl,
 				oldStoreLoad:me.oldStoreLoad
 			},
 			'expBrwAttendeeTab':{
-				selectCostControl:me.selectCostControl
+//				selectCostControl:me.selectCostControl
 			}
 		});
 
@@ -314,22 +311,12 @@ Ext.define('PBExp.controller.Form', {
 		params.budgetCcType = me.getHidBudgetCcType().getValue();
 		params.budgetCc = me.getHidBudgetCc().getValue();
 		
-		var ccType = me.getRadCostControlTypeId().getGroupValue();
-//		console.log("brwType:"+brwType);
+		params.fundId = me.getHidFundId().getValue();
+		
+		params.costControlTypeId = me.getHidCostControlTypeId().getValue();
+		params.costControlId = me.getHidCostControlId().getValue();
 
-		params.costControlTypeId = ccType;
-		if (ccType=="0") {
-			params.costControlId = me.getCmbCostControlId().getValue();
-			
-			params.costControlFrom = me.getTxtCc1From().getValue();
-			params.costControlTo = me.getTxtCc1To().getValue();
-		} 
-		else if (ccType=="1") {
-			params.costControl = me.getTxtCostControl().getValue();
-			
-			params.costControlFrom = me.getTxtCc2From().getValue();
-			params.costControlTo = me.getTxtCc2To().getValue();
-		}
+		params.dateBack = me.getTxtDateBack().getValue();
 		
 		params.bankType = me.getRadBankType().getGroupValue();
 		params.bank = me.getCmbBank().getValue();
@@ -679,19 +666,24 @@ Ext.define('PBExp.controller.Form', {
 	
 	},
 	
-	selectBudgetCcCallBack:function(ids, type, typeName) {
+	selectBudgetCcCallBack:function(ids, type, typeName, fund, fundName) {
 		var tab = this.targetPanel;
 		setValue(tab, 'budgetCc', ids[0]);
 		setValue(tab, 'budgetCcName', ids[1]);
 		setValue(tab, 'budgetCcType', type);
 		setValue(tab, 'budgetCcTypeName', typeName);
+		
+		setValue(tab, 'fundId', fund);
+		setValue(tab, 'fundName', fundName);
+		
+		tab.down("button[action='showBudget']").show();
 	},
 	
 	selectBudgetCc:function() {
 		var me = this;
 
 		var dlg = Ext.create("PB.view.common.SearchBudgetSrcDlg",{
-			title:'ค้นหา',
+			title:PB.Label.m.search,
 			targetPanel:this.getInfoTab(),
 			callback:this.selectBudgetCcCallBack
 		});
@@ -701,14 +693,13 @@ Ext.define('PBExp.controller.Form', {
 	selectReqByCallBack:function(id, rec) {
 		var tab = this.targetPanel;
 		setValue(tab, 'reqBy', rec.get('emp_id'));
-		setValue(tab, 'reqByName', rec.get('first_name') + ' ' + rec.get('last_name'));
+		setValue(tab, 'reqByName', rec.get('title') + ' ' + rec.get('first_name') + ' ' + rec.get('last_name'));
 		
 		var mphone = rec.get("mobile_phone")!=null ? rec.get("mobile_phone") : "";
 		var wphone = rec.get("work_phone")!=null ? rec.get("work_phone") : "";
 		var comma = (mphone!="" && wphone!="") ? "," : "";
 		
 		setValue(tab, 'reqTelNo', wphone+comma+mphone);
-		
 		setValue(tab, 'reqByDept', rec.get('pos_name'));
 		setValue(tab, 'reqBu', rec.get('org_desc'));
 		setValue(tab, 'reqOuName', rec.get('section_desc'));
@@ -737,33 +728,33 @@ Ext.define('PBExp.controller.Form', {
 		}
 	},
 	
-	selectCostControl:function(rad,v) {
-		var me = this;
-		
-		var vi = parseInt(v);
-		
-		var i=0;
-		var b = vi!=i;
-		me.getCmbCostControlId().setDisabled(b);
-		me.getTxtCc1From().setDisabled(b);
-		me.getTxtCc1To().setDisabled(b);
-		if (b) {
-			me.getCmbCostControlId().setValue(null);
-			me.getTxtCc1From().setValue(null);
-			me.getTxtCc1To().setValue(null);
-		}
-		
-		i++;
-		b = vi!=i;
-		me.getTxtCostControl().setDisabled(b);
-		me.getTxtCc2From().setDisabled(b);
-		me.getTxtCc2To().setDisabled(b);
-		if (b) {
-			me.getTxtCostControl().setValue(null);
-			me.getTxtCc2From().setValue(null);
-			me.getTxtCc2To().setValue(null);
-		}
-	},
+//	selectCostControl:function(rad,v) {
+//		var me = this;
+//		
+//		var vi = parseInt(v);
+//		
+//		var i=0;
+//		var b = vi!=i;
+//		me.getCmbCostControlId().setDisabled(b);
+//		me.getTxtCc1From().setDisabled(b);
+//		me.getTxtCc1To().setDisabled(b);
+//		if (b) {
+//			me.getCmbCostControlId().setValue(null);
+//			me.getTxtCc1From().setValue(null);
+//			me.getTxtCc1To().setValue(null);
+//		}
+//		
+//		i++;
+//		b = vi!=i;
+//		me.getTxtCostControl().setDisabled(b);
+//		me.getTxtCc2From().setDisabled(b);
+//		me.getTxtCc2To().setDisabled(b);
+//		if (b) {
+//			me.getTxtCostControl().setValue(null);
+//			me.getTxtCc2From().setValue(null);
+//			me.getTxtCc2To().setValue(null);
+//		}
+//	},
 	
 	oldStoreLoad:function(r) {
 //		for(var a in r) {
@@ -773,6 +764,71 @@ Ext.define('PBExp.controller.Form', {
 			this.getTxtReason().setFieldStyle('background-color: #ddd; background-image:none;');
 			this.getTxtReason().setDisabled(true);
 			this.getPnlOldAV().setDisabled(true);
+		}
+	},
+	
+	showBudget:function() {
+		var me = this;
+		
+		Ext.Ajax.request({
+		    url:ALF_CONTEXT+"/admin/main/totalPreBudget",
+		    method: "GET",
+		    params: {budgetCc:me.getHidBudgetCc().getValue(), budgetCcType:me.getHidBudgetCcType().getValue()},
+		    async:false,
+		    success: function(response){
+			
+				var json = Ext.decode(response.responseText);
+				
+				var tab = me.getInfoTab();
+				var rec = {
+						name : tab.down("field[name=budgetCcTypeName]").getValue()+" "+tab.down("field[name=budgetCcName]").getValue(),
+						balance : json.data.balance,
+						preAppBudget : json.data.pre,
+						expBalance : json.data.ebalance
+				}
+			
+				Ext.create("PB.view.common.CheckBudgetDlg",{
+					title:'งบประมาณ',
+					rec:rec
+				}).show();
+		    }
+		});		
+	},
+	
+	selectCostControlCallBack:function(id, name, type, typeName) {
+		var tab = this.targetPanel;
+		setValue(tab, 'costControlId', id);
+		setValue(tab, 'costControlName', name);
+		setValue(tab, 'costControlTypeId', type);
+		setValue(tab, 'costControlTypeName', typeName);
+	},
+	
+	selectCostControl:function() {
+		Ext.create("PB.view.common.SearchCostControlDlg",{
+			title:PB.Label.m.search,
+			targetPanel:this.getInfoTab(),
+			callback:this.selectCostControlCallBack
+		}).show();
+	},
+	
+	clearCostControl:function() {
+		var tab = this.getInfoTab();
+		setValue(tab, 'costControlId', null);
+		setValue(tab, 'costControlName', '');
+		setValue(tab, 'costControlTypeId', null);
+		setValue(tab, 'costControlTypeName', '');
+	},
+	
+	selectObjectiveType:function(cmb, nv, ov) {
+		var me = this;
+		var dateBack = me.getTxtDateBack();
+		if (nv == 'attend_seminar') {
+			dateBack.setDisabled(false);
+			dateBack.setVisible(true);
+		} else {
+			dateBack.setDisabled(true);
+			dateBack.setVisible(false);
+			dateBack.setValue(null);
 		}
 	}
 	

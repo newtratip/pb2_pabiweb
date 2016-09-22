@@ -29,7 +29,7 @@ public class AdminBankMasterService {
 	@Autowired
 	AuthenticationService authService;
 
-	public List<Map<String, Object>> list() {
+	public List<Map<String, Object>> list(String query, String lang) {
 		
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		
@@ -38,13 +38,23 @@ public class AdminBankMasterService {
             MainBankMasterDAO dao = session.getMapper(MainBankMasterDAO.class);
             
     		Map<String, Object> params = new HashMap<String, Object>();
+    		
+    		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
+			params.put("lang", lang);
+			
+    		if (query != null) {
+				String[] terms = query.split(" ");
+	    		params.put("terms", terms);			
+    		}
 
     		List<Map<String, Object>> tmpList = dao.list(params);
+    		
+    		String nameLang = MainBankMasterConstant.TFN_NAME.toLowerCase()+lang; 
     		
     		for(Map<String,Object> tmpMap : tmpList) {
     			Map<String, Object> map = new HashMap<String, Object>();
 	    		map.put(JsonConstant.COMBOBOX_ID, (Integer)tmpMap.get(MainBankMasterConstant.TFN_ID));
-	    		map.put(JsonConstant.COMBOBOX_NAME, (String)tmpMap.get(MainBankMasterConstant.TFN_NAME));
+	    		map.put(JsonConstant.COMBOBOX_NAME, (String)tmpMap.get(nameLang));
 	    		map.put(JsonConstant.COMBOBOX_DATA, tmpMap);
 	    		
 	    		list.add(map);

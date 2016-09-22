@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import pb.repo.admin.dao.MainHrEmployeeDAO;
-import pb.repo.admin.dao.MainProjectDAO;
 import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.common.mybatis.DbConnectionFactory;
 
@@ -159,6 +158,7 @@ public class AdminHrEmployeeService {
         		map.put("fname", tmpMap.get("first_name"+lang));
         		map.put("lname", tmpMap.get("last_name"+lang));
         		map.put("utype", tmpMap.get("utype"+lang));
+        		map.put("org", tmpMap.get("org_name_short"+lang));
         		map.put("position", tmpMap.get("position"+lang));
         		map.put("position_id", tmpMap.get("position_id"));
         		

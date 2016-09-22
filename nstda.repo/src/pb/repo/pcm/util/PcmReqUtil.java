@@ -44,6 +44,9 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_BUDGET_CC_NAME, model.getBudgetCcName());
 		jsObj.put(PcmReqConstant.JFN_BUDGET_CC_TYPE, model.getBudgetCcType());
 		jsObj.put(PcmReqConstant.JFN_BUDGET_CC_TYPE_NAME, model.getBudgetCcTypeName());
+
+		jsObj.put(PcmReqConstant.JFN_FUND_ID, model.getFundId());
+		jsObj.put(PcmReqConstant.JFN_FUND_NAME, model.getFundName());
 		
 		jsObj.put(PcmReqConstant.JFN_IS_STOCK, model.getIsStock());
 		jsObj.put(PcmReqConstant.JFN_STOCK_SECTION_ID, model.getStockSectionId());
@@ -117,6 +120,8 @@ public class PcmReqUtil {
 		
 		map.put(PcmReqConstant.JFN_BUDGET_CC, model.getBudgetCc());
 		map.put(PcmReqConstant.JFN_STOCK_SECTION_ID, model.getStockSectionId());
+		
+		map.put(PcmReqConstant.JFN_FUND_ID, model.getFundId());
 		
 		map.put(PcmReqConstant.JFN_PROTOTYPE, model.getPrototype());
 		map.put(PcmReqConstant.JFN_COST_CONTROL_ID, model.getCostControlId());

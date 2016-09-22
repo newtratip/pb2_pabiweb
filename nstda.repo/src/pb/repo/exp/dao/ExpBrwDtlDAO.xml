@@ -89,7 +89,7 @@
 			r.cost_control_id,
 			d.updated_time
 		from pb2_exp_brw_dtl d 
-		left join pb2_pcm_req r on r.id = d.master_id
+		left join pb2_exp_brw r on r.id = d.master_id
 		where master_id = #{id}
 		ORDER BY d.id
     </select>

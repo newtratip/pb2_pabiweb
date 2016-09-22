@@ -167,7 +167,7 @@ Ext.define('PBExpUse.controller.Main', {
 			    	  
 			    	var data = Ext.decode(response.responseText).data;
 			    	
-			    	var rec = Ext.create("PBExp.model.GridModel",data[0]);
+			    	var rec = Ext.create("PBExpUse.model.GridModel",data[0]);
 	
 					me.edit(rec);
 					
@@ -243,6 +243,11 @@ Ext.define('PBExpUse.controller.Main', {
 				form.add({ xtype:'expUseItemTab', title:data[2].message, rec:rec });
 				form.add({ xtype:'expUseAttendeeTab', title:data[3].message, rec:rec });
 				form.add({ xtype:'expUseFileTab', title:data[4].message, rec:rec });
+				
+				Ext.defer(function() {
+					validForm(me.getMainForm());
+				},  1000) ;
+
 		      },
 		      failure: function(response, opts){
 		          alert("failed");
@@ -274,7 +279,7 @@ Ext.define('PBExpUse.controller.Main', {
 		    	var data = json.data[0];
 		    	data.created_time = new Date();
 		    	
-				me.createForm("Create", data);
+				me.createForm(PB.Label.m.create, data);
 				
 				me.activateForm();
 				
@@ -305,7 +310,8 @@ Ext.define('PBExpUse.controller.Main', {
 		      url:me.URL+"/get",
 		      method: "GET",
 		      params: {
-		    	  id : rec.get("id")
+		    	  id : rec.get("id"),
+		    	  lang:getLang()
 		      },
 		      success: function(response){
 		    	  
@@ -319,7 +325,8 @@ Ext.define('PBExpUse.controller.Main', {
 			      method: "GET",
 			      params:{
 		    		 r:me.data.req_by,
-		    	     c:me.data.created_by
+		    	     c:me.data.created_by,
+		    	     lang:getLang()
 		    	  },
 			      success: function(response){
 			    	  
@@ -329,7 +336,7 @@ Ext.define('PBExpUse.controller.Main', {
 			    	
 			    	Ext.merge(me.data, data);
 			    	
-					me.createForm('Edit : <font color="red">'+rec.get("id")+"</font>", me.data);
+					me.createForm(PB.Label.m.edit+' : <font color="red">'+rec.get("id")+"</font>", me.data);
 					if (ID) {
 						var form = me.getMainForm(); 
 						form.down("button[action=send]").hide();
@@ -374,7 +381,14 @@ Ext.define('PBExpUse.controller.Main', {
 		}
 	},
 	
-	gotoFolder : function(r){
+	gotoFolder : function(r) {
+		var dlg = Ext.create("PB.view.common.FolderDtlDlg",{
+			rec : r
+		});
+		dlg.show();
+	},
+	
+	_gotoFolder : function(r){
 		Ext.Ajax.request({
 	        url:ALF_CONTEXT+"/util/getFolderName",
 	        async : false,
@@ -410,12 +424,12 @@ Ext.define('PBExpUse.controller.Main', {
 	},
 	
 	viewHistory : function(r){
-		var dlg = Ext.create("PBExp.view.workflow.DtlDlg");
+		var dlg = Ext.create("PBExpUse.view.workflow.DtlDlg");
 		var id = r.get("id");
 	
 		// Current Task
 		Ext.Ajax.request({
-		      url:ALF_CONTEXT+'/exp/wf/task/list',
+		      url:ALF_CONTEXT+'/exp/use/wf/task/list',
 		      method: "GET",
 		      params: {
 		    	  id : id

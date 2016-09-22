@@ -8,7 +8,7 @@ import pb.repo.admin.model.SubModuleModel;
 public class ExpBrwModel extends SubModuleModel {
 	
 	String reqBy;
-	Integer reqSectionId;
+//	Integer reqSectionId;
 	
 	String objectiveType;
 	String objectiveTypeName;
@@ -20,11 +20,15 @@ public class ExpBrwModel extends SubModuleModel {
 	String budgetCcName;
 	String budgetCcTypeName;
 	
+	Integer fundId;
+	String fundName;
+	
 	Integer costControlTypeId;
 	Integer costControlId;
-	String costControl;
-	Timestamp costControlFrom;
-	Timestamp costControlTo;
+	String costControlName;
+	String costControlTypeName;
+
+	Timestamp dateBack;
 	
 	Double total;
 	
@@ -120,17 +124,23 @@ public class ExpBrwModel extends SubModuleModel {
 	public void setBudgetCcTypeName(String budgetCcTypeName) {
 		this.budgetCcTypeName = budgetCcTypeName;
 	}
+	public Integer getFundId() {
+		return fundId;
+	}
+	public void setFundId(Integer fundId) {
+		this.fundId = fundId;
+	}
+	public String getFundName() {
+		return fundName;
+	}
+	public void setFundName(String fundName) {
+		this.fundName = fundName;
+	}
 	public Double getTotal() {
 		return total;
 	}
 	public void setTotal(Double total) {
 		this.total = total;
-	}
-	public Integer getReqSectionId() {
-		return reqSectionId;
-	}
-	public void setReqSectionId(Integer reqSectionId) {
-		this.reqSectionId = reqSectionId;
 	}
 	public Integer getCostControlTypeId() {
 		return costControlTypeId;
@@ -143,18 +153,6 @@ public class ExpBrwModel extends SubModuleModel {
 	}
 	public void setCostControlId(Integer costControlId) {
 		this.costControlId = costControlId;
-	}
-	public Timestamp getCostControlFrom() {
-		return costControlFrom;
-	}
-	public void setCostControlFrom(Timestamp costControlFrom) {
-		this.costControlFrom = costControlFrom;
-	}
-	public Timestamp getCostControlTo() {
-		return costControlTo;
-	}
-	public void setCostControlTo(Timestamp costControlTo) {
-		this.costControlTo = costControlTo;
 	}
 	public String getBankType() {
 		return bankType;
@@ -180,11 +178,23 @@ public class ExpBrwModel extends SubModuleModel {
 	public void setAttendeeList(List<ExpBrwAttendeeModel> attendeeList) {
 		this.attendeeList = attendeeList;
 	}
-	public String getCostControl() {
-		return costControl;
+	public String getCostControlName() {
+		return costControlName;
 	}
-	public void setCostControl(String costControl) {
-		this.costControl = costControl;
+	public void setCostControlName(String costControlName) {
+		this.costControlName = costControlName;
+	}
+	public String getCostControlTypeName() {
+		return costControlTypeName;
+	}
+	public void setCostControlTypeName(String costControlTypeName) {
+		this.costControlTypeName = costControlTypeName;
+	}
+	public Timestamp getDateBack() {
+		return dateBack;
+	}
+	public void setDateBack(Timestamp dateBack) {
+		this.dateBack = dateBack;
 	}
 	
 }

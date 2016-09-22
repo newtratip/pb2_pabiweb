@@ -11,18 +11,15 @@
     
     <select id="list" resultType="hashmap" parameterType="map">
         SELECT * FROM
-	    (SELECT a.*,
-			coalesce((select value
-		    from pb2_ext_ir_translation
-		    where name = 'account_activity.group,name'
-		    and type = 'model' and lang='th_TH'
-		    and res_id = a.id), name) as name_th  
-		FROM   pb2_ext_account_activity_group a
-		) b
-	   <if test="terms != null">
-			<foreach item="item" index="index" collection="terms" open="WHERE (" separator=" AND " close=")">
+	   	pb2_activity_group_view
+	   	WHERE 1=1
+	    <if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
 	    			concat(name,' ',name_th) ILIKE '%'||#{item}||'%'
 	   		</foreach>
+   		</if>
+	    <if test="id != null">
+	    	AND id=#{id}
    		</if>
 	   ORDER BY ${orderBy}
     </select>

@@ -1,6 +1,5 @@
 package pb.repo.exp.workflow.av.reviewer;
 
-import java.util.Map;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
@@ -26,7 +25,9 @@ import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
+import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainWorkflowReviewerModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
@@ -155,12 +156,16 @@ public class CompleteTask implements TaskListener {
 						}
 						else
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE)) {
-							if (lastLevel.equals(level)) {
-								
-								String createResult = interfaceService.createAV(model);
-								
-								if (!createResult.equals("OK")) {
-									throw new FormException(CommonConstant.FORM_ERR+createResult);
+							
+							MainMasterModel cfgModel = adminMasterService.getSystemConfig(MainMasterConstant.SCC_MAIN_INF_AV_CREATE_AV);
+							if (cfgModel!=null && cfgModel.getFlag1().equals(CommonConstant.V_ENABLE)) {
+								if (lastLevel.equals(level)) {
+									
+									String createResult = interfaceService.createAV(model);
+									
+									if (!createResult.equals("OK")) {
+										throw new FormException(CommonConstant.FORM_ERR+createResult);
+									}
 								}
 							}
 							
@@ -216,7 +221,8 @@ public class CompleteTask implements TaskListener {
 						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, task.getName(), taskComment, finalAction, task,  model.getId(), level, model.getStatus());
 						
 						if (finalAction.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE) && lastLevel.equals(level)) {
-							model.setAttendeeList(expBrwService.listAttendeeByMasterIdAndType(model.getId(), null));
+							model.setAttendeeList(expBrwService.listAttendeeByMasterId(model.getId()));
+							model.setDtlList(expBrwService.listDtlByMasterId(model.getId()));
 							
 							expBrwService.updateDoc(model);
 						}

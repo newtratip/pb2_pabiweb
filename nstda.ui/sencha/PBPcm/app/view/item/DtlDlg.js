@@ -62,8 +62,9 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					    name : 'fiscalYear',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
-					    allowBlank:true,
+					    allowBlank:false,
 					    hidden:!me.acrossBudget,
+					    disabled:!me.acrossBudget,
 				        listeners:{
 							afterrender:function(txt) {
 								Ext.defer(function(){
@@ -78,7 +79,7 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 						fieldLabel:mandatoryLabel(PBPcm.Label.t.actGrp),
 				    	displayField:'name',
 				    	valueField:'id',
-				        emptyText : "โปรดเลือก",
+				        emptyText : PB.Label.m.select,
 				        store: astore,
 //				        queryMode: 'local',
 				        typeAhead:true,
@@ -134,7 +135,7 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 						fieldLabel:mandatoryLabel(PBPcm.Label.t.uom),
 				    	displayField:'name',
 				    	valueField:'id',
-				        emptyText : "โปรดเลือก",
+				        emptyText : PB.Label.m.select,
 				        store: store,
 				        queryMode: 'local',
 				        typeAhead:true,

@@ -8,7 +8,7 @@ Ext.define('PBExpUse.store.workflow.DtlGridStore', {
         type: 'ajax',
         timeout: GRID_TIME_OUT,
         api: {
-        	read: ALF_CONTEXT+'/exp/wf/dtl/list'
+        	read: ALF_CONTEXT+'/exp/use/wf/dtl/list'
         },
         reader: {
             type: 'json',

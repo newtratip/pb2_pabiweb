@@ -45,7 +45,7 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 				fieldLabel:mandatoryLabel(PBPcm.Label.c.pcmMethod),
 		    	displayField:'name',
 		    	valueField:'id',
-		        emptyText : "โปรดเลือก",
+		        emptyText : PB.Label.m.select,
 		        store: methodStore,
 		        queryMode: 'local',
 		        typeAhead:true,

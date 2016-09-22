@@ -8,9 +8,14 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.alfresco.model.ApplicationModel;
@@ -39,6 +44,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pb.common.model.FileModel;
+import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
 
 @Service
@@ -66,6 +73,9 @@ public class AlfrescoService {
 	
 	@Autowired
 	CheckOutCheckInService checkOutCheckInService;
+	
+	@Autowired
+	AdminHrEmployeeService adminHrEmployeeService;
 	
     public ContentReader getContentByNodeRef(final NodeRef nodeRef) {
 		
@@ -348,5 +358,42 @@ public class AlfrescoService {
 	    else {
 	    	log.info("    false");
 	    }
+	}
+	
+	public List<FileModel> listFile(final NodeRef folderNodeRef, final String lang) throws Exception {
+
+		List<FileModel> fileList = AuthenticationUtil.runAs(new RunAsWork<List<FileModel>>()
+	    {
+			public List<FileModel> doWork() throws Exception
+			{
+				List<FileModel> files = new ArrayList<FileModel>();
+				
+		    	Set<QName> qnames = new HashSet<QName>();
+		    	qnames.add(ContentModel.TYPE_CONTENT);
+		    	List<ChildAssociationRef> docs = nodeService.getChildAssocs(folderNodeRef, qnames);
+		    	for(ChildAssociationRef doc : docs) {
+		    		log.info("doc:"+doc.toString());
+		    		log.info("   childRef:"+doc.getChildRef().toString());
+		    		log.info("   qname:"+doc.getQName().getLocalName());
+		    		
+	    			FileModel fileModel = new FileModel();
+	    			fileModel.setName(doc.getQName().getLocalName());
+	    			String desc = (String)nodeService.getProperty(doc.getChildRef(), ContentModel.PROP_DESCRIPTION);
+	    			fileModel.setDesc(desc);
+	    			fileModel.setNodeRef(doc.getChildRef().toString());
+	    			fileModel.setAction("V");
+	    			String by = (String)nodeService.getProperty(doc.getChildRef(), ContentModel.PROP_CREATOR);
+	    			Map<String, Object> emp = adminHrEmployeeService.getWithDtl(by);
+	    			String lang_suffix = (lang!=null && lang.startsWith("th") ? "_th" : "");
+	    			fileModel.setBy(emp!=null ? (String)emp.get("first_name"+lang_suffix) : "");
+	    			Date time = (Date)nodeService.getProperty(doc.getChildRef(), ContentModel.PROP_CREATED);
+	    			fileModel.setTime(CommonDateTimeUtil.convertToGridDateTime(new Timestamp(time.getTime())));
+	    			files.add(fileModel);
+		    	}
+		    	return files;
+			}
+	    }, AuthenticationUtil.getAdminUserName());
+		
+		return fileList;
 	}
 }

@@ -8,7 +8,7 @@ Ext.define('PBExpUse.store.workflow.CurTaskGridStore', {
         type: 'ajax',
         timeout: GRID_TIME_OUT,
         api: {
-        	read: ALF_CONTEXT+'/exp/wf/task/list'
+        	read: ALF_CONTEXT+'/exp/use/wf/task/list'
         },
         reader: {
             type: 'json',

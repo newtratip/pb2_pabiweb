@@ -16,7 +16,8 @@ public interface ExpUseAttendeeDAO {
 	
 	public ExpUseAttendeeModel get(Long id);
 
-	public List<ExpUseAttendeeModel> list(Map<String, Object> params);
+	public List<Map<String, Object>> list(Map<String, Object> params);
+	public List<ExpUseAttendeeModel> listByMasterId(Map<String, Object> params);
 	
 	public List<Map<String, Object>> listForInf(Map<String, Object> params);
 }

@@ -43,7 +43,7 @@ public class AdminProjectService {
         		params.put("terms", terms);
         	}
         	lang = lang!=null && lang.startsWith("th") ? "_th" : "";
-        	params.put("orderBy", "org_name"+lang+", name"+lang+", pm_code, pm_name"+lang);
+        	params.put("orderBy", "org_name_short"+lang+", name"+lang+", pm_name"+lang);
         	params.put("lang", lang);
         	
             list = dao.list(params);

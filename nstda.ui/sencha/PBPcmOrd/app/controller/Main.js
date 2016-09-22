@@ -242,7 +242,14 @@ Ext.define('PBPcmOrd.controller.Main', {
 		this.getMainGrid().getStore().load();
 	},
 	
-	gotoFolder:function(r) {
+	gotoFolder : function(r) {
+		var dlg = Ext.create("PB.view.common.FolderDtlDlg",{
+			rec : r
+		});
+		dlg.show();
+	},
+	
+	_gotoFolder:function(r) {
 		Ext.Ajax.request({
 	        url:ALF_CONTEXT+"/util/getFolderName",
 	        async : false,

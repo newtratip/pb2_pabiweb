@@ -2,7 +2,8 @@
 <#include "/pb/components/form/controls/association.ftl" />
 <#macro setPackageItemOptions field>
 
-   <#local documentLinkResolver>function(item){ return Alfresco.util.siteURL("document-details?nodeRef=" + item.nodeRef, { site: item.site }); }</#local>
+   <!--local documentLinkResolver function(item){ return Alfresco.util.siteURL("document-details?nodeRef=" + item.nodeRef, { site: item.site }); }  local-->
+   <#local documentLinkResolver>function(item){ return Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/" + item.nodeRef.replace("://","/")+"/"+item.name; }</#local>
    <#local allowAddAction = false>
    <#local allowRemoveAllAction = false>
    <#-- qs

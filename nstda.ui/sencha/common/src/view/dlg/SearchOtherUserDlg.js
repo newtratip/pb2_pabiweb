@@ -126,7 +126,7 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 						hideLabel:true,
 				    	displayField:'name',
 				    	valueField:'name',
-				        emptyText : "โปรดเลือก",
+				        emptyText : PB.Label.m.select,
 				        store:destStore,
 				        queryMode: 'local',
 				        typeAhead:true,

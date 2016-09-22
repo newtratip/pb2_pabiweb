@@ -13,6 +13,7 @@ import pb.common.constant.CommonConstant;
 import pb.common.util.CommonUtil;
 import pb.repo.admin.service.AdminBankMasterService;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 
@@ -39,12 +40,14 @@ public class AdminMainBankMasterWebScript {
    * @throws Exception
    */
   @Uri(URI_PREFIX+"/list")
-  public void handleList(final WebScriptResponse response)  throws Exception {
+  public void handleList(@RequestParam(required=false) String lang,
+		  				 @RequestParam(required=false) String query,
+		  				final WebScriptResponse response)  throws Exception {
     
 		String json = null;
 		
 		try {
-			List<Map<String, Object>> list = bankService.list();
+			List<Map<String, Object>> list = bankService.list(query, lang);
 			
 			json = CommonUtil.jsonSuccess(list);
 			

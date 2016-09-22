@@ -308,7 +308,6 @@ public class PcmSrcUrlService {
 		fields.append(",D."+PcmReqDtlConstant.TFN_QUANTITY);
 		fields.append(",D."+PcmReqDtlConstant.TFN_UNIT_ID);
 		fields.append(",D."+PcmReqDtlConstant.TFN_PRICE);
-		fields.append(",D."+PcmReqDtlConstant.TFN_PRICE_CNV);
 		fields.append(",D."+PcmReqDtlConstant.TFN_TOTAL);
 		
 		SELECT(fields.toString()
@@ -469,7 +468,6 @@ public class PcmSrcUrlService {
 		fields.append(",D."+PcmReqDtlConstant.TFN_QUANTITY);
 		fields.append(",D."+PcmReqDtlConstant.TFN_UNIT_ID);
 		fields.append(",D."+PcmReqDtlConstant.TFN_PRICE);
-		fields.append(",D."+PcmReqDtlConstant.TFN_PRICE_CNV);
 		fields.append(",D."+PcmReqDtlConstant.TFN_TOTAL);
 		
 		SELECT(fields.toString()

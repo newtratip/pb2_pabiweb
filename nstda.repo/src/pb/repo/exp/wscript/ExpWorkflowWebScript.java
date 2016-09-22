@@ -30,7 +30,7 @@ public class ExpWorkflowWebScript {
 	ExpBrwService expBrwService;
 	
 	/*
-	 * id = pr id
+	 * id = av id
 	 */
 	@Uri(URI_PREFIX + "/assignee/list")
 	public void handleAssigneeList(@RequestParam final String id,
@@ -55,7 +55,7 @@ public class ExpWorkflowWebScript {
 	}
 	
 	/*
-	 * id = pr id
+	 * id = av id
 	 */
 	@Uri(URI_PREFIX + "/task/list")
 	public void handleTaskList(@RequestParam final String id
@@ -81,7 +81,7 @@ public class ExpWorkflowWebScript {
 	}
 	
 	/*
-	 * id = pr id
+	 * id = av id
 	 */
 	@Uri(URI_PREFIX + "/dtl/list")
 	public void handleDetailList(@RequestParam final String id,

@@ -31,7 +31,6 @@ public class ExpBrwUtil {
 		jsObj.put(ExpBrwConstant.JFN_ID, model.getId());
 		
 		jsObj.put(ExpBrwConstant.JFN_REQ_BY, model.getReqBy());
-		jsObj.put(ExpBrwConstant.JFN_REQ_SECTION_ID, model.getReqSectionId());
 		
 		jsObj.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE, model.getObjectiveType());
 		jsObj.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE_NAME, model.getObjectiveTypeName());
@@ -43,11 +42,15 @@ public class ExpBrwUtil {
 		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC_TYPE, model.getBudgetCcType());
 		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC_TYPE_NAME, model.getBudgetCcTypeName());
 		
+		jsObj.put(ExpBrwConstant.JFN_FUND_ID, model.getFundId());
+		jsObj.put(ExpBrwConstant.JFN_FUND_NAME, model.getFundName());
+		
 		jsObj.put(ExpBrwConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
-		jsObj.put(ExpBrwConstant.JFN_COST_CONTROL, model.getCostControl());
 		jsObj.put(ExpBrwConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
-		jsObj.put(ExpBrwConstant.JFN_COST_CONTROL_FROM, CommonDateTimeUtil.convertToSenchaFieldDateTime(model.getCostControlFrom()));
-		jsObj.put(ExpBrwConstant.JFN_COST_CONTROL_TO, CommonDateTimeUtil.convertToSenchaFieldDateTime(model.getCostControlTo()));
+		jsObj.put(ExpBrwConstant.JFN_COST_CONTROL_NAME, model.getCostControlName());
+		jsObj.put(ExpBrwConstant.JFN_COST_CONTROL_TYPE_NAME, model.getCostControlTypeName());
+		
+		jsObj.put(ExpBrwConstant.JFN_DATE_BACK, CommonDateTimeUtil.convertToSenchaFieldDateTime(model.getDateBack()));
 		
 		jsObj.put(ExpBrwConstant.JFN_BANK_TYPE, model.getBankType());
 		jsObj.put(ExpBrwConstant.JFN_BANK, model.getBank());
@@ -80,7 +83,6 @@ public class ExpBrwUtil {
 		map.put(ExpBrwConstant.JFN_ID, model.getId());
 		
 		map.put(ExpBrwConstant.JFN_REQ_BY, model.getReqBy());
-		map.put(ExpBrwConstant.JFN_REQ_SECTION_ID, model.getReqSectionId());
 		
 		map.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE, model.getObjectiveType());
 		map.put(ExpBrwConstant.JFN_OBJECTIVE, model.getObjective());
@@ -88,11 +90,12 @@ public class ExpBrwUtil {
 		
 		map.put(ExpBrwConstant.JFN_BUDGET_CC, model.getBudgetCc());
 		
-		map.put(ExpBrwConstant.JFN_COST_CONTROL, model.getCostControl());
+		map.put(ExpBrwConstant.JFN_FUND_ID, model.getFundId());
+		
 		map.put(ExpBrwConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
 		map.put(ExpBrwConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
-		map.put(ExpBrwConstant.JFN_COST_CONTROL_FROM, model.getCostControlFrom());
-		map.put(ExpBrwConstant.JFN_COST_CONTROL_TO, model.getCostControlTo());
+
+		map.put(ExpBrwConstant.JFN_DATE_BACK, model.getDateBack());
 		
 		map.put(ExpBrwConstant.JFN_BANK_TYPE, model.getBankType());
 		map.put(ExpBrwConstant.JFN_BANK, model.getBank());

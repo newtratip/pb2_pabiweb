@@ -20,6 +20,7 @@
 	   and is_undue_tax is false
 	   and type = 'percent'
 	   and amount>0
+	   and active is true
 	   ORDER BY id DESC
     </select>
     

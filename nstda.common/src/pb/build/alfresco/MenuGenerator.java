@@ -181,15 +181,17 @@ public class MenuGenerator {
 		writer.write(		"targetUrl: \"pcm-ord\"");
 		writer.write(	"}");
 		
-//		writer.write(				"},{");
-//		
-//		writer.write(	"name: \"alfresco/menus/AlfMenuItem\",");
-//		writer.write(	"config:{");
-//		writer.write(		"id: \"HEADER_PB_PCM_USE\",");
-//		writer.write(		"label: \"header.menu.pb-pcm-use.label\",");
-//		writer.write(		"iconClass: \"alf-pb-pcm-icon\",");
-//		writer.write(		"targetUrl: \"pcm-use\"");
-//		writer.write(	"}");
+		writer.write(				"},{");
+		
+		writer.write(	"name: \"alfresco/menus/AlfMenuItem\",");
+		writer.write(	"config:{");
+		writer.write(		"id: \"HEADER_PB_PCM_USE\",");
+		writer.write(		"label: \"header.menu.pb-pcm-use.label\",");
+		writer.write(		"iconClass: \"alf-pb-pcm-icon\",");
+		writer.write(		"targetUrl: \"http://10.226.202.133:8069/web?toolbar=hide#page=0&limit=80&view_type=list&model=stock.request&action=656\",");
+		writer.write(		"targetUrlType: \"FULL_PATH\",");
+		writer.write(		"targetUrlLocation: \"NEW\"");
+		writer.write(	"}");
 		
 		
 		writer.write(				"}]");

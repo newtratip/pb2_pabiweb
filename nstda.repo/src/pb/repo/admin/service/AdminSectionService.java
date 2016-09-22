@@ -39,8 +39,7 @@ public class AdminSectionService {
         		params.put("terms", terms);
         	}
         	lang = lang!=null && lang.startsWith("th") ? "_th" : "";
-        	params.put("orderBy", "name"+lang+", description"+lang+", costcenter"+lang);
-        	params.put("lang", lang);
+        	params.put("orderBy", "name_short"+lang+", description"+lang+", costcenter"+lang);
         	
             list = dao.list(params);
             

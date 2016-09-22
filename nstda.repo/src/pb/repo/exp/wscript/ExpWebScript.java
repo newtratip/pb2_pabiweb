@@ -80,6 +80,7 @@ public class ExpWebScript {
 		  	  , @RequestParam(required=false) final String fields
 			  , @RequestParam(required=false) final Integer start
 			  , @RequestParam(required=false) final Integer limit
+			  , @RequestParam(required=false) final String lang
 			  , final WebScriptResponse response)  throws Exception {
 
 	  	/*
@@ -87,12 +88,11 @@ public class ExpWebScript {
 	  	 */
 		Map<String, Object> params = new HashMap<String, Object>();
 		
-		String searchTerm = null;
-		
 		if (s != null && !s.equals("")) {
-			searchTerm = "%" + s + "%";
+    		String[] terms = s.split(" ");
+        	
+    		params.put("terms", terms);
 		}
-		params.put("searchTerm", searchTerm);
 		params.put("start", start);
 		params.put("limit", limit);
 		
@@ -130,7 +130,9 @@ public class ExpWebScript {
 			putOneParam(params, jsObj, ExpBrwConstant.JFN_OBJECTIVE_TYPE);
 		}		
 		
-		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
+		params.put("orderBy", "ORDER_FIELD, updated_time DESC");
+		
+		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
 	  
 		/*
 		 * Search
@@ -259,6 +261,8 @@ public class ExpWebScript {
 		String json = null;
 
 		try {
+		  String langSuffix = lang!=null && lang.startsWith("th") ? "_th" : "";
+		  
 		  List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 
 		  Map<String, Object> map = new HashMap<String, Object>();
@@ -269,29 +273,33 @@ public class ExpWebScript {
 		  
 		  map.put(ExpBrwConstant.JFN_REQ_BY, reqUser);
 		  
-		  String ename = dtl.get("first_name") + " " + dtl.get("last_name");
-		  
-		  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
-		  if (!createdUser.equals(reqUser)) {
-			  dtl = adminHrEmployeeService.getWithDtl(createdUser);
-			  ename = dtl.get("first_name") + " " + dtl.get("last_name");
-		  }
-		  
-		  map.put(ExpBrwConstant.JFN_CREATED_BY_SHOW, ename);
+		  String ename = dtl.get("title"+langSuffix) + " " + dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
 		  
 		  String mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
 		  String wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
 		  String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
 		  
 		  map.put(ExpBrwConstant.JFN_REQ_BY_NAME, ename);
-		  
 		  map.put(ExpBrwConstant.JFN_REQ_TEL_NO, wphone+comma+mphone);
-		  map.put(ExpBrwConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"));
+		  map.put(ExpBrwConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"+langSuffix));
 		  
-		  map.put(ExpBrwConstant.JFN_REQ_BU, dtl.get("org_desc"));
+		  map.put(ExpBrwConstant.JFN_REQ_BU, dtl.get("org_desc"+langSuffix));
 		  
 		  map.put(ExpBrwConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
-		  map.put(ExpBrwConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"));
+		  map.put(ExpBrwConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"+langSuffix));
+		  
+		  
+		  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
+		  if (!createdUser.equals(reqUser)) {
+			  dtl = adminHrEmployeeService.getWithDtl(createdUser);
+			  ename = dtl.get("title"+langSuffix) + " " + dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
+			  
+			  mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
+			  wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
+			  comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+		  }
+		  
+		  map.put(ExpBrwConstant.JFN_CREATED_BY_SHOW, ename);
 		  
 		  map.put(ExpBrwConstant.JFN_TEL_NO, wphone+comma+mphone);
 		  
@@ -313,16 +321,17 @@ public class ExpWebScript {
 	@Uri(URI_PREFIX+"/brw/attendee/list")
 	public void handleAttendeeList(@RequestParam final String id, 
 								  @RequestParam final String type,
+								  @RequestParam final String lang,
 								  final WebScriptResponse response)
 	    throws Exception {
 			
 		String json = null;
 		 
 		try {
-			List<ExpBrwAttendeeModel> list = expBrwService.listAttendeeByMasterIdAndType(id, type);
+			List<Map<String, Object>> list = expBrwService.listAttendeeByMasterIdAndType(id, type, lang);
 			ExpBrwAttendeeUtil.addAction(list);
 			
-			json = CommonUtil.jsonSuccess(ExpBrwAttendeeUtil.convertToJSONArray(list));
+			json = CommonUtil.jsonSuccess(list);
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -348,17 +357,15 @@ public class ExpWebScript {
 	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/save")
 	public void handleSave(@RequestParam(required=false) final String id
 							,@RequestParam(required=false) final String reqBy
-			  				,@RequestParam(required=false) final String reqOu
 			  				,@RequestParam(required=false) final String objectiveType
 			  				,@RequestParam(required=false) final String objective
 			  				,@RequestParam(required=false) final String reason
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
+							,@RequestParam(required=false) final String fundId
 							,@RequestParam(required=false) final String costControlTypeId
 							,@RequestParam(required=false) final String costControlId
-							,@RequestParam(required=false) final String costControl
-							,@RequestParam(required=false) final String costControlFrom
-							,@RequestParam(required=false) final String costControlTo
+							,@RequestParam(required=false) final String dateBack
 							,@RequestParam(required=false) final String bankType
 							,@RequestParam(required=false) final String bank
 							,@RequestParam(required=false) final String total
@@ -385,9 +392,6 @@ public class ExpWebScript {
 			}
 			
 			model.setReqBy(reqBy);
-			if (reqOu != null && !reqOu.equals("")) {
-				model.setReqSectionId(Integer.parseInt(reqOu));
-			}
 			model.setObjectiveType(objectiveType);
 			model.setObjective(objective);
 			model.setReason(reason);
@@ -395,15 +399,15 @@ public class ExpWebScript {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
 			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
 			
 			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
 			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
-			model.setCostControl(costControl);
-			if (costControlFrom!=null) {
-				model.setCostControlFrom(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlFrom));
-			}
-			if (costControlTo!=null) {
-				model.setCostControlTo(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlTo));
+
+			if (dateBack!=null) {
+				model.setDateBack(CommonDateTimeUtil.convertSenchaStringToTimestamp(dateBack));
 			}
 			
 			model.setBankType(bankType);
@@ -434,17 +438,15 @@ public class ExpWebScript {
 	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/send")
 	public void handleSendToReview(@RequestParam(required=false) final String id
 							,@RequestParam(required=false) final String reqBy
-			  				,@RequestParam(required=false) final String reqOu
 			  				,@RequestParam(required=false) final String objectiveType
 			  				,@RequestParam(required=false) final String objective
 			  				,@RequestParam(required=false) final String reason
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
+							,@RequestParam(required=false) final String fundId
 							,@RequestParam(required=false) final String costControlTypeId
 							,@RequestParam(required=false) final String costControlId
-							,@RequestParam(required=false) final String costControl
-							,@RequestParam(required=false) final String costControlFrom
-							,@RequestParam(required=false) final String costControlTo
+							,@RequestParam(required=false) final String dateBack
 							,@RequestParam(required=false) final String bankType
 							,@RequestParam(required=false) final String bank
 							,@RequestParam(required=false) final String total
@@ -472,9 +474,6 @@ public class ExpWebScript {
 			}
 			
 			model.setReqBy(reqBy);
-			if (reqOu != null && !reqOu.equals("")) {
-				model.setReqSectionId(Integer.parseInt(reqOu));
-			}
 			model.setObjectiveType(objectiveType);
 			model.setObjective(objective);
 			model.setReason(reason);
@@ -482,15 +481,14 @@ public class ExpWebScript {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
 			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
 			
 			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
 			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
-			model.setCostControl(costControl);
-			if (costControlFrom!=null) {
-				model.setCostControlFrom(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlFrom));
-			}
-			if (costControlTo!=null) {
-				model.setCostControlTo(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlTo));
+			if (dateBack!=null) {
+				model.setDateBack(CommonDateTimeUtil.convertSenchaStringToTimestamp(dateBack));
 			}
 			
 			model.setBankType(bankType);
@@ -521,7 +519,7 @@ public class ExpWebScript {
 					model = expBrwService.save(model, items, attendees, files, true);
 					
 					mainWorkflowService.setModuleService(expBrwService);
-					mainWorkflowService.startWorkflow(model, MainWkfConfigDocTypeConstant.DT_PR);
+					mainWorkflowService.startWorkflow(model, MainWkfConfigDocTypeConstant.DT_AV);
 					
 					JSONObject jsObj = new JSONObject();
 					jsObj.put("id", model.getId());
@@ -656,17 +654,15 @@ public class ExpWebScript {
 	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/preview")
 	public void handlePreviewGen(@RequestParam(required=false) final String id
 								,@RequestParam(required=false) final String reqBy
-								,@RequestParam(required=false) final String reqOu
 								,@RequestParam(required=false) final String objectiveType
 								,@RequestParam(required=false) final String objective
 								,@RequestParam(required=false) final String reason
 								,@RequestParam(required=false) final String budgetCc
 								,@RequestParam(required=false) final String budgetCcType
+								,@RequestParam(required=false) final String fundId
 								,@RequestParam(required=false) final String costControlTypeId
 								,@RequestParam(required=false) final String costControlId
-								,@RequestParam(required=false) final String costControl
-								,@RequestParam(required=false) final String costControlFrom
-								,@RequestParam(required=false) final String costControlTo
+								,@RequestParam(required=false) final String dateBack
 								,@RequestParam(required=false) final String bankType
 								,@RequestParam(required=false) final String bank
 								,@RequestParam(required=false) final String activity
@@ -695,9 +691,6 @@ public class ExpWebScript {
 			}
 			
 			model.setReqBy(reqBy);
-			if (reqOu != null && !reqOu.equals("")) {
-				model.setReqSectionId(Integer.parseInt(reqOu));
-			}
 			model.setObjectiveType(objectiveType);
 			model.setObjective(objective);
 			model.setReason(reason);
@@ -705,15 +698,14 @@ public class ExpWebScript {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
 			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
 			
 			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
 			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
-			model.setCostControl(costControl);
-			if (costControlFrom!=null) {
-				model.setCostControlFrom(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlFrom));
-			}
-			if (costControlTo!=null) {
-				model.setCostControlTo(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlTo));
+			if (dateBack!=null) {
+				model.setDateBack(CommonDateTimeUtil.convertSenchaStringToTimestamp(dateBack));
 			}
 			
 			model.setBankType(bankType);
@@ -776,6 +768,108 @@ public class ExpWebScript {
 			CommonUtil.responseWrite(response, json);
 		}
 		
+	}
+	
+	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/finish")
+	public void handleFinish(@RequestParam(required=false) final String id
+							,@RequestParam(required=false) final String reqBy
+			  				,@RequestParam(required=false) final String objectiveType
+			  				,@RequestParam(required=false) final String objective
+			  				,@RequestParam(required=false) final String reason
+							,@RequestParam(required=false) final String budgetCc
+							,@RequestParam(required=false) final String budgetCcType
+							,@RequestParam(required=false) final String fundId
+							,@RequestParam(required=false) final String costControlTypeId
+							,@RequestParam(required=false) final String costControlId
+							,@RequestParam(required=false) final String dateBack
+							,@RequestParam(required=false) final String bankType
+							,@RequestParam(required=false) final String bank
+							,@RequestParam(required=false) final String total
+			  				,@RequestParam(required=false) final String items
+			  				,@RequestParam(required=false) final String attendees
+			  				,@RequestParam(required=false) final String files
+							,@RequestParam(required=false) final String status
+			  				,final WebScriptResponse response) throws Exception {
+		
+		String json = null;
+		
+		try {
+			ExpBrwModel model = null;
+			
+			if (CommonUtil.isValidId(id)) {
+				model = expBrwService.get(id);
+			}
+			
+			if (model==null) {
+				model = new ExpBrwModel();
+			}
+			model.setWaitingLevel(0);
+			
+			model.setReqBy(reqBy);
+			model.setObjectiveType(objectiveType);
+			model.setObjective(objective);
+			model.setReason(reason);
+			if (budgetCc != null && !budgetCc.equals("")) {
+				model.setBudgetCc(Integer.parseInt(budgetCc));
+			}
+			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
+			
+			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
+			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
+			if (dateBack!=null) {
+				model.setDateBack(CommonDateTimeUtil.convertSenchaStringToTimestamp(dateBack));
+			}
+			
+			model.setBankType(bankType);
+			if (bank != null && !bank.equals("")) {
+				model.setBank(Integer.parseInt(bank));
+			}
+			model.setTotal(Double.parseDouble(total));
+			model.setStatus(status);
+			
+			if (model.getId() == null || (status!=null && status.equals(ExpBrwConstant.ST_DRAFT))) {
+				model.setStatus(ExpBrwConstant.ST_WAITING);
+				model.setWaitingLevel(1);
+			}
+			
+			JSONObject jobj = new JSONObject(model); 
+			log.info("model="+jobj.toString());
+			
+			JSONObject validateResult = expBrwService.validateAssignee(model);
+			if (!(Boolean)validateResult.get("valid")) {
+				json = CommonUtil.jsonFail(validateResult);
+			}
+			else {
+				JSONObject validateWfPath = expBrwService.validateWfPath(model);
+				if (!(Boolean)validateWfPath.get("valid")) {
+					json = CommonUtil.jsonFail(validateWfPath);
+				}
+				else {
+					model = expBrwService.save(model, items, attendees, files, true);
+					
+					mainWorkflowService.setModuleService(expBrwService);
+					mainWorkflowService.updateWorkflow(model, null, null, MainWkfConfigDocTypeConstant.DT_AV);
+					
+					JSONObject jsObj = new JSONObject();
+					jsObj.put("id", model.getId());
+					json = CommonUtil.jsonSuccess(jsObj);
+				}
+			}		
+
+//			String createResult = interfaceService.createAV(model);
+//			log.info("createAVResult="+createResult);
+			
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		  
 	}	
 	  	
 }

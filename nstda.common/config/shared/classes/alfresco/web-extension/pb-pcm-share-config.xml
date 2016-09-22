@@ -149,6 +149,7 @@
 						<control-param name="cols">time,user,task,action,comment</control-param>
 						<control-param name="showLabel">false</control-param>
 						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
+						<control-param name="pbmodule">pcm-req</control-param>
 					</control>
 				</field>
 				

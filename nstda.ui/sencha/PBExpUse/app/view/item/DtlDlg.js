@@ -5,6 +5,21 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 	initComponent: function(config) {
 		var me = this;
 		
+		var actGrpId = me.rec ? me.rec.get("actGrpId") : null;
+		
+		var agstore = Ext.create('PB.store.common.ComboBoxStore',{
+			autoLoad:false,
+			sorters: [{
+		         property: 'name',
+		         direction: 'ASC'
+		    }]
+		});
+		agstore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/group/list';
+		agstore.getProxy().extraParams = {
+			query:getLang()+' '
+		}
+		agstore.load({params:{id:actGrpId}});
+		
 		var astore = Ext.create('PB.store.common.ComboBoxStore',{
 			autoLoad:false,
 			sorters: [{
@@ -14,9 +29,10 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		});
 		astore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/list';
 		astore.getProxy().extraParams = {
-			name:''
+			query:getLang()+' ',
+			actGrpId:actGrpId
 		}
-		astore.load();
+		astore.load({params:{actGrpId:actGrpId}});
 		
 		var cstore = Ext.create('PB.store.common.ComboBoxStore',{
 			autoLoad:false,
@@ -29,7 +45,7 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		cstore.getProxy().api.read = ALF_CONTEXT+'/admin/main/expenserule/listDistinct';
 		if (me.rec) {
 			cstore.getProxy().extraParams = {
-				id:me.rec.get("activityId")
+				id:me.rec.get("actId")
 			}
 			cstore.load();
 		}
@@ -37,12 +53,11 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		var store = Ext.create('PBExpUse.store.item.ActivityGridStore',{autoLoad:false});
 		if (me.rec) {
 			store.getProxy().extraParams = {
-				id:me.rec.get("activityId"),
+				id:me.rec.get("actId"),
 				cond:me.rec.get("condition1")
 			}
 			store.load();
 		}
-		
 		
 		var lbw = 140;
 		
@@ -58,18 +73,49 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		        	xtype : 'form',
 			        itemId : 'formDetail',
 			        border : 0,
-			        height:110,
+			        height:140,
 			        items:[{
 						xtype: 'hidden',
 						name: 'id',
 						value : me.rec ? me.rec.get("id") : null
 					},{
 						xtype:'combo',
-						name:'activityId',
-						fieldLabel:mandatoryLabel('รายการเบิกจ่าย'),
+						name:'actGrpId',
+						fieldLabel:mandatoryLabel(PBExpUse.Label.i.actGrp),
 				    	displayField:'name',
 				    	valueField:'id',
-				        emptyText : "โปรดเลือก",
+				        emptyText : PB.Label.m.select,
+				        store: agstore,
+//				        queryMode: 'local',
+				        typeAhead:true,
+				        multiSelect:false,
+				        forceSelection:true,
+				        anchor:"-10",
+						labelWidth:lbw,
+						margin: '10 0 0 10',
+						allowBlank:false,
+				        listConfig : {
+						    getInnerTpl: function () {
+								return '<div>{name}</div>';
+						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
+						    }
+						},
+				        listeners:{
+							beforequery : function(qe) {
+								qe.query = getLang()+" "+qe.query;
+							},
+							select : function(combo, rec){
+		    	       		    me.fireEvent("selectActivityGroup",combo, rec);
+		    	       	    }
+						},
+						value:me.rec ? me.rec.get("actGrpId") : null
+					},{
+						xtype:'combo',
+						name:'actId',
+						fieldLabel:mandatoryLabel(PBExpUse.Label.i.desc),
+				    	displayField:'name',
+				    	valueField:'id',
+				        emptyText : PB.Label.m.select,
 				        store: astore,
 //				        queryMode: 'local',
 				        typeAhead:true,
@@ -93,14 +139,14 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		    	       		    me.fireEvent("selectActivity",combo, rec);
 		    	       	    }
 						},
-						value:me.rec ? me.rec.get("activityId") : null
+						value:me.rec ? me.rec.get("actId") : null
 					},{
 						xtype:'combo',
 						name:'condition1',
-						fieldLabel:mandatoryLabel('เงื่อนไขการเบิกจ่าย'),
+						fieldLabel:mandatoryLabel(PBExpUse.Label.i.cond),
 				    	displayField:'name',
 				    	valueField:'name',
-				        emptyText : "โปรดเลือก",
+				        emptyText : PB.Label.m.select,
 				        store: cstore,
 				        queryMode: 'local',
 				        typeAhead:true,
@@ -128,7 +174,7 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 						value:me.rec ? me.rec.get("condition1") : null
 					},{
 					    xtype: 'numericfield',
-					    fieldLabel : mandatoryLabel('จำนวนเงินที่ขอเบิก'), 
+					    fieldLabel : mandatoryLabel(PBExpUse.Label.i.amt), 
 					    labelWidth: lbw,
 //					    anchor:"-10",
 						width:300,
@@ -144,21 +190,21 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		        	xtype:'grid',
 		        	margin:'5 0 0 0',
 		        	columns:[
-		        	     { text:'รายการเบิกจ่าย', dataIndex: 'activity_name', flex:1 },
-		        	     { text:'เงื่อนไขการเบิกจ่าย', dataIndex: 'condition_1', width:120},
-		        	     { text:'ตำแหน่ง', dataIndex: 'position', flex: 1 },
-		        	     { text:'จำนวนเงินอนุมัติ', dataIndex: 'amount', width:100, align:'right', xtype:"numbercolumn", format:DEFAULT_MONEY_FORMAT }
+		        	     { text:PBExpUse.Label.i.desc, dataIndex: 'activity_name', flex:1 },
+		        	     { text:PBExpUse.Label.i.cond, dataIndex: 'condition_1', width:120},
+		        	     { text:PBExpUse.Label.i.pos, dataIndex: 'position', flex: 1 },
+		        	     { text:PBExpUse.Label.i.amtAllow, dataIndex: 'amount', width:110, align:'right', xtype:"numbercolumn", format:DEFAULT_MONEY_FORMAT }
 		        	],
 		        	store:store
 	            }],
 		        buttons : [{
-		          text: 'บันทึก', 
+		          text: PB.Label.m.ok, 
 	//	          disabled : true,
 		          action : 'ok',
 		          itemId: 'okButton',
 		          iconCls:'icon_ok'
 		        },{
-		          text: 'ยกเลิก',
+		          text: PB.Label.m.cancel,
 		          handler:this.destroy,
 		          scope:this,
 		          iconCls:'icon_no'

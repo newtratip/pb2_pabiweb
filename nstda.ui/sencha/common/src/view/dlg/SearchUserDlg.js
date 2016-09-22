@@ -7,7 +7,43 @@ Ext.define('PB.view.common.SearchUserDlg', {
 		
 		var lbw = 100;
 		
-		var store = Ext.create('PB.store.common.UserStore');
+//		var store = Ext.create('PB.store.common.UserStore');
+		var store = Ext.create('PB.store.common.EmployeeUserStore',{autoLoad:false});
+		store.getProxy().api.read = ALF_CONTEXT+'/admin/main/employee/list';
+
+		var selModel;
+    	var columns = []
+
+    	if (me.multiSelect) { 
+			selModel = Ext.create('Ext.selection.CheckboxModel',{
+				mode:"MULTI",
+				showHeaderCheckbox:true
+			});
+		} else {
+			selModel = Ext.create('Ext.selection.RowModel',{
+				mode:"SINGLE"
+			});
+			columns.push({ 
+				text:'', dataIndex: 'id', width: 50, align:'center', renderer:
+		    	function(v) {
+	 	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
+	 	    	}
+	 	    });
+		}
+		
+    	columns.push(
+//	        	     { text:PB.Label.m.org, dataIndex: 'org_name', width: 50 },
+//	        	     { text:PB.Label.m.section, dataIndex: 'section_name', flex:1, renderer:function(v,m,r){ return '['+r.get('section_code')+"] "+v;}},
+//	        	     { text:PB.Label.m.ecode, dataIndex: 'emp_id', width: 100 },
+//	        	     { text:PB.Label.m.fullname, dataIndex: 'first_name', flex:1, renderer:function(v,m,r){ return r.get('title')+" "+v+" "+r.get('last_name');}},
+//	        	     { text:PB.Label.m.pos, dataIndex: 'pos_name', width: 150 }
+    	     { text:PB.Label.m.org, dataIndex: 'org', width: 50 },
+    	     { text:PB.Label.m.section, dataIndex: 'utype', flex:1},
+    	     { text:PB.Label.m.ecode, dataIndex: 'code', width: 100 },
+    	     { text:PB.Label.m.fullname, dataIndex: 'fname', flex:1, renderer:function(v,m,r){ return r.get('title')+" "+v+" "+r.get('lname');}},
+    	     { text:PB.Label.m.pos, dataIndex: 'position', width: 150 }
+    	);
+		
 		
 		Ext.applyIf(me, {
 	        renderTo : Ext.getBody(),
@@ -67,19 +103,9 @@ Ext.define('PB.view.common.SearchUserDlg', {
 	        	region:'center',
 	        	xtype:'grid',
 	        	margin:'5 0 0 0',
-	        	columns:[
-	        	     { text:'', dataIndex: 'id', width: 50, align:'center', renderer:
-	        	    	 function(v) {
-	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
-	        	    	 }
-	        	     },
-	        	     { text:PB.Label.m.org, dataIndex: 'org_name', width: 100 },
-	        	     { text:PB.Label.m.section, dataIndex: 'section_name', flex:1 },
-	        	     { text:PB.Label.m.ecode, dataIndex: 'emp_id', width: 100 },
-	        	     { text:PB.Label.m.fullname, dataIndex: 'first_name', flex:1, renderer:function(v,m,r){ return v+" "+r.get('last_name');}},
-	        	     { text:PB.Label.m.pos, dataIndex: 'pos_name', width: 150 }
-	        	],
-	        	store:store
+	        	columns:columns,
+	        	store:store,
+	        	selModel:selModel
 	        }],
 	        buttons : [{
 	          text: PB.Label.m.confirm, 

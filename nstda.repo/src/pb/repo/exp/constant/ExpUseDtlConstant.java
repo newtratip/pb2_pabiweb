@@ -9,7 +9,8 @@ public class ExpUseDtlConstant {
      */
 	public static final String TFN_ID = "ID";
 	public static final String TFN_MASTER_ID = "MASTER_ID";
-	public static final String TFN_ACTIVITY_ID = "ACTIVITY_ID";
+	public static final String TFN_ACT_ID = "ACT_ID";
+	public static final String TFN_ACT_GRP_ID = "ACT_GRP_ID";
 	public static final String TFN_CONDITION_1 = "CONDITION_1";
 	public static final String TFN_CONDITION_2 = "CONDITION_2";
 	public static final String TFN_POSITION = "POSITION";
@@ -22,7 +23,10 @@ public class ExpUseDtlConstant {
      */
 	public static final String JFN_ID = "id";
 	public static final String JFN_MASTER_ID = "masterId";
-	public static final String JFN_ACTIVITY_ID = "activityId";
+	public static final String JFN_ACT_ID = "actId";
+	public static final String JFN_ACT_GRP_ID = "actGrpId";
+	public static final String JFN_ACT_NAME = "actName";
+	public static final String JFN_ACT_GRP_NAME = "actGrpName";
 	public static final String JFN_CONDITION_1 = "condition1";
 	public static final String JFN_CONDITION_2 = "condition2";
 	public static final String JFN_POSITION = "position";

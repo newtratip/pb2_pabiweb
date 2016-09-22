@@ -33,7 +33,8 @@ public class ExpUseDtlUtil {
 			
 			jsObj.put(ExpUseDtlConstant.JFN_ID, model.getId());
 			jsObj.put(ExpUseDtlConstant.JFN_MASTER_ID, model.getMasterId());
-			jsObj.put(ExpUseDtlConstant.JFN_ACTIVITY_ID, model.getActivityId());
+			jsObj.put(ExpUseDtlConstant.JFN_ACT_ID, model.getActId());
+			jsObj.put(ExpUseDtlConstant.JFN_ACT_GRP_ID, model.getActGrpId());
 			jsObj.put(ExpUseDtlConstant.JFN_CONDITION_1, model.getCondition1());
 			jsObj.put(ExpUseDtlConstant.JFN_CONDITION_2, model.getCondition2());
 			jsObj.put(ExpUseDtlConstant.JFN_POSITION, model.getPosition());
@@ -61,7 +62,10 @@ public class ExpUseDtlUtil {
 				
 				ExpUseDtlModel model = new ExpUseDtlModel();
 				model.setMasterId(masterId);
-				model.setActivityId(jsonObj.getInt(ExpUseDtlConstant.JFN_ACTIVITY_ID));
+				model.setActId(jsonObj.getInt(ExpUseDtlConstant.JFN_ACT_ID));
+				model.setActGrpId(jsonObj.getInt(ExpUseDtlConstant.JFN_ACT_GRP_ID));
+				model.setActName(jsonObj.getString(ExpUseDtlConstant.JFN_ACT_NAME));
+				model.setActGrpName(jsonObj.getString(ExpUseDtlConstant.JFN_ACT_GRP_NAME));
 				model.setCondition1(jsonObj.getString(ExpUseDtlConstant.JFN_CONDITION_1));
 				model.setCondition2(jsonObj.getString(ExpUseDtlConstant.JFN_CONDITION_2));
 				model.setPosition(jsonObj.getString(ExpUseDtlConstant.JFN_POSITION));

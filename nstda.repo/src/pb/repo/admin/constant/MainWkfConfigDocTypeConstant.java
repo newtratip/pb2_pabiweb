@@ -24,7 +24,7 @@ public class MainWkfConfigDocTypeConstant {
     /*
      * Doc Type
      */
-	public static final String DT_AP = "AP";
+	public static final String DT_AP = "EX";
 	public static final String DT_PR = "PR";
 	public static final String DT_AV = "AV";
 	public static final String DT_PD1 = "PD1";

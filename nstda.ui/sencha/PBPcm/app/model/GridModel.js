@@ -11,6 +11,8 @@ Ext.define('PBPcm.model.GridModel', {
     		 , {name : 'created_time_show'}
     		 , {name : 'budget_cc'}
     		 , {name : 'budget_cc_name'}
+    		 , {name : 'fund_id'}
+    		 , {name : 'fund_name'}
     		 , {name : 'doc_ref'}
     		 , {name : 'file_name'}
     		 , {name : 'folder_ref'}

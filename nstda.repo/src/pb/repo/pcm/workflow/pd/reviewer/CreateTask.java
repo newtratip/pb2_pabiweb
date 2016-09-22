@@ -71,10 +71,12 @@ public class CreateTask implements TaskListener {
 			
 			task.setName(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_REVIEWER)+" "+level);
 			
+			log.info("  assignee:"+ task.getAssignee()+", level:"+level);
 			/*
 			 * Update DB
 			 */
 			String varName = WF_PREFIX+"workflowStatus";
+
 			if (executionEntity.getVariable(varName)!=null) {
 				MainWorkflowModel workflowModel = new MainWorkflowModel();
 				workflowModel.setMasterId(id.toString());

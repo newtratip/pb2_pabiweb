@@ -2,12 +2,12 @@ package pb.repo.exp.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import pb.repo.exp.constant.ExpBrwAttendeeConstant;
 import pb.repo.exp.constant.ExpUseAttendeeConstant;
 import pb.repo.exp.model.ExpUseAttendeeModel;
 
@@ -36,6 +36,7 @@ public class ExpUseAttendeeUtil {
 			jsObj.put(ExpUseAttendeeConstant.JFN_MASTER_ID, model.getMasterId());
 			jsObj.put(ExpUseAttendeeConstant.JFN_TYPE, model.getType());
 			jsObj.put(ExpUseAttendeeConstant.JFN_CODE, model.getCode());
+			jsObj.put(ExpUseAttendeeConstant.JFN_TITLE, model.getTitle());
 			jsObj.put(ExpUseAttendeeConstant.JFN_FNAME, model.getFname());
 			jsObj.put(ExpUseAttendeeConstant.JFN_LNAME, model.getLname());
 			jsObj.put(ExpUseAttendeeConstant.JFN_UNIT_TYPE, model.getUnitType());
@@ -65,6 +66,7 @@ public class ExpUseAttendeeUtil {
 				model.setMasterId(masterId);
 				model.setType(jsonObj.getString(ExpUseAttendeeConstant.JFN_TYPE));
 				model.setCode(jsonObj.getString(ExpUseAttendeeConstant.JFN_CODE));
+				model.setTitle(jsonObj.getString(ExpUseAttendeeConstant.JFN_TITLE));
 				model.setFname(jsonObj.getString(ExpUseAttendeeConstant.JFN_FNAME));
 				model.setLname(jsonObj.getString(ExpUseAttendeeConstant.JFN_LNAME));
 				model.setUnitType(jsonObj.getString(ExpUseAttendeeConstant.JFN_UNIT_TYPE));
@@ -81,9 +83,9 @@ public class ExpUseAttendeeUtil {
 		return list;
 	}
 	
-	public static void addAction(List<ExpUseAttendeeModel> list) {
-		for (ExpUseAttendeeModel model : list) {
-			model.setAction("ED");
+	public static void addAction(List<Map<String, Object>> list) {
+		for (Map<String, Object> model : list) {
+			model.put("action","ED");
 		}
 	}	
 }

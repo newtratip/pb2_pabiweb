@@ -7,6 +7,20 @@ Ext.define('PB.view.common.SearchBudgetSrcDlg', {
 		
 		var lbw = 140;
 		
+		var fundStore = Ext.create('PB.store.common.ComboBoxStore',{
+			autoLoad:false,
+			listeners:{
+				load:function(store, rec) {
+					me.fireEvent("loadFund", store, rec);
+				}
+			}
+		});
+		fundStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/fund/list';
+		fundStore.getProxy().extraParams = {
+			lang:getLang()
+		}
+		fundStore.load();
+		
 		var store = Ext.create('PB.store.common.BudgetSrcStore');
 		
 		Ext.applyIf(me, {
@@ -86,7 +100,7 @@ Ext.define('PB.view.common.SearchBudgetSrcDlg', {
 						listeners:{
 							change:function(rad, newV, oldV) {
 								if (newV) {
-									me.fireEvent("selectRadio",rad, "B");
+									me.fireEvent("selectRadio",rad, "C");
 								}
 							}
 						}
@@ -141,11 +155,44 @@ Ext.define('PB.view.common.SearchBudgetSrcDlg', {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:PB.Label.m.org, dataIndex: 'type', width: 150 },
+	        	     { text:PB.Label.m.org, dataIndex: 'type', width: 70 },
 	        	     { text:PB.Label.b.sectName, dataIndex: 'name', flex:1 },
 	        	     { text:'Cost Center', dataIndex: 'cc', flex:1 }
 	        	],
 	        	store:store
+	        },{
+	        	region:'south',
+	        	itemId:'southPanel',
+	        	xtype:'form',
+	        	items:[{
+					xtype:'combo',
+					name:'fund',
+					fieldLabel:mandatoryLabel(PB.Label.b.fund),
+			    	displayField:'name',
+			    	valueField:'id',
+			        emptyText : PB.Label.m.select,
+			        store: fundStore,
+			        queryMode: 'local',
+			        typeAhead:true,
+			        multiSelect:false,
+			        forceSelection:true,
+			        anchor:"-10",
+					labelWidth:lbw,
+					margin: '10 0 10 10',
+					allowBlank:false,
+			        listConfig : {
+					    getInnerTpl: function () {
+							return '<div>{name}</div>';
+					        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
+					    }
+					},
+			        listeners:{
+						beforequery : function(qe) {
+							qe.query = new RegExp(qe.query, 'i');
+			//				qe.forceAll = true;
+						}
+					}
+				}]
 	        }],
 	        buttons : [{
 	          text: PB.Label.m.confirm, 

@@ -15,6 +15,7 @@ public class PcmReqConstant extends SubModuleConstant {
      * Table Field Name
      */
 	public static final String TFN_TOTAL = "TOTAL";
+	public static final String TFN_TOTAL_CNV = "TOTAL_CNV";
 	public static final String TFN_STATUS = "STATUS";
 	
 	public static final String TFN_REQ_BY = "REQ_BY"; 
@@ -29,6 +30,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	
 	public static final String TFN_BUDGET_CC = "BUDGET_CC";
 	public static final String TFN_BUDGET_CC_TYPE = "BUDGET_CC_TYPE";
+	public static final String TFN_FUND_ID = "FUND_ID";
 	
 	public static final String TFN_IS_STOCK = "IS_STOCK";
 	public static final String TFN_STOCK_SECTION_ID = "STOCK_SECTION_ID";
@@ -65,6 +67,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_ID = "id";
 	
 	public static final String JFN_TOTAL = "total";
+	public static final String JFN_TOTAL_CNV = "totalCnv";
 	public static final String JFN_STATUS = "status";
 	public static final String JFN_WF_STATUS = "wfStatus";
 	public static final String JFN_OVER_DUE = "overDue";
@@ -91,6 +94,8 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_BUDGET_CC_NAME = "budget_cc_name";
 	public static final String JFN_BUDGET_CC_TYPE = "budget_cc_type";
 	public static final String JFN_BUDGET_CC_TYPE_NAME = "budget_cc_type_name";
+	public static final String JFN_FUND_ID = "fund_id";
+	public static final String JFN_FUND_NAME = "fund_name";
 	
 	public static final String JFN_IS_STOCK = "is_stock";
 	public static final String JFN_STOCK_SECTION_ID = "stock_ou";

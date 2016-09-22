@@ -10,7 +10,9 @@
     </resultMap>
 
 	<select id="list" resultMap="result">
-		select * from pb2_ext_res_currency order by name
+		select * from pb2_ext_res_currency
+		where active is true
+		order by name
 	</select>
 	
 	<select id="count"  resultType="long">

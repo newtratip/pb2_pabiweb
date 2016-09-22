@@ -7,18 +7,10 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 	initComponent: function(config) {
 		var me = this;
 		
-		var typeStore = Ext.create('PB.store.common.ComboBoxStore');
-		typeStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/list';
-		typeStore.getProxy().extraParams = {
-		    name : '',
-			all : true
-		}
-		typeStore.load();
-		
-		var bankStore = Ext.create('PB.store.common.ComboBoxStore');
+		var bankStore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
 		bankStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/bank/list';
 		bankStore.getProxy().extraParams = {
-			all : true
+			lang:getLang()
 		}
 		bankStore.load();
 		
@@ -44,6 +36,7 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 		avStore.load();
 		
 		var lbw = 160;
+		var ptw = 180;
 		
 		var columns = [{
 	    	dataIndex: 'name',
@@ -76,49 +69,38 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 			pd1.sup_code = me.rec.pay_dtl1;
 		} 
 		else
+//		if (payType==2) {
+//			pd2.sup_code = me.rec.pay_dtl1;
+//			pd2.po_no = me.rec.pay_dtl2;
+//			pd2.asset_no = me.rec.pay_dtl3;
+//		} 
+//		else
 		if (payType==2) {
-			pd2.sup_code = me.rec.pay_dtl1;
-			pd2.po_no = me.rec.pay_dtl2;
-			pd2.asset_no = me.rec.pay_dtl3;
-		} 
-		else
-		if (payType==3) {
-			pd3.av_code = me.rec.pay_dtl1;
+			pd2.av_code = me.rec.pay_dtl1;
 		}
 		else
-		if (payType==4) {
-			pd4.icharge_code = me.rec.pay_dtl1;
-			pd4.icharge_name = me.rec.icharge_name;
-			pd4.icharge_type = me.rec.pay_dtl2;
-			pd4.icharge_type_name = me.rec.icharge_type_name;
+		if (payType==3) {
+			pd3.icharge_code = me.rec.pay_dtl1;
+			pd3.icharge_name = me.rec.icharge_name;
+			pd3.icharge_type = me.rec.pay_dtl2;
+			pd3.icharge_type_name = me.rec.icharge_type_name;
 		}
 		
 		Ext.applyIf(me, {
 			items:[{
 				xtype:'panel',
-				title:'<font color="red">ข้อมูลเพื่อการ เบิกจ่าย / หักล่างค่าใช้จ่ายเงินยืม</font>',
+				title:'<font color="red">'+PBExpUse.Label.n.payTitle+'</font>',
 				margin:'0 0 0 0',
 				items:[{
-					xtype:'container',
-					layout:'hbox',
-					anchor:'-10',
-					margin:'0 10 0 0',
-					items:[{
-						xtype:'textfield',
-						name:'objective',
-						fieldLabel:mandatoryLabel('วัตถุประสงค์'),
-						labelWidth:lbw,
-						margin:"5 0 0 10",
-						flex:1,
-						allowBlank:false,
-						value:replaceIfNull(me.rec.objective, null)
-					}]
-				},{
-					xtype:'container',
-					layout:'hbox',
-					anchor:'-10',
-					margin:'0 10 0 0',
-					items:[{
+				xtype:'container',
+				layout:'hbox',
+				anchor:'-10',
+				margin:'0 10 0 0',
+				items:[{
+						xtype:'hidden',
+						name:'fundId',
+						value:replaceIfNull(me.rec.fund_id, null)
+					},{
 						xtype:'hidden',
 						name:'budgetCcType',
 						value:replaceIfNull(me.rec.budget_cc_type, null)
@@ -129,7 +111,7 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 					},{
 						xtype:'trigger',
 						name:'budgetCcTypeName',
-						fieldLabel:mandatoryLabel('แหล่งงบประมาณที่ใช้'),
+						fieldLabel:mandatoryLabel(PB.Label.b.name),
 						width:310,
 						labelWidth:lbw,
 						margin:"5 0 0 10",
@@ -141,6 +123,13 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						value:replaceIfNull(me.rec.budget_cc_type_name, ''),
 						allowBlank:false
 					},{
+						xtype:'button',
+						hidden:replaceIfNull(me.rec.budget_cc_type, null) == null,
+						iconCls:'icon_money',
+						margin:"5 0 0 10",
+						text:'',
+						action:'showBudget'
+					},{
 						xtype:'textfield',
 						name:'budgetCcName',
 						hideLabel:true,
@@ -149,6 +138,30 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						value:replaceIfNull(me.rec.budget_cc_name, ''),
 						readOnly:true,
 						fieldStyle:READ_ONLY
+					},{
+						xtype:'textfield',
+						name:'fundName',
+						hideLabel:true,
+						flex:1,
+						margin:'5 0 0 10',
+						value:replaceIfNull(me.rec.fund_name, ''),
+						readOnly:true,
+						fieldStyle:READ_ONLY
+					}]
+				},{
+					xtype:'container',
+					layout:'hbox',
+					anchor:'-10',
+					margin:'0 10 0 0',
+					items:[{
+						xtype:'textfield',
+						name:'objective',
+						fieldLabel:mandatoryLabel(PBExpUse.Label.n.obj),
+						labelWidth:lbw,
+						margin:"5 0 0 10",
+						flex:1,
+						allowBlank:false,
+						value:replaceIfNull(me.rec.objective, null)
 					}]
 				},{
 					xtype:'container',
@@ -166,7 +179,7 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 					},{
 						xtype:'trigger',
 						name:'costControlTypeName',
-						fieldLabel:'ต้นทุนงาน',
+						fieldLabel:PBExpUse.Label.n.cc,
 						width:310,
 						labelWidth:lbw,
 						margin:"5 0 0 10",
@@ -206,7 +219,7 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 				}]
 			},{
 				xtype:'panel',
-				title:'วิธีเบิกจ่าย / หักล้างค่าใช้จ่าย(เงินยืม)',
+				title:PBExpUse.Label.n.typeTitle,
 				margin:'0 0 0 0',
 				items:[{
 					xtype:'container',
@@ -216,10 +229,10 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 					items:[{
 						xtype:'radio',
 						name:'payType',
-						boxLabel:'จ่ายพนักงาน',
+						boxLabel:PBExpUse.Label.n.payEmp,
 						inputValue:'0',
 						margin:'5 0 0 10',
-						width:210,
+						width:ptw,
 						checked:replaceIfNull(me.rec.pay_type, "0") == "0",
 						listeners:{
 							change:function(rad, newV, oldV) {
@@ -237,10 +250,10 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 					items:[{
 						xtype:'radio',
 						name:'payType',
-						boxLabel:'จ่าย หน่วยงาน/บุคคล ภายนอก',
+						boxLabel:PBExpUse.Label.n.paySup,
 						inputValue:'1',
 						margin:'5 0 0 10',
-						width:210,
+						width:ptw,
 						checked:replaceIfNull(me.rec.pay_type, "0") == "1",
 						listeners:{
 							change:function(rad, newV, oldV) {
@@ -253,43 +266,13 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						xtype:'textfield',
 						name:'supName',
 						hideLabel:true,
-						fieldLabel:'จ่าย Supplier',
+						fieldLabel:PBExpUse.Label.n.paySup,
 						flex:1,
 						margin:"5 0 0 10",
 						value:replaceIfNull(pd1.sup_code, ''),
 						allowBlank:false,
-						disabled:true
-					}]
-				},{
-					xtype:'container',
-					layout:'hbox',
-					margin:"0 10 0 0",
-					anchor:"-10",
-					items:[{
-						xtype:'radio',
-						name:'payType',
-						boxLabel:'จ่าย Supplier ค่าออกของ',
-						inputValue:'2',
-						margin:'5 0 0 10',
-						width:210,
-						checked:replaceIfNull(me.rec.pay_type, "0") == "2",
-						listeners:{
-							change:function(rad, newV, oldV) {
-								if (newV) {
-									me.fireEvent("selectPayType",rad, '2');
-								}
-							}
-						}
-					},{
-						xtype:'textfield',
-						name:'supFeeName',
-						hideLabel:true,
-						fieldLabel:'จ่าย Supplier ค่าออกของ',
-						flex:1,
-						margin:"5 0 0 10",
-						value:replaceIfNull(pd2.sup_code, ''),
-						allowBlank:false,
-						disabled:true
+						disabled:true,
+						emptyText:PBExpUse.Label.n.paySupEmpty
 					},{
 						xtype:'combo',
 						name:'poNo',
@@ -319,7 +302,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 		    	       	    }
 						},
 						value:replaceIfNull(pd2.po_no, null),
-						disabled:true
+						disabled:true,
+						hidden:true
 					},{
 						xtype:'combo',
 						name:'assetNo',
@@ -349,7 +333,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 		    	       	    }
 						},
 						value:replaceIfNull(pd2.asset_no, null),
-						disabled:true
+						disabled:true,
+						hidden:true
 					}]
 				},{
 					xtype:'container',
@@ -359,15 +344,15 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 					items:[{
 						xtype:'radio',
 						name:'payType',
-						boxLabel:'เคลียร์เงินยืมพนักงาน',
-						inputValue:'3',
+						boxLabel:PBExpUse.Label.n.payAv,
+						inputValue:'2',
 						margin:'5 0 0 10',
-						width:210,
-						checked:replaceIfNull(me.rec.pay_type, "0") == "3",
+						width:ptw,
+						checked:replaceIfNull(me.rec.pay_type, "0") == "2",
 						listeners:{
 							change:function(rad, newV, oldV) {
 								if (newV) {
-									me.fireEvent("selectPayType",rad, '3');
+									me.fireEvent("selectPayType",rad, '2');
 								}
 							}
 						}
@@ -375,7 +360,7 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						xtype:'combo',
 						name:'avCode',
 						margin:'5 0 0 10',
-						fieldLabel:mandatoryLabel('เลขที่รับเอกสาร AV'),
+						fieldLabel:mandatoryLabel(PBExpUse.Label.n.payAvNo),
 						labelWidth:150,
 						store:avStore,
 				    	displayField:'id', ///////////////////////////////////////////////////
@@ -398,7 +383,7 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 				//				qe.forceAll = true;
 		    	       	    }
 						},
-						value:replaceIfNull(pd3.av_code, null),
+						value:replaceIfNull(pd2.av_code, null),
 						disabled:true
 					}]
 				},{
@@ -410,29 +395,29 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						xtype:'radio',
 						name:'payType',
 						boxLabel:'Internal Charge',
-						inputValue:'4',
+						inputValue:'3',
 						margin:'5 0 0 10',
-						width:210,
-						checked:replaceIfNull(me.rec.pay_type, "0") == "4",
+						width:ptw,
+						checked:replaceIfNull(me.rec.pay_type, "0") == "3",
 						listeners:{
 							change:function(rad, newV, oldV) {
 								if (newV) {
-									me.fireEvent("selectPayType",rad, '4');
+									me.fireEvent("selectPayType",rad, '3');
 								}
 							}
 						}
 					},{
 						xtype:'hidden',
 						name:'ichargeType',
-						value:replaceIfNull(pd4.icharge_type, null)
+						value:replaceIfNull(pd3.icharge_type, null)
 					},{
 						xtype:'hidden',
 						name:'ichargeCode',
-						value:replaceIfNull(pd4.icharge_code, null)
+						value:replaceIfNull(pd3.icharge_code, null)
 					},{
 						xtype:'trigger',
 						name:'ichargeTypeName',
-						fieldLabel:mandatoryLabel('หน่วยงาน (ผู้ให้บริการ)'),
+						fieldLabel:mandatoryLabel(PBExpUse.Label.n.payIntUnit),
 						width:310,
 						labelWidth:150,
 						margin:"5 0 0 10",
@@ -441,7 +426,7 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						onTriggerClick:function(evt) {
 							me.fireEvent("selectIcharge");
 						},
-						value:replaceIfNull(pd4.icharge_type_name, ''),
+						value:replaceIfNull(pd3.icharge_type_name, ''),
 						allowBlank:false,
 						disabled:true
 					},{
@@ -450,21 +435,22 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						hideLabel:true,
 						flex:1,
 						margin:'5 0 0 10',
-						value:replaceIfNull(pd4.icharge_name, ''),
+						value:replaceIfNull(pd3.icharge_name, ''),
 						readOnly:true,
 						fieldStyle:READ_ONLY
 					}]
 				}]
 			},{
 				xtype:'panel',
-				title:'วิธีการรับเงิน',
+				title:PBExpUse.Label.n.methodTitle,
 				margin:'0 0 0 0',
+				border:0,
 				items:[{
 					xtype:'radio',
 					name:'bankType',
 					itemId:'bankType0',
-					boxLabel:'ธนาคาร กรุงเทพ (ระบบ e-Payment)',
-					disabled:(payType!=0 && payType!=3),
+					boxLabel:PBExpUse.Label.n.bankBbl,
+					disabled:(payType!=0 && payType!=2),
 					inputValue:'0',
 					margin:'5 0 0 10',
 					checked:replaceIfNull(me.rec.bank_type, "0") == "0", 
@@ -484,8 +470,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						xtype:'radio',
 						name:'bankType',
 						itemId:'bankType1',
-						boxLabel:'ธนาคาร',
-						disabled:(payType!=0 && payType!=3),
+						boxLabel:PBExpUse.Label.n.bank,
+						disabled:(payType!=0 && payType!=2),
 						inputValue:'1',
 						margin:'5 0 0 5',
 						checked:replaceIfNull(me.rec.bank_type, "0") == "1",
@@ -499,14 +485,14 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 					},{
 						xtype:'combo',
 						name:'bank',
-						margin:'5 0 0 5',
+						margin:'5 10 0 5',
 						hideLabel:true,
 						fieldLabel:'ธนาคาร',
 				    	displayField:'name',
 				    	valueField:'id',
-				        emptyText : "โปรดเลือก",
+				        emptyText : PB.Label.m.select,
 				        store: bankStore,
-				        queryMode: 'local',
+//				        queryMode: 'local',
 				        typeAhead:true,
 				        multiSelect:false,
 				        forceSelection:true,
@@ -518,19 +504,20 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
 						    }
 						},
-				        listeners:{
-							beforequery : function(qe) {
-								qe.query = new RegExp(qe.query, 'i');
+//				        listeners:{
+//							beforequery : function(qe) {
+//								qe.query = new RegExp(qe.query, 'i');
 				//				qe.forceAll = true;
-		    	       	    }
-						},
+//		    	       	    }
+//						},
 						value:replaceIfNull(me.rec.bank, null),		
 						disabled:true
-					},{
-						xtype:'label',
-						html:'<font color="red">*** กรณีที่ท่านเลือกธนาคารอื่น ให้แนบเอกสารหน้า Book Bank ที่มี ชื่อธนาคาร , เลขที่บัญชี และ ชื่อ-นามสกุล ***</font>',
-						margin:'5 10 0 5'
 					}]
+				},{
+					xtype:'label',
+					html:'<font color="red">'+PBExpUse.Label.n.bankWarn+'</font>',
+					margin:'5 10 5 15',
+					anchor:"-10"
 				}]
 			}]
 		});		

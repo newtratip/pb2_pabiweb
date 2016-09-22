@@ -15,40 +15,11 @@
     </resultMap>
 
 	<select id="list" resultType="map" parameterType="map">
-		select * from (
-			select s.id, o.name ,o.name_th
-				,concat('[',trim(s.code),'] ',s.name) description
-				,concat('[',trim(s.code),'] ',s.name_th) description_th
-				,concat('[',trim(c.code),'] ',c.name) costcenter
-				,concat('[',trim(c.code),'] ',c.name_th) costcenter_th
-			FROM (select org_id,costcenter_id,code,id,name,
-				coalesce((select value
-					from pb2_ext_ir_translation
-					where name = 'res.section,name'
-					and type = 'model' and lang='th_TH'
-					and res_id = sec.id), name) as name_th
-				from pb2_ext_res_section sec) s
-				left join
-				(select id, name,
-					coalesce((select value
-					from pb2_ext_ir_translation
-					where name = 'res.org,name'
-					and type = 'model' and lang='th_TH'
-					and res_id = org.id), name) as name_th
-				from pb2_ext_res_org org) o on s.org_id = o.id
-			left join
-			(select id,name,code,
-				coalesce((select value
-				from pb2_ext_ir_translation
-				where name = 'res.costcenter,name'
-				and type = 'model' and lang='th_TH'
-				and res_id = cc.id), name) as name_th
-			from pb2_ext_res_costcenter cc) c on s.costcenter_id = c.id
-		) qry
-		WHERE 1=1
+		select * from 
+		pb2_section_view
 		<if test="terms != null">
-			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-	    			concat(name, ' ', description, ' ', costcenter, ' ', name_th, ' ', description_th, ' ' , costcenter_th) ILIKE '%'||#{item}||'%'
+			<foreach item="item" index="index" collection="terms" open="WHERE (" separator=" AND " close=")">
+	    			concat(name_short, ' ', description, ' ', costcenter, ' ', name_short_th, ' ', description_th, ' ' , costcenter_th) ILIKE '%'||#{item}||'%'
 	   		</foreach>
    		</if>  
 		ORDER BY ${orderBy}

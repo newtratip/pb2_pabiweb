@@ -47,20 +47,34 @@ Ext.define('PB.controller.common.User', {
 	ok:function(btn) {
 		var me = this;
 		
-		var id = getRadioValue("id");
-		
-		var store = me.getGrid(btn).getStore();
-		var rec;
-		
-		for(var i=0; i<store.getCount(); i++) {
-			var r = store.getAt(i);
-			if (r.get('id') == id) {
-				rec = r;
+		if (me.getDlg().multiSelect) {
+			
+			var grid = me.getGrid(btn);
+			var selModel = grid.getSelectionModel();
+			var selected = selModel.selected;
+			
+			if (!me.getDlg().validateCallback || me.getDlg().validateCallback(selected.items)) {
+				me.getDlg().callback(selected.items);
+				me.getDlg().close();
 			}
-		}
+			
+		} else {
 		
-		me.getDlg().callback(id, rec);
-		me.getDlg().close();
+			var id = getRadioValue("id");
+			
+			var store = me.getGrid(btn).getStore();
+			var rec;
+			
+			for(var i=0; i<store.getCount(); i++) {
+				var r = store.getAt(i);
+				if (r.get('id') == id) {
+					rec = r;
+				}
+			}
+			
+			me.getDlg().callback(id, rec);
+			me.getDlg().close();
+		}
 	}
 
 });

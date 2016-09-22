@@ -8,8 +8,10 @@ public class ExpUseDtlModel extends BaseDataModel {
 	
 	Long id;
 	String masterId;
-	Integer activityId;
-	String activityName;
+	Integer actId;
+	String actName;
+	Integer actGrpId;
+	String actGrpName;
 	String condition1;
 	String condition2;
 	String position;
@@ -38,21 +40,37 @@ public class ExpUseDtlModel extends BaseDataModel {
 	public void setMasterId(String masterId) {
 		this.masterId = masterId;
 	}
-
-	public Integer getActivityId() {
-		return activityId;
-	}
-
-	public void setActivityId(Integer activityId) {
-		this.activityId = activityId;
-	}
 	
-	public String getActivityName() {
-		return activityName;
+	public Integer getActId() {
+		return actId;
 	}
 
-	public void setActivityName(String activityName) {
-		this.activityName = activityName;
+	public void setActId(Integer actId) {
+		this.actId = actId;
+	}
+
+	public String getActName() {
+		return actName;
+	}
+
+	public void setActName(String actName) {
+		this.actName = actName;
+	}
+
+	public Integer getActGrpId() {
+		return actGrpId;
+	}
+
+	public void setActGrpId(Integer actGrpId) {
+		this.actGrpId = actGrpId;
+	}
+
+	public String getActGrpName() {
+		return actGrpName;
+	}
+
+	public void setActGrpName(String actGrpName) {
+		this.actGrpName = actGrpName;
 	}
 
 	public String getCondition1() {

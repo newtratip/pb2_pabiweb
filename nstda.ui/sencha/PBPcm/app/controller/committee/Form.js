@@ -158,7 +158,56 @@ Ext.define('PBPcm.controller.committee.Form', {
 //		return dialog;
 //	},
 	
-    dlgEmployeeUserCallBack:function(items) {
+//    dlgEmployeeUserCallBack:function(items) {
+//		var me = this;
+//		
+//		var CHAIRMAN = "ประธานกรรมการ";
+//		var COMMITTEE = "กรรมการ";
+//		
+//		var grid = this.targetPanel;
+//		
+//		var store = grid.getStore();
+//		
+//		var maxId = 0;
+//		
+//		for(var a in items) {
+//			if (store.getCount() > 0)
+//			{
+//			  maxId = store.getAt(0).get('id');
+//			  store.each(function(rec)
+//			  {
+//			    maxId = Math.max(maxId, rec.get('id'));
+//			  });
+//			}
+//			
+//			var rec = Ext.create('PBPcm.model.CmtGridModel',{
+//				id : maxId+1,
+//				action : 'D' 
+//			});
+//			
+//			rec.set("code", items[a].data['code']);
+//			rec.set("title", items[a].data['title']);
+//			rec.set("fname", items[a].data['fname']);
+//			rec.set("lname", items[a].data['lname']);
+//			
+////			rec.set("unit_type", items[a].data['utype']);
+////			rec.set("position", items[a].data['position']);
+////			rec.set("position_id", items[a].data['position_id']);
+//			
+//			rec.set("position", COMMITTEE);
+//
+//			rec.commit();
+//			store.add(rec);
+//		}
+//
+//		if (store.getCount() > 1) {
+//			store.getAt(0).set("position", CHAIRMAN);
+//			store.getAt(0).commit();
+//		}
+//
+//	},
+	
+	dlgEmployeeUserCallBack:function(items) {
 		var me = this;
 		
 		var CHAIRMAN = "ประธานกรรมการ";
@@ -170,33 +219,34 @@ Ext.define('PBPcm.controller.committee.Form', {
 		
 		var maxId = 0;
 		
+		if (store.getCount() > 0)
+		{
+		  maxId = store.getAt(0).get('id');
+		  store.each(function(rec)
+		  {
+		    maxId = Math.max(maxId, rec.get('id'));
+		  });
+		}
+		
 		for(var a in items) {
-			if (store.getCount() > 0)
-			{
-			  maxId = store.getAt(0).get('id');
-			  store.each(function(rec)
-			  {
-			    maxId = Math.max(maxId, rec.get('id'));
-			  });
-			}
-			
 			var rec = Ext.create('PBPcm.model.CmtGridModel',{
 				id : maxId+1,
 				action : 'D' 
 			});
 			
-			rec.set("code", items[a].data['code']);
-			rec.set("title", items[a].data['title']);
-			rec.set("fname", items[a].data['fname']);
-			rec.set("lname", items[a].data['lname']);
-//			rec.set("unit_type", items[a].data['utype']);
-//			rec.set("position", items[a].data['position']);
-//			rec.set("position_id", items[a].data['position_id']);
+			var r = items[a];
+			
+			rec.set("code", r.get('code'));
+			rec.set("title", r.get('title'));
+			rec.set("fname", r.get('fname'));
+			rec.set("lname", r.get('lname'));
 			
 			rec.set("position", COMMITTEE);
-
+	
 			rec.commit();
 			store.add(rec);
+			
+			maxId++;
 		}
 
 		if (store.getCount() > 1) {
@@ -248,13 +298,21 @@ Ext.define('PBPcm.controller.committee.Form', {
 		
 		var me = this;
 		
-		var dialog = Ext.create('PB.view.common.SearchEmployeeUserDlg', {
-		    title : title,
+//		var dialog = Ext.create('PB.view.common.SearchEmployeeUserDlg', {
+//		    title : title,
+//			targetPanel:me.getCmtTab().getActiveTab(),
+//			validateCallback:me.employeeValidate,
+//			callback:me.dlgEmployeeUserCallBack,
+//			rec : rec,
+//		    needFootPrint : false
+//		});
+		
+		var dialog = Ext.create("PB.view.common.SearchUserDlg",{
+			title:title,
 			targetPanel:me.getCmtTab().getActiveTab(),
 			validateCallback:me.employeeValidate,
 			callback:me.dlgEmployeeUserCallBack,
-			rec : rec,
-		    needFootPrint : false
+			multiSelect:true
 		});
 		
 		return dialog;

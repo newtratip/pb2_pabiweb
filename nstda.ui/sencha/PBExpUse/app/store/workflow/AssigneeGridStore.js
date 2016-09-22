@@ -8,7 +8,7 @@ Ext.define('PBExpUse.store.workflow.AssigneeGridStore', {
         type: 'ajax',
         timeout: GRID_TIME_OUT,
         api: {
-        	read: ALF_CONTEXT+'/exp/wf/assignee/list'
+        	read: ALF_CONTEXT+'/exp/use/wf/assignee/list'
         },
         reader: {
             type: 'json',

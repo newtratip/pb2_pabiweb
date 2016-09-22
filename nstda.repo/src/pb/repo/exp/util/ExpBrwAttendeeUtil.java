@@ -2,6 +2,7 @@ package pb.repo.exp.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +36,7 @@ public class ExpBrwAttendeeUtil {
 			jsObj.put(ExpBrwAttendeeConstant.JFN_MASTER_ID, model.getMasterId());
 			jsObj.put(ExpBrwAttendeeConstant.JFN_TYPE, model.getType());
 			jsObj.put(ExpBrwAttendeeConstant.JFN_CODE, model.getCode());
+			jsObj.put(ExpBrwAttendeeConstant.JFN_TITLE, model.getTitle());
 			jsObj.put(ExpBrwAttendeeConstant.JFN_FNAME, model.getFname());
 			jsObj.put(ExpBrwAttendeeConstant.JFN_LNAME, model.getLname());
 			jsObj.put(ExpBrwAttendeeConstant.JFN_UNIT_TYPE, model.getUnitType());
@@ -64,6 +66,7 @@ public class ExpBrwAttendeeUtil {
 				model.setMasterId(masterId);
 				model.setType(jsonObj.getString(ExpBrwAttendeeConstant.JFN_TYPE));
 				model.setCode(jsonObj.getString(ExpBrwAttendeeConstant.JFN_CODE));
+				model.setTitle(jsonObj.getString(ExpBrwAttendeeConstant.JFN_TITLE));
 				model.setFname(jsonObj.getString(ExpBrwAttendeeConstant.JFN_FNAME));
 				model.setLname(jsonObj.getString(ExpBrwAttendeeConstant.JFN_LNAME));
 				model.setUnitType(jsonObj.getString(ExpBrwAttendeeConstant.JFN_UNIT_TYPE));
@@ -80,9 +83,9 @@ public class ExpBrwAttendeeUtil {
 		return list;
 	}
 	
-	public static void addAction(List<ExpBrwAttendeeModel> list) {
-		for (ExpBrwAttendeeModel model : list) {
-			model.setAction("ED");
+	public static void addAction(List<Map<String, Object>> list) {
+		for (Map<String, Object> model : list) {
+			model.put("action","ED");
 		}
 	}	
 }

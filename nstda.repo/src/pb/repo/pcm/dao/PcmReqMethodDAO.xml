@@ -16,7 +16,7 @@
 	<select id="list" resultType="map" parameterType="map">
 		select *,COUNT(*) OVER() totalRowCount
 		FROM
-		    pb2_ext_pr_method_view
+		    pb2_pr_method_view
 		WHERE
 			obj like #{objType} || '%'
 		<if test="total != null">
@@ -30,14 +30,14 @@
         select
 		    count(1)
 		from
-		    pb2_ext_pr_method_view
+		    pb2_pr_method_view
     </select>
     
     <select id="get" parameterType="string" resultMap="result">
         SELECT
 		    *
 		FROM
-		    pb2_ext_pr_method_view
+		    pb2_pr_method_view
 		WHERE id=#{id}
     </select>
     

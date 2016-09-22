@@ -30,7 +30,7 @@ public class ExpUseWorkflowWebScript {
 	ExpUseService expUseService;
 	
 	/*
-	 * id = pd id
+	 * id = ex id
 	 */
 	@Uri(URI_PREFIX + "/assignee/list")
 	public void handleAssigneeList(@RequestParam final String id,
@@ -55,7 +55,7 @@ public class ExpUseWorkflowWebScript {
 	}
 	
 	/*
-	 * id = memo id
+	 * id = ex id
 	 */
 	@Uri(URI_PREFIX + "/task/list")
 	public void handleTaskList(@RequestParam final String id
@@ -81,7 +81,7 @@ public class ExpUseWorkflowWebScript {
 	}
 	
 	/*
-	 * id = memo id
+	 * id = ex id
 	 */
 	@Uri(URI_PREFIX + "/dtl/list")
 	public void handleDetailList(@RequestParam final String id,

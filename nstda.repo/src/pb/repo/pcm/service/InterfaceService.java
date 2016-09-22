@@ -20,6 +20,7 @@ import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.NodeUtil;
+import pb.repo.admin.constant.MainBudgetSrcConstant;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainMasterModel;
@@ -64,7 +65,7 @@ public class InterfaceService {
 		return args;
 	}
 
-	private Map<String, Object> getConnectionConfig(String login) {
+	private Map<String, Object> getConnectionConfig(String login, String password) {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
@@ -77,7 +78,7 @@ public class InterfaceService {
 		Map<String,Object> user = userService.getByLogin(login);
 		
 		Integer usr = (Integer)user.get("id"); // uid 1='admin'
-		String pwd = "password"; // password
+		String pwd = password;
 		
 		log.info("host:"+host);
 		log.info("db:"+db);
@@ -103,7 +104,7 @@ public class InterfaceService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		try {
-			Map<String, Object> cfg = getConnectionConfig("admin");
+			Map<String, Object> cfg = getConnectionConfig(CommonConstant.EXT_ADMIN_USER,CommonConstant.EXT_ADMIN_PASSWORD);
 			XmlRpcClient client = getXmlRpcClient(cfg);
 			
 			List<Map<String, Object>> list = pcmReqService.listForInf(model.getId());
@@ -153,6 +154,9 @@ public class InterfaceService {
 	        
 	        List orderLine = new ArrayList();
 	        
+	        String fundId = data.get("fund_id")!=null ? data.get("fund_id").toString() : "";
+	        String contractDate = CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("contract_date"));
+	        
 	        for(Map<String, Object> dtl:list) {
 		        Map<String, Object> line = new HashMap<String, Object>();
 		        line.put("product_id.id","");
@@ -160,10 +164,10 @@ public class InterfaceService {
 		        line.put("name",dtl.get("description")); 
 		        line.put("product_qty",dtl.get("quantity")); 
 		        line.put("price_unit",dtl.get("price")); ////////
-		        line.put("fiscal_year_id",(Integer)dtl.get("fiscal_year") != 0 ? dtl.get("fiscal_year").toString() : ""); ////////
+		        line.put("fiscalyear_id",(Integer)dtl.get("fiscal_year") != 0 ? dtl.get("fiscal_year").toString() : ""); ////////
 		        line.put("product_uom_id.id",dtl.get("unit_id")); 
-		        line.put("date_required",CommonDateTimeUtil.convertToOdooFieldDate((Timestamp) data.get("contract_date")));
-		        if (dtl.get("budget_cc_type").equals("U")) {
+		        line.put("date_required", contractDate);
+		        if (dtl.get("budget_cc_type").equals(MainBudgetSrcConstant.TYPE_UNIT)) {
 		        	line.put("section_id.id",dtl.get("budget_cc"));
 		        } else {
 		        	line.put("project_id.id",dtl.get("budget_cc"));
@@ -171,6 +175,8 @@ public class InterfaceService {
 		        line.put("cost_control_id.id",dtl.get("cost_control_id")!=null ? dtl.get("cost_control_id") : "");
 		        line.put("fixed_asset","False");
 		        line.put("tax_ids",dtl.get("vat_name")!=null ? dtl.get("vat_name") : "");
+		        line.put("fund_id.id", fundId);
+		        
 		        orderLine.add(line);
 		        
 		        for(String key : line.keySet()) {
@@ -268,7 +274,7 @@ public class InterfaceService {
 		
 			try {
 				
-				Map<String, Object> cfg = getConnectionConfig(login);
+				Map<String, Object> cfg = getConnectionConfig(login,"password");
 				XmlRpcClient client = getXmlRpcClient(cfg);
 				
 				List args = getInitArgs(cfg);
@@ -324,7 +330,7 @@ public class InterfaceService {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		Map<String, Object> cfg = getConnectionConfig(login);
+		Map<String, Object> cfg = getConnectionConfig(login,"password");
 		XmlRpcClient client = getXmlRpcClient(cfg);
 		
 		List args = getInitArgs(cfg);
@@ -369,7 +375,7 @@ public class InterfaceService {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		Map<String, Object> cfg = getConnectionConfig(login);
+		Map<String, Object> cfg = getConnectionConfig(login,"password");
 		XmlRpcClient client = getXmlRpcClient(cfg);
 		
 		List args = getInitArgs(cfg);

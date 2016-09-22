@@ -23,6 +23,8 @@ public class PcmReqModel extends SubModuleModel {
 	String budgetCcType;
 	String budgetCcName;
 	String budgetCcTypeName;
+	Integer fundId;
+	String fundName;
 	
 	String isStock;
 	Integer stockSectionId;
@@ -56,6 +58,7 @@ public class PcmReqModel extends SubModuleModel {
 	Integer vatId;
 	
 	Double total;
+	Double totalCnv;
 	
 	Timestamp contractDate;
 	
@@ -160,6 +163,18 @@ public class PcmReqModel extends SubModuleModel {
 	public void setBudgetCcTypeName(String budgetCcTypeName) {
 		this.budgetCcTypeName = budgetCcTypeName;
 	}
+	public Integer getFundId() {
+		return fundId;
+	}
+	public void setFundId(Integer fundId) {
+		this.fundId = fundId;
+	}
+	public String getFundName() {
+		return fundName;
+	}
+	public void setFundName(String fundName) {
+		this.fundName = fundName;
+	}
 	public String getPrototype() {
 		return prototype;
 	}
@@ -213,6 +228,12 @@ public class PcmReqModel extends SubModuleModel {
 	}
 	public void setTotal(Double total) {
 		this.total = total;
+	}
+	public Double getTotalCnv() {
+		return totalCnv;
+	}
+	public void setTotalCnv(Double totalCnv) {
+		this.totalCnv = totalCnv;
 	}
 	public Double getVat() {
 		return vat;

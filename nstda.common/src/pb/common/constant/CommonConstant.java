@@ -225,6 +225,12 @@ public class CommonConstant {
     /*
      * Dummy
      */
-    public static final String DUMMY_EMPLOYEE_CODE = "XXXXXX"; 
+    public static final String DUMMY_EMPLOYEE_CODE = "XXXXXX";
 
+    /*
+     * EXT
+     */
+    public static final String EXT_ADMIN_USER = "admin";
+    public static final String EXT_ADMIN_PASSWORD = "admin";
+    
 }

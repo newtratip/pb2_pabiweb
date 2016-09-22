@@ -20,6 +20,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.model.FileFolderService;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -374,7 +375,7 @@ public class MainWorkflowService {
     	    }, AuthenticationUtil.getAdminUserName());    		
     }
     
-    private void setReviewer(Map<QName, Serializable> parameters, SubModuleModel model, final NodeRef folderNodeRef, String docType) throws Exception {
+    private void setReviewer(Map<QName, Serializable> parameters, final SubModuleModel model, final NodeRef folderNodeRef, String docType) throws Exception {
     	
     	Map<String, String> bossMap = moduleService.getBossMap(docType, model);
 
@@ -443,7 +444,7 @@ public class MainWorkflowService {
     			
     			//reviewerUser = reviewerUser.substring(1, reviewerUser.length()-1);
  
-        			for(String appUser : reviewerUser.split(",")) {
+        		for(String appUser : reviewerUser.split(",")) {
            			if(!permissionUser.contains(appUser)) {
         				permissionUser.add(appUser);
         			}
@@ -477,7 +478,21 @@ public class MainWorkflowService {
 	        		if(!permissionService.getPermissions(folderNodeRef).contains(uu)) {
 	        			permissionService.setPermission(folderNodeRef, uu, "SiteCollaborator", true);
 	        		}
-
+	        		
+	        		if (moduleService.addPermissionToAttached()) {
+	        			if (model.getListAttachDoc()!=null) {
+			        		for(String attNodeRef : model.getListAttachDoc()) {
+			        			NodeRef att = new NodeRef(attNodeRef);
+			        			if(nodeService.exists(att)) {
+				        			ChildAssociationRef parent = nodeService.getPrimaryParent(att);
+				        			
+					        		if(!permissionService.getPermissions(folderNodeRef).contains(uu)) {
+					        			permissionService.setPermission(parent.getParentRef(), uu, "SiteCollaborator", true);
+					        		}
+			        			}
+			        		}
+	        			}
+	        		}
 	        	}
 	        	return "A";
 			}

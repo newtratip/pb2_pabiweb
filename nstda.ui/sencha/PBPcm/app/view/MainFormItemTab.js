@@ -44,7 +44,6 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 				{ text: PBPcm.Label.t.qty,  dataIndex: 'quantity', width:80, align:'right', xtype: 'numbercolumn', format:'0,000'},
 				{ text: PBPcm.Label.t.uom,  dataIndex: 'unit', width:110, align:'center'},
 				{ text: PBPcm.Label.t.prc,  dataIndex: 'price', width:100, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
-				{ text: PBPcm.Label.t.prcCnv,  dataIndex: 'priceCnv', width:185, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
 				{ text: PBPcm.Label.t.subtotal,  dataIndex: 'total', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
 		);
 		
@@ -56,7 +55,8 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 		
 		var store = Ext.create('PBPcm.store.ItemGridStore');
 		
-		var lbw = parseInt(PBPcm.Label.t.lbw);		
+		var lbw = parseInt(PBPcm.Label.t.lbw);
+		var fw = 205;
 
 		Ext.applyIf(me, {
 			items:[{
@@ -79,9 +79,10 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 
 				},{
 					xtype:'container',
+					itemId:'totalPanel',
 					region:'south',
 					layout:'border',
-					height:90,
+					height:replaceIfNull(me.rec.currency, "THB") == "THB" ? 88 : 115,
 					style:'background-color:white',
 					items:[{
 						xtype:'container',
@@ -100,12 +101,12 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 							items:[{
 								xtype:'label',
 								text:PBPcm.Label.t.gross,
-								width:lbw+15
+								width:lbw+80
 							},{
 								xtype:'label',
 								name:'grossAmt',
 								style:'text-align:right;',
-								width:210
+								width:fw
 							}]
 						},{
 							xtype:'container',
@@ -123,7 +124,7 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 								labelWidth:lbw,
 						    	displayField:'name',
 						    	valueField:'id',
-						        emptyText : "โปรดเลือก",
+						        emptyText : PB.Label.m.select,
 						        store: vatStore,
 						        queryMode: 'local',
 						        multiSelect:false,
@@ -142,7 +143,7 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 								xtype:'label',
 								name:'vatAmt',
 								style:'text-align:right;',
-								width:100,
+								width:fw-45,
 								margin:'3 0 0 10'
 							}]
 						},{
@@ -152,17 +153,39 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 							margin:'5 5 0 5',
 							items:[{
 								xtype:'label',
-								text:PBPcm.Label.t.total,
-								width:lbw+15
+								itemId:'lblTotal',
+								text:PBPcm.Label.t.total + (replaceIfNull(me.rec.currency, "THB")=="THB" ? "" : " ("+ me.rec.currency +")"),
+								width:lbw+80
 							},{
 								xtype:'label',
 								name:'netAmt',
 								style:'text-align:right;',
-								width:210
+								width:fw
 							},{
 								xtype:'hiddenfield',
 								name:'total',
 								value:replaceIfNull(me.rec.total, 0)
+							}]
+						},{
+							xtype:'container',
+							layout:'hbox',
+							border:0,
+							margin:'5 5 0 5',
+							items:[{
+								xtype:'label',
+								itemId:'lblTotalCnv',
+								text:PBPcm.Label.t.total + ' (x'+replaceIfNull(me.rec.currency_rate, "1")+' THB)',
+								width:lbw+80
+							},{
+								xtype:'label',
+								name:'netAmtCnv',
+								style:'text-align:right;',
+								width:fw
+							},{
+								xtype:'hiddenfield',
+								name:'totalCnv'
+//									,
+//								value:replaceIfNull(me.rec.totalCnv, 0)
 							}]
 						}]
 					}]
@@ -180,10 +203,6 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 				me.fireEvent("itemStoreLoad");
 			}
 		});
-	},
-	
-	equipmentRenderer:function(v) {
-		return ((v == "1") ? "ครุภัณฑ์" : "ค่าใช้จ่าย");
 	}
     
 });

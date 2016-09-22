@@ -14,7 +14,7 @@ Ext.define('PBPcm.controller.Form', {
         ref: 'hidId',     
         selector: 'pcmReqMainForm field[name=id]'
     },{
-        ref: 'hidStatus',     
+        ref: 'hidStatus',
         selector: 'pcmReqMainForm field[name=status]'
     },{
         ref: 'txtReqBy',     
@@ -46,6 +46,9 @@ Ext.define('PBPcm.controller.Form', {
     },{
         ref: 'hidBudgetCc',
         selector: 'pcmReqMainForm field[name=budgetCc]'
+    },{
+        ref: 'hidFundId',
+        selector: 'pcmReqMainForm field[name=fundId]'
     },{
         ref: 'raStock',
         selector: 'pcmReqMainForm field[name=isStock]'
@@ -98,6 +101,9 @@ Ext.define('PBPcm.controller.Form', {
         ref: 'hidTotal',     
         selector: 'pcmReqMainForm field[name=total]'
     },{
+        ref: 'hidTotalCnv',     
+        selector: 'pcmReqMainForm field[name=totalCnv]'
+    },{
         ref: 'cmbMethod',     
         selector: 'pcmReqMainForm field[name=method]'
     },{
@@ -127,6 +133,18 @@ Ext.define('PBPcm.controller.Form', {
 	},{
     	ref:'itemGrid',
     	selector:'pcmReqItemTab grid'
+	},{
+    	ref:'totalPanel',
+    	selector:'pcmReqItemTab [itemId=totalPanel]'
+	},{
+    	ref:'lblTotal',
+    	selector:'pcmReqItemTab [itemId=lblTotal]'
+	},{
+    	ref:'lblTotalCnv',
+    	selector:'pcmReqItemTab [itemId=lblTotalCnv]'
+    },{
+        ref: 'lblNetAmtCnv',
+        selector:'pcmReqItemTab label[name=netAmtCnv]'
 	},{
     	ref:'cmtTab',
     	selector:'pcmReqCmtTab tabpanel'
@@ -182,7 +200,8 @@ Ext.define('PBPcm.controller.Form', {
 				selectIsPrototype:me.selectIsPrototype,
 				isAcrossBudget:me.isAcrossBudget,
 				isRefId:me.isRefId,
-				acrossBudgetBlur:me.acrossBudgetBlur
+				acrossBudgetBlur:me.acrossBudgetBlur,
+				changeRate:me.changeRate
 			},
 			'button': {
 				searchPR : me.searchPR
@@ -230,6 +249,23 @@ Ext.define('PBPcm.controller.Form', {
 				i++;
 			}
 			
+			if (me.getChkAcrossBudget().getValue()) {
+				var validFY = true;
+				me.getItemGrid().getStore().each(function(record,id){
+					if (!record.get("fiscalYear") || record.get("fiscalYear")==0) {
+						validFY = false;
+					}
+				});
+				
+				if (!validFY) {
+					if (msg) {
+						msg += "<br/>";
+					}
+					
+					msg += i+".บางรายการไม่ได้ระบุปีงบประมาณ";
+					i++;
+				}
+			}
 			// check total with across budget
 //			if (me.getChkAcrossBudget().getValue()) {
 //				var acbg = parseFloat(me.getTxtAcrossBudget().getValue());
@@ -522,6 +558,8 @@ Ext.define('PBPcm.controller.Form', {
 		params.budgetCcType = me.getHidBudgetCcType().getValue();
 		params.budgetCc = me.getHidBudgetCc().getValue();
 		
+		params.fundId = me.getHidFundId().getValue();
+		
 //		params.isStock = (me.getRaStock().getValue() ? "1" : "0");
 //		params.stockOu = me.getCmbStockOu().getValue();
 		
@@ -552,6 +590,7 @@ Ext.define('PBPcm.controller.Form', {
 		params.vat = me.getHidVat().getValue();
 		
 		params.total = me.getHidTotal().getValue();
+		params.totalCnv = me.getHidTotalCnv().getValue();
 		
 		params.items = me.getItems();
 		params.files = me.listFiles();
@@ -885,6 +924,12 @@ Ext.define('PBPcm.controller.Form', {
 		if (newV == "THB") {
 			me.getTxtCurrencyRate().setValue(1);
 			me.getTxtCurrencyRate().disable();
+			
+			me.getTotalPanel().setHeight(88);
+			
+			me.getLblTotal().setText(PBPcm.Label.t.total);
+			
+			me.getHidTotalCnv().setValue(me.getHidTotal().getValue());
 		}
 		else {
 			
@@ -903,7 +948,12 @@ Ext.define('PBPcm.controller.Form', {
 			    	 if(json.success){
 			    	  
 			    		 me.getTxtCurrencyRate().setValue(json.data);
-			    		
+			    		 
+			 			 me.getLblTotalCnv().setText(PBPcm.Label.t.total+" (x"+ json.data +" THB)");
+			 			 
+			 			 me.getHidTotalCnv().setValue(me.getHidTotal().getValue() * json.data);
+
+			 			 me.getLblNetAmtCnv().setText(Ext.util.Format.number(me.getHidTotalCnv().getValue(), DEFAULT_MONEY_FORMAT));
 			    	 }else{
 			    		 PB.Dlg.error('ERR_'+me.CURRENCY_RATE_MSG_KEY, MODULE_PCM);
 			    	 }
@@ -914,7 +964,14 @@ Ext.define('PBPcm.controller.Form', {
 			     },
 			     headers: getAlfHeader()
 			});
+			
+			me.getTotalPanel().setHeight(115);
+			
+			me.getLblTotal().setText(PBPcm.Label.t.total+" ("+ newV +")");
 		}
+		
+//		me.getItemTab().doLayout();
+
 	},
 	
 	selectPrototype:function(cmb, newV, oldV) {
@@ -1003,12 +1060,15 @@ Ext.define('PBPcm.controller.Form', {
 		me.getRaPrototypeNo().clearInvalid();
 	},
 	
-	selectBudgetCcCallBack:function(ids, type, typeName) {
+	selectBudgetCcCallBack:function(ids, type, typeName, fund, fundName) {
 		var tab = this.targetPanel;
 		setValue(tab, 'budgetCc', ids[0]);
 		setValue(tab, 'budgetCcName', ids[1]);
 		setValue(tab, 'budgetCcType', type);
 		setValue(tab, 'budgetCcTypeName', typeName);
+		
+		setValue(tab, 'fundId', fund);
+		setValue(tab, 'fundName', fundName);
 		
 		tab.down("button[action='showBudget']").show();
 	},
@@ -1027,7 +1087,7 @@ Ext.define('PBPcm.controller.Form', {
 	selectReqByCallBack:function(id, rec) {
 		var tab = this.targetPanel;
 		setValue(tab, 'reqBy', rec.get('emp_id'));
-		setValue(tab, 'reqByName', rec.get('first_name') + ' ' + rec.get('last_name'));
+		setValue(tab, 'reqByName', rec.get('title') + ' ' + rec.get('first_name') + ' ' + rec.get('last_name'));
 
 		var mphone = rec.get("mobile_phone")!=null ? rec.get("mobile_phone") : "";
 		var wphone = rec.get("work_phone")!=null ? rec.get("work_phone") : "";
@@ -1127,7 +1187,6 @@ Ext.define('PBPcm.controller.Form', {
 				{ text: PBPcm.Label.t.qty,  dataIndex: 'quantity', width:80, align:'right', xtype: 'numbercolumn', format:'0,000'},
 				{ text: PBPcm.Label.t.uom,  dataIndex: 'unit', width:110, align:'center'},
 				{ text: PBPcm.Label.t.prc,  dataIndex: 'price', width:100, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
-				{ text: PBPcm.Label.t.prcCnv,  dataIndex: 'priceCnv', width:185, align:'right', xtype: 'numbercolumn', format:'0,000.00'},
 				{ text: PBPcm.Label.t.subtotal,  dataIndex: 'total', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
 		);
 		
@@ -1235,6 +1294,14 @@ Ext.define('PBPcm.controller.Form', {
 				}).show();
 		    }
 		});		
+	},
+	
+	changeRate:function() {
+		var me = this;
+		var rate = me.getTxtCurrencyRate().getValue();
+		me.getLblTotalCnv().setText(PBPcm.Label.t.total+" (x"+ rate +" THB)");
+		me.getHidTotalCnv().setValue(me.getHidTotal().getValue() * rate);
+		me.getLblNetAmtCnv().setText(Ext.util.Format.number(me.getHidTotalCnv().getValue(), DEFAULT_MONEY_FORMAT));
 	}
 
 });

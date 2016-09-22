@@ -28,7 +28,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		var bankStore = Ext.create('PB.store.common.ComboBoxStore');
 		bankStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/bank/list';
 		bankStore.getProxy().extraParams = {
-			all : true
+			lang:getLang()
 		}
 		bankStore.load();
 		
@@ -94,6 +94,66 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 			items:[{
 				xtype:'container',
 				layout:'hbox',
+				anchor:'-10',
+				items:[{
+					xtype:'hidden',
+					name:'fundId',
+					value:replaceIfNull(me.rec.fund_id, null)
+				},{
+					xtype:'hidden',
+					name:'budgetCcType',
+					value:replaceIfNull(me.rec.budget_cc_type, null)
+				},{
+					xtype:'hidden',
+					name:'budgetCc',
+					value:replaceIfNull(me.rec.budget_cc, null)
+				},{
+					xtype:'trigger',
+					name:'budgetCcTypeName',
+					fieldLabel:mandatoryLabel(PB.Label.b.name),
+					width:lbw+180,
+					labelWidth:lbw,
+					margin:"5 0 0 10",
+					triggerCls:'x-form-search-trigger',
+					editable:false,
+					onTriggerClick:function(evt) {
+						me.fireEvent("selectBudgetCc");
+					},
+					value:replaceIfNull(me.rec.budget_cc_type_name, ''),
+					allowBlank:false
+				},{
+					xtype:'button',
+					hidden:replaceIfNull(me.rec.budget_cc_type, null) == null,
+					iconCls:'icon_money',
+					margin:"5 0 0 10",
+					text:'',
+					action:'showBudget'
+				},{
+					xtype:'textfield',
+					name:'budgetCcName',
+					hideLabel:true,
+					flex:1,
+					margin:'5 0 0 10',
+					value:replaceIfNull(me.rec.budget_cc_name, ''),
+					readOnly:true,
+					fieldStyle:READ_ONLY
+				},{
+					xtype:'textfield',
+					name:'fundName',
+					hideLabel:true,
+					flex:1,
+					margin:'5 0 0 10',
+					value:replaceIfNull(me.rec.fund_name, ''),
+					readOnly:true,
+					fieldStyle:READ_ONLY
+				},{
+					xtype:'hidden',
+					name:'total',
+					value:replaceIfNull(me.rec.total, 0)
+				}]
+			},{
+				xtype:'container',
+				layout:'hbox',
 				margin:"5 0 0 10",
 				anchor:"-10",
 				items:[{
@@ -103,7 +163,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					errLabel:PBExp.Label.n.err_objType,
 			    	displayField:'name',
 			    	valueField:'id',
-			        emptyText : "โปรดเลือก",
+			        emptyText : PB.Label.m.select,
 			        store: store,
 			        queryMode: 'local',
 			        typeAhead:true,
@@ -124,7 +184,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 			//				qe.forceAll = true;
 						},
 	    	       	    change : function(combo, newValue, oldValue, e){
-	    	       		   me.fireEvent("selectObjective",combo, newValue, oldValue);
+	    	       		   me.fireEvent("selectObjectiveType",combo, newValue, oldValue);
 	    	       	    }
 					},
 					value:replaceIfNull(me.rec.objective_type, null)
@@ -132,51 +192,75 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					xtype:'textfield',
 					name:'objective',
 					fieldLabel:mandatoryLabel(PBExp.Label.n.obj),
-					labelWidth:160,
+					labelWidth:120,
 					margin:"0 0 0 15",
 					flex:1,
 					allowBlank:false,
 					value:replaceIfNull(me.rec.objective, null)
+				},{
+					xtype:'datefield',
+					name:'dateBack',
+					fieldLabel:mandatoryLabel(PBExp.Label.n.dateBack),
+					labelWidth:90,
+					margin:"0 0 0 15",
+					width:lbw+80,
+					format:'d/m/Y',
+					value:me.rec.date_back ? new Date(me.rec.date_back) : null,
+					allowBlank:false,
+					hidden:me.rec.date_back ? false : true,
+					disabled:me.rec.date_back ? false : true
 				}]
 			},{
 				xtype:'container',
 				layout:'hbox',
 				anchor:'-10',
+				margin:'5 0 0 10',
 				items:[{
 					xtype:'hidden',
-					name:'budgetCcType',
-					value:replaceIfNull(me.rec.budget_cc_type, null)
+					name:'costControlId',
+					value:replaceIfNull(me.rec.cost_control_id, null)
 				},{
 					xtype:'hidden',
-					name:'budgetCc',
-					value:replaceIfNull(me.rec.budget_cc, null)
+					name:'costControlTypeId',
+					value:replaceIfNull(me.rec.cost_control_type_id, null)
 				},{
 					xtype:'trigger',
-					name:'budgetCcTypeName',
-					fieldLabel:mandatoryLabel(PBExp.Label.n.budgetSrc),
+					name:'costControlTypeName',
+					fieldLabel:PBExp.Label.n.cc,
 					width:lbw+180,
 					labelWidth:lbw,
-					margin:"5 0 0 10",
-					triggerCls:'x-form-search-trigger',
+					trigger1Cls: 'x-form-clear-trigger',
+				    trigger2Cls: 'x-form-search-trigger',
+				    hideTrigger1: true,
+				    hasSearch : false,
 					editable:false,
-					onTriggerClick:function(evt) {
-						me.fireEvent("selectBudgetCc");
+					onTrigger1Click:function(evt) {
+						this.triggerEl.item(0).dom.parentNode.style.width = "0px";
+						me.fireEvent("clearCostControl");
 					},
-					value:replaceIfNull(me.rec.budget_cc_type_name, ''),
-					allowBlank:false
+					onTrigger2Click:function(evt) {
+						me.fireEvent("selectCostControl");
+					},
+					listeners:{
+						afterrender:function() {
+							var w = this.getValue() ? "17" : "0";
+							this.triggerEl.item(0).dom.parentNode.style.width = w+"px";
+						},
+						change:function(trigger, newV, oldV) {
+							var w = newV ? "17" : "0";
+							this.triggerEl.item(0).dom.parentNode.style.width = w+"px";
+						}
+					},
+					value:replaceIfNull(me.rec.cost_control_type_name, null)
 				},{
 					xtype:'textfield',
-					name:'budgetCcName',
+					name:'costControlName',
 					hideLabel:true,
 					flex:1,
-					margin:'5 0 0 10',
-					value:replaceIfNull(me.rec.budget_cc_name, ''),
+					margin:'0 0 0 15',
+					value:replaceIfNull(me.rec.cost_control_name, null),
 					readOnly:true,
 					fieldStyle:READ_ONLY
-				},{
-					xtype:'hidden',
-					name:'total',
-					value:replaceIfNull(me.rec.total, 0)
 				}]
 			},{
 				xtype:'panel',
@@ -219,7 +303,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				itemId:'itemGrid',
 				columns:columns,
 				store:gridStore,
-				height:HEIGHT-445,
+				height:HEIGHT-500,
 			    header:{
 					titlePosition:0,
 					items:[{
@@ -249,6 +333,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				xtype:'panel',
 				title:PBExp.Label.n.methodTitle,
 				margin:'0 0 0 0',
+				border:0,
 				items:[{
 					xtype:'radio',
 					name:'bankType',
@@ -285,13 +370,13 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					},{
 						xtype:'combo',
 						name:'bank',
-						margin:'5 0 0 5',
+						margin:'5 10 0 5',
 						hideLabel:true,
 				    	displayField:'name',
 				    	valueField:'id',
-				        emptyText : "โปรดเลือก",
+				        emptyText : PB.Label.m.select,
 				        store: bankStore,
-				        queryMode: 'local',
+//				        queryMode: 'local',
 				        typeAhead:true,
 				        multiSelect:false,
 				        forceSelection:true,
@@ -304,18 +389,19 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
 						    }
 						},
-				        listeners:{
-							beforequery : function(qe) {
-								qe.query = new RegExp(qe.query, 'i');
-				//				qe.forceAll = true;
-		    	       	    }
-						},
+//				        listeners:{
+//							beforequery : function(qe) {
+//								qe.query = new RegExp(qe.query, 'i');
+//				//				qe.forceAll = true;
+//		    	       	    }
+//						},
 						value:replaceIfNull(me.rec.bank, null)						
-					},{
-						xtype:'label',
-						html:'<font color="red">'+PBExp.Label.n.bankWarn+'</font>',
-						margin:'5 10 0 5'
 					}]
+				},{
+					xtype:'label',
+					html:'<font color="red">'+PBExp.Label.n.bankWarn+'</font>',
+					margin:'5 10 5 15',
+					anchor:"-10"
 				}]
 			}]
 		});		

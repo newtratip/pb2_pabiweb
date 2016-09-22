@@ -74,6 +74,111 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 			items:[{
 				xtype:'container',
 				layout:'hbox',
+				anchor:'-10',
+				items:[{
+					xtype:'hidden',
+					name:'fundId',
+					value:replaceIfNull(me.rec.fund_id, null)
+				},{
+					xtype:'hidden',
+					name:'budgetCcType',
+					value:replaceIfNull(me.rec.budget_cc_type, null)
+				},{
+					xtype:'hidden',
+					name:'budgetCc',
+					value:replaceIfNull(me.rec.budget_cc, null)
+				},{
+					xtype:'trigger',
+					name:'budgetCcTypeName',
+					fieldLabel:mandatoryLabel(PB.Label.b.name),
+					width:lbw+110,
+					labelWidth:lbw,
+					margin:"5 0 0 10",
+					triggerCls:'x-form-search-trigger',
+					editable:false,
+					onTriggerClick:function(evt) {
+						me.fireEvent("selectBudgetCc");
+					},
+					value:me.budgetSrcTypeName(replaceIfNull(me.rec.budget_cc_type, '')),
+					allowBlank:false
+				},{
+					xtype:'button',
+					hidden:replaceIfNull(me.rec.budget_cc_type, null) == null,
+					iconCls:'icon_money',
+					margin:"5 0 0 10",
+					text:'',
+					action:'showBudget'
+				},{
+					xtype:'textfield',
+					name:'budgetCcName',
+					hideLabel:true,
+					flex:1,
+					margin:'5 0 0 10',
+					value:replaceIfNull(me.rec.budget_cc_name, ''),
+					readOnly:true,
+					fieldStyle:READ_ONLY
+				},{
+					xtype:'textfield',
+					name:'fundName',
+					hideLabel:true,
+					flex:1,
+					margin:'5 0 0 10',
+					value:replaceIfNull(me.rec.fund_name, ''),
+					readOnly:true,
+					fieldStyle:READ_ONLY
+				}]
+	//		},{
+	//			xtype:'container',
+	//			margin:'5 0 0 10',
+	//			layout:{
+	//				type:'hbox',
+	//				align:'middle'
+	//			},
+	//			items:[{
+	//				xtype:'label',
+	//				text:'ประเภทการซื้อ:',
+	//				width:lbw
+	//			},{
+	//				xtype:'radio',
+	//				name:'isStock',
+	//				boxLabel:'เข้า  Stock',
+	//				inputValue:'1',
+	//				margin:'0 0 0 5',
+	//				checked:replaceIfNull(me.rec.is_stock, "0") == "1" 
+	//			},{
+	//				xtype:'combo',
+	//				name:'stockOu',
+	//				hideLabel:true,
+	//		    	displayField:'name',
+	//		    	valueField:'id',
+	//		        emptyText : "",
+	//		        store: stockStore,
+	//		        queryMode: 'local',
+	//		        typeAhead:true,
+	//		        multiSelect:false,
+	//		        forceSelection:true,
+	//				width:320,
+	//				margin:"5 0 0 10",
+	//				value:replaceIfNull(me.rec.stock_ou, null),
+	//				readOnly:true
+	//			},{
+	//				xtype:'radio',
+	//				name:'isStock',
+	//				boxLabel:'ไม่เข้า Stock',
+	//				inputValue:'0',
+	//				margin:'0 0 0 20',
+	//				checked:replaceIfNull(me.rec.is_stock, "0") == "0",
+	//				listeners:{
+	//					change:function(rad, newV) {
+	//						if (newV) {
+	//							me.fireEvent("notStock",rad);
+	//						}
+	//					}
+	//				}
+	//			}]
+			},{
+				xtype:'container',
+				layout:'hbox',
 				margin:"5 0 0 10",
 				anchor:"-10",
 				items:[{
@@ -83,7 +188,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					errLabel:PBPcm.Label.n.err_objType, 
 			    	displayField:'name',
 			    	valueField:'id',
-			        emptyText : "โปรดเลือก",
+			        emptyText : PB.Label.m.select,
 			        store: store,
 			        queryMode: 'local',
 			        typeAhead:true,
@@ -131,7 +236,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					fieldLabel:mandatoryLabel(PBPcm.Label.n.reason),
 			    	displayField:'name',
 			    	valueField:'id',
-			        emptyText : "โปรดเลือก",
+			        emptyText : PB.Label.m.select,
 			        store: reasonStore,
 			        queryMode: 'local',
 			        typeAhead:true,
@@ -168,7 +273,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					fieldLabel:mandatoryLabel(PBPcm.Label.n.currency),
 			    	displayField:'name',
 			    	valueField:'id',
-			        emptyText : "โปรดเลือก",
+			        emptyText : PB.Label.m.select,
 			        store: currencyStore,
 			        queryMode: 'local',
 			        typeAhead:true,
@@ -196,100 +301,13 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					allowBlank:false,
 					value:replaceIfNull(me.rec.currency_rate, "1"),
 					disabled:replaceIfNull(me.rec.currency, "THB") == "THB",
-					hideTrigger:true
+					hideTrigger:true,
+					listeners: {
+	    	       	   blur : function(txt, e){
+							me.fireEvent("changeRate", txt);
+	    	       	   }
+	                }
 				}]
-			},{
-				xtype:'container',
-				layout:'hbox',
-				anchor:'-10',
-				items:[{
-					xtype:'hidden',
-					name:'budgetCcType',
-					value:replaceIfNull(me.rec.budget_cc_type, null)
-				},{
-					xtype:'hidden',
-					name:'budgetCc',
-					value:replaceIfNull(me.rec.budget_cc, null)
-				},{
-					xtype:'trigger',
-					name:'budgetCcTypeName',
-					fieldLabel:mandatoryLabel(PBPcm.Label.n.budgetSrc),
-					width:lbw+110,
-					labelWidth:lbw,
-					margin:"5 0 0 10",
-					triggerCls:'x-form-search-trigger',
-					editable:false,
-					onTriggerClick:function(evt) {
-						me.fireEvent("selectBudgetCc");
-					},
-					value:me.budgetSrcTypeName(replaceIfNull(me.rec.budget_cc_type, '')),
-					allowBlank:false
-				},{
-					xtype:'button',
-					hidden:replaceIfNull(me.rec.budget_cc_type, null) == null,
-					iconCls:'icon_money',
-					margin:"5 0 0 10",
-					text:'',
-					action:'showBudget'
-				},{
-					xtype:'textfield',
-					name:'budgetCcName',
-					hideLabel:true,
-					flex:1,
-					margin:'5 0 0 10',
-					value:replaceIfNull(me.rec.budget_cc_name, ''),
-					readOnly:true,
-					fieldStyle:READ_ONLY
-				}]
-//			},{
-//				xtype:'container',
-//				margin:'5 0 0 10',
-//				layout:{
-//					type:'hbox',
-//					align:'middle'
-//				},
-//				items:[{
-//					xtype:'label',
-//					text:'ประเภทการซื้อ:',
-//					width:lbw
-//				},{
-//					xtype:'radio',
-//					name:'isStock',
-//					boxLabel:'เข้า  Stock',
-//					inputValue:'1',
-//					margin:'0 0 0 5',
-//					checked:replaceIfNull(me.rec.is_stock, "0") == "1" 
-//				},{
-//					xtype:'combo',
-//					name:'stockOu',
-//					hideLabel:true,
-//			    	displayField:'name',
-//			    	valueField:'id',
-//			        emptyText : "",
-//			        store: stockStore,
-//			        queryMode: 'local',
-//			        typeAhead:true,
-//			        multiSelect:false,
-//			        forceSelection:true,
-//					width:320,
-//					margin:"5 0 0 10",
-//					value:replaceIfNull(me.rec.stock_ou, null),
-//					readOnly:true
-//				},{
-//					xtype:'radio',
-//					name:'isStock',
-//					boxLabel:'ไม่เข้า Stock',
-//					inputValue:'0',
-//					margin:'0 0 0 20',
-//					checked:replaceIfNull(me.rec.is_stock, "0") == "0",
-//					listeners:{
-//						change:function(rad, newV) {
-//							if (newV) {
-//								me.fireEvent("notStock",rad);
-//							}
-//						}
-//					}
-//				}]
 			},{
 				xtype:'container',
 				margin:'5 0 0 10',
@@ -343,7 +361,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					fieldLabel:PBPcm.Label.n.ptt,
 			    	displayField:'name',
 			    	valueField:'id',
-			        emptyText : "โปรดเลือก",
+			        emptyText : PB.Label.m.select,
 			        store: prototypeStore,
 			        queryMode: 'local',
 			        editable:false,
@@ -446,7 +464,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 //				fieldLabel:'หน่วยงานที่จัดซื้อ/จัดจ้าง',
 //		    	displayField:'name',
 //		    	valueField:'id',
-//		        emptyText : "โปรดเลือก",
+//		        emptyText : PB.Label.m.select,
 //		        store: purUnitStore,
 //		        queryMode: 'local',
 //		        typeAhead:true,

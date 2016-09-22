@@ -49,5 +49,5 @@ public interface SubModuleService {
 //	public Map<String, String> getBossMap(String docType, String type, String costCenter, String reqUser, Double amount);
 	public Map<String, String> getBossMap(String docType, SubModuleModel model) throws Exception;
 	
-	
+	public Boolean addPermissionToAttached();
 }

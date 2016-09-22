@@ -15,9 +15,7 @@ public class PcmReqDtlModel extends BaseDataModel {
 	Integer unitId;
 	String unit;
 	Double price;
-	Double priceCnv;
 	Double total;
-	String isEquipment;
 	Integer fiscalYear;
 	
 	Timestamp createdTime;
@@ -91,28 +89,12 @@ public class PcmReqDtlModel extends BaseDataModel {
 		this.price = price;
 	}
 
-	public Double getPriceCnv() {
-		return priceCnv;
-	}
-
-	public void setPriceCnv(Double priceCnv) {
-		this.priceCnv = priceCnv;
-	}
-
 	public Double getTotal() {
 		return total;
 	}
 
 	public void setTotal(Double total) {
 		this.total = total;
-	}
-
-	public String getIsEquipment() {
-		return isEquipment;
-	}
-
-	public void setIsEquipment(String isEquipment) {
-		this.isEquipment = isEquipment;
 	}
 
 	public String getUnit() {

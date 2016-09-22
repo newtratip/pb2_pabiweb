@@ -11,6 +11,7 @@ public class ExpBrwAttendeeConstant {
 	public static final String TFN_MASTER_ID = "MASTER_ID";
 	public static final String TFN_TYPE = "TYPE";
 	public static final String TFN_CODE = "CODE";
+	public static final String TFN_TITLE = "TITLE";
 	public static final String TFN_FNAME = "FNAME";
 	public static final String TFN_LNAME = "LNAME";
 	public static final String TFN_UNIT_TYPE = "UNIT_TYPE";
@@ -26,6 +27,7 @@ public class ExpBrwAttendeeConstant {
 	public static final String JFN_MASTER_ID = "masterId";
 	public static final String JFN_TYPE = "type";
 	public static final String JFN_CODE = "code";
+	public static final String JFN_TITLE = "title";
 	public static final String JFN_FNAME = "fname";
 	public static final String JFN_LNAME = "lname";
 	public static final String JFN_UNIT_TYPE = "unit_type";

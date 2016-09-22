@@ -52,6 +52,9 @@ public class MainMasterConstant {
 	public static final String TYPE_WORKFLOW = "W";
 	public static final String TYPE_REPORT = "R";
 	public static final String TYPE_PROTOTYPE = "PTT";
+	
+	public static final String TYPE_EXP_BRW_TYPE = "BRW_TYPE";
+	public static final String TYPE_EXP_EXP_TYPE = "EXP_TYPE";
 
 	/*
 	 * System Configuration Code
@@ -73,6 +76,7 @@ public class MainMasterConstant {
     
     public static final String SCC_MAIN_INF_CHECK_BUDGET 	    = "MAIN_INF_CHECK_BUDGET";  // Check Budget
     public static final String SCC_MAIN_INF_PD_UPDATE_STATUS 	= "MAIN_INF_PD_UPDATE_STATUS";  // PD Update Status
+    public static final String SCC_MAIN_INF_AV_CREATE_AV 		= "MAIN_INF_AV_CREATE_AV";  // Create AV
     
 	// PCM
     public static final String SCC_PCM_REQ_SITE_ID 	    		= "PCM_REQ_SITE_ID";  // Site ID for Store Files

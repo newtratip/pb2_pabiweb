@@ -12,7 +12,7 @@
 
 	<select id="list" resultType="map" parameterType="map">
 		SELECT *,COUNT(*) OVER() totalRowCount 
-		FROM pb2_ext_pr_method_committee_view
+		FROM pb2_pr_method_committee_view
 		WHERE
 			method_id=#{id}
 		ORDER BY seq
@@ -22,14 +22,14 @@
         select
 		    count(1)
 		from
-		    pb2_ext_pr_method_committee_view
+		    pb2_pr_method_committee_view
     </select>
     
     <select id="get" parameterType="string" resultMap="result">
         SELECT
 		    *
 		FROM
-		    pb2_ext_pr_method_committee_view
+		    pb2_pr_method_committee_view
 		WHERE id=#{id}
     </select>
     

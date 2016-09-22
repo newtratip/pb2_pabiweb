@@ -21,7 +21,7 @@ Ext.define('PBPcm.view.committee.cond2Tab', {
 				fieldLabel:me.preCond2,
 		    	displayField:'name',
 		    	valueField:'id',
-		        emptyText : "โปรดเลือก",
+		        emptyText : PB.Label.m.select,
 		        store: me.store,
 		        queryMode: 'local',
 		        typeAhead:true,

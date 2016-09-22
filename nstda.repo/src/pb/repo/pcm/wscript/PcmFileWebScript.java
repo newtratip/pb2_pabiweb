@@ -2,7 +2,6 @@ package pb.repo.pcm.wscript;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,6 @@ import pb.common.model.FileModel;
 import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
-import pb.common.model.*;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
@@ -155,8 +153,6 @@ public class PcmFileWebScript {
 	String json = null;
 	
 	try {
-		String sep = File.separator;
-
 		if (nodeRef!=null && !nodeRef.equals("")) {
 			nodeService.setProperty(new NodeRef(nodeRef), ContentModel.PROP_DESCRIPTION, desc);
 		}

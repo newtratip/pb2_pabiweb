@@ -24,6 +24,7 @@ import pb.repo.admin.dao.MainCostControlTypeDAO;
 import pb.repo.admin.dao.MainCurrencyDAO;
 import pb.repo.admin.dao.MainCurrencyRateDAO;
 import pb.repo.admin.dao.MainDivisionDAO;
+import pb.repo.admin.dao.MainFundDAO;
 import pb.repo.admin.dao.MainHrEmployeeDAO;
 import pb.repo.admin.dao.MainHrExpenseRuleDAO;
 import pb.repo.admin.dao.MainHrPositionDAO;
@@ -63,6 +64,7 @@ import pb.repo.admin.model.MainCostControlTypeModel;
 import pb.repo.admin.model.MainCurrencyModel;
 import pb.repo.admin.model.MainCurrencyRateModel;
 import pb.repo.admin.model.MainDivisionModel;
+import pb.repo.admin.model.MainFundModel;
 import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.admin.model.MainHrExpenseRuleModel;
 import pb.repo.admin.model.MainHrPositionModel;
@@ -170,6 +172,7 @@ public class DbConnectionFactory {
         config.getTypeAliasRegistry().registerAlias("mainSectionModel", MainSectionModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCostControlModel", MainCostControlModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCostControlTypeModel", MainCostControlTypeModel.class);
+        config.getTypeAliasRegistry().registerAlias("mainFundModel", MainFundModel.class);
         
         config.addMapper(MainMasterDAO.class);
         config.addMapper(MainMsgDAO.class);
@@ -207,6 +210,7 @@ public class DbConnectionFactory {
         config.addMapper(MainPurchasingUnitSectionRelDAO.class);
         config.addMapper(MainPurchaseConditionDAO.class);
         config.addMapper(MainModuleDAO.class);
+        config.addMapper(MainFundDAO.class);
 		if (!config.hasMapper(MainProjectDAO.class)) {
 			config.addMapper(MainProjectDAO.class);
 		}

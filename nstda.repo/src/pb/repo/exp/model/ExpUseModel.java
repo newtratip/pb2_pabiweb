@@ -8,7 +8,6 @@ import pb.repo.admin.model.SubModuleModel;
 public class ExpUseModel extends SubModuleModel {
 	
 	String reqBy;
-	Integer reqSectionId;
 	
 	String objective;
 	
@@ -17,18 +16,20 @@ public class ExpUseModel extends SubModuleModel {
 	String budgetCcName;
 	String budgetCcTypeName;
 	
+	Integer fundId;
+	String fundName;
+	
 	Integer costControlTypeId;
 	Integer costControlId;
 	String costControl;
 	Timestamp costControlFrom;
 	Timestamp costControlTo;
+	String costControlName;
+	String costControlTypeName;
 
 	String bankType;
 	Integer bank;
 
-	Double vat;
-	Integer vatId;
-	
 	String payType;
 	String payTypeName;
 	String payDtl1;
@@ -111,29 +112,23 @@ public class ExpUseModel extends SubModuleModel {
 	public void setBudgetCcTypeName(String budgetCcTypeName) {
 		this.budgetCcTypeName = budgetCcTypeName;
 	}
+	public Integer getFundId() {
+		return fundId;
+	}
+	public void setFundId(Integer fundId) {
+		this.fundId = fundId;
+	}
+	public String getFundName() {
+		return fundName;
+	}
+	public void setFundName(String fundName) {
+		this.fundName = fundName;
+	}
 	public Double getTotal() {
 		return total;
 	}
 	public void setTotal(Double total) {
 		this.total = total;
-	}
-	public Double getVat() {
-		return vat;
-	}
-	public void setVat(Double vat) {
-		this.vat = vat;
-	}
-	public Integer getVatId() {
-		return vatId;
-	}
-	public void setVatId(Integer vatId) {
-		this.vatId = vatId;
-	}
-	public Integer getReqSectionId() {
-		return reqSectionId;
-	}
-	public void setReqSectionId(Integer reqSectionId) {
-		this.reqSectionId = reqSectionId;
 	}
 	public Integer getCostControlTypeId() {
 		return costControlTypeId;
@@ -230,6 +225,18 @@ public class ExpUseModel extends SubModuleModel {
 	}
 	public void setDtlList(List<ExpUseDtlModel> dtlList) {
 		this.dtlList = dtlList;
+	}
+	public String getCostControlName() {
+		return costControlName;
+	}
+	public void setCostControlName(String costControlName) {
+		this.costControlName = costControlName;
+	}
+	public String getCostControlTypeName() {
+		return costControlTypeName;
+	}
+	public void setCostControlTypeName(String costControlTypeName) {
+		this.costControlTypeName = costControlTypeName;
 	}
 	
 }

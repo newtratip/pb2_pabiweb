@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.activiti.engine.RuntimeService;
+import org.alfresco.model.ApplicationModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
@@ -50,6 +51,7 @@ import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
+import pb.common.util.NodeUtil;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
@@ -70,7 +72,6 @@ import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.admin.service.AdminWkfConfigService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.service.MainSrcUrlService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.service.SubModuleService;
 import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.common.mybatis.DbConnectionFactory;
@@ -134,7 +135,7 @@ public class PcmOrdService implements SubModuleService {
 	MainSrcUrlService mainSrcUrlService;
 	
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmOrdWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AdminWkfConfigService adminWkfConfigService;
@@ -249,6 +250,7 @@ public class PcmOrdService implements SubModuleService {
     	 */
     	Set<QName> qnames = new HashSet<QName>();
     	qnames.add(ContentModel.TYPE_CONTENT);
+    	qnames.add(ApplicationModel.TYPE_FILELINK);
     	List<ChildAssociationRef> docs = nodeService.getChildAssocs(folderNodeRef, qnames);
     	for(ChildAssociationRef doc : docs) {
     		
@@ -276,26 +278,36 @@ public class PcmOrdService implements SubModuleService {
 	}
 	
 	public String genDoc(PcmOrdModel model, NodeRef folderNodeRef, Map<String, Object> docMap) throws Exception {
-		/*
-		 * Convert Base64 String to InputStream 
-		 */
-    	FileUtil fileUtil = new FileUtil();
-    	InputStream is = fileUtil.base64InputStream((String)docMap.get("content"));
-    	
-    	String ecmFileName = (String)docMap.get("name");
-    	
-    	log.info("Gen Doc : "+ecmFileName);
-    	/*
-    	 * Put Doc in ECM
-    	 */
-    	NodeRef oldDocRef = alfrescoService.searchSimple(folderNodeRef, ecmFileName);
-    	if (oldDocRef != null) {
-    		alfrescoService.cancelCheckout(oldDocRef);
-    		alfrescoService.deleteFileFolder(oldDocRef.toString());
-    	}
-    	NodeRef docRef = alfrescoService.createDoc(folderNodeRef, is, ecmFileName, getDocDesc());
-    	
-    	return docRef.toString();
+
+		NodeRef docRef = null;
+		
+		if (docMap.get("url")!=null && !((String)docMap.get("url")).equals("")) {
+			String url = (String)docMap.get("url"); 
+			docRef = new NodeRef(NodeUtil.fullNodeRef(url));
+			
+			NodeRef refDocRef = alfrescoService.createLink(folderNodeRef, docRef, "Link to "+(String)docMap.get("name"));
+		} else {
+			/*
+			 * Convert Base64 String to InputStream 
+			 */
+	    	FileUtil fileUtil = new FileUtil();
+	    	InputStream is = fileUtil.base64InputStream((String)docMap.get("content"));
+	    	
+	    	String ecmFileName = (String)docMap.get("name");
+	    	
+	    	log.info("Gen Doc : "+ecmFileName);
+	    	/*
+	    	 * Put Doc in ECM
+	    	 */
+	    	NodeRef oldDocRef = alfrescoService.searchSimple(folderNodeRef, ecmFileName);
+	    	if (oldDocRef != null) {
+	    		alfrescoService.cancelCheckout(oldDocRef);
+	    		alfrescoService.deleteFileFolder(oldDocRef.toString());
+	    	}
+	    	docRef = alfrescoService.createDoc(folderNodeRef, is, ecmFileName, getDocDesc());
+		}
+		
+		return docRef.toString();
 	}
 	
 	public List<FileModel> listFile(String id) throws Exception {
@@ -1132,6 +1144,11 @@ public class PcmOrdService implements SubModuleService {
 	@Override
 	public String getFirstStatus() {
 		return PcmOrdConstant.ST_WAITING;
+	}
+
+	@Override
+	public Boolean addPermissionToAttached() {
+		return true;
 	}
 	
 }

@@ -8,24 +8,26 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 	initComponent: function(config) {
 		var me = this;
 		
-		var courseStore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
-		courseStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/costControl/list';
-		courseStore.getProxy().extraParams = {
-			type:1
-		}
-		courseStore.load();
+//		var courseStore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
+//		courseStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/costControl/list';
+//		courseStore.getProxy().extraParams = {
+//			type:1
+//		}
+//		courseStore.load();
 		
 		var estore = Ext.create('PBExpUse.store.AttendeeGridStore');
 		estore.getProxy().extraParams = {
 			id:me.rec.id,
-			type:'E'
+			type:'E',
+			lang:getLang()
 		}
 		estore.load();
 
 		var ostore = Ext.create('PBExpUse.store.AttendeeGridStore');
 		ostore.getProxy().extraParams = {
 		    id:me.rec.id,
-		    type:'O'
+		    type:'O',
+		    lang:getLang()
 		}
 		ostore.load();
 		
@@ -51,21 +53,21 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 		        	    }
 		            }]
 	        	},
-	        	{ text: 'ลำดับ',  xtype: 'rownumberer', width:60},
-				{ text: 'รหัสพนักงาน',  dataIndex: 'code', width:120},
-				{ text: 'ชื่อ - นามสกุล',  dataIndex: 'name', flex:1, renderer:function(v,m,r){return r.get('fname')+' '+r.get('lname')}},
-				{ text: 'หน่วยงาน / โครงการ',  dataIndex: 'unit_type', flex:1},
-				{ text: 'ตำแหน่ง',  dataIndex: 'position', flex:1},
-				{ text: 'จังหวัด/ประเทศ',  dataIndex: 'destination', flex:1},
-				{ text: 'เส้นทางการบิน',  dataIndex: 'route', flex:1},
-				{ text: 'วันที่เริ่มต้น - สิ้นสุด',  dataIndex: 'depart', flex:1, 
+	        	{ text: PB.Label.m.seq,  xtype: 'rownumberer', width:60},
+				{ text: PB.Label.m.ecode,  dataIndex: 'code', width:120},
+				{ text: PB.Label.m.fullname,  dataIndex: 'name', flex:1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
+				{ text: PB.Label.m.section,  dataIndex: 'unit_type', flex:1},
+				{ text: PB.Label.m.pos,  dataIndex: 'position', flex:1},
+				{ text: PB.Label.m.provCntry,  dataIndex: 'destination', flex:1},
+				{ text: PB.Label.m.route,  dataIndex: 'route', flex:1},
+				{ text: PB.Label.m.period,  dataIndex: 'depart', flex:1, 
 						renderer:function(v,m,r){
 							return (v ? Ext.util.Format.date(v, DEFAULT_DATE_FORMAT) : "")
 									+"-"
 									+(r.get('arrive') ? Ext.util.Format.date(r.get('arrive'), DEFAULT_DATE_FORMAT) : "");
 						}},
 				{ text: 'Class',  dataIndex: 'cls', flex:1},
-				{ text: 'จำนวนเงิน',  dataIndex: 'amount', flex:1}
+				{ text: PB.Label.m.amt,  dataIndex: 'amount', flex:1}
 		);
 		
 		var ocolumns = []
@@ -90,19 +92,19 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 		        	    }
 		            }]
 	        	},
-	        	{ text: 'ลำดับ',  xtype: 'rownumberer', width:60},
-				{ text: 'ชื่อ - นามสกุล',  dataIndex: 'name', flex:1, renderer:function(v,m,r){return r.get('fname')+' '+r.get('lname')}},
-				{ text: 'ตำแหน่ง',  dataIndex: 'position', flex:1},
-				{ text: 'จังหวัด/ประเทศ',  dataIndex: 'destination', flex:1},
-				{ text: 'เส้นทางการบิน',  dataIndex: 'route', flex:1},
-				{ text: 'วันที่เริ่มต้น - สิ้นสุด',  dataIndex: 'depart', flex:1,
+	        	{ text: PB.Label.m.seq,  xtype: 'rownumberer', width:60},
+				{ text: PB.Label.m.fullname,  dataIndex: 'name', flex:1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
+				{ text: PB.Label.m.pos,  dataIndex: 'position', flex:1},
+				{ text: PB.Label.m.provCntry,  dataIndex: 'destination', flex:1},
+				{ text: PB.Label.m.route,  dataIndex: 'route', flex:1},
+				{ text: PB.Label.m.period,  dataIndex: 'depart', flex:1,
 						renderer:function(v,m,r){
 							return (v ? Ext.util.Format.date(v, DEFAULT_DATE_FORMAT) : "")
 									+"-"
 									+(r.get('arrive') ? Ext.util.Format.date(r.get('arrive'), DEFAULT_DATE_FORMAT) : "");
 						}},
 				{ text: 'Class',  dataIndex: 'cls', flex:1},
-				{ text: 'จำนวนเงิน',  dataIndex: 'amount', flex:1}
+				{ text: PB.Label.m.amt,  dataIndex: 'amount', flex:1}
 		);
 		
 		var c1 = {};
@@ -152,7 +154,7 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 //							fieldLabel:'จัดฝึกอบรม',
 //					    	displayField:'name',
 //					    	valueField:'id',
-//					        emptyText : "โปรดเลือก",
+//					        emptyText : PB.Label.m.select,
 //					        store: courseStore,
 //					        queryMode: 'local',
 //					        multiSelect:false,
@@ -301,7 +303,7 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 //						}
 //					}]
 //				},{
-					title:'รายชื่อผู้เข้าร่วม (พนักงาน)',
+					title:PBExpUse.Label.a.empList,
 					xtype:'grid',
 					itemId:'empGrid',
 					region:'center',
@@ -326,7 +328,7 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 				},{
 					split:true,
 					height:200,
-					title:'รายชื่อผู้เข้าร่วม (บุคคลภายนอก)',
+					title:PBExpUse.Label.a.othList,
 					xtype:'grid',
 					itemId:'othGrid',
 					region:'south',

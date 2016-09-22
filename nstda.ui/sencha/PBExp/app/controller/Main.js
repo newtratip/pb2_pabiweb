@@ -161,7 +161,8 @@ Ext.define('PBExp.controller.Main', {
 			      url:me.URL+"/get",
 			      method: "GET",
 			      params: {
-			    	  id : ID
+			    	  id : ID,
+			    	  lang : getLang()
 			      },
 			      success: function(response){
 			    	  
@@ -186,7 +187,8 @@ Ext.define('PBExp.controller.Main', {
 		var store = me.getMainGrid().getStore();
 		
 		var params = {
-			s : me.getTxtSearch().getValue()
+			s : me.getTxtSearch().getValue(),
+			lang : getLang()
 		}
 		
 		var fields = {};
@@ -242,6 +244,10 @@ Ext.define('PBExp.controller.Main', {
 		    	form.add({ xtype:'expBrwInfoTab', title:data[1].message, rec:rec });
 				form.add({ xtype:'expBrwAttendeeTab', title:data[2].message, rec:rec });
 				form.add({ xtype:'expBrwFileTab', title:data[3].message, rec:rec });
+				
+				Ext.defer(function() {
+					validForm(me.getMainForm());
+				},  1000) ;
 		      },
 		      failure: function(response, opts){
 		          alert("failed");
@@ -304,7 +310,8 @@ Ext.define('PBExp.controller.Main', {
 		      url:me.URL+"/get",
 		      method: "GET",
 		      params: {
-		    	  id : rec.get("id")
+		    	  id : rec.get("id"),
+		    	  lang : getLang()
 		      },
 		      success: function(response){
 		    	  
@@ -318,7 +325,8 @@ Ext.define('PBExp.controller.Main', {
 			      method: "GET",
 			      params:{
 		    		 r:me.data.req_by,
-		    	     c:me.data.created_by
+		    	     c:me.data.created_by,
+		    	     lang:getLang()
 		    	  },
 			      success: function(response){
 			    	  
@@ -373,7 +381,14 @@ Ext.define('PBExp.controller.Main', {
 		}
 	},
 	
-	gotoFolder : function(r){
+	gotoFolder : function(r) {
+		var dlg = Ext.create("PB.view.common.FolderDtlDlg",{
+			rec : r
+		});
+		dlg.show();
+	},
+	
+	_gotoFolder : function(r){
 		Ext.Ajax.request({
 	        url:ALF_CONTEXT+"/util/getFolderName",
 	        async : false,

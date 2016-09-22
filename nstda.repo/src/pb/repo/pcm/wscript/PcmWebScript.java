@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -278,6 +277,7 @@ public class PcmWebScript {
 		  				,@RequestParam(required=false) final String currencyRate
 						,@RequestParam(required=false) final String budgetCc
 						,@RequestParam(required=false) final String budgetCcType
+						,@RequestParam(required=false) final String fundId
 						,@RequestParam(required=false) final String isStock
 						,@RequestParam(required=false) final String stockOu
 						,@RequestParam(required=false) final String isPrototype
@@ -299,6 +299,7 @@ public class PcmWebScript {
 						,@RequestParam(required=false) final String vat
 						,@RequestParam(required=false) final String vatId
 						,@RequestParam(required=false) final String total
+						,@RequestParam(required=false) final String totalCnv
 		  				,@RequestParam(required=false) final String items
 		  				,@RequestParam(required=false) final String files
 		  				,@RequestParam(required=false) final String cmts
@@ -334,6 +335,9 @@ public class PcmWebScript {
 			model.setBudgetCc(Integer.parseInt(budgetCc));
 		}
 		model.setBudgetCcType(budgetCcType);
+		if (fundId != null && !fundId.equals("")) {
+			model.setFundId(Integer.parseInt(fundId));
+		}
 		model.setIsStock(isStock);
 		if (stockOu != null && !stockOu.equals("")) {
 			model.setStockSectionId(Integer.parseInt(stockOu));
@@ -363,6 +367,7 @@ public class PcmWebScript {
 		model.setVat(Double.parseDouble(vat));
 		model.setVatId(Integer.parseInt(vatId));
 		model.setTotal(Double.parseDouble(total));
+		model.setTotalCnv(Double.parseDouble(totalCnv));
 		model.setStatus(PcmReqConstant.ST_DRAFT);
 		
 		log.info("model="+model);
@@ -394,6 +399,7 @@ public class PcmWebScript {
 								,@RequestParam(required=false) final String currencyRate
 								,@RequestParam(required=false) final String budgetCc
 								,@RequestParam(required=false) final String budgetCcType
+								,@RequestParam(required=false) final String fundId
 								,@RequestParam(required=false) final String isStock
 								,@RequestParam(required=false) final String stockOu
 								,@RequestParam(required=false) final String isPrototype
@@ -415,6 +421,7 @@ public class PcmWebScript {
 								,@RequestParam(required=false) final String vat
 								,@RequestParam(required=false) final String vatId
 								,@RequestParam(required=false) final String total
+								,@RequestParam(required=false) final String totalCnv
 								,@RequestParam(required=false) final String status
 								,@RequestParam(required=false) final String items
 								,@RequestParam(required=false) final String files
@@ -448,6 +455,9 @@ public class PcmWebScript {
 			model.setBudgetCc(Integer.parseInt(budgetCc));
 		}
 		model.setBudgetCcType(budgetCcType);
+		if (fundId != null && !fundId.equals("")) {
+			model.setFundId(Integer.parseInt(fundId));
+		}
 		model.setIsStock(isStock);
 		if (stockOu != null && !stockOu.equals("")) {
 			model.setStockSectionId(Integer.parseInt(stockOu));
@@ -477,6 +487,7 @@ public class PcmWebScript {
 		model.setVat(Double.parseDouble(vat));
 		model.setVatId(Integer.parseInt(vatId));
 		model.setTotal(Double.parseDouble(total));
+		model.setTotalCnv(Double.parseDouble(totalCnv));
 		model.setStatus(status);	
 		
 		if (model.getId() == null || (status!=null && status.equals(PcmReqConstant.ST_DRAFT))) {
@@ -604,16 +615,8 @@ public class PcmWebScript {
 	  
 	  map.put(PcmReqConstant.JFN_REQ_BY, reqUser);
 	  
-	  String ename = dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
+	  String ename = dtl.get("title"+langSuffix) + " " + dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
 
-	  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
-	  if (!createdUser.equals(reqUser)) {
-		  dtl = adminHrEmployeeService.getWithDtl(createdUser);
-		  ename = dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
-	  }
-	  
-	  map.put(PcmReqConstant.JFN_CREATED_BY_SHOW, ename);
-	  
 	  String mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
 	  String wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
 	  String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
@@ -626,6 +629,17 @@ public class PcmWebScript {
 	  
 	  map.put(PcmReqConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
 	  map.put(PcmReqConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"+langSuffix));
+	  
+	  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
+	  if (!createdUser.equals(reqUser)) {
+		  dtl = adminHrEmployeeService.getWithDtl(createdUser);
+		  ename = dtl.get("title"+langSuffix) + " " + dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
+		  
+		  mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
+		  wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
+		  comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+	  }
+	  map.put(PcmReqConstant.JFN_CREATED_BY_SHOW, ename);
 	  
 	  map.put(PcmReqConstant.JFN_TEL_NO, wphone+comma+mphone);
 	  
@@ -721,6 +735,7 @@ public class PcmWebScript {
 							,@RequestParam(required=false) final String currencyRate
 							,@RequestParam(required=false) final String budgetCcType
 							,@RequestParam(required=false) final String budgetCc
+							,@RequestParam(required=false) final String fundId
 							,@RequestParam(required=false) final String isStock
 							,@RequestParam(required=false) final String stockOu
 							,@RequestParam(required=false) final String isPrototype
@@ -742,6 +757,7 @@ public class PcmWebScript {
 							,@RequestParam(required=false) final String vat
 							,@RequestParam(required=false) final String vatId
 							,@RequestParam(required=false) final String total
+							,@RequestParam(required=false) final String totalCnv
 							,@RequestParam(required=false) final String status
 							,@RequestParam(required=false) final String items
 							,@RequestParam(required=false) final String files
@@ -775,6 +791,9 @@ public class PcmWebScript {
 		if (budgetCc != null && !budgetCc.equals("")) {
 			model.setBudgetCc(Integer.parseInt(budgetCc));
 		}
+		if (fundId != null && !fundId.equals("")) {
+			model.setFundId(Integer.parseInt(fundId));
+		}
 		model.setIsStock(isStock);
 		if (stockOu != null && !stockOu.equals("")) {
 			model.setStockSectionId(Integer.parseInt(stockOu));
@@ -804,6 +823,7 @@ public class PcmWebScript {
 		model.setVat(Double.parseDouble(vat));
 		model.setVatId(Integer.parseInt(vatId));
 		model.setTotal(Double.parseDouble(total));
+		model.setTotalCnv(Double.parseDouble(totalCnv));
 		model.setStatus(status);
 		
 		if (model.getId() == null || (status!=null && status.equals(PcmReqConstant.ST_DRAFT))) {
@@ -892,6 +912,7 @@ public class PcmWebScript {
 						,@RequestParam(required=false) final String currencyRate
 						,@RequestParam(required=false) final String budgetCc
 						,@RequestParam(required=false) final String budgetCcType
+						,@RequestParam(required=false) final String fundId
 						,@RequestParam(required=false) final String isStock
 						,@RequestParam(required=false) final String stockOu
 						,@RequestParam(required=false) final String isPrototype
@@ -913,6 +934,7 @@ public class PcmWebScript {
 						,@RequestParam(required=false) final String vat
 						,@RequestParam(required=false) final String vatId
 						,@RequestParam(required=false) final String total
+						,@RequestParam(required=false) final String totalCnv
 						,@RequestParam(required=false) final String status
 						,@RequestParam(required=false) final String items
 						,@RequestParam(required=false) final String files
@@ -946,6 +968,9 @@ public class PcmWebScript {
 			model.setBudgetCc(Integer.parseInt(budgetCc));
 		}
 		model.setBudgetCcType(budgetCcType);
+		if (fundId != null && !fundId.equals("")) {
+			model.setFundId(Integer.parseInt(fundId));
+		}
 		model.setIsStock(isStock);
 		if (stockOu != null && !stockOu.equals("")) {
 			model.setStockSectionId(Integer.parseInt(stockOu));
@@ -975,6 +1000,7 @@ public class PcmWebScript {
 		model.setVat(Double.parseDouble(vat));
 		model.setVatId(Integer.parseInt(vatId));
 		model.setTotal(Double.parseDouble(total));
+		model.setTotalCnv(Double.parseDouble(totalCnv));
 		model.setStatus(status);	
 		
 		if (model.getId() == null || (status!=null && status.equals(PcmReqConstant.ST_DRAFT))) {

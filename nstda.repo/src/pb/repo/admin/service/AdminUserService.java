@@ -49,17 +49,19 @@ public class AdminUserService {
             	
             	map.put("id", tmpMap.get("id"));
             	map.put("emp_id", tmpMap.get("emp_id"));
+            	map.put("title", tmpMap.get("title"+lang));
             	map.put("first_name", tmpMap.get("first_name"+lang));
             	map.put("last_name", tmpMap.get("last_name"+lang));
             	map.put("pos_name", tmpMap.get("pos_name"+lang));
-            	map.put("org_name", tmpMap.get("org_name"+lang));
+            	map.put("org_name", tmpMap.get("org_name_short"+lang));
             	map.put("section_name", tmpMap.get("section_name"+lang));
             	map.put("work_phone", tmpMap.get("work_phone"));
             	map.put("mobile_phone", tmpMap.get("mobile_phone"));
+            	map.put("section_code", tmpMap.get("scode"));
             	map.put("section_id", tmpMap.get("section_id"));
             	map.put("org_id", tmpMap.get("org_id"));
-            	map.put("section_desc", "["+((String)tmpMap.get("scode")).trim()+"] "+tmpMap.get("section_name")+lang);
-            	map.put("org_desc", "["+((String)tmpMap.get("ocode")).trim()+"] "+tmpMap.get("org_name")+lang);
+            	map.put("section_desc", "["+((String)tmpMap.get("scode")).trim()+"] "+tmpMap.get("section_name"+lang));
+            	map.put("org_desc", "["+((String)tmpMap.get("ocode")).trim()+"] "+tmpMap.get("org_name"+lang));
 
             	list.add(map);
             }

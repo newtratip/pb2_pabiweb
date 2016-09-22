@@ -55,6 +55,7 @@ Ext.define('PBExpUse.Application', {
         'PBExpUse.controller.common.CostControl',
         'PBExpUse.controller.common.Upload',
         'PBExpUse.controller.common.EditFile',
+        'PBExpUse.controller.common.FolderDtl',
         'PBExpUse.controller.attendee.Form',
         'PBExpUse.controller.item.Form',
         'PBExpUse.controller.file.Main',
@@ -76,6 +77,7 @@ Ext.define('PBExpUse.Application', {
         'common.CostControl',
         'common.Upload',
         'common.EditFile',
+        'common.FolderDtl',
         'attendee.Form',
         'item.Form',
         'file.Main'    

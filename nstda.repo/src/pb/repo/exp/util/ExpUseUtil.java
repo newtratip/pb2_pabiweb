@@ -13,7 +13,6 @@ import pb.common.constant.CommonConstant;
 import pb.common.constant.JsonConstant;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
-import pb.repo.exp.constant.ExpBrwConstant;
 import pb.repo.exp.constant.ExpUseConstant;
 import pb.repo.exp.model.ExpUseAttendeeModel;
 import pb.repo.exp.model.ExpUseModel;
@@ -32,7 +31,6 @@ public class ExpUseUtil {
 		jsObj.put(ExpUseConstant.JFN_ID, model.getId());
 		
 		jsObj.put(ExpUseConstant.JFN_REQ_BY, model.getReqBy());
-		jsObj.put(ExpUseConstant.JFN_REQ_SECTION_ID, model.getReqSectionId());
 		
 		jsObj.put(ExpUseConstant.JFN_OBJECTIVE, model.getObjective());
 		
@@ -41,17 +39,19 @@ public class ExpUseUtil {
 		jsObj.put(ExpUseConstant.JFN_BUDGET_CC_TYPE, model.getBudgetCcType());
 		jsObj.put(ExpUseConstant.JFN_BUDGET_CC_TYPE_NAME, model.getBudgetCcTypeName());
 		
+		jsObj.put(ExpUseConstant.JFN_FUND_ID, model.getFundId());
+		jsObj.put(ExpUseConstant.JFN_FUND_NAME, model.getFundName());
+		
 		jsObj.put(ExpUseConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
 		jsObj.put(ExpUseConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
 		jsObj.put(ExpUseConstant.JFN_COST_CONTROL, model.getCostControl());
 		jsObj.put(ExpUseConstant.JFN_COST_CONTROL_FROM, CommonDateTimeUtil.convertToSenchaFieldDateTime(model.getCostControlFrom()));
 		jsObj.put(ExpUseConstant.JFN_COST_CONTROL_TO, CommonDateTimeUtil.convertToSenchaFieldDateTime(model.getCostControlTo()));
+		jsObj.put(ExpUseConstant.JFN_COST_CONTROL_NAME, model.getCostControlName());
+		jsObj.put(ExpUseConstant.JFN_COST_CONTROL_TYPE_NAME, model.getCostControlTypeName());
 		
 		jsObj.put(ExpUseConstant.JFN_BANK_TYPE, model.getBankType());
 		jsObj.put(ExpUseConstant.JFN_BANK, model.getBank());
-		
-		jsObj.put(ExpUseConstant.JFN_VAT, model.getVat());
-		jsObj.put(ExpUseConstant.JFN_VAT_ID, model.getVatId());
 		
 		jsObj.put(ExpUseConstant.JFN_PAY_TYPE, model.getPayType());
 		jsObj.put(ExpUseConstant.JFN_PAY_TYPE_NAME, model.getPayTypeName());
@@ -90,20 +90,19 @@ public class ExpUseUtil {
 		map.put(ExpUseConstant.JFN_ID, model.getId());
 		
 		map.put(ExpUseConstant.JFN_REQ_BY, model.getReqBy());
-		map.put(ExpUseConstant.JFN_REQ_SECTION_ID, model.getReqSectionId());
 		
 		map.put(ExpUseConstant.JFN_OBJECTIVE, model.getObjective());
 		
 		map.put(ExpUseConstant.JFN_BUDGET_CC, model.getBudgetCc());
+		
+		map.put(ExpUseConstant.JFN_FUND_ID, model.getFundId());
+		
 		map.put(ExpUseConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
 		map.put(ExpUseConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
 		
 		map.put(ExpUseConstant.JFN_BANK_TYPE, model.getBankType());
 		map.put(ExpUseConstant.JFN_BANK, model.getBank());
 
-		map.put(ExpUseConstant.JFN_VAT, model.getVat());
-		map.put(ExpUseConstant.JFN_VAT_ID, model.getVatId());
-		
 		map.put(ExpUseConstant.JFN_PAY_TYPE, model.getPayType());
 		map.put(ExpUseConstant.JFN_PAY_DTL1, model.getPayDtl1());
 		map.put(ExpUseConstant.JFN_PAY_DTL2, model.getPayDtl2());

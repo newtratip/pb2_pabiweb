@@ -18,7 +18,7 @@ att1 = b64str('PR_FORM.pdf')
 
 arg = {
 	'action':'2',
-	'pdNo':'PD16000021',
+	'pdNo':'PD16000037',
 	'sectionId':'44',
 	'prNo':'PR16000001',
 	'docType':'PD1',
@@ -28,7 +28,7 @@ arg = {
 	'appBy':'001509',
 	'comment':'Resubmit Document',
 	'doc':{'name':'PD16000002.pdf','content':doc},
-	'attachments':[{'name':'A.pdf','content':att1}],
+	'attachments':[{'name':'A.pdf','content':att1,'url':'0c15f3f9-4e70-4dfa-9879-976ef8022104'}],
 	'comment':'Resubmit Resubmit'
 }
 result = alfresco.ord.action(arg);

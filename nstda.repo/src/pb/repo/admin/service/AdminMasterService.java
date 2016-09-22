@@ -236,6 +236,31 @@ public class AdminMasterService {
         return model;
 	}
 	
+	public MainMasterModel getByTypeAndCode(String type, String code) {
+		
+		MainMasterModel model = null;
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+            MainMasterDAO mainMasterDAO = session.getMapper(MainMasterDAO.class);
+            
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put(MainMasterConstant.JFN_TYPE, type);
+            params.put(MainMasterConstant.JFN_CODE, code);
+            
+    		model = mainMasterDAO.getByTypeAndCode(params);
+    		model.setTotalRowCount(1l);
+            
+    		log.info("get "+type+"."+code+": OK");
+        } catch (Exception ex) {
+    		log.error("get "+type+"."+code+": ERR:"+ex.getMessage());
+        } finally {
+        	session.close();
+        }
+        
+        return model;
+	}
+	
 	public List<MainMasterModel> listSystemConfig(String code) {
 		
 		List<MainMasterModel> list = null;

@@ -84,6 +84,7 @@ import pb.repo.admin.model.MainWorkflowNextActorModel;
 import pb.repo.admin.model.SubModuleModel;
 import pb.repo.admin.service.AdminAccountTaxService;
 import pb.repo.admin.service.AdminCostControlService;
+import pb.repo.admin.service.AdminFundService;
 import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminProjectService;
@@ -92,7 +93,6 @@ import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.admin.service.AdminWkfConfigService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.service.MainSrcUrlService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.service.SubModuleService;
 import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.common.mybatis.DbConnectionFactory;
@@ -165,7 +165,7 @@ public class PcmReqService implements SubModuleService {
 	MainSrcUrlService mainSrcUrlService;
 	
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	PcmReqWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AdminHrEmployeeService adminHrEmployeeService;
@@ -178,6 +178,9 @@ public class PcmReqService implements SubModuleService {
 	
 	@Autowired
 	AdminProjectService adminProjectService;
+	
+	@Autowired
+	AdminFundService adminFundService;
 	
 	@Autowired
 	AdminCostControlService adminCostControlService;
@@ -698,7 +701,6 @@ public class PcmReqService implements SubModuleService {
 			dtlMap.put("qty", df.format(tmpDtl.getQuantity()));
 			dtlMap.put("unit", tmpDtl.getUnit());
 			dtlMap.put("price", df.format(tmpDtl.getPrice()));
-			dtlMap.put("priceCnv", df.format(tmpDtl.getPriceCnv()));
 			dtlMap.put("total", df.format(tmpDtl.getTotal()));
 			
 			dtlList.add(dtlMap);
@@ -752,10 +754,10 @@ public class PcmReqService implements SubModuleService {
 		parameters.put("gross", df.format(gross));
 		parameters.put("vatDesc", "("+(vatDesc!=null ? vatDesc : "")+")");
 		parameters.put("vat", df.format(gross*vat));
-		parameters.put("total", df.format(model.getTotal() / model.getCurrencyRate()));
+		parameters.put("total", df.format(model.getTotal()));
 		parameters.put("currency", model.getCurrency().equals("THB") ? "" : "("+model.getCurrency()+")");
 		parameters.put("rate", df.format(model.getCurrencyRate()));
-		parameters.put("totalTh", df.format(model.getTotal()));
+		parameters.put("totalTh", df.format(model.getTotalCnv()));
 		parameters.put("acrBgt", model.getIsAcrossBudget().equals("1") ? "1" : "");
 		log.info("acrBgt:"+model.getIsAcrossBudget());
 		/*
@@ -771,26 +773,24 @@ public class PcmReqService implements SubModuleService {
 								+model.getMethodCond2Rule()+" "+model.getMethodCond2()+" "+model.getMethodCond2Dtl()
 					  );
 		
-		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy());	
+		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy()!=null ? model.getReqBy() : authService.getCurrentUserName());	
 		map.put("reqBy", empDtl.get("title_th")+" "+empDtl.get("first_name_th")+" "+empDtl.get("last_name_th"));
-		map.put("reqOrg", empDtl.get("org_desc"));
-		map.put("reqSection", empDtl.get("section_name"));
+		map.put("reqOrg", empDtl.get("org_desc_th"));
+		map.put("reqSection", empDtl.get("section_desc_th"));
+		String mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
+		String wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
+		String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+		map.put("reqPhone", wphone+comma+mphone);
 		log.info("reqBy:"+map.get("reqBy"));
 		
 		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
 		map.put("createdBy", empDtl.get("title_th")+" "+empDtl.get("first_name_th")+" "+empDtl.get("last_name_th"));
 		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
-		String mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
-		String wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
-		String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
-		map.put("createdPhone", wphone+comma+mphone);
-		log.info("createdBy:"+map.get("createdBy"));
-		
-		empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy()!=null ? model.getReqBy() : authService.getCurrentUserName());
 		mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
 		wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
 		comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
-		map.put("reqPhone", wphone+comma+mphone);
+		map.put("createdPhone", wphone+comma+mphone);
+		log.info("createdBy:"+map.get("createdBy"));
 		
 		Map<String, Object> firstAppMap = getFirstApprover(model.getId());
 		log.info("model.id:"+model.getId());
@@ -813,10 +813,12 @@ public class PcmReqService implements SubModuleService {
 		String budgetCcName = null;
 		if (model.getBudgetCcType().equals("P")) {
 			Map<String, Object> prjMap = adminProjectService.get(model.getBudgetCc());
-			budgetCcName = (String)prjMap.get("code")+ " - "+(String)prjMap.get("name");
+			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
+			budgetCcName = (String)prjMap.get("code")+ " - "+(String)prjMap.get("name")+ " ("+(String)fundMap.get("name")+")";
 		} else {
 			Map<String, Object> sectMap = adminSectionService.get(model.getBudgetCc());
-			budgetCcName = (String)sectMap.get("name");
+			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
+			budgetCcName = (String)sectMap.get("name")+ " ("+(String)fundMap.get("name")+")";
 		}
 		map.put("budgetCc", budgetCcName);
 
@@ -2005,6 +2007,7 @@ public class PcmReqService implements SubModuleService {
 
         	model.setBudgetCcType(oModel.getBudgetCcType());
         	model.setBudgetCc(oModel.getBudgetCc());
+        	model.setFundId(oModel.getFundId());
         	
         	model.setIsStock(oModel.getIsStock());
         	model.setStockSectionId(oModel.getStockSectionId());
@@ -2036,6 +2039,7 @@ public class PcmReqService implements SubModuleService {
         	model.setVatId(oModel.getVatId());
         	
         	model.setTotal(oModel.getTotal());
+        	model.setTotalCnv(oModel.getTotalCnv());
         	
         	model.setRewarning(oModel.getRewarning());
         	model.setWaitingDay(oModel.getWaitingDay());
@@ -2177,7 +2181,7 @@ public class PcmReqService implements SubModuleService {
 		parameters.put(PcmReqWorkflowConstant.PROP_OBJECTIVE_TYPE, model.getObjectiveType());
 		parameters.put(PcmReqWorkflowConstant.PROP_OBJECTIVE, model.getObjective());
 		parameters.put(PcmReqWorkflowConstant.PROP_REASON, model.getReason());
-		parameters.put(PcmReqWorkflowConstant.PROP_TOTAL, model.getTotal());
+		parameters.put(PcmReqWorkflowConstant.PROP_TOTAL, model.getTotalCnv());
 		
 		if (model.getIsRefId()!=null && model.getIsRefId().equals(CommonConstant.V_ENABLE)) {
 	        List<NodeRef> refDocList = new ArrayList<NodeRef>();
@@ -2795,6 +2799,11 @@ public class PcmReqService implements SubModuleService {
 	@Override
 	public String getFirstStatus() {
 		return PcmReqConstant.ST_WAITING;
+	}
+
+	@Override
+	public Boolean addPermissionToAttached() {
+		return false;
 	}
 
 }

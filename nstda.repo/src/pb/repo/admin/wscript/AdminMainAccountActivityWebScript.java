@@ -42,6 +42,7 @@ public class AdminMainAccountActivityWebScript {
    */
   @Uri(URI_PREFIX+"/list")
   public void handleList(@RequestParam(required=true) String query,
+		  				 @RequestParam(required=false) String actGrpId,
 		  				final WebScriptResponse response)  throws Exception {
     
 		String json = null;
@@ -55,6 +56,7 @@ public class AdminMainAccountActivityWebScript {
         		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
         		params.put("lang",  lang);
         		params.put("orderBy", "name"+lang);
+        		params.put("actGrpId", actGrpId!=null && !actGrpId.equals("") ? Integer.parseInt(actGrpId) : null);
         		
         		String[] terms = query.substring(pos+1).split(" ");
         	

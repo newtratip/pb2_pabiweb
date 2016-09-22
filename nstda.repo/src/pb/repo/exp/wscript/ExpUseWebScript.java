@@ -25,19 +25,20 @@ import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.exp.constant.ExpUseConstant;
+import pb.repo.exp.model.ExpUseAttendeeModel;
 import pb.repo.exp.model.ExpUseDtlModel;
 import pb.repo.exp.model.ExpUseModel;
-import pb.repo.exp.model.ExpUseAttendeeModel;
 import pb.repo.exp.service.ExpUseService;
+import pb.repo.exp.service.ExpUseWorkflowService;
+import pb.repo.exp.util.ExpUseAttendeeUtil;
 import pb.repo.exp.util.ExpUseDtlUtil;
 import pb.repo.exp.util.ExpUseUtil;
-import pb.repo.exp.util.ExpUseAttendeeUtil;
-import pb.repo.pcm.constant.PcmReqConstant;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
@@ -66,6 +67,9 @@ public class ExpUseWebScript {
 	
 	@Autowired
 	private AdminHrEmployeeService adminHrEmployeeService;
+	
+	@Autowired
+	private ExpUseWorkflowService mainWorkflowService;
 	
     @Uri(URI_PREFIX+"/list")
     public void handleList(@RequestParam(required=false) final String s
@@ -221,6 +225,8 @@ public class ExpUseWebScript {
 		String json = null;
 
 		try {
+		  String langSuffix = lang!=null && lang.startsWith("th") ? "_th" : "";
+			
 		  List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 
 		  Map<String, Object> map = new HashMap<String, Object>();
@@ -231,15 +237,7 @@ public class ExpUseWebScript {
 		  
 		  map.put(ExpUseConstant.JFN_REQ_BY, reqUser);
 		  
-		  String ename = dtl.get("first_name") + " " + dtl.get("last_name");
-		  
-		  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
-		  if (!createdUser.equals(reqUser)) {
-			  dtl = adminHrEmployeeService.getWithDtl(createdUser);
-			  ename = dtl.get("first_name") + " " + dtl.get("last_name");
-		  }
-		  
-		  map.put(ExpUseConstant.JFN_CREATED_BY_SHOW, ename);
+		  String ename = dtl.get("title"+langSuffix) + " " + dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
 		  
 		  String mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
 		  String wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
@@ -247,12 +245,24 @@ public class ExpUseWebScript {
 		  
 		  map.put(ExpUseConstant.JFN_REQ_BY_NAME, ename);
 		  map.put(ExpUseConstant.JFN_REQ_TEL_NO, wphone+comma+mphone);
-		  map.put(ExpUseConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"));
+		  map.put(ExpUseConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"+langSuffix));
 		  
-		  map.put(ExpUseConstant.JFN_REQ_BU, dtl.get("org_desc"));
+		  map.put(ExpUseConstant.JFN_REQ_BU, dtl.get("org_desc"+langSuffix));
 		  
 		  map.put(ExpUseConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
-		  map.put(ExpUseConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"));
+		  map.put(ExpUseConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"+langSuffix));
+		  
+		  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
+		  if (!createdUser.equals(reqUser)) {
+			  dtl = adminHrEmployeeService.getWithDtl(createdUser);
+			  ename = dtl.get("title"+langSuffix) + " " + dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
+			  
+			  mphone = StringUtils.defaultIfEmpty((String)dtl.get("mobile_phone"),"");
+			  wphone = StringUtils.defaultIfEmpty((String)dtl.get("work_phone"),"");
+			  comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+		  }
+		  
+		  map.put(ExpUseConstant.JFN_CREATED_BY_SHOW, ename);
 		  
 		  map.put(ExpUseConstant.JFN_TEL_NO, wphone+comma+mphone);
 		  
@@ -274,16 +284,17 @@ public class ExpUseWebScript {
 	@Uri(URI_PREFIX+"/attendee/list")
 	public void handleAttendeeList(@RequestParam final String id,
 								  @RequestParam final String type,
+								  @RequestParam final String lang,
 								  final WebScriptResponse response)
 	      throws Exception {
 			
 		String json = null;
 		 
 		try {
-			List<ExpUseAttendeeModel> list = expUseService.listAttendeeByMasterIdAndType(id, type);;
+			List<Map<String, Object>> list = expUseService.listAttendeeByMasterIdAndType(id, type, lang);
 			ExpUseAttendeeUtil.addAction(list);
 			
-			json = CommonUtil.jsonSuccess(ExpUseAttendeeUtil.convertToJSONArray(list));
+			json = CommonUtil.jsonSuccess(list);
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -329,7 +340,8 @@ public class ExpUseWebScript {
 	}
 	
 	@Uri(URI_PREFIX+"/get")
-	public void handleGet(@RequestParam final String id, final WebScriptResponse response)
+	public void handleGet(@RequestParam final String id
+			, final WebScriptResponse response)
 	      throws Exception {
 			
 		String json = null;
@@ -380,10 +392,10 @@ public class ExpUseWebScript {
 	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/save")
 	public void handleSave(@RequestParam(required=false) final String id
 							,@RequestParam(required=false) final String reqBy
-			  				,@RequestParam(required=false) final String reqOu
 			  				,@RequestParam(required=false) final String objective
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
+							,@RequestParam(required=false) final String fundId
 							,@RequestParam(required=false) final String costControlTypeId
 							,@RequestParam(required=false) final String costControlId
 							,@RequestParam(required=false) final String costControl
@@ -391,8 +403,6 @@ public class ExpUseWebScript {
 							,@RequestParam(required=false) final String costControlTo
 							,@RequestParam(required=false) final String bankType
 							,@RequestParam(required=false) final String bank
-							,@RequestParam(required=false) final String vatId
-							,@RequestParam(required=false) final String vat
 							,@RequestParam(required=false) final String payType
 							,@RequestParam(required=false) final String payDtl1
 							,@RequestParam(required=false) final String payDtl2
@@ -421,14 +431,15 @@ public class ExpUseWebScript {
 			}
 			
 			model.setReqBy(reqBy);
-			if (reqOu != null && !reqOu.equals("")) {
-				model.setReqSectionId(Integer.parseInt(reqOu));
-			}
+			
 			model.setObjective(objective);
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
 			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
 			
 			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
 			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
@@ -443,11 +454,6 @@ public class ExpUseWebScript {
 			model.setBankType(bankType);
 			if (bank != null && !bank.equals("")) {
 				model.setBank(Integer.parseInt(bank));
-			}
-			
-			model.setVat((vat != null && !vat.equals("")) ? Double.parseDouble(vat) : null);
-			if (vatId != null && !vatId.equals("")) {
-				model.setVatId(Integer.parseInt(vatId));
 			}
 			
 			model.setPayType(payType);
@@ -479,10 +485,10 @@ public class ExpUseWebScript {
 	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/send")
 	public void handleSendToReview(@RequestParam(required=false) final String id
 							,@RequestParam(required=false) final String reqBy
-			  				,@RequestParam(required=false) final String reqOu
 			  				,@RequestParam(required=false) final String objective
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
+							,@RequestParam(required=false) final String fundId
 							,@RequestParam(required=false) final String costControlTypeId
 							,@RequestParam(required=false) final String costControlId
 							,@RequestParam(required=false) final String costControl
@@ -490,8 +496,6 @@ public class ExpUseWebScript {
 							,@RequestParam(required=false) final String costControlTo
 							,@RequestParam(required=false) final String bankType
 							,@RequestParam(required=false) final String bank
-							,@RequestParam(required=false) final String vatId
-							,@RequestParam(required=false) final String vat
 							,@RequestParam(required=false) final String payType
 							,@RequestParam(required=false) final String payDtl1
 							,@RequestParam(required=false) final String payDtl2
@@ -500,6 +504,7 @@ public class ExpUseWebScript {
 			  				,@RequestParam(required=false) final String attendees
 			  				,@RequestParam(required=false) final String items
 			  				,@RequestParam(required=false) final String files
+							,@RequestParam(required=false) final String status
 			  				,final WebScriptResponse response) throws Exception {
 		
 		String json = null;
@@ -520,14 +525,15 @@ public class ExpUseWebScript {
 			}
 			
 			model.setReqBy(reqBy);
-			if (reqOu != null && !reqOu.equals("")) {
-				model.setReqSectionId(Integer.parseInt(reqOu));
-			}
+			
 			model.setObjective(objective);
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
 			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
 			
 			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
 			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
@@ -544,27 +550,43 @@ public class ExpUseWebScript {
 				model.setBank(Integer.parseInt(bank));
 			}
 			
-			model.setVat((vat != null && !vat.equals("")) ? Double.parseDouble(vat) : null);
-			if (vatId != null && !vatId.equals("")) {
-				model.setVatId(Integer.parseInt(vatId));
-			}
-			
 			model.setPayType(payType);
 			model.setPayDtl1(payDtl1);
 			model.setPayDtl2(payDtl2);
 			model.setPayDtl3(payDtl3);
 			
 			model.setTotal(Double.parseDouble(total));
-			model.setStatus(ExpUseConstant.ST_DRAFT);
+			model.setStatus(status);
+			
+			if (model.getId() == null || (status!=null && status.equals(ExpUseConstant.ST_DRAFT))) {
+				model.setStatus(ExpUseConstant.ST_WAITING);
+				model.setWaitingLevel(1);
+			}
 			
 			log.info("model="+model);
-			model = expUseService.save(model, attendees, items, files, true);
+			JSONObject validateResult = expUseService.validateAssignee(model);
+			if (!(Boolean)validateResult.get("valid")) {
+				json = CommonUtil.jsonFail(validateResult);
+			}
+			else {
+				JSONObject validateWfPath = expUseService.validateWfPath(model);
+				if (!(Boolean)validateWfPath.get("valid")) {
+					json = CommonUtil.jsonFail(validateWfPath);
+				}
+				else {
+					model = expUseService.save(model, attendees, items, files, true);
+					
+					mainWorkflowService.setModuleService(expUseService);
+					mainWorkflowService.startWorkflow(model, MainWkfConfigDocTypeConstant.DT_AP);
+					
+					JSONObject jsObj = new JSONObject();
+					jsObj.put("id", model.getId());
+					jsObj.put("status", model.getStatus());
+					
+					json = CommonUtil.jsonSuccess(jsObj);
+				}
+			}
 			
-			JSONObject jsObj = new JSONObject();
-			jsObj.put("id", model.getId());
-			jsObj.put("status", model.getStatus());
-			
-			json = CommonUtil.jsonSuccess(jsObj);
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -696,10 +718,10 @@ public class ExpUseWebScript {
 	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/preview")
 	public void handlePreviewGen(@RequestParam(required=false) final String id
 								,@RequestParam(required=false) final String reqBy
-								,@RequestParam(required=false) final String reqOu
 								,@RequestParam(required=false) final String objective
 								,@RequestParam(required=false) final String budgetCc
 								,@RequestParam(required=false) final String budgetCcType
+								,@RequestParam(required=false) final String fundId
 								,@RequestParam(required=false) final String costControlTypeId
 								,@RequestParam(required=false) final String costControlId
 								,@RequestParam(required=false) final String costControl
@@ -707,8 +729,6 @@ public class ExpUseWebScript {
 								,@RequestParam(required=false) final String costControlTo
 								,@RequestParam(required=false) final String bankType
 								,@RequestParam(required=false) final String bank
-								,@RequestParam(required=false) final String vatId
-								,@RequestParam(required=false) final String vat
 								,@RequestParam(required=false) final String payType
 								,@RequestParam(required=false) final String payDtl1
 								,@RequestParam(required=false) final String payDtl2
@@ -738,14 +758,15 @@ public class ExpUseWebScript {
 			}
 			
 			model.setReqBy(reqBy);
-			if (reqOu != null && !reqOu.equals("")) {
-				model.setReqSectionId(Integer.parseInt(reqOu));
-			}
+			
 			model.setObjective(objective);
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
 			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
 			
 			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
 			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
@@ -762,11 +783,6 @@ public class ExpUseWebScript {
 				model.setBank(Integer.parseInt(bank));
 			}
 			
-			model.setVat((vat != null && !vat.equals("")) ? Double.parseDouble(vat) : null);
-			if (vatId != null && !vatId.equals("")) {
-				model.setVatId(Integer.parseInt(vatId));
-			}
-			
 			model.setPayType(payType);
 			model.setPayDtl1(payDtl1);
 			model.setPayDtl2(payDtl2);
@@ -777,8 +793,8 @@ public class ExpUseWebScript {
 			
 			log.info("model="+model);
 			
-			if (model.getId() == null || (status!=null && status.equals(PcmReqConstant.ST_DRAFT))) {
-				model.setStatus(PcmReqConstant.ST_WAITING);
+			if (model.getId() == null || (status!=null && status.equals(ExpUseConstant.ST_DRAFT))) {
+				model.setStatus(ExpUseConstant.ST_WAITING);
 				model.setWaitingLevel(1);
 			}
 			
@@ -807,4 +823,116 @@ public class ExpUseWebScript {
 		}
 		  
 	}
+	
+	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/finish")
+	public void handleFinish(@RequestParam(required=false) final String id
+							,@RequestParam(required=false) final String reqBy
+			  				,@RequestParam(required=false) final String objective
+							,@RequestParam(required=false) final String budgetCc
+							,@RequestParam(required=false) final String budgetCcType
+							,@RequestParam(required=false) final String fundId
+							,@RequestParam(required=false) final String costControlTypeId
+							,@RequestParam(required=false) final String costControlId
+							,@RequestParam(required=false) final String costControl
+							,@RequestParam(required=false) final String costControlFrom
+							,@RequestParam(required=false) final String costControlTo
+							,@RequestParam(required=false) final String bankType
+							,@RequestParam(required=false) final String bank
+							,@RequestParam(required=false) final String payType
+							,@RequestParam(required=false) final String payDtl1
+							,@RequestParam(required=false) final String payDtl2
+							,@RequestParam(required=false) final String payDtl3
+							,@RequestParam(required=false) final String total
+			  				,@RequestParam(required=false) final String attendees
+			  				,@RequestParam(required=false) final String items
+			  				,@RequestParam(required=false) final String files
+							,@RequestParam(required=false) final String status
+			  				,final WebScriptResponse response) throws Exception {
+		
+		String json = null;
+		
+		try {
+			ExpUseModel model = null;
+			
+			if (CommonUtil.isValidId(id)) {
+				model = expUseService.get(id);
+			}
+			
+			if (model==null) {
+				model = new ExpUseModel();
+			}
+			model.setWaitingLevel(0);
+			
+			model.setReqBy(reqBy);
+			
+			model.setObjective(objective);
+			if (budgetCc != null && !budgetCc.equals("")) {
+				model.setBudgetCc(Integer.parseInt(budgetCc));
+			}
+			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
+			
+			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
+			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
+			model.setCostControl(costControl);
+			if (costControlFrom!=null) {
+				model.setCostControlFrom(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlFrom));
+			}
+			if (costControlTo!=null) {
+				model.setCostControlTo(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlTo));
+			}
+			
+			model.setBankType(bankType);
+			if (bank != null && !bank.equals("")) {
+				model.setBank(Integer.parseInt(bank));
+			}
+			
+			model.setPayType(payType);
+			model.setPayDtl1(payDtl1);
+			model.setPayDtl2(payDtl2);
+			model.setPayDtl3(payDtl3);
+			
+			model.setTotal(Double.parseDouble(total));
+			model.setStatus(status);
+			
+			if (model.getId() == null || (status!=null && status.equals(ExpUseConstant.ST_DRAFT))) {
+				model.setStatus(ExpUseConstant.ST_WAITING);
+				model.setWaitingLevel(1);
+			}
+			
+			log.info("model="+model);
+			JSONObject validateResult = expUseService.validateAssignee(model);
+			if (!(Boolean)validateResult.get("valid")) {
+				json = CommonUtil.jsonFail(validateResult);
+			}
+			else {
+				JSONObject validateWfPath = expUseService.validateWfPath(model);
+				if (!(Boolean)validateWfPath.get("valid")) {
+					json = CommonUtil.jsonFail(validateWfPath);
+				}
+				else {
+					model = expUseService.save(model, attendees, items, files, true);
+					
+					mainWorkflowService.setModuleService(expUseService);
+					mainWorkflowService.updateWorkflow(model, null, null, MainWkfConfigDocTypeConstant.DT_AP);
+					
+					JSONObject jsObj = new JSONObject();
+					jsObj.put("id", model.getId());
+					jsObj.put("status", model.getStatus());
+					
+					json = CommonUtil.jsonSuccess(jsObj);
+				}
+			}
+			
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		  
+	}	
 }

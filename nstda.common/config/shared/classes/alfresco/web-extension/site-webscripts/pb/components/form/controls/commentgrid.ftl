@@ -10,6 +10,7 @@
 <#assign controlId = fieldHtmlId + "-cntrl"/>
 <#if field.control.params.ds?exists><#assign cols=field.control.params.cols><#else><#assign cols=''></#if>
 <#if field.control.params.dsUrl?exists><#assign dsUrl=field.control.params.dsUrl><#else><#assign dsUrl=''></#if>
+<#if field.control.params.pbmodule?exists><#assign pbmodule=field.control.params.pbmodule><#else><#assign pbmodule=''></#if>
 
 <div class="form-field">
    <#if form.mode == "view">
@@ -81,16 +82,21 @@ YAHOO.util.Event.onDOMReady(function(){
 		oImg.style.height= '15px';
 		oImg.style.width= '15px';
 			oImg.onclick = function () {
-				var hid = document.getElementsByName("prop_pcmreqwf_id")[0];
+				var pbmodule = "${pbmodule}";
+				console.log("pbmodule:"+pbmodule);
+				var pbmodule2 = pbmodule.replace("-","");
+				console.log("pbmodule2:"+pbmodule2);
+			
+				var hid = document.getElementsByName("prop_"+pbmodule2+"wf_id")[0];
 				if (!hid) alert("Test");
-				var pf = hid.value.substring(0,2);
-				var u = {
-					"PR":"pcm-req",
-					"PD":"pcm-ord",
-					"AV":"exp-brw",
-					"AP":"exp-use"
-				}
-	    		window.location = "${url.context}/page/"+u[pf]+"?id="+hid.value+"&tid=${taskId}";
+//				var pf = hid.value.substring(0,2);
+//				var u = {
+//					"PR":"pcm-req",
+//					"PD":"pcm-ord",
+//					"AV":"exp-brw",
+//					"AP":"exp-use"
+//				}
+	    		window.location = "${url.context}/page/"+pbmodule+"?id="+hid.value+"&tid=${taskId}";
 			};
 		div.appendChild(oImg);                    // Append <button> to <body>
 		

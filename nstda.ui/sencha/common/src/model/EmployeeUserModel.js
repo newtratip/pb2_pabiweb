@@ -6,6 +6,7 @@ Ext.define('PB.model.common.EmployeeUserModel', {
     		 , {name : 'fname'}
     		 , {name : 'lname'}
     		 , {name : 'utype'}
+    		 , {name : 'org'}
     		 , {name : 'position'}
     		 , {name : 'position_id'}
     		 , {name : 'desttype'}

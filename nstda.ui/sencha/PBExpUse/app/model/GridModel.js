@@ -10,6 +10,8 @@ Ext.define('PBExpUse.model.GridModel', {
     		 , {name : 'created_time_show'}
     		 , {name : 'budget_cc'}
     		 , {name : 'budget_cc_name'}
+    		 , {name : 'fund_id'}
+    		 , {name : 'fund_name'}
     		 , {name : 'pay_type_name'}
     		 , {name : 'doc_ref'}
     		 , {name : 'folder_ref'}

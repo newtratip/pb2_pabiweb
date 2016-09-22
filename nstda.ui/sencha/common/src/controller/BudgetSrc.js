@@ -19,8 +19,12 @@ Ext.define('PB.controller.common.BudgetSrc', {
 			'searchBudgetSrcDlg button[action=ok]':{
 				confirmBudgetSrc:me.ok
 			},
+			'searchBudgetSrcDlg grid':{
+				select:me.selectRow
+			},
 			'searchBudgetSrcDlg':{
-				selectRadio:me.selectRadio
+				selectRadio:me.selectRadio,
+				loadFund:me.loadFund
 			}
 		});
 		
@@ -37,6 +41,10 @@ Ext.define('PB.controller.common.BudgetSrc', {
 	
 	getType:function(sender) {
 		return sender.up("window").down("field[name=type]");
+	},
+	
+	getFund:function(sender) {
+		return sender.up("window").down("field[name=fund]");
 	},
 	
     search : function(sender, v) {
@@ -56,17 +64,23 @@ Ext.define('PB.controller.common.BudgetSrc', {
 	ok:function(btn) {
 		var me = this;
 		
-		var ids = getRadioValue("id").split("|");
 		var type = me.getType(btn).getGroupValue();
-		var t = {"U":PB.Label.m.section,"P":PB.Label.m.project,"A":PB.Label.b.invAsset,"B":PB.Label.b.constr};
-		var typeName = t[type];
-		
-		me.getDlg().callback(ids, type, typeName);
-		me.getDlg().close();
+
+		if (validForm(me.getDlg().down("panel[itemId=southPanel]"))) {
+			var ids = getRadioValue("id").split("|");
+			var t = {"U":PB.Label.m.section,"P":PB.Label.m.project,"A":PB.Label.b.invAsset,"B":PB.Label.b.constr};
+			var typeName = t[type];
+			var fund = me.getFund(btn).getValue();
+			var fundName = me.getFund(btn).getRawValue();
+			
+			me.getDlg().callback(ids, type, typeName, fund, fundName);
+			me.getDlg().close();
+		}
 	},
 	
 	selectRadio:function(rad, v) {
 		var grid = this.getDlg().down("grid");
+		var store = grid.getStore();
 		var columns;
 		if(v=="U") {
 //			grid.headerCt.getHeaderAtIndex(1).setText("ศูนย์");
@@ -78,24 +92,23 @@ Ext.define('PB.controller.common.BudgetSrc', {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:PB.Label.m.org, dataIndex: 'type', width: 150 },
+	        	     { text:PB.Label.m.org, dataIndex: 'type', width: 70 },
 	        	     { text:PB.Label.b.sectName, dataIndex: 'name', flex:1 },
 	        	     { text:'Cost Center', dataIndex: 'cc', flex:1 }
 	        ];
-
+			
 	    }
 	    else
 		if (v=="P") {
 //			grid.headerCt.getHeaderAtIndex(1).setText("รหัส");
 //			grid.headerCt.getHeaderAtIndex(2).setText("ชื่อ");
-			
 			columns = [
 	        	     { text:'', dataIndex: 'id', width: 50, align:'center', renderer:
 	        	    	 function(v) {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:PB.Label.m.org, dataIndex: 'org', width: 100 },
+	        	     { text:PB.Label.m.org, dataIndex: 'org', width: 70 },
 	        	     { text:PB.Label.b.projName, dataIndex: 'name', flex:1 },
 	        	     { text:PB.Label.b.pm, dataIndex: 'cc', flex:1 }
 	        ];
@@ -116,7 +129,7 @@ Ext.define('PB.controller.common.BudgetSrc', {
 	        ];
 		}
 	    else
-		if (v=="B") {
+		if (v=="C") {
 			columns = [
 	        	     { text:'', dataIndex: 'id', width: 50, align:'center', renderer:
 	        	    	 function(v) {
@@ -131,6 +144,33 @@ Ext.define('PB.controller.common.BudgetSrc', {
 		
 		grid.reconfigure(undefined,columns);
 		this.search(grid, "Z");
+		
+		var cmbFund = this.getDlg().down("field[name=fund]");
+		cmbFund.setValue(null);
+		var store = cmbFund.getStore();
+		store.load();
+	},
+	
+	selectRow:function(grid, rec) {
+		var me = this;
+	
+		var id = rec.data.id.split("|")[0];
+		
+		var type = me.getDlg().down("field[name=type]").getGroupValue();
+		var store = me.getDlg().down("field[name=fund]").getStore();
+		
+		store.load({params:{
+			t:type,
+			id:id
+		}});
+	},
+	
+	loadFund:function(store, rs) {
+		var cmbFund = this.getDlg().down("field[name=fund]");
+	
+		if (rs.length == 1) {
+			cmbFund.setValue(store.first().data.id);
+		}
 	}
 
 });

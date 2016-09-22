@@ -5,7 +5,6 @@
     <resultMap id="result" type="pcmReqDtlModel">
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
-        <result property="isEquipment" column="is_equipment"/>
         <result property="actGrpId" column="act_grp_id"/>
         <result property="actGrp" column="act_grp"/>
         <result property="description" column="description"/>
@@ -13,7 +12,6 @@
         <result property="unit" column="unit"/>
         <result property="unitId" column="unit_id"/>
         <result property="price" column="price"/>
-        <result property="priceCnv" column="price_cnv"/>
         <result property="fiscalYear" column="fiscal_year"/>
         <result property="total" column="total"/>
         <result property="createdTime" column="created_time"/>
@@ -51,25 +49,21 @@
 		>
 	    INSERT INTO pb2_pcm_req_dtl(
 	    	master_id
-	    	,is_equipment
 	    	,act_grp_id
 	    	,description
 	    	,quantity
 	    	,unit_id
 	    	,price
-	    	,price_cnv
 	    	,fiscal_year
 	    	,total
 	    	,created_by,updated_by
 	    )VALUES( 
     		#{masterId}
-    		,#{isEquipment}
     		,#{actGrpId}
     		,#{description}
     		,#{quantity}
     		,#{unitId}
     		,#{price}
-    		,#{priceCnv}
     		,#{fiscalYear}
     		,#{total}
     		,#{createdBy},#{updatedBy}

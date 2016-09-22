@@ -40,12 +40,13 @@ public class AdminMainCostControlWebScript {
    */
   @Uri(URI_PREFIX+"/list")
   public void handleList(@RequestParam(required=true) final String type
+		  				, @RequestParam(required=false) final String lang
 		  			   , final WebScriptResponse response)  throws Exception {
     
 		String json = null;
 		
 		try {
-			List<Map<String, Object>> list = costControlService.list(Integer.parseInt(type), null, null);
+			List<Map<String, Object>> list = costControlService.list(Integer.parseInt(type), null, lang);
 			json = CommonUtil.jsonSuccess(list);
 			
 		} catch (Exception ex) {

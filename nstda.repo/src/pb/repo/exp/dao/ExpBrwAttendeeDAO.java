@@ -16,7 +16,8 @@ public interface ExpBrwAttendeeDAO {
 	
 	public ExpBrwAttendeeModel get(Long id);
 
-	public List<ExpBrwAttendeeModel> list(Map<String, Object> params);
+	public List<Map<String, Object>> list(Map<String, Object> params);
+	public List<ExpBrwAttendeeModel> listByMasterId(Map<String, Object> params);
 	
 	public List<Map<String, Object>> listForInf(Map<String, Object> params);
 }

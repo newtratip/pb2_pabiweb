@@ -31,6 +31,9 @@ Ext.define('PBExpUse.controller.Form', {
 	},{
 	    ref: 'hidBudgetCc',
 	    selector: 'expUseMainForm field[name=budgetCc]'
+    },{
+        ref: 'hidFundId',
+        selector: 'expUseMainForm field[name=fundId]'
 	},{
 	    ref: 'cmbBank',     
 	    selector: 'expUseMainForm field[name=bank]'
@@ -138,6 +141,9 @@ Ext.define('PBExpUse.controller.Form', {
 			},
 			'expUseUserTab':{
 				selectReqBy:me.selectReqBy
+			},
+			'expUseInfoTab [action=showBudget]':{
+				click : me.showBudget
 			},
 			'expUseInfoTab':{
 				selectBudgetCc:me.selectBudgetCc,
@@ -299,14 +305,16 @@ Ext.define('PBExpUse.controller.Form', {
 		params.budgetCcType = me.getHidBudgetCcType().getValue();
 		params.budgetCc = me.getHidBudgetCc().getValue();
 		
+		params.fundId = me.getHidFundId().getValue();
+		
 		params.costControlTypeId = me.getHidCostControlTypeId().getValue();
 		params.costControlId = me.getHidCostControlId().getValue();
 		
 		params.bankType = me.getRadBankType().getGroupValue();
 		params.bank = me.getCmbBank().getValue();
 		
-		params.vatId = me.getCmbVatId().getValue();
-		params.vat = me.getHidVat().getValue();
+//		params.vatId = me.getCmbVatId().getValue();
+//		params.vat = me.getHidVat().getValue();
 		
 		var payType = me.getRadPayType().getGroupValue();
 		params.payType = payType;
@@ -314,17 +322,17 @@ Ext.define('PBExpUse.controller.Form', {
 			params.payDtl1 = me.getTxtSupName().getValue();
 		} 
 		else
+//		if (payType==2) {
+//			params.payDtl1 = me.getTxtSupFeeName().getValue();
+//			params.payDtl2 = me.getCmbPoNo().getValue();
+//			params.payDtl3 = me.getCmbAssetNo().getValue();
+//		} 
+//		else
 		if (payType==2) {
-			params.payDtl1 = me.getTxtSupFeeName().getValue();
-			params.payDtl2 = me.getCmbPoNo().getValue();
-			params.payDtl3 = me.getCmbAssetNo().getValue();
-		} 
-		else
-		if (payType==3) {
 			params.payDtl1 = me.getCmbAvCode().getValue();
 		}
 		else
-		if (payType==4) {
+		if (payType==3) {
 			params.payDtl1 = me.getHidIchargeCode().getValue();
 			params.payDtl2 = me.getHidIchargeType().getValue();
 		}
@@ -674,19 +682,24 @@ Ext.define('PBExpUse.controller.Form', {
 	
 	},
 	
-	selectBudgetCcCallBack:function(ids, type, typeName) {
+	selectBudgetCcCallBack:function(ids, type, typeName, fund, fundName) {
 		var tab = this.targetPanel;
 		setValue(tab, 'budgetCc', ids[0]);
 		setValue(tab, 'budgetCcName', ids[1]);
 		setValue(tab, 'budgetCcType', type);
 		setValue(tab, 'budgetCcTypeName', typeName);
+		
+		setValue(tab, 'fundId', fund);
+		setValue(tab, 'fundName', fundName);
+		
+		tab.down("button[action='showBudget']").show();
 	},
 	
 	selectBudgetCc:function() {
 		var me = this;
 	
 		var dlg = Ext.create("PB.view.common.SearchBudgetSrcDlg",{
-			title:'ค้นหา',
+			title:PB.Label.m.search,
 			targetPanel:this.getInfoTab(),
 			callback:this.selectBudgetCcCallBack
 		});
@@ -762,7 +775,7 @@ Ext.define('PBExpUse.controller.Form', {
 	
 	selectCostControl:function() {
 		Ext.create("PB.view.common.SearchCostControlDlg",{
-			title:'ค้นหา',
+			title:PB.Label.m.search,
 			targetPanel:this.getInfoTab(),
 			callback:this.selectCostControlCallBack
 		}).show();
@@ -809,7 +822,7 @@ Ext.define('PBExpUse.controller.Form', {
 		
 		var vi = parseInt(v);
 		
-		me.getRadBankType0().setDisabled(vi!=0 && vi!=3);
+		me.getRadBankType0().setDisabled(vi!=0 && vi!=2);
 		me.getRadBankType1().setDisabled(me.getRadBankType0().disabled);
 		
 		var i=1;
@@ -819,16 +832,16 @@ Ext.define('PBExpUse.controller.Form', {
 			me.getTxtSupName().setValue(null);
 		}
 		
-		i++;
-		b = vi!=i;
-		me.getTxtSupFeeName().setDisabled(b);
-		me.getCmbPoNo().setDisabled(b);
-		me.getCmbAssetNo().setDisabled(b);
-		if (b) {
-			me.getTxtSupFeeName().setValue(null);
-			me.getCmbPoNo().setValue(null);
-			me.getCmbAssetNo().setValue(null);
-		}
+//		i++;
+//		b = vi!=i;
+//		me.getTxtSupFeeName().setDisabled(b);
+////		me.getCmbPoNo().setDisabled(b);
+////		me.getCmbAssetNo().setDisabled(b);
+//		if (b) {
+//			me.getTxtSupFeeName().setValue(null);
+//			me.getCmbPoNo().setValue(null);
+//			me.getCmbAssetNo().setValue(null);
+//		}
 		
 		i++;
 		b = vi!=i;
@@ -843,6 +856,35 @@ Ext.define('PBExpUse.controller.Form', {
 		if (b) {
 			me.getTxtIchargeTypeName().setValue(null);
 		}
+	},
+	
+	showBudget:function() {
+		var me = this;
+		
+		Ext.Ajax.request({
+		    url:ALF_CONTEXT+"/admin/main/totalPreBudget",
+		    method: "GET",
+		    params: {budgetCc:me.getHidBudgetCc().getValue(), budgetCcType:me.getHidBudgetCcType().getValue()},
+		    async:false,
+		    success: function(response){
+			
+				var json = Ext.decode(response.responseText);
+				
+				var tab = me.getInfoTab();
+				var rec = {
+						name : tab.down("field[name=budgetCcTypeName]").getValue()+" "+tab.down("field[name=budgetCcName]").getValue(),
+						balance : json.data.balance,
+						preAppBudget : json.data.pre,
+						expBalance : json.data.ebalance
+				}
+			
+				Ext.create("PB.view.common.CheckBudgetDlg",{
+					title:'งบประมาณ',
+					rec:rec
+				}).show();
+		    }
+		});		
 	}
+	
 	
 });

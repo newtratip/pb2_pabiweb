@@ -58,6 +58,7 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 			});
 			
 			rec.set("code", items[a].data['code']);
+			rec.set("title", items[a].data['title']);
 			rec.set("fname", items[a].data['fname']);
 			rec.set("lname", items[a].data['lname']);
 			rec.set("unit_type", items[a].data['utype']);
@@ -78,7 +79,7 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 	}, // method
 	
 	addEmp:function() {
-		this.createEmpDlg('เพิ่ม',  null).show();
+		this.createEmpDlg(PB.Label.m.add,  null).show();
 	},
 	
 	createEmpDlg:function(title, rec) {
@@ -100,7 +101,7 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 		
 		me.getEmpGrid().getView().getSelectionModel().select(rec);
 	
-		me.createEmpDlg('แก้ไข',  rec).show();
+		me.createEmpDlg(PB.Label.m.edit,  rec).show();
 	},
 	
 	delEmp:function(rec) {
@@ -143,7 +144,8 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 			rec = me.rec;
 		}
 	
-		rec.set("fname", r.data.fname); 		
+		rec.set("title", r.data.title);
+		rec.set("fname", r.data.fname);
 		rec.set("lname", r.data.lname); 		
 		rec.set("position", r.data.position);
 		
@@ -164,7 +166,7 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 	},
 	
 	addOth:function() {
-		this.createOthDlg('เพิ่ม',  null).show();
+		this.createOthDlg(PB.Label.m.add,  null).show();
 	},
 	
 	createOthDlg:function(title, rec) {
@@ -187,7 +189,7 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 		
 		me.getOthGrid().getView().getSelectionModel().select(rec);
 	
-		me.createOthDlg('แก้ไข',  rec).show();
+		me.createOthDlg(PB.Label.m.edit,  rec).show();
 	},
 	
 	delOth:function(rec) {

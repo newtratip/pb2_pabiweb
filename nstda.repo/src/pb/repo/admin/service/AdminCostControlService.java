@@ -33,7 +33,6 @@ public class AdminCostControlService {
         	MainCostControlDAO dao = session.getMapper(MainCostControlDAO.class);
             
         	Map<String, Object> params = new HashMap<String, Object>();
-        	log.info("type="+type);
         	params.put("type", type);
         	if (searchTerm!=null) {
         		String[] terms = searchTerm.split(" ");
@@ -42,7 +41,7 @@ public class AdminCostControlService {
         	}
         	
         	lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
-    		String name = "name"+lang;
+        	String name = "name"+lang;
         	params.put("orderBy", name);
         	
     		List<Map<String,Object>> tmpList = dao.list(params);

@@ -68,6 +68,8 @@ import pb.common.util.DocUtil;
 import pb.common.util.FolderUtil;
 import pb.common.util.ImageUtil;
 import pb.common.util.PersonUtil;
+import pb.common.util.StringUtil;
+import pb.repo.admin.constant.MainBudgetSrcConstant;
 import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
@@ -82,7 +84,9 @@ import pb.repo.admin.model.MainWorkflowHistoryModel;
 import pb.repo.admin.model.MainWorkflowNextActorModel;
 import pb.repo.admin.model.SubModuleModel;
 import pb.repo.admin.service.AdminAccountTaxService;
+import pb.repo.admin.service.AdminBankMasterService;
 import pb.repo.admin.service.AdminCostControlService;
+import pb.repo.admin.service.AdminFundService;
 import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminProjectService;
@@ -91,7 +95,6 @@ import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.admin.service.AdminWkfConfigService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.service.MainSrcUrlService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.service.SubModuleService;
 import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.admin.util.RptUtil;
@@ -99,7 +102,6 @@ import pb.repo.common.mybatis.DbConnectionFactory;
 import pb.repo.exp.constant.ExpBrwAttendeeConstant;
 import pb.repo.exp.constant.ExpBrwConstant;
 import pb.repo.exp.constant.ExpBrwWorkflowConstant;
-import pb.repo.exp.constant.ExpUseConstant;
 import pb.repo.exp.dao.ExpBrwAttendeeDAO;
 import pb.repo.exp.dao.ExpBrwDAO;
 import pb.repo.exp.dao.ExpBrwDtlDAO;
@@ -110,7 +112,6 @@ import pb.repo.exp.util.ExpBrwAttendeeUtil;
 import pb.repo.exp.util.ExpBrwDtlUtil;
 import pb.repo.exp.util.ExpBrwUtil;
 import pb.repo.exp.util.ExpUtil;
-import pb.repo.pcm.model.PcmReqModel;
 
 @Service
 public class ExpBrwService implements SubModuleService {
@@ -163,7 +164,7 @@ public class ExpBrwService implements SubModuleService {
 	MainSrcUrlService mainSrcUrlService;
 	
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	ExpBrwWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AdminHrEmployeeService adminHrEmployeeService;
@@ -178,10 +179,16 @@ public class ExpBrwService implements SubModuleService {
 	AdminProjectService adminProjectService;
 	
 	@Autowired
+	AdminFundService adminFundService;
+	
+	@Autowired
 	AdminCostControlService adminCostControlService;
 	
 	@Autowired
 	AdminAccountTaxService adminAccountTaxService;
+	
+	@Autowired
+	AdminBankMasterService adminBankMasterService;
 	
 	@Autowired
 	AlfrescoService alfrescoTaxService;
@@ -428,7 +435,7 @@ public class ExpBrwService implements SubModuleService {
 		
         try {
         	
-        	Map<String, String> bossMap = getBossMap(MainWkfConfigDocTypeConstant.DT_PR, model);
+        	Map<String, String> bossMap = getBossMap(MainWkfConfigDocTypeConstant.DT_AV, model);
 
         	if (bossMap==null || bossMap.size()==0) {
 				result.put("valid", false);
@@ -620,7 +627,7 @@ public class ExpBrwService implements SubModuleService {
 	}
 	
 	public String doGenDoc(String name, ExpBrwModel model) throws Exception {
-		String lang = "th";
+		String lang = "_th";
 		
 		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
 		
@@ -633,8 +640,8 @@ public class ExpBrwService implements SubModuleService {
         	attendeeMap = new HashMap<String, Object>();
 			
 			attendeeMap.put("code", tmpDtl.getCode());
-			attendeeMap.put("name", tmpDtl.getFname()+" "+tmpDtl.getLname());
-			attendeeMap.put("utype", tmpDtl.getUnitType());
+			attendeeMap.put("name", StringUtil.replaceNBSP(tmpDtl.getTitle()+" "+tmpDtl.getFname()+" "+tmpDtl.getLname()));
+			attendeeMap.put("section", StringUtil.replaceNBSP(tmpDtl.getUnitType()));
 			attendeeMap.put("position", tmpDtl.getPosition());
 			
 			if (tmpDtl.getType().equals(ExpBrwAttendeeConstant.T_EMPLOYEE)) {
@@ -657,7 +664,45 @@ public class ExpBrwService implements SubModuleService {
 		}
 		
 		parameters.put("total", df.format(model.getTotal()));
+
+		List<Map<String, Object>> oldAvList = new ArrayList<Map<String, Object>>();
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("id", model.getReqBy());
 		
+		List<Map<String, Object>> olist = listOld(params);
+
+		int i = 1;
+		for(Map<String, Object> oldMap : olist) {
+			Map<String, Object> oldAv = new HashMap<String, Object>();
+			oldAv.put("item", "ยอดคงค้างผู้ขอเบิก "+i++);
+			oldAv.put("avNo", oldMap.get("number"));
+			oldAv.put("waitAmt", oldMap.get("waitamt"));
+			oldAv.put("balance", oldMap.get("balance"));
+			oldAvList.add(oldAv);
+		}
+		
+		parameters.put("OldAvDataSource", new JRMapCollectionDataSource(new ArrayList<Map<String,?>>(oldAvList)));
+		
+		if (oldAvList.size()>0) {
+			parameters.put("showOldAv", "1");
+		} else {
+			parameters.put("showOldAv", "");
+		}
+
+		List<Map<String, Object>> dtlList = new ArrayList<Map<String, Object>>();
+		
+		List<ExpBrwDtlModel> dlist = listDtlByMasterId(model.getId());
+				
+		for(ExpBrwDtlModel dtlModel : dlist) {
+			Map<String, Object> dtl = new HashMap<String, Object>();
+			dtl.put("item", dtlModel.getActivity());
+			dtl.put("amount", dtlModel.getAmount());
+			dtlList.add(dtl);
+		}
+		
+		parameters.put("DtlDataSource", new JRMapCollectionDataSource(new ArrayList<Map<String,?>>(dtlList)));
+
 		/*
 		 * Data
 		 */
@@ -667,14 +712,21 @@ public class ExpBrwService implements SubModuleService {
 		map.put("id", model.getId() != null ? model.getId() : "");
 		
 		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy());		
-		map.put("reqBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
-		map.put("reqOrg", empDtl.get("org_desc"));
-		map.put("reqSection", empDtl.get("section_name"));
+		map.put("reqBy", empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang));
+		map.put("reqOrg", empDtl.get("org_desc"+lang));
+		map.put("reqSection", empDtl.get("section_desc"+lang));
+		String mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
+		String wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
+		String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+		map.put("reqPhone", wphone+comma+mphone);
 		
 		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
-		map.put("createdBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
+		map.put("createdBy", empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang));
 		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
-		map.put("createdPhone", StringUtils.defaultIfBlank((String)empDtl.get("work_phone"),""));
+		mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
+		wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
+		comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+		map.put("createdPhone", wphone+comma+mphone);
 		
 		Map<String, Object> firstAppMap = getFirstApprover(model.getId());
 		log.info("model.id:"+model.getId());
@@ -687,17 +739,26 @@ public class ExpBrwService implements SubModuleService {
 		map.put("lastAppBy", lastAppMap != null ? lastAppMap.get("approver") : "");
 		map.put("lastAppTime", lastAppMap != null ? CommonDateTimeUtil.convertToGridDateTime((Timestamp)lastAppMap.get("time")) : "");
 		
-		map.put("objectiveType", model.getObjectiveType());
-		map.put("objective", model.getObjective());
+		MainMasterModel objTypeModel = masterService.getByTypeAndCode(MainMasterConstant.TYPE_EXP_BRW_TYPE, model.getObjectiveType());
+		
+		map.put("objectiveType", objTypeModel.getName());
+		
+		String objective = model.getObjective();
+		if (model.getObjectiveType().equals("attend_seminar")) {
+			objective += "    วันที่กลับ    " + CommonDateTimeUtil.convertToGridDate(model.getDateBack());
+		}
+		map.put("objective", objective);
 		map.put("reason", model.getReason());
 		
 		String budgetCcName = null;
-		if (model.getBudgetCcType().equals("P")) {
+		if (model.getBudgetCcType().equals(MainBudgetSrcConstant.TYPE_PROJECT)) {
 			Map<String, Object> prjMap = adminProjectService.get(model.getBudgetCc());
-			budgetCcName = (String)prjMap.get("description");
+			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
+			budgetCcName = (String)prjMap.get("code")+ " - "+(String)prjMap.get("name")+ " ("+(String)fundMap.get("name")+")";			
 		} else {
 			Map<String, Object> sectMap = adminSectionService.get(model.getBudgetCc());
-			budgetCcName = (String)sectMap.get("name");
+			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
+			budgetCcName = (String)sectMap.get("name")+ " ("+(String)fundMap.get("name")+")";
 		}
 		map.put("budgetCc", budgetCcName);
 
@@ -706,43 +767,36 @@ public class ExpBrwService implements SubModuleService {
 		
 		map.put("costControl", StringUtils.defaultIfBlank(ccName,""));
 		
-		map.put("totalType", "aa");
-		map.put("total", "aa");
+		Map<String, Object> bankMap = adminBankMasterService.get(model.getBank());
 		
-		map.put("bank", "aa");
+		map.put("bank", bankMap!=null ? bankMap.get("name") : "");
 		map.put("bank1", RptUtil.radio(model.getBankType().equals("0")));
 		map.put("bank2", RptUtil.radio(model.getBankType().equals("1")));
-
-		map.put("cc1", RptUtil.radio(model.getCostControlTypeId() == 0));
-		map.put("cc2", RptUtil.radio(model.getCostControlTypeId() == 1));
-		map.put("cc3", RptUtil.radio(model.getCostControlTypeId() == 2));
-
-		if (model.getCostControlTypeId() == 0) {
-			map.put("costControlId", model.getCostControlId()!=null ? model.getCostControlId().toString() : "");
-			map.put("cc1From", model.getCostControlFrom() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlFrom()) : "");
-			map.put("cc1To", model.getCostControlTo() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlTo()) : "");
-
-			map.put("costControl", "");
-			map.put("cc2From", "");
-			map.put("cc2To", "");
-		}
-
-		if (model.getCostControlTypeId() == 1) {
-			map.put("costControlId", "");
-			map.put("cc1From", "");
-			map.put("cc1To", "");
-			
-			map.put("costControl", model.getCostControl());
-			map.put("cc2From", model.getCostControlFrom() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlFrom()) : "");
-			map.put("cc2To", model.getCostControlTo() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlTo()) : "");
-		}
 		
-		map.put("oav_id1", "AV16000001");
-		map.put("oav_id2", "AV16000002");
-		map.put("oav_amt1", "100.00");
-		map.put("oav_amt2", "200.00");
-		map.put("oav_bl1", "500.00");
-		map.put("oav_bl2", "600.50");
+//		Integer ccTypeId = model.getCostControlTypeId()!=null ? model.getCostControlTypeId() : 0;
+//		map.put("cc1", RptUtil.radio(ccTypeId == 0));
+//		map.put("cc2", RptUtil.radio(ccTypeId == 1));
+//		map.put("cc3", RptUtil.radio(ccTypeId == 2));
+
+//		if (model.getCostControlTypeId() == 0) {
+//			map.put("costControlId", model.getCostControlId()!=null ? model.getCostControlId().toString() : "");
+//			map.put("cc1From", model.getCostControlFrom() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlFrom()) : "");
+//			map.put("cc1To", model.getCostControlTo() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlTo()) : "");
+//
+//			map.put("costControl", "");
+//			map.put("cc2From", "");
+//			map.put("cc2To", "");
+//		}
+//
+//		if (model.getCostControlTypeId() == 1) {
+//			map.put("costControlId", "");
+//			map.put("cc1From", "");
+//			map.put("cc1To", "");
+//			
+//			map.put("costControl", model.getCostControl());
+//			map.put("cc2From", model.getCostControlFrom() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlFrom()) : "");
+//			map.put("cc2To", model.getCostControlTo() != null ? CommonDateTimeUtil.convertToGridDateTime(model.getCostControlTo()) : "");
+//		}
 		
 		listData.add(map);
 
@@ -1112,19 +1166,48 @@ public class ExpBrwService implements SubModuleService {
         return model;
 	}
 	
-	public List<ExpBrwAttendeeModel> listAttendeeByMasterIdAndType(String masterId, String type) {
+	public List<Map<String, Object>> listAttendeeByMasterIdAndType(String masterId, String type, String lang) {
 		
-		List<ExpBrwAttendeeModel> list = null;
+		List<Map<String, Object>> list = null;
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
             ExpBrwAttendeeDAO dtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             
-    		Map<String, Object> map = new HashMap<String, Object>();
-    		map.put("masterId", masterId);
-    		map.put("type", type);
+    		Map<String, Object> params = new HashMap<String, Object>();
+    		params.put("masterId", masterId);
+    		params.put("type", type);
 
-    		list = dtlDAO.list(map);
+    		list = dtlDAO.list(params);
+    		
+    		lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
+    		
+    		for(Map<String, Object> map:list) {
+    			if (map.get("code")!=null && !map.get("code").equals("")) {
+    				map.put("title", map.get("etitle"+lang));
+    				map.put("fname", map.get("efirst_name"+lang));
+    				map.put("lname", map.get("elast_name"+lang));
+    				map.put("position", map.get("eposition"+lang));
+    				map.put("unit_type", "["+map.get("scode")+"] "+map.get("esection"+lang));
+    				
+    				map.remove("etitle");
+    				map.remove("efirst_name");
+    				map.remove("elast_name");
+    				map.remove("eposition");
+    				map.remove("esection");
+
+    				List<String> rkey = new ArrayList<String>();
+    				for(String key:map.keySet()) {
+    					if (key.equals(key.toUpperCase())) {
+    						rkey.add(key);
+    					}
+    				}
+    				
+    				for(String key:rkey) {
+    					map.remove(key);
+    				}
+    			}
+    		}
         } catch (Exception ex) {
 			log.error("", ex);
         	throw ex;
@@ -1135,7 +1218,7 @@ public class ExpBrwService implements SubModuleService {
         return list;
 	}
 	
-	public List<ExpBrwAttendeeModel> listOthDtlByMasterId(String masterId) {
+	public List<ExpBrwAttendeeModel> listAttendeeByMasterId(String masterId) {
 		
 		List<ExpBrwAttendeeModel> list = null;
 		
@@ -1143,10 +1226,11 @@ public class ExpBrwService implements SubModuleService {
         try {
             ExpBrwAttendeeDAO dtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
             
-    		Map<String, Object> map = new HashMap<String, Object>();
-    		map.put("masterId", masterId);
+    		Map<String, Object> params = new HashMap<String, Object>();
+    		params.put("masterId", masterId);
 
-    		list = dtlDAO.list(map);
+    		list = dtlDAO.listByMasterId(params);
+    		
         } catch (Exception ex) {
 			log.error("", ex);
         	throw ex;
@@ -1157,29 +1241,52 @@ public class ExpBrwService implements SubModuleService {
         return list;
 	}
 	
+//	
+//	public List<ExpBrwAttendeeModel> listOthDtlByMasterId(String masterId) {
+//		
+//		List<ExpBrwAttendeeModel> list = null;
+//		
+//		SqlSession session = ExpUtil.openSession(dataSource);
+//        try {
+//            ExpBrwAttendeeDAO dtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
+//            
+//    		Map<String, Object> map = new HashMap<String, Object>();
+//    		map.put("masterId", masterId);
+//
+//    		list = dtlDAO.list(map);
+//        } catch (Exception ex) {
+//			log.error("", ex);
+//        	throw ex;
+//        } finally {
+//        	session.close();
+//        }
+//        
+//        return list;
+//	}
 	
-	public List<ExpBrwAttendeeModel> listDtlByMasterIdAndFieldName(String masterId, String fieldName) {
-		
-		List<ExpBrwAttendeeModel> list = null;
-		
-		SqlSession session = ExpUtil.openSession(dataSource);
-        try {
-            ExpBrwAttendeeDAO dtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
-            
-    		Map<String, Object> map = new HashMap<String, Object>();
-    		map.put("masterId", masterId);
-    		map.put("fieldName", fieldName);
-
-    		list = dtlDAO.list(map);
-        } catch (Exception ex) {
-			log.error("", ex);
-        	throw ex;
-        } finally {
-        	session.close();
-        }
-        
-        return list;
-	}
+	
+//	public List<ExpBrwAttendeeModel> listDtlByMasterIdAndFieldName(String masterId, String fieldName) {
+//		
+//		List<ExpBrwAttendeeModel> list = null;
+//		
+//		SqlSession session = ExpUtil.openSession(dataSource);
+//        try {
+//            ExpBrwAttendeeDAO dtlDAO = session.getMapper(ExpBrwAttendeeDAO.class);
+//            
+//    		Map<String, Object> map = new HashMap<String, Object>();
+//    		map.put("masterId", masterId);
+//    		map.put("fieldName", fieldName);
+//
+//    		list = dtlDAO.list(map);
+//        } catch (Exception ex) {
+//			log.error("", ex);
+//        	throw ex;
+//        } finally {
+//        	session.close();
+//        }
+//        
+//        return list;
+//	}
 	
 	private String encodedImage(String confName) throws Exception {
 		
@@ -1758,6 +1865,17 @@ public class ExpBrwService implements SubModuleService {
 		list.add(0, map);
 		
 		/*
+		 * Add Real Requester
+		 */
+		map = new HashMap<String, Object>();
+		map.put("LEVEL", MainWorkflowConstant.TN_REAL_REQUESTER_CAPTION);
+		map.put("U", model.getReqBy());
+		map.put("G", "");
+		map.put("IRA", false);
+		
+		list.add(0, map);
+		
+		/*
 		 * Add Next Actor
 		 */
 		List<Map<String, Object>> actorList = null;
@@ -1851,7 +1969,6 @@ public class ExpBrwService implements SubModuleService {
             Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName());
             
         	model.setReqBy(authService.getCurrentUserName());
-        	model.setReqSectionId((Integer)reqBy.get("section_id"));
         	
         	model.setObjectiveType(oModel.getObjectiveType());
         	model.setObjective(oModel.getObjective());
@@ -1862,9 +1979,8 @@ public class ExpBrwService implements SubModuleService {
         	
         	model.setCostControlTypeId(oModel.getCostControlTypeId());
         	model.setCostControlId(oModel.getCostControlId());
-        	model.setCostControl(oModel.getCostControl());
-        	model.setCostControlFrom(oModel.getCostControlFrom());
-        	model.setCostControlTo(oModel.getCostControlTo());
+        	
+        	model.setDateBack(oModel.getDateBack());
         	
         	model.setTotal(oModel.getTotal());
         	
@@ -1916,7 +2032,8 @@ public class ExpBrwService implements SubModuleService {
             /*
              * Create New Attendees
              */
-    		List<ExpBrwAttendeeModel> attendeeList = listAttendeeByMasterIdAndType(oModel.getId(), null);
+    		List<ExpBrwAttendeeModel> attendeeList = listAttendeeByMasterId(oModel.getId());
+    		
             for(ExpBrwAttendeeModel vModel : attendeeList) {
             	vModel.setMasterId(model.getId());
 	        	vModel.setCreatedBy(model.getUpdatedBy());
@@ -1961,7 +2078,10 @@ public class ExpBrwService implements SubModuleService {
 		/*
 		 * Special Attribute
 		 */
-		parameters.put(ExpBrwWorkflowConstant.PROP_OBJECTIVE_TYPE, model.getObjectiveType());
+        MainMasterModel masterModel = masterService.getByTypeAndCode(MainMasterConstant.TYPE_EXP_BRW_TYPE, model.getObjectiveType());
+        String objType = masterModel!=null ? masterModel.getName() : "";
+        
+		parameters.put(ExpBrwWorkflowConstant.PROP_OBJECTIVE_TYPE, objType);
 		parameters.put(ExpBrwWorkflowConstant.PROP_OBJECTIVE, model.getObjective());
 		parameters.put(ExpBrwWorkflowConstant.PROP_REASON, model.getReason());
 		parameters.put(ExpBrwWorkflowConstant.PROP_TOTAL, model.getTotal());
@@ -1969,10 +2089,10 @@ public class ExpBrwService implements SubModuleService {
 		Map<String, Object> map = null;
 		if (model.getBudgetCcType().equals(ExpBrwConstant.BCCT_UNIT)) {
 			map = adminSectionService.get(model.getBudgetCc());
-			model.setBudgetCcName((String)map.get("description"));
+			model.setBudgetCcName((String)map.get("name"));
 		} else {
 			map = adminProjectService.get(model.getBudgetCc());
-			model.setBudgetCcName((String)map.get("name")+" - "+(String)map.get("description"));
+			model.setBudgetCcName((String)map.get("code")+" - "+(String)map.get("name"));
 		}
 		
 		parameters.put(ExpBrwWorkflowConstant.PROP_BUDGET_CC, model.getBudgetCcName());
@@ -1995,8 +2115,10 @@ public class ExpBrwService implements SubModuleService {
     	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "ขออนุมัติใหม่");
     	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "ยกเลิก");
     	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "ส่งงานให้พัสดุ");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "ส่งงานให้การเงิน");
 		
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_PAID, "จ่ายเงิน");
+    	
 		return WF_TASK_ACTIONS.get(action);
 	}
 
@@ -2023,12 +2145,22 @@ public class ExpBrwService implements SubModuleService {
 	public String getFirstComment(SubModuleModel model) {
 		ExpBrwModel realModel = (ExpBrwModel)model;
 		
-		return realModel.getObjectiveType() + " " + realModel.getObjective();
+		MainMasterModel objTypeModel = masterService.getByTypeAndCode(MainMasterConstant.TYPE_EXP_BRW_TYPE, realModel.getObjectiveType());
+		
+		return (objTypeModel!=null ? objTypeModel.getName()+ " " : "") + realModel.getObjective();
 	}
 
 	@Override
 	public String getNextActionInfo(SubModuleModel model) {
-		return "ฝ่ายพัสดุ";
+		ExpBrwModel avModel = (ExpBrwModel)model;
+		if (avModel!=null 
+				&& (avModel.getStatus().equals(ExpBrwConstant.ST_CANCEL_BY_FIN) 
+				|| avModel.getStatus().equals(ExpBrwConstant.ST_CANCEL_BY_REQ))
+			) {
+			return "";
+		} else {
+			return "การเงิน";
+		}
 	}
 	
 	public List<Map<String, Object>> listForInf(String id) {
@@ -2110,7 +2242,6 @@ public class ExpBrwService implements SubModuleService {
 		log.info("getBossMap()");
 		log.info("  docType:'"+docType+"'");
 		log.info("  budgetCcType:"+model.getBudgetCcType());
-		log.info("  sectionId:'"+model.getReqSectionId()+"'");
 		log.info("  reqUser:"+model.getReqBy());
 		log.info("  total:"+model.getTotal());
 		
@@ -2277,32 +2408,75 @@ public class ExpBrwService implements SubModuleService {
 		
 		String reqByCode = MainUserGroupUtil.login2code(model.getReqBy());
     	
+		String pm = tmpMap.get("00");
+		
+    	/*
+    	 * Find Boss by money, if reqByCode not exist in workflow path
+    	 */
+    	Double total = model.getTotal();
+    	
+    	log.info("total:"+total);
+
+    	/*
+    	 * Case PM get special budget
+    	 */
+		if (!pm.equals(model.getReqBy())) {
+			List<Map<String, Object>> list = adminProjectService.listPMSpecialBudget(model.getBudgetCc());
+			if (list!=null && list.size()>0) {
+				Map<String, Object> map = list.get(0);
+				log.info("min:"+map.get("amount_min")+",max:"+map.get("amount_max"));
+				if (total <= (Double)map.get("amount_max")) {
+					log.info("total<=max");
+					return tmpMap;
+				}
+			}
+		}
+    	
+		/*
+		 * Other cases
+		 */
     	Map<String, Object> reservedBoss = null;
     	Map<String, Object> lastBossMap = null;
     	
     	/*
-    	 * Find Boss by money
+    	 * Find Boss by level, if reqByCode exist in workflow path
     	 */
+    	int start = 0;
+    	int i = 0;
+    	
     	for(Map<String, Object> boss : bossList) {
     		
     		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code"));
-    		log.info("    amt_min:"+boss.get("amount_min"));
-    		if ((Double)boss.get("amount_min") <= model.getTotal()) {
-        		if (boss.get("employee_code").equals(reqByCode)) {
-        			tmpMap.clear();
-        		}
-    			tmpMap.put((String)boss.get("lvl"), MainUserGroupUtil.code2login((String)boss.get("employee_code")));
-    			lastBossMap = boss;
-    		} else {
-    			if (reservedBoss==null) {
-    				reservedBoss = boss;
-    			}
-    		}
     		
-    		if (reservedBoss!=null) {
+    		if (boss.get("employee_code").equals(model.getReqBy())) {
+    			log.info(model.getReqBy()+" is in path");
+    			start = i;
     			break;
     		}
+    		i++;
+    	}    	
+    	
+    	i = 0;
+    	log.info("  start:"+start);
+    	for(Map<String, Object> boss : bossList) {
+    		
+    		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code")+" (amt:"+boss.get("amount_min")+"-"+boss.get("amount_max")+")");
+    		
+    		if (i>=start) {
+    			if (tmpMap.size()<=1 || total > (Double)lastBossMap.get("amount_max")) {
+    				tmpMap.put((String)boss.get("lvl"), (String)boss.get("employee_code"));
+    				lastBossMap = boss;
+    			}
+    			else
+    			if (reservedBoss==null) {
+    				reservedBoss = boss;
+    				break;
+    			}
+    		}
+    		i++;
     	}
+    	
+    	log.info("lastBoss:"+lastBossMap.get("employee_code")+", reqBy:"+model.getReqBy());
     	
     	/*
     	 * Replace Last Boss if he is Requester
@@ -2311,44 +2485,34 @@ public class ExpBrwService implements SubModuleService {
     		if (reservedBoss!=null) {
         		tmpMap.remove(lastBossMap.get("lvl"));
     			tmpMap.put((String)reservedBoss.get("lvl"), MainUserGroupUtil.code2login((String)reservedBoss.get("employee_code")));
+    		} else {
+    			// waiting SA
     		}
-    		else {
-    			// Waiting SA
-    			
-    		}
-    	}
-    	
-    	
-    	/*
-    	 * Remove Requester from Boss List
-    	 */
-    	List<String> rmList = new ArrayList<String>();
-    	int i = 1;
-    	int size = tmpMap.size();
-    	for(Entry<String, String> e : tmpMap.entrySet()) {
-    		log.info("  e.key:"+e.getKey()+", value:"+e.getValue());
-    		
-    		if (i==size) {
-    			break;
-    		}
-    		
-    		if (e.getValue().equals(reqByCode)) {
-    			rmList.add(e.getKey());
-    		}
-    		
-    		i++;
-    	}
-
-    	for(String k : rmList) {
-    		tmpMap.remove(k);
     	}
     	
 		/*
          * Remove duplicated Boss
          */
-		Map<String, String> map = removeDuplicatedBoss(tmpMap);
+		tmpMap = removeDuplicatedBoss(tmpMap);
 		
-		return map;
+    	/*
+    	 * Remove Requester
+    	 */
+		List<String> rmList = new ArrayList<String>();
+		
+    	if (tmpMap.size()>1) {
+    		for(Entry<String, String> e : tmpMap.entrySet()) {
+				if (e.getValue().equals(model.getReqBy())) {
+					rmList.add(e.getKey());
+				}
+    		}
+    	}
+
+    	for(String k:rmList) {
+    		tmpMap.remove(k);
+    	}
+    	
+		return tmpMap;
 	}
 	
 	private Map<String, String> removeDuplicatedBoss(Map<String, String> tmpMap) {
@@ -2488,6 +2652,11 @@ public class ExpBrwService implements SubModuleService {
 	@Override
 	public String getFirstStatus() {
 		return ExpBrwConstant.ST_WAITING;
+	}
+
+	@Override
+	public Boolean addPermissionToAttached() {
+		return false;
 	}
 	
 }

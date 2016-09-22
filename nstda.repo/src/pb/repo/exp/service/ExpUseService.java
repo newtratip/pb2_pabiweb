@@ -68,6 +68,7 @@ import pb.common.util.DocUtil;
 import pb.common.util.FolderUtil;
 import pb.common.util.ImageUtil;
 import pb.common.util.PersonUtil;
+import pb.repo.admin.constant.MainBudgetSrcConstant;
 import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
@@ -82,7 +83,9 @@ import pb.repo.admin.model.MainWorkflowHistoryModel;
 import pb.repo.admin.model.MainWorkflowNextActorModel;
 import pb.repo.admin.model.SubModuleModel;
 import pb.repo.admin.service.AdminAccountTaxService;
+import pb.repo.admin.service.AdminBankMasterService;
 import pb.repo.admin.service.AdminCostControlService;
+import pb.repo.admin.service.AdminFundService;
 import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminProjectService;
@@ -91,12 +94,11 @@ import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.admin.service.AdminWkfConfigService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.service.MainSrcUrlService;
-import pb.repo.admin.service.MainWorkflowService;
 import pb.repo.admin.service.SubModuleService;
 import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.admin.util.RptUtil;
 import pb.repo.common.mybatis.DbConnectionFactory;
-import pb.repo.exp.constant.ExpBrwAttendeeConstant;
+import pb.repo.exp.constant.ExpUseAttendeeConstant;
 import pb.repo.exp.constant.ExpUseConstant;
 import pb.repo.exp.constant.ExpUseWorkflowConstant;
 import pb.repo.exp.dao.ExpUseAttendeeDAO;
@@ -109,7 +111,6 @@ import pb.repo.exp.util.ExpUseAttendeeUtil;
 import pb.repo.exp.util.ExpUseDtlUtil;
 import pb.repo.exp.util.ExpUseUtil;
 import pb.repo.exp.util.ExpUtil;
-import pb.repo.pcm.constant.PcmOrdConstant;
 
 @Service
 public class ExpUseService implements SubModuleService {
@@ -162,7 +163,7 @@ public class ExpUseService implements SubModuleService {
 	MainSrcUrlService mainSrcUrlService;
 	
 	@Autowired
-	MainWorkflowService mainWorkflowService;
+	ExpUseWorkflowService mainWorkflowService;
 	
 	@Autowired
 	AdminHrEmployeeService adminHrEmployeeService;
@@ -177,6 +178,9 @@ public class ExpUseService implements SubModuleService {
 	AdminProjectService adminProjectService;
 	
 	@Autowired
+	AdminFundService adminFundService;
+	
+	@Autowired
 	AdminCostControlService adminCostControlService;
 	
 	@Autowired
@@ -184,6 +188,9 @@ public class ExpUseService implements SubModuleService {
 	
 	@Autowired
 	AlfrescoService alfrescoTaxService;
+	
+	@Autowired
+	AdminBankMasterService adminBankMasterService;
 	
 	public ExpUseModel save(ExpUseModel model, String attendees, String items, String files, boolean genDoc) throws Exception {
 		
@@ -427,7 +434,7 @@ public class ExpUseService implements SubModuleService {
 		
         try {
         	
-        	Map<String, String> bossMap = getBossMap(MainWkfConfigDocTypeConstant.DT_PR, model);
+        	Map<String, String> bossMap = getBossMap(MainWkfConfigDocTypeConstant.DT_AP, model);
 
         	if (bossMap==null || bossMap.size()==0) {
 				result.put("valid", false);
@@ -484,7 +491,8 @@ public class ExpUseService implements SubModuleService {
 		 * Gen Doc
 		 */
 		if (genDoc) {
-			model.setAttendeeList(ExpUseAttendeeUtil.convertJsonToList(dtls, model.getId()));
+			model.setDtlList(ExpUseDtlUtil.convertJsonToList(dtls, model.getId()));
+			model.setAttendeeList(ExpUseAttendeeUtil.convertJsonToList(attendees, model.getId()));
 			
 			model = genDoc(model, folderNodeRef);
 		}
@@ -619,7 +627,7 @@ public class ExpUseService implements SubModuleService {
 	
 	public String doGenDoc(String name, ExpUseModel model) throws Exception {
 		
-		String lang = "th";
+		String lang = "_th";
 		
 		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
 		
@@ -633,10 +641,10 @@ public class ExpUseService implements SubModuleService {
 			
         	attendeeMap.put("code", tmpAttendee.getCode());
         	attendeeMap.put("name", tmpAttendee.getFname()+" "+tmpAttendee.getLname());
-        	attendeeMap.put("utype", tmpAttendee.getUnitType());
+        	attendeeMap.put("section", tmpAttendee.getUnitType());
         	attendeeMap.put("position", tmpAttendee.getPosition());
 			
-			if (tmpAttendee.getType().equals(ExpBrwAttendeeConstant.T_EMPLOYEE)) {
+			if (tmpAttendee.getType().equals(ExpUseAttendeeConstant.T_EMPLOYEE)) {
 				empList.add(attendeeMap);
 			} else {
 				othList.add(attendeeMap);
@@ -653,7 +661,8 @@ public class ExpUseService implements SubModuleService {
         for(ExpUseDtlModel tmpDtl : tmpDtlList) {
         	dtlMap = new HashMap<String, Object>();
 			
-        	dtlMap.put("activity", tmpDtl.getActivityName());
+        	dtlMap.put("actGrp", tmpDtl.getActGrpName());
+        	dtlMap.put("act", tmpDtl.getActName());
         	dtlMap.put("cond1", tmpDtl.getCondition1());
         	dtlMap.put("amount", tmpDtl.getAmount().toString());
 			
@@ -687,14 +696,21 @@ public class ExpUseService implements SubModuleService {
 		map.put("id", model.getId() != null ? model.getId() : "");
 		
 		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy());
-		map.put("reqBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
-		map.put("reqOrg", empDtl.get("org_desc"));
-		map.put("reqSection", empDtl.get("section_name"));
+		map.put("reqBy", empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang));
+		map.put("reqOrg", empDtl.get("org_desc"+lang));
+		map.put("reqSection", empDtl.get("section_desc"+lang));
+		String mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
+		String wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
+		String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+		map.put("reqPhone", wphone+comma+mphone);
 		
 		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
-		map.put("createdBy", empDtl.get("first_name")+" "+empDtl.get("last_name"));
+		map.put("createdBy", empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang));
 		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
-		map.put("createdPhone", StringUtils.defaultIfBlank((String)empDtl.get("work_phone"),""));
+		mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
+		wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
+		comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
+		map.put("createdPhone", wphone+comma+mphone);
 		
 		Map<String, Object> firstAppMap = getFirstApprover(model.getId());
 		log.info("model.id:"+model.getId());
@@ -710,12 +726,14 @@ public class ExpUseService implements SubModuleService {
 		map.put("objective", model.getObjective());
 		
 		String budgetCcName = null;
-		if (model.getBudgetCcType().equals("P")) {
+		if (model.getBudgetCcType().equals(MainBudgetSrcConstant.TYPE_PROJECT)) {
 			Map<String, Object> prjMap = adminProjectService.get(model.getBudgetCc());
-			budgetCcName = (String)prjMap.get("description");
+			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
+			budgetCcName = (String)prjMap.get("code")+ " - "+(String)prjMap.get("name")+ " ("+(String)fundMap.get("name")+")";			
 		} else {
 			Map<String, Object> sectMap = adminSectionService.get(model.getBudgetCc());
-			budgetCcName = (String)sectMap.get("name");
+			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
+			budgetCcName = (String)sectMap.get("name")+ " ("+(String)fundMap.get("name")+")";
 		}
 		map.put("budgetCc", budgetCcName);
 
@@ -724,31 +742,19 @@ public class ExpUseService implements SubModuleService {
 		
 		map.put("costControl", StringUtils.defaultIfBlank(ccName,""));
 		
-		map.put("supName", "aa");
-		map.put("supFeeName", "aa");
-		map.put("avCode", "aa");
+		map.put("supName", model.getPayType().equals("2") ? model.getPayDtl1() : "");
+		map.put("avCode", model.getPayType().equals("3") ? model.getPayDtl1() : "");
 		
 		map.put("pay1", RptUtil.radio(model.getPayType().equals("0")));
 		map.put("pay2", RptUtil.radio(model.getPayType().equals("1")));
 		map.put("pay3", RptUtil.radio(model.getPayType().equals("2")));
 		map.put("pay4", RptUtil.radio(model.getPayType().equals("3")));
-		map.put("pay5", RptUtil.radio(model.getPayType().equals("4")));
 		
+		Map<String, Object> bankMap = adminBankMasterService.get(model.getBank());
 		
-		map.put("bank", "aa");
+		map.put("bank", bankMap!=null ? bankMap.get("name") : "");
 		map.put("bank1", RptUtil.radio(model.getBankType().equals("0")));
 		map.put("bank2", RptUtil.radio(model.getBankType().equals("1")));
-
-		map.put("cc1", RptUtil.radio(model.getCostControlTypeId() == 0));
-		map.put("cc2", RptUtil.radio(model.getCostControlTypeId() == 1));
-		map.put("cc3", RptUtil.radio(model.getCostControlTypeId() == 2));
-		
-		map.put("costControlId", "aa");
-		map.put("costControl", "aa");
-		map.put("cc1From", "aa");
-		map.put("cc1To", "aa");
-		map.put("cc2From", "aa");
-		map.put("cc2To", "aa");
 		
 		listData.add(map);
 
@@ -1079,19 +1085,48 @@ public class ExpUseService implements SubModuleService {
         return model;
 	}
 	
-	public List<ExpUseAttendeeModel> listAttendeeByMasterIdAndType(String masterId, String type) {
+	public List<Map<String, Object>> listAttendeeByMasterIdAndType(String masterId, String type, String lang) {
 		
-		List<ExpUseAttendeeModel> list = null;
+		List<Map<String, Object>> list = null;
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
             ExpUseAttendeeDAO dao = session.getMapper(ExpUseAttendeeDAO.class);
             
-    		Map<String, Object> map = new HashMap<String, Object>();
-    		map.put("masterId", masterId);
-    		map.put("type", type);
+    		Map<String, Object> params = new HashMap<String, Object>();
+    		params.put("masterId", masterId);
+    		params.put("type", type);
 
-    		list = dao.list(map);
+    		list = dao.list(params);
+    		
+    		lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
+    		
+    		for(Map<String, Object> map:list) {
+    			if (map.get("code")!=null && !map.get("code").equals("")) {
+    				map.put("title", map.get("etitle"+lang));
+    				map.put("fname", map.get("efirst_name"+lang));
+    				map.put("lname", map.get("elast_name"+lang));
+    				map.put("position", map.get("eposition"+lang));
+    				map.put("unit_type", "["+map.get("scode")+"] "+map.get("esection"+lang));
+    				
+    				map.remove("etitle");
+    				map.remove("efirst_name");
+    				map.remove("elast_name");
+    				map.remove("eposition");
+    				map.remove("esection");
+
+    				List<String> rkey = new ArrayList<String>();
+    				for(String key:map.keySet()) {
+    					if (key.equals(key.toUpperCase())) {
+    						rkey.add(key);
+    					}
+    				}
+    				
+    				for(String key:rkey) {
+    					map.remove(key);
+    				}
+    			}
+    		}
         } catch (Exception ex) {
 			log.error("", ex);
         	throw ex;
@@ -1124,28 +1159,28 @@ public class ExpUseService implements SubModuleService {
         return list;
 	}
 	
-	public List<ExpUseAttendeeModel> listDtlByMasterIdAndFieldName(String masterId, String fieldName) {
-		
-		List<ExpUseAttendeeModel> list = null;
-		
-		SqlSession session = ExpUtil.openSession(dataSource);
-        try {
-            ExpUseAttendeeDAO dtlDAO = session.getMapper(ExpUseAttendeeDAO.class);
-            
-    		Map<String, Object> map = new HashMap<String, Object>();
-    		map.put("masterId", masterId);
-    		map.put("fieldName", fieldName);
-
-    		list = dtlDAO.list(map);
-        } catch (Exception ex) {
-			log.error("", ex);
-        	throw ex;
-        } finally {
-        	session.close();
-        }
-        
-        return list;
-	}
+//	public List<ExpUseAttendeeModel> listDtlByMasterIdAndFieldName(String masterId, String fieldName) {
+//		
+//		List<ExpUseAttendeeModel> list = null;
+//		
+//		SqlSession session = ExpUtil.openSession(dataSource);
+//        try {
+//            ExpUseAttendeeDAO dtlDAO = session.getMapper(ExpUseAttendeeDAO.class);
+//            
+//    		Map<String, Object> map = new HashMap<String, Object>();
+//    		map.put("masterId", masterId);
+//    		map.put("fieldName", fieldName);
+//
+//    		list = dtlDAO.list(map);
+//        } catch (Exception ex) {
+//			log.error("", ex);
+//        	throw ex;
+//        } finally {
+//        	session.close();
+//        }
+//        
+//        return list;
+//	}
 	
 	private String encodedImage(String confName) throws Exception {
 		
@@ -1724,6 +1759,17 @@ public class ExpUseService implements SubModuleService {
 		list.add(0, map);
 		
 		/*
+		 * Add Real Requester
+		 */
+		map = new HashMap<String, Object>();
+		map.put("LEVEL", MainWorkflowConstant.TN_REAL_REQUESTER_CAPTION);
+		map.put("U", model.getReqBy());
+		map.put("G", "");
+		map.put("IRA", false);
+		
+		list.add(0, map);
+		
+		/*
 		 * Add Next Actor
 		 */
 		List<Map<String, Object>> actorList = null;
@@ -1745,11 +1791,15 @@ public class ExpUseService implements SubModuleService {
         /*
          * Convert Employeee Code to Name
          */
+        lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
+        
 		for(Map<String, Object> rec:list) {
 			String empCode = (String)rec.get("U");
 			Map<String,Object> empModel = adminHrEmployeeService.getWithDtl(empCode);
 			if (empModel!=null) {
-				rec.put("U", empCode + " - " + empModel.get("first_name"));
+				rec.put("U", empCode + " - " + empModel.get("first_name"+lang));
+			} else {
+				rec.put("U", "");
 			}
 		}
 		
@@ -1813,7 +1863,6 @@ public class ExpUseService implements SubModuleService {
             Map<String, Object> reqBy = adminHrEmployeeService.getWithDtl(authService.getCurrentUserName());
             
         	model.setReqBy(authService.getCurrentUserName());
-        	model.setReqSectionId((Integer)reqBy.get("section_id"));
         	
         	model.setObjective(oModel.getObjective());
         	
@@ -1828,9 +1877,6 @@ public class ExpUseService implements SubModuleService {
         	
         	model.setBankType(oModel.getBankType());
         	model.setBank(oModel.getBank());
-        	
-        	model.setVat(oModel.getVat());
-        	model.setVatId(oModel.getVatId());
         	
         	model.setPayType(oModel.getPayType());
         	if (!oModel.getPayType().equals("3")) { // clear employee AV
@@ -1874,7 +1920,7 @@ public class ExpUseService implements SubModuleService {
             /*
              * Create New Attendees
              */
-    		List<ExpUseAttendeeModel> attendeeList = listAttendeeByMasterIdAndType(oModel.getId(), null);
+    		List<ExpUseAttendeeModel> attendeeList = listAttendeeByMasterId(oModel.getId());
             for(ExpUseAttendeeModel vModel : attendeeList) {
             	vModel.setMasterId(model.getId());
 	        	vModel.setCreatedBy(model.getUpdatedBy());
@@ -1937,14 +1983,48 @@ public class ExpUseService implements SubModuleService {
 		Map<String, Object> map = null;
 		if (model.getBudgetCcType().equals(ExpUseConstant.BCCT_UNIT)) {
 			map = adminSectionService.get(model.getBudgetCc());
-			model.setBudgetCcName((String)map.get("description"));
+			model.setBudgetCcName((String)map.get("name"));
 		} else {
 			map = adminProjectService.get(model.getBudgetCc());
-			model.setBudgetCcName((String)map.get("name")+" - "+(String)map.get("description"));
+			model.setBudgetCcName((String)map.get("code")+" - "+(String)map.get("name"));
 		}
 		
 		parameters.put(ExpUseWorkflowConstant.PROP_BUDGET_CC, model.getBudgetCcName());
 		
+		parameters.put(ExpUseWorkflowConstant.PROP_PAYMENT_TYPE, getPayTypeName(model));
+	}
+	
+	private String getPayTypeName(ExpUseModel model) {
+		
+		String name = null;
+		
+		if (model.getPayType()!=null) {
+			MainMasterModel payTypeModel = masterService.getByTypeAndCode(MainMasterConstant.TYPE_EXP_EXP_TYPE, model.getPayType());
+			name = payTypeModel.getName();
+			
+			if (model.getPayType().equals("1")) {
+				name += " " + model.getPayDtl1();
+			}
+			else
+			if (model.getPayType().equals("2")) {
+				name += " " + model.getPayDtl1();
+			}
+			else
+			if (model.getPayType().equals("3")) {
+				String dtl = null;
+				if (model.getPayDtl2().equals(MainBudgetSrcConstant.TYPE_UNIT)) {
+					Map<String, Object> map = adminSectionService.get(Integer.parseInt(model.getPayDtl1()));
+					dtl = map.get("code")+" - "+map.get("name");
+				}
+				else {
+					Map<String, Object> map = adminProjectService.get(Integer.parseInt(model.getPayDtl1()));
+					dtl = map.get("code")+" - "+map.get("name");
+				}
+				name += " " + dtl;
+			}
+		}
+		
+		return name;
 	}
 
 	@Override
@@ -1963,7 +2043,9 @@ public class ExpUseService implements SubModuleService {
     	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "ขออนุมัติใหม่");
     	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "ยกเลิก");
     	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "ส่งงานให้พัสดุ");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "ส่งงานให้การเงิน");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_PAID, "จ่ายเงิน");
 		
 		return WF_TASK_ACTIONS.get(action);
 	}
@@ -1972,22 +2054,17 @@ public class ExpUseService implements SubModuleService {
 	public List<MainWorkflowNextActorModel> listNextActor(SubModuleModel model) {
 		List<MainWorkflowNextActorModel> list = new ArrayList<MainWorkflowNextActorModel>();
 		
-		ExpUseModel realModel = (ExpUseModel)model;
+//		ExpUseModel realModel = (ExpUseModel)model;
 		
-		List<Map<String, Object>> superList = adminWkfConfigService.listSupervisor(realModel.getCostControlId());
-		if(superList.size()>0) {
-			Map<String, Object> map = superList.get(0);
-			
-			MainWorkflowNextActorModel actorModel = new MainWorkflowNextActorModel();
-			
-			actorModel.setMasterId(model.getId());
-			actorModel.setLevel(1);
-			actorModel.setActor(ExpUseConstant.NA_BOSS);
-			actorModel.setActorUser(MainUserGroupUtil.code2login((String)map.get(MainHrEmployeeConstant.TFN_EMPLOYEE_CODE)));
-			actorModel.setCreatedBy(model.getUpdatedBy());
-			
-			list.add(actorModel);
-		}
+		MainWorkflowNextActorModel actorModel = new MainWorkflowNextActorModel();
+		
+		actorModel.setMasterId(model.getId());
+		actorModel.setLevel(1);
+		actorModel.setActor(ExpUseConstant.NA_OFFICER);
+		actorModel.setActorUser(CommonConstant.DUMMY_EMPLOYEE_CODE);
+		actorModel.setCreatedBy(model.getUpdatedBy());
+		
+		list.add(actorModel);
 		
 		return list;
 	}
@@ -2001,7 +2078,15 @@ public class ExpUseService implements SubModuleService {
 
 	@Override
 	public String getNextActionInfo(SubModuleModel model) {
-		return "ฝ่ายพัสดุ";
+		ExpUseModel exModel = (ExpUseModel)model;
+		if (exModel!=null 
+				&& (exModel.getStatus().equals(ExpUseConstant.ST_CANCEL_BY_FIN) 
+				|| exModel.getStatus().equals(ExpUseConstant.ST_CANCEL_BY_REQ))
+			) {
+			return "";
+		} else {
+			return "การเงิน";
+		}
 	}
 	
 	public List<Map<String, Object>> listForInf(String id) {
@@ -2033,7 +2118,7 @@ public class ExpUseService implements SubModuleService {
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
-            ExpUseAttendeeDAO dao = session.getMapper(ExpUseAttendeeDAO.class);
+            ExpUseDtlDAO dao = session.getMapper(ExpUseDtlDAO.class);
             
     		Map<String, Object> map = new HashMap<String, Object>();
     		map.put("id", id);
@@ -2083,7 +2168,6 @@ public class ExpUseService implements SubModuleService {
 		log.info("getBossMap()");
 		log.info("  docType:'"+docType+"'");
 		log.info("  budgetCcType:"+model.getBudgetCcType());
-		log.info("  sectionId:'"+model.getReqSectionId()+"'");
 		log.info("  reqUser:"+model.getReqBy());
 		log.info("  total:"+model.getTotal());
 		
@@ -2494,5 +2578,33 @@ public class ExpUseService implements SubModuleService {
 	public String getFirstStatus() {
 		return ExpUseConstant.ST_WAITING;
 	}
+
+	@Override
+	public Boolean addPermissionToAttached() {
+		return false;
+	}
+	
+	public List<ExpUseAttendeeModel> listAttendeeByMasterId(String masterId) {
+		
+		List<ExpUseAttendeeModel> list = null;
+		
+		SqlSession session = ExpUtil.openSession(dataSource);
+        try {
+            ExpUseAttendeeDAO attDAO = session.getMapper(ExpUseAttendeeDAO.class);
+            
+    		Map<String, Object> params = new HashMap<String, Object>();
+    		params.put("masterId", masterId);
+
+    		list = attDAO.listByMasterId(params);
+    		
+        } catch (Exception ex) {
+			log.error("", ex);
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}	
 	
 }

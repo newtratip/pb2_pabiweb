@@ -12,19 +12,17 @@
     </resultMap>
 
 	<select id="list" resultType="map" parameterType="map">
-		SELECT * FROM (
-		SELECT 	c.*,
-			coalesce((select value
-			from pb2_ext_ir_translation
-			where name = 'cost.control,name'
-			and type = 'model' and lang='th_TH'
-			and res_id = c.id), c.name) as name_th
-		FROM pb2_ext_cost_control c
-		) qry
-		WHERE 1=1
+		select id,cost_control_type_id,name,description,
+		coalesce(value,name) name_th
+		from pb2_ext_cost_control c left join
+		(select res_id,value
+		from pb2_ext_ir_translation
+		where name = 'cost.control,name'
+		and type = 'model' and lang='th_TH') ir on c.id = ir.res_id
+		where c.active = true
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-	    			concat(name, ' ', name_th) ILIKE '%'||#{item}||'%'
+	    			concat(name, ' ', ir.value) ILIKE '%'||#{item}||'%'
 	   		</foreach>
    		</if>
 		<if test="terms != null">

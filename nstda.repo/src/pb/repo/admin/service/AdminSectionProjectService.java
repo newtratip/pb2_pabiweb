@@ -5,16 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import org.alfresco.service.cmr.security.AuthenticationService;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import pb.repo.admin.dao.MainSectionDAO;
-import pb.repo.common.mybatis.DbConnectionFactory;
+import pb.repo.admin.constant.MainBudgetSrcConstant;
 
 @Service
 public class AdminSectionProjectService {
@@ -36,35 +31,39 @@ public class AdminSectionProjectService {
 		
         try {
         	List<Map<String, Object>> tmpList;
-        	if (type.equals("U")) {
+        	
+        	if (type.equals(MainBudgetSrcConstant.TYPE_UNIT)) {
         		tmpList = sectionService.list(searchTerm,lang);
+        		
+        		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
         		
             	for(Map<String, Object> tmpMap : tmpList) {
             		Map<String, Object> map = new HashMap<String, Object>();
             		
-            		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("description"));
-            		map.put("type", tmpMap.get("name"));
-            		map.put("name", tmpMap.get("description"));
-            		map.put("cc", tmpMap.get("costcenter"));
+            		map.put("id", tmpMap.get("id")+"|"+tmpMap.get("description"+lang));
+            		map.put("type", tmpMap.get("name_short"+lang));
+            		map.put("name", tmpMap.get("description"+lang));
+            		map.put("cc", tmpMap.get("costcenter"+lang));
             		
             		list.add(map);
             	}
         	}
         	else
-        	if (type.equals("P")) {
+        	if (type.equals(MainBudgetSrcConstant.TYPE_PROJECT)) {
         		tmpList = projectService.list(searchTerm,lang);
         		
-        		lang = (lang!=null && lang.startsWith("th")) ? "_th" : "";
+        		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
         		
             	for(Map<String, Object> tmpMap : tmpList) {
             		Map<String, Object> map = new HashMap<String, Object>();
             		
             		map.put("id", tmpMap.get("id")+"|"+"["+((String)tmpMap.get("code")).trim() + "] "+tmpMap.get("name"));
             		map.put("type", tmpMap.get("name"));
-            		map.put("name", "["+((String)tmpMap.get("code")).trim() + "] " + tmpMap.get("name"));
-            		Map<String,Object> dtl = adminHrEmployeeService.getWithDtl((String)tmpMap.get("pm_code"));
-            		map.put("cc", "["+((String)tmpMap.get("pm_code")).trim() + "] "+dtl.get("first_name"+lang) + " " + dtl.get("last_name"+lang)); // project manager
-            		map.put("org", tmpMap.get("org_name"));
+            		map.put("name", "["+((String)tmpMap.get("code")).trim() + "] " + tmpMap.get("name"+lang));
+//            		Map<String,Object> dtl = adminHrEmployeeService.getWithDtl((String)tmpMap.get("pm_code"));
+//            		map.put("cc", "["+((String)tmpMap.get("pm_code")).trim() + "] "+dtl.get("title"+lang) + " " +dtl.get("first_name"+lang) + " " + dtl.get("last_name"+lang)); // project manager
+            		map.put("cc", "["+((String)tmpMap.get("pm_code")).trim() + "] "+tmpMap.get("pm_name"+lang)); // project manager
+            		map.put("org", tmpMap.get("org_name_short"+lang));
             		
             		list.add(map);
             	}

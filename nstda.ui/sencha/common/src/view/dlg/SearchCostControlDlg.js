@@ -39,7 +39,7 @@ Ext.define('PB.view.common.SearchCostControlDlg', {
 						fieldLabel:PB.Label.m.type,
 				    	displayField:'name',
 				    	valueField:'id',
-				        emptyText : "โปรดเลือก",
+				        emptyText : PB.Label.m.select,
 				        store: typeStore,
 				        queryMode: 'local',
 				        typeAhead:true,

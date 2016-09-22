@@ -10,6 +10,7 @@ public class ExpUseAttendeeModel extends BaseDataModel {
 	String masterId;
 	String type;
 	String code;
+	String title;
 	String fname;
 	String lname;
 	String unitType;
@@ -55,6 +56,14 @@ public class ExpUseAttendeeModel extends BaseDataModel {
 		this.code = code;
 	}
 	
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	public String getFname() {
 		return fname;
 	}

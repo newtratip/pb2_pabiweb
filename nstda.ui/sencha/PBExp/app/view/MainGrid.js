@@ -168,10 +168,11 @@ Ext.define('PBExp.view.MainGrid', {
 		"D":{color:"gray", text_th:"Draft", text_en:"Draft"},
 		"W1":{color:"yellow", text_th:"รอการอนุมัติ", text_en:"Wait for Approval"},
 		"W2":{color:"red", text_th:"ไม่อนุมัติ", text_en:"Rejected"},
-		"C1":{color:"green", text_th:"รอบัญชีรับงาน", text_en:"Wait for Acceptance"},
-		"C2":{color:"green", text_th:"บัญชีรับงาน", text_en:"Accepted"},
+		"C1":{color:"green", text_th:"รอการเงินรับงาน", text_en:"Wait for Acceptance"},
+		"C2":{color:"green", text_th:"การเงินรับงาน", text_en:"Accepted"},
+		"C3":{color:"green", text_th:"การเงินจ่ายเงิน", text_en:"Paid"},
 		"X1":{color:"darkgray", text_th:"ผู้ขอยกเลิก", text_en:"Cancelled By Requester"},
-		"X2":{color:"darkgray", text_th:"บัญชียกเลิก", text_en:"Cancelled By Accounting"},
+		"X2":{color:"darkgray", text_th:"การเงินยกเลิก", text_en:"Cancelled By Finance"},
 		"S":{color:"purple", text_th:"ขอคำปรึกษา", text_en:"Consulting"}
 	},
 	

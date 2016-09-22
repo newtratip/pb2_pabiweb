@@ -7,8 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.extensions.webscripts.WebScriptSession;
@@ -34,6 +38,9 @@ public class ExpFileWebScript {
 	private static Logger log = Logger.getLogger(ExpFileWebScript.class);
 	
 	private static final String URI_PREFIX = CommonConstant.GLOBAL_URI_PREFIX + "/exp/file";
+	
+	@Autowired
+	NodeService nodeService;
 
   @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/upload")
   public void handleUpload(final WebScriptRequest request, final WebScriptResponse response)  throws Exception {
@@ -134,5 +141,33 @@ public class ExpFileWebScript {
 	}
 	  
   }
+  
+  @Uri(method=HttpMethod.POST, value=URI_PREFIX+"/edit")
+  public void handleEdit(@RequestParam(required=false) final String name
+		  				,@RequestParam final String path
+		  				,@RequestParam final String nodeRef
+		  				,@RequestParam final String desc
+		  				,final WebScriptResponse response) throws Exception {
+	  
+	log.info("-----ExpFileWebScript.handleEdit("+path+"/"+name+"/"+desc+")-----");
+	String json = null;
+	
+	try {
+		if (nodeRef!=null && !nodeRef.equals("")) {
+			nodeService.setProperty(new NodeRef(nodeRef), ContentModel.PROP_DESCRIPTION, desc);
+		}
+		
+		json = CommonUtil.jsonSuccess();
+		
+	} catch (Exception ex) {
+		log.error("", ex);
+		json = CommonUtil.jsonFail(ex.toString());
+		throw ex;
+	} finally {
+		CommonUtil.responseWrite(response, json);
+	}
+	  
+  }
+  
 
 }

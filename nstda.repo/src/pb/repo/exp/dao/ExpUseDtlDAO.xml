@@ -5,8 +5,10 @@
     <resultMap id="result" type="expUseDtlModel">
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
-        <result property="activityId" column="activity_id"/>
-        <result property="activityName" column="activity_name"/>
+        <result property="actId" column="act_id"/>
+        <result property="actName" column="act_name"/>
+        <result property="actGrpId" column="act_grp_id"/>
+        <result property="actGrpName" column="act_grp_name"/>
         <result property="condition1" column="condition_1"/>
         <result property="condition2" column="condition_2"/>
         <result property="position" column="position"/>
@@ -22,10 +24,12 @@
     
         SELECT
 		    d.*, COUNT(*) OVER() totalRowCount,
-		    a.name activity_name
+		    a.name act_name,
+		    ag.name act_grp_name
 		FROM
 		    pb2_exp_use_dtl d
-		    left join pb2_ext_account_activity a on d.activity_id=a.id 
+		    left join pb2_ext_account_activity a on d.act_id=a.id 
+		    left join pb2_ext_account_activity_group ag on d.act_grp_id=ag.id 
 		WHERE 1=1
 		<if test="masterId != null">
 			AND master_id=#{masterId}
@@ -56,7 +60,8 @@
 		>
 	    INSERT INTO pb2_exp_use_dtl(
 	    	master_id
-	    	,activity_id
+	    	,act_id
+	    	,act_grp_id
 	    	,condition_1
 	    	,condition_2
 	    	,position
@@ -65,7 +70,8 @@
 	    	,created_by,updated_by
 	    )VALUES( 
     		#{masterId}
-    		,#{activityId}
+    		,#{actId}
+    		,#{actGrpId}
     		,#{condition1}
     		,#{condition2}
     		,#{position}
@@ -110,17 +116,14 @@
     
     <select id="listForInf" resultType="map" parameterType="map">
 		select 
-			d.description, 
-			d.quantity, 
+			d.act_id,
+			d.act_grp_id,
+			d.amount,
 			u.id unit_id,
-			r.budget_cc,
-			r.cost_control_id,
-			t.name vat_name,
-			price_cnv,
 			d.updated_time
-		from pb2_exp_use_dtl d left join pb2_ext_product_uom u on d.unit = u.name
-		left join pb2_pcm_req r on r.id = d.master_id
-		left join pb2_ext_account_tax t on r.vat_id = t.id
+		from pb2_exp_use_dtl d 
+		left join pb2_ext_product_uom u on d.uom = u.name
+		left join pb2_exp_use r on r.id = d.master_id
 		where master_id = #{id}
 		ORDER BY d.id
     </select>

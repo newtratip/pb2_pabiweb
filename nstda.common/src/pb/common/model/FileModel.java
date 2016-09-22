@@ -6,6 +6,8 @@ public class FileModel {
 	private String desc;
 	private String path;
 	private String nodeRef;
+	private String by;
+	private String time;
 	private String action;
 	
 	public String getName() {
@@ -37,6 +39,18 @@ public class FileModel {
 	}
 	public void setAction(String action) {
 		this.action = action;
+	}
+	public String getBy() {
+		return by;
+	}
+	public void setBy(String by) {
+		this.by = by;
+	}
+	public String getTime() {
+		return time;
+	}
+	public void setTime(String time) {
+		this.time = time;
 	}
 	
 }

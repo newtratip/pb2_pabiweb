@@ -17,7 +17,6 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String TFN_STATUS = "STATUS";
 	
 	public static final String TFN_REQ_BY = "REQ_BY";
-	public static final String TFN_REQ_SECTION_ID = "REQ_SECTION_ID"; 
 
 	public static final String TFN_OBJECTIVE_TYPE = "OBJECTIVE_TYPE";
 	public static final String TFN_OBJECTIVE_TYPE_NAME = "OBJECTIVE_TYPE_NAME";
@@ -26,14 +25,12 @@ public class ExpBrwConstant extends SubModuleConstant {
 	
 	public static final String TFN_BUDGET_CC = "BUDGET_CC";
 	public static final String TFN_BUDGET_CC_TYPE = "BUDGET_CC_TYPE";
+	public static final String TFN_FUND_ID = "FUND_ID";
 	
 	public static final String TFN_COST_CONTROL_TYPE_ID = "COST_CONTROL_TYPE_ID";
 	public static final String TFN_COST_CONTROL_ID = "COST_CONTROL_ID";
-	public static final String TFN_COST_CONTROL = "COST_CONTROL";
-	public static final String TFN_COST_CONTROL_FROM = "COST_CONTROL_FROM";
-	public static final String TFN_COST_CONTROL_TO = "COST_CONTROL_TO";
 	
-	public static final String TFN_ACTIVITY = "ACTIVITY";
+	public static final String TFN_DATE_BACK = "DATE_BACK";
 	
 	public static final String TFN_BANK_TYPE = "BANK_TYPE";
 	public static final String TFN_BANK = "BANK";
@@ -68,13 +65,15 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String JFN_BUDGET_CC_TYPE = "budget_cc_type";
 	public static final String JFN_BUDGET_CC_TYPE_NAME = "budget_cc_type_name";
 	
+	public static final String JFN_FUND_ID = "fund_id";
+	public static final String JFN_FUND_NAME = "fund_name";
+	
 	public static final String JFN_COST_CONTROL_TYPE_ID = "cost_control_type_id";
 	public static final String JFN_COST_CONTROL_ID = "cost_control_id";
-	public static final String JFN_COST_CONTROL = "cost_control";
-	public static final String JFN_COST_CONTROL_FROM = "cost_control_from";
-	public static final String JFN_COST_CONTROL_TO = "cost_control_to";
+	public static final String JFN_COST_CONTROL_TYPE_NAME = "cost_control_type_name";
+	public static final String JFN_COST_CONTROL_NAME = "cost_control_name";
 	
-	public static final String JFN_ACTIVITY = "activity";
+	public static final String JFN_DATE_BACK = "date_back";
 	
 	public static final String JFN_BANK_TYPE = "bank_type";
 	public static final String JFN_BANK = "bank";
@@ -95,9 +94,10 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String ST_WAITING = "W1";
 	public static final String ST_WAITING_REJECT = "W2";
 	public static final String ST_CLOSED_BY_ACT = "C1";
-	public static final String ST_CLOSED_BY_ACC = "C2";
+	public static final String ST_CLOSED_BY_FIN = "C2";
+	public static final String ST_PAID_BY_FIN = "C3";
 	public static final String ST_CANCEL_BY_REQ = "X1";
-	public static final String ST_CANCEL_BY_ACC = "X2";
+	public static final String ST_CANCEL_BY_FIN = "X2";
 	public static final String ST_CONSULT = "S";
 	
 	public static final Map<String, Object> DISPLAY_TYPES = new LinkedHashMap<String, Object>();
@@ -107,9 +107,10 @@ public class ExpBrwConstant extends SubModuleConstant {
     	DISPLAY_TYPES.put(ST_WAITING, "Waiting Reviewer");
     	DISPLAY_TYPES.put(ST_WAITING_REJECT, "Reviewer Reject");
     	DISPLAY_TYPES.put(ST_CLOSED_BY_ACT, "Waiting Accounting");
-    	DISPLAY_TYPES.put(ST_CLOSED_BY_ACC, "Accounting Accepted");
+    	DISPLAY_TYPES.put(ST_CLOSED_BY_FIN, "Finance Accepted");
+    	DISPLAY_TYPES.put(ST_PAID_BY_FIN, "Finance Paid");
     	DISPLAY_TYPES.put(ST_CANCEL_BY_REQ, "Cancel by Requester");
-    	DISPLAY_TYPES.put(ST_CANCEL_BY_ACC, "Cancel by Accounting");
+    	DISPLAY_TYPES.put(ST_CANCEL_BY_FIN, "Cancel by Finance");
     	DISPLAY_TYPES.put(ST_CONSULT, "Consult");
     }
     

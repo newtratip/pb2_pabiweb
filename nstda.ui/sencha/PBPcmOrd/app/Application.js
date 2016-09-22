@@ -41,6 +41,7 @@ Ext.define('PBPcmOrd.Application', {
         'PBPcmOrd.view.Main',
         
         'PBPcmOrd.controller.Main',
+        'PBPcmOrd.controller.common.FolderDtl',
 
         'PBPcmOrd.Label'
 	],
@@ -50,7 +51,8 @@ Ext.define('PBPcmOrd.Application', {
     ],
 
     controllers: [
-        'Main'
+        'Main',
+        'common.FolderDtl'
     ],
 
     stores: [

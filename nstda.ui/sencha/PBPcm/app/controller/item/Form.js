@@ -59,11 +59,17 @@ Ext.define('PBPcm.controller.item.Form', {
         ref: 'lblNetAmt',
         selector:'pcmReqItemTab label[name=netAmt]'
     },{
+        ref: 'lblNetAmtCnv',
+        selector:'pcmReqItemTab label[name=netAmtCnv]'
+    },{
         ref: 'hidVat',     
         selector:'pcmReqItemTab field[name=vat]'
     },{
         ref: 'hidTotal',     
         selector:'pcmReqItemTab field[name=total]'
+    },{
+        ref: 'hidTotalCnv',     
+        selector:'pcmReqItemTab field[name=totalCnv]'
     },{
         ref: 'cmbObjectiveType',     
         selector: 'pcmReqMainForm field[name=objectiveType]'
@@ -142,12 +148,10 @@ Ext.define('PBPcm.controller.item.Form', {
 			var curRate = parseFloat(me.getTxtCurrencyRate().getValue());
 
 			var prc = parseFloat(me.getTxtPrc().getValue());
-			var prcCnv = prc * curRate;
+//			var prcCnv = prc * curRate;
 			var qty = parseFloat(me.getTxtQty().getValue());
-			var total = prcCnv * qty;
+			var total = prc * qty;
 			
-//			rec.set("isEquipment",me.getRaIsEqmt().getChecked()[0].getGroupValue()); 
-			rec.set("isEquipment",me.getHidIsEqmt().getValue()); 
 			rec.set("actGrp",me.getCmbActGrp().getRawValue()); 
 			rec.set("actGrpId",me.getCmbActGrp().getValue()); 
 			rec.set("description",me.getTxtDesc().getValue()); 
@@ -155,7 +159,6 @@ Ext.define('PBPcm.controller.item.Form', {
 			rec.set("unit",me.getCmbUnit().getRawValue());
 			rec.set("unitId",me.getCmbUnit().getValue());
 			rec.set("price",prc);
-			rec.set("priceCnv",prcCnv);
 			rec.set("fiscalYear",me.getTxtFiscalYear().getValue());
 			rec.set("total",total);
 			
@@ -201,8 +204,6 @@ Ext.define('PBPcm.controller.item.Form', {
 		var dialog = me.createDlg(PBPcm.Label.m.edit, rec);
 		
 		me.getHidId().setValue(rec.get("id"));
-		me.getHidIsEqmt().setValue(rec.get("isEquipment"));
-//		me.getRaIsEqmt().setValue(rec.get("isEquipment"));
 		me.getCmbActGrp().setValue(rec.get("actGrpId"));
 		me.getTxtDesc().setValue(rec.get("description"));
 		me.getTxtQty().setValue(rec.get("quantity"));
@@ -237,15 +238,20 @@ Ext.define('PBPcm.controller.item.Form', {
 			grossAmt += rec.data.total;
 		});
 		
+		var curRate = parseFloat(me.getTxtCurrencyRate().getValue());
+		
 		var vat = parseFloat(me.getHidVat().getValue());
 		var vatAmt = grossAmt * vat;
 		var netAmt = grossAmt+vatAmt;
+		var netAmtCnv = netAmt * curRate;
 		
 		me.getLblGrossAmt().setText(Ext.util.Format.number(grossAmt, DEFAULT_MONEY_FORMAT));
 		me.getLblVatAmt().setText(Ext.util.Format.number(vatAmt, DEFAULT_MONEY_FORMAT));
 		me.getLblNetAmt().setText(Ext.util.Format.number(netAmt, DEFAULT_MONEY_FORMAT));
+		me.getLblNetAmtCnv().setText(Ext.util.Format.number(netAmtCnv, DEFAULT_MONEY_FORMAT));
 		
 		me.getHidTotal().setValue(netAmt);
+		me.getHidTotalCnv().setValue(netAmtCnv);
 		
 //		if (!me.getChkAcrossBudget().getValue()) { // not across budget
 			var methodStore = me.getCmbMethod().getStore();
@@ -287,7 +293,7 @@ Ext.define('PBPcm.controller.item.Form', {
 					fieldLabel:'แบบฟอร์มราคากลาง',
 			    	displayField:'name',
 			    	valueField:'id',
-			        emptyText : "โปรดเลือก",
+			        emptyText : PB.Label.m.select,
 			        store: store,
 			        queryMode: 'local',
 			        typeAhead:true,

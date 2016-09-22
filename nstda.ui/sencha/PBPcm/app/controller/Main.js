@@ -37,6 +37,15 @@ Ext.define('PBPcm.controller.Main', {
     },{
         ref: 'btnApprovalMatrix',     
         selector: 'pcmReqMainForm button[action=approvalMatrix]'
+    },{
+        ref: 'raPrototype',
+        selector: 'pcmReqMainForm field[name=isPrototype]'
+    },{
+        ref: 'raPrototypeYes',
+        selector: 'pcmReqMainForm field[itemId=isPrototypeYes]'
+    },{
+        ref: 'raPrototypeNo',
+        selector: 'pcmReqMainForm field[itemId=isPrototypeNo]'
 	}],
 	
 	init:function() {
@@ -244,6 +253,15 @@ Ext.define('PBPcm.controller.Main', {
     			form.add({ xtype:'pcmReqItemTab', title:data[2].message, rec:rec });
     			form.add({ xtype:'pcmReqFileTab', title:data[3].message, rec:rec });
     			form.add({ xtype:'pcmReqCmtTab', title:data[4].message, rec:rec });
+    			
+    			Ext.defer(function() {
+				   validForm(me.getMainForm());
+					var f = me.getRaPrototype();
+					if (!f.getGroupValue()) {
+					   me.getRaPrototypeYes().markInvalid("Choose either Yes or No");
+					   me.getRaPrototypeNo().markInvalid("Choose either Yes or No");
+					}
+				},  1000) ;
 		      },
 		      failure: function(response, opts){
 		          alert("failed");
@@ -848,6 +866,7 @@ Ext.define('PBPcm.controller.Main', {
 				
 				me.getHidId().setValue(null);
 				me.getHidStatus().setValue(null);
+				
 		      },
 		      failure: function(response, opts){
 		          alert("failed");
@@ -912,7 +931,8 @@ Ext.define('PBPcm.controller.Main', {
 					}
 					
 					me.getHidId().setValue(rec.get("id"));
-					me.getHidStatus().setValue(rec.get("status"));					
+					me.getHidStatus().setValue(rec.get("status"));
+					
 			      },
 			      failure: function(response, opts){
 			          alert("failed");
@@ -1155,13 +1175,21 @@ Ext.define('PBPcm.controller.Main', {
 		}
 	},
 	
-	gotoFolder : function(r){
+	gotoFolder : function(r) {
+		var dlg = Ext.create("PB.view.common.FolderDtlDlg",{
+			rec : r
+		});
+		dlg.show();
+	},
+
+	_gotoFolder : function(r){
 		Ext.Ajax.request({
 	        url:ALF_CONTEXT+"/util/getFolderName",
 	        async : false,
 	        method: "POST",
 	        params: {
-	        	n : r.get('folder_ref')
+	        	n : r.get('folder_ref'),
+	        	lang : getLang()
 	        },
 	        success: function(response){
 	        	

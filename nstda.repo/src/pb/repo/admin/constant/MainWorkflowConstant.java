@@ -47,4 +47,5 @@ public class MainWorkflowConstant {
     
     public static final String TA_COMPLETE = "Complete";
 
+    public static final String TA_PAID = "Paid"; // TO_CONSULT
 }
