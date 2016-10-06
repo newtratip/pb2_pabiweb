@@ -159,8 +159,11 @@ public class AdminHrEmployeeService {
         		map.put("lname", tmpMap.get("last_name"+lang));
         		map.put("utype", tmpMap.get("utype"+lang));
         		map.put("org", tmpMap.get("org_name_short"+lang));
+        		map.put("org_name", tmpMap.get("org_name"+lang));
         		map.put("position", tmpMap.get("position"+lang));
         		map.put("position_id", tmpMap.get("position_id"));
+        		map.put("wphone", tmpMap.get("work_phone"));
+        		map.put("mphone", tmpMap.get("mobile_phone"));
         		
         		list.add(map);
         	}                

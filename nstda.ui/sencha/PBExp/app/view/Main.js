@@ -31,7 +31,7 @@ Ext.define('PBExp.view.Main', {
 		});
 		
 		store.getProxy().extraParams = {
-				lang : getLang()
+			lang : getLang()
 		}
 		
 		if (!ID) {

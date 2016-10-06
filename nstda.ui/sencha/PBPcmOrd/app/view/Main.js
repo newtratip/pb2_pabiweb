@@ -14,7 +14,14 @@ Ext.define('PBPcmOrd.view.Main', {
 		
 		var items = [];
 		
-		var store = Ext.create('PBPcmOrd.store.GridStore',{storeId:'pcmOrdGridStore',autoLoad:true});
+		var store = Ext.create('PBPcmOrd.store.GridStore',{
+			storeId:'pcmOrdGridStore',
+			autoLoad:false
+		});
+	
+		store.getProxy().extraParams = {
+			lang : getLang()
+		}
 		
 		if (!ID) {
 			items.push({

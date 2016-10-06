@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.activiti.engine.RuntimeService;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.TemplateService;
 import org.alfresco.service.cmr.security.AuthenticationService;
@@ -23,21 +20,17 @@ import pb.common.model.FileModel;
 import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.repo.admin.constant.MainMasterConstant;
-import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminTestSystemService;
 import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.pcm.constant.PcmOrdConstant;
-import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.PcmOrdService;
 import pb.repo.pcm.service.PcmOrdWorkflowService;
 import pb.repo.pcm.util.PcmOrdUtil;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Transaction;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 
@@ -78,6 +71,7 @@ public class PcmOrdWebScript {
 	  	  	  , @RequestParam(required=false) final String fields
 			  , @RequestParam(required=false) final Integer start
 			  , @RequestParam(required=false) final Integer limit
+	  	  	  , @RequestParam(required=false) final String lang
 			  , final WebScriptResponse response)  throws Exception {
 
 	  	/*
@@ -128,7 +122,9 @@ public class PcmOrdWebScript {
 			putOneParam(params, jsObj, PcmOrdConstant.JFN_STATUS);
 		}		
 		
-		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
+		params.put("orderBy", "ORDER_FIELD, updated_time DESC");
+		
+		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
 	  
 		/*
 		 * Search

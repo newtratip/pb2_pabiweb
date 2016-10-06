@@ -432,7 +432,7 @@ Ext.define('PBPcm.controller.Form', {
 	
 	send:function() {
 		var me = this;
-		var form = me.getMainForm();
+//		var form = me.getMainForm();
 		
 		var msg = me.validForm(false);
 		if (!msg) {
@@ -615,8 +615,6 @@ Ext.define('PBPcm.controller.Form', {
 	saveDraft:function() {
 		var me = this;
 		
-		var form = me.getMainForm();
-	
 		var msg = me.validForm(true);
 		if (msg) {
 			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
@@ -1086,17 +1084,17 @@ Ext.define('PBPcm.controller.Form', {
 	
 	selectReqByCallBack:function(id, rec) {
 		var tab = this.targetPanel;
-		setValue(tab, 'reqBy', rec.get('emp_id'));
-		setValue(tab, 'reqByName', rec.get('title') + ' ' + rec.get('first_name') + ' ' + rec.get('last_name'));
+		setValue(tab, 'reqBy', rec.get('code'));
+		setValue(tab, 'reqByName', rec.get('title') + ' ' + rec.get('fname') + ' ' + rec.get('lname'));
 
-		var mphone = rec.get("mobile_phone")!=null ? rec.get("mobile_phone") : "";
-		var wphone = rec.get("work_phone")!=null ? rec.get("work_phone") : "";
+		var mphone = rec.get("mphone")!=null ? rec.get("mphone") : "";
+		var wphone = rec.get("wphone")!=null ? rec.get("wphone") : "";
 		var comma = (mphone!="" && wphone!="") ? "," : "";
 		
 		setValue(tab, 'reqTelNo', wphone+comma+mphone);
-		setValue(tab, 'reqByDept', rec.get('pos_name'));
-		setValue(tab, 'reqBu', rec.get('org_desc'));
-		setValue(tab, 'reqOuName', rec.get('section_desc'));
+		setValue(tab, 'reqByDept', rec.get('position'));
+		setValue(tab, 'reqBu', rec.get('org_name'));
+		setValue(tab, 'reqOuName', rec.get('utype'));
 	},	
 
 	selectReqBy:function() {

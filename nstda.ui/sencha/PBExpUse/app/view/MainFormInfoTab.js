@@ -28,40 +28,15 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 		}
 		assetStore.load();
 		
-		var avStore = Ext.create('PB.store.common.ComboBoxStore');
-		avStore.getProxy().api.read = ALF_CONTEXT+'/exp/brw/old/list';
+		var avStore = Ext.create('PBExpUse.store.OldComboStore');
+//		avStore.getProxy().api.read = ALF_CONTEXT+'/exp/brw/old/list';
 		avStore.getProxy().extraParams = {
-			all : true
+			r : replaceIfNull(me.rec.req_by, null)
 		}
 		avStore.load();
 		
 		var lbw = 160;
 		var ptw = 180;
-		
-		var columns = [{
-	    	dataIndex: 'name',
-	    	text: '', 
-	    	flex:1
-	    },{
-	        dataIndex: 'id',
-	    	text: 'เลขที่เอกสาร AV', 
-	    	flex:1,
-	    	align:'center'
-	    },{
-	    	xtype:'numbercolumn',
-	        dataIndex: 'waitAmt',
-	    	text: 'เงินยืมรอหักล้าง', 
-	    	flex:1,
-	    	align:'right',
-	    	format:DEFAULT_MONEY_FORMAT        		
-	    },{
-	    	xtype:'numbercolumn',
-	        dataIndex: 'balance',
-	    	text: 'เงินยืมคงเหลือ', 
-	    	flex:1,
-	    	align:'right',
-	    	format:DEFAULT_MONEY_FORMAT
-	    }];
 		
 		var pd1={},pd2={},pd3={},pd4={};
 		var payType = parseInt(me.rec.pay_type);
@@ -363,17 +338,17 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						fieldLabel:mandatoryLabel(PBExpUse.Label.n.payAvNo),
 						labelWidth:150,
 						store:avStore,
-				    	displayField:'id', ///////////////////////////////////////////////////
-				    	valueField:'id', 
+				    	displayField:'number', 
+				    	valueField:'number', 
 				        queryMode: 'local',
 				        typeAhead:true,
 				        multiSelect:false,
 				        forceSelection:true,
-						width:310,
+						width:450,
 						allowBlank:false,
 				        listConfig : {
 						    getInnerTpl: function () {
-								return '<div>{id}</div>';
+								return '<div>{number} ({balance:number("0,000.00")})</div>';
 						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
 						    }
 						},
@@ -529,8 +504,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 		added:function() {
 			var me = this;
 			
-			me.fireEvent("selectMainBank", me.down("radio[name=bankType]"), replaceIfNull(me.rec.bank_type, "0"));
 			me.fireEvent("selectPayType", me.down("radio[name=payType]"), replaceIfNull(me.rec.pay_type, "0"));
+			me.fireEvent("selectMainBank", me.down("radio[name=bankType]"), replaceIfNull(me.rec.bank_type, "0"));
 		}
 	}	
 

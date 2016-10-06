@@ -93,8 +93,7 @@ Ext.define('PB.controller.common.BudgetSrc', {
 	        	    	 }
 	        	     },
 	        	     { text:PB.Label.m.org, dataIndex: 'type', width: 70 },
-	        	     { text:PB.Label.b.sectName, dataIndex: 'name', flex:1 },
-	        	     { text:'Cost Center', dataIndex: 'cc', flex:1 }
+	        	     { text:PB.Label.b.sectName, dataIndex: 'name', flex:1 }
 	        ];
 			
 	    }

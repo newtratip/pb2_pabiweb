@@ -155,7 +155,8 @@ public class ExpWebScript {
     }
     
     @Uri(URI_PREFIX+"/brw/old/list")
-    public void handleOldList(final WebScriptResponse response)  throws Exception {
+    public void handleOldList(@RequestParam(required=false) String r,
+    		final WebScriptResponse response)  throws Exception {
 
 	  	/*
 	  	 * Prepare Criteria
@@ -168,7 +169,11 @@ public class ExpWebScript {
 		String json = null;
 		
 		try {
-			params.put("id", authService.getCurrentUserName());
+			if (r==null) {
+				r = authService.getCurrentUserName();
+			}
+			
+			params.put("code", r);
 			
 			List<Map<String, Object>> list = expBrwService.listOld(params);
 			json = CommonUtil.jsonSuccess(list);
@@ -387,10 +392,6 @@ public class ExpWebScript {
 				model = new ExpBrwModel();
 			}
 			
-			if (model.getId() == null) {
-				model.setStatus(ExpBrwConstant.ST_DRAFT);
-			}
-			
 			model.setReqBy(reqBy);
 			model.setObjectiveType(objectiveType);
 			model.setObjective(objective);
@@ -467,10 +468,6 @@ public class ExpWebScript {
 			
 			if (model==null) {
 				model = new ExpBrwModel();
-			}
-			
-			if (model.getId() == null) {
-				model.setStatus(ExpBrwConstant.ST_DRAFT);
 			}
 			
 			model.setReqBy(reqBy);
@@ -731,7 +728,8 @@ public class ExpWebScript {
 			else {		
 				
 				model.setAttendeeList(ExpBrwAttendeeUtil.convertJsonToList(attendees, model.getId()));
-				String fileName = expBrwService.doGenDoc("av", model);
+				model.setDtlList(ExpBrwDtlUtil.convertJsonToList(items, model.getId()));
+				String fileName = expBrwService.doGenDoc(ExpBrwConstant.JR_AV, model);
 				
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put(fileName, "");

@@ -3,6 +3,7 @@ package pb.repo.exp.constant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.constant.SubModuleConstant;
 
 
@@ -129,6 +130,46 @@ public class ExpUseConstant extends SubModuleConstant {
     }
     
     /*
+     * Task Action
+     */
+	public static final Map<String, String> WF_TASK_ACTIONS = new LinkedHashMap<String, String>();
+    static {
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "Start");
+		
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "Approve");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "Reject");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "Consult");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "Comment");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "Resubmit");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "Cancel");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "Finance");
+    	
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_PAID, "Paid");
+    }
+    
+	public static final Map<String, String> WF_TASK_ACTIONS_TH = new LinkedHashMap<String, String>();
+    static {
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_START, "ขออนุมัติ");
+		
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_APPROVE, "อนุมัติ");
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_REJECT, "ไม่อนุมัติ");
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_CONSULT, "ขอคำปรึกษา");
+    	
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_COMMENT, "ให้ความเห็น");
+    	
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_RESUBMIT, "ขออนุมัติใหม่");
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_CANCEL, "ยกเลิก");
+    	
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_COMPLETE, "ส่งงานให้การเงิน");
+    	
+    	WF_TASK_ACTIONS_TH.put(MainWorkflowConstant.TA_PAID, "จ่ายเงิน");
+    	
+    }    
+    
+    /*
      * ACTION
      */
     public static final String ACTION_COPY = "C";
@@ -147,11 +188,17 @@ public class ExpUseConstant extends SubModuleConstant {
     /*
      * Next Actor
      */
-    public static final String NA_OFFICER = "เจ้าหน้าที่การเงิน";
+//    public static final String NA_OFFICER = "เจ้าหน้าที่การเงิน";
     
     /*
      * Budget CC Type
      */
     public static final String BCCT_UNIT = "U";
     public static final String BCCT_PROJECT = "P";
+    
+    /*
+     * Jasper Report
+     */
+    public static final String JR_EX = "ex";
+    public static final String JR_EX_PAYMENT_DOC = "ex_payment_doc";
 }

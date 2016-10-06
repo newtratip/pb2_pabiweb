@@ -19,6 +19,8 @@
         <result property="updatedTime" column="updated_time"/>
         <result property="updatedBy" column="updated_by"/>
         <result property="status" column="status"/>
+        <result property="wfBy" column="wf_by"/>
+        <result property="wfByTime" column="wf_by_time"/>
         <result property="wfStatus" column="wf_status"/>
         <result property="orgName" column="org_name"/>
     </resultMap>
@@ -26,7 +28,8 @@
     <select id="list" resultMap="result" parameterType="map">
         SELECT
 		    REQ.ID, total, objective,
-		    	section_id, pr_id, doc_type, app_by, 
+		    	section_id, pr_id, doc_type, app_by,
+		    	WF_BY, WF_BY_TIME,
 				WF_STATUS, STATUS, 
 				WORKFLOW_INS_ID, TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, 
@@ -45,16 +48,29 @@
 		FROM
 		    (SELECT ID, M.total, objective, 
 				section_id, pr_id, doc_type, app_by,
+				W.BY WF_BY,
 				CASE WHEN (W.STATUS IS NULL) THEN ''
-				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
-				END WF_STATUS, M.STATUS, 
+				ELSE to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI') 
+				END WF_BY_TIME, 
+				W.STATUS${lang} WF_STATUS, M.STATUS, 
 				M.WORKFLOW_INS_ID, TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
 				(select first_name from pb2_ext_hr_employee where lpad(employee_code,6,'0') = M.created_by) CBY,
 				FOLDER_REF, DOC_REF 
 			FROM pb2_pcm_ord M LEFT JOIN 
 			(
-			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
+			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, STATUS_TH, 
+			CASE 
+			WHEN #{lang}='' THEN 
+				e.first_name
+			ELSE
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,first_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.first_name)
+			END as
+			BY, BY_TIME, TASK_ID 
 			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
 			WHERE TYPE='PCM_ORD' AND 
 			w.ID IN (

@@ -11,6 +11,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -69,6 +70,7 @@ import pb.common.util.DocUtil;
 import pb.common.util.FolderUtil;
 import pb.common.util.ImageUtil;
 import pb.common.util.PersonUtil;
+import pb.common.util.StringUtil;
 import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
@@ -587,7 +589,7 @@ public class PcmReqService implements SubModuleService {
 		/*
 		 * Gen Doc in tmp folder
 		 */
-    	String fileName =  doGenDoc("pr", model);
+    	String fileName =  doGenDoc(PcmReqConstant.JR_PR, model);
 		String tmpDir = FolderUtil.getTmpDir();
     	String fullName = tmpDir + File.separator + fileName+".pdf"; // real code
     	File file = new File(fullName);
@@ -652,7 +654,7 @@ public class PcmReqService implements SubModuleService {
 		/*
 		 * Gen Doc in tmp folder
 		 */
-    	String fileName =  doGenDoc("pr", model);
+    	String fileName =  doGenDoc(PcmReqConstant.JR_PR, model);
 		String tmpDir = FolderUtil.getTmpDir();
     	String fullName = tmpDir + File.separator + fileName+".pdf"; 
     	File file = new File(fullName);
@@ -776,7 +778,7 @@ public class PcmReqService implements SubModuleService {
 		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy()!=null ? model.getReqBy() : authService.getCurrentUserName());	
 		map.put("reqBy", empDtl.get("title_th")+" "+empDtl.get("first_name_th")+" "+empDtl.get("last_name_th"));
 		map.put("reqOrg", empDtl.get("org_desc_th"));
-		map.put("reqSection", empDtl.get("section_desc_th"));
+		map.put("reqSection", StringUtil.replaceNBSP((String)empDtl.get("section_desc_th")));
 		String mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
 		String wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
 		String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
@@ -793,7 +795,6 @@ public class PcmReqService implements SubModuleService {
 		log.info("createdBy:"+map.get("createdBy"));
 		
 		Map<String, Object> firstAppMap = getFirstApprover(model.getId());
-		log.info("model.id:"+model.getId());
 		log.info("firstAppMap:"+firstAppMap);
 		map.put("firstAppBy", firstAppMap != null ? firstAppMap.get("approver") : "");
 		map.put("firstAppTime", firstAppMap != null ? CommonDateTimeUtil.convertToGridDateTime((Timestamp)firstAppMap.get("time")) : "");
@@ -813,14 +814,15 @@ public class PcmReqService implements SubModuleService {
 		String budgetCcName = null;
 		if (model.getBudgetCcType().equals("P")) {
 			Map<String, Object> prjMap = adminProjectService.get(model.getBudgetCc());
-			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
-			budgetCcName = (String)prjMap.get("code")+ " - "+(String)prjMap.get("name")+ " ("+(String)fundMap.get("name")+")";
+			budgetCcName = "["+prjMap.get("code")+ "] "+prjMap.get("name");
 		} else {
 			Map<String, Object> sectMap = adminSectionService.get(model.getBudgetCc());
-			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
-			budgetCcName = (String)sectMap.get("name")+ " ("+(String)fundMap.get("name")+")";
+			budgetCcName = "["+sectMap.get("code")+"] "+sectMap.get("name");
 		}
 		map.put("budgetCc", budgetCcName);
+		
+		Map<String, Object> fundMap = adminFundService.get(model.getFundId());
+		map.put("fund", fundMap.get("name"));
 
 		String pttName = "";
 		if (model.getIsPrototype().equals(CommonConstant.V_ENABLE)) {
@@ -987,7 +989,7 @@ public class PcmReqService implements SubModuleService {
 		
 		if (!exists) {
 			JSONObject map = PcmReqUtil.convertToJSONObject(model,false);
-			Calendar cal = Calendar.getInstance();
+			Calendar cal = Calendar.getInstance(Locale.US);
     		if (cal.get(Calendar.MONTH) >= 9) { // >= October (Thai Start Budget Year)
     			cal.add(Calendar.YEAR, 1);
     		}
@@ -1032,7 +1034,7 @@ public class PcmReqService implements SubModuleService {
 					int rpos2 = format.indexOf(CommonConstant.REPS_SUFFIX);
 					String fieldName = format.substring(rpos+CommonConstant.REPS_PREFIX.length(), rpos2);
 					
-					SimpleDateFormat df = new SimpleDateFormat(dFormat);
+					SimpleDateFormat df = new SimpleDateFormat(dFormat,Locale.US);
 					folderMap.put("name", df.format(map.get(fieldName)));
 				}	
 				else {
@@ -1093,6 +1095,8 @@ public class PcmReqService implements SubModuleService {
             PcmReqDAO dao = session.getMapper(PcmReqDAO.class);
             log.info("pcm req list param:"+params);
     		list = dao.list(params);
+    		
+    		String lang = (String)params.get("lang");
             
     		for(PcmReqModel model : list) {
     			//log.info("model.getDocRef()="+model.getDocRef());
@@ -1104,6 +1108,14 @@ public class PcmReqService implements SubModuleService {
     					log.error(ex);
     				}
     			}
+    			
+    			model.setWfStatus(
+    					model.getWfBy()
+    					+"-"+
+    					model.getWfStatus()
+    					+"-"+
+    					model.getWfByTime()
+    			);
     		}
     		
         } catch (Exception ex) {
@@ -1798,14 +1810,15 @@ public class PcmReqService implements SubModuleService {
 	
 	public List<Map<String, Object>> listWorkflowPath(String id, String lang) {
 		
-		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id);
+		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id, lang);
 		
 		PcmReqModel model = get(id);
+
 		/*
-		 * Add Requester
+		 * Add Preparer
 		 */
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("LEVEL", MainWorkflowConstant.TN_REQUESTER_CAPTION);
+		map.put("LEVEL", mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_PREPARER, lang, null));
 		map.put("U", model.getCreatedBy());
 		map.put("G", "");
 		map.put("IRA", false);
@@ -1813,10 +1826,10 @@ public class PcmReqService implements SubModuleService {
 		list.add(0, map);
 		
 		/*
-		 * Add Real Requester
+		 * Add Requester
 		 */
 		map = new HashMap<String, Object>();
-		map.put("LEVEL", MainWorkflowConstant.TN_REAL_REQUESTER_CAPTION);
+		map.put("LEVEL", mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_REQUESTER, lang, null));
 		map.put("U", model.getReqBy());
 		map.put("G", "");
 		map.put("IRA", false);
@@ -1833,6 +1846,10 @@ public class PcmReqService implements SubModuleService {
             MainWorkflowNextActorDAO dao = session.getMapper(MainWorkflowNextActorDAO.class);
 
     		actorList = dao.listWorkflowPath(id);
+    		
+    		for(Map<String, Object> actor : actorList) {
+    			actor.put("LEVEL", mainWorkflowService.getTaskCaption((String)actor.get("LEVEL"),lang,null));
+    		}
     		
     		list.addAll(actorList);
             
@@ -2206,27 +2223,6 @@ public class PcmReqService implements SubModuleService {
 	}
 
 	@Override
-	public String getActionCaption(String action) {
-		
-		Map<String, String> WF_TASK_ACTIONS = new HashMap<String, String>();
-		
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "ขออนุมัติ");
-		
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "อนุมัติ");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "ไม่อนุมัติ");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "ขอคำปรึกษา");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "ให้ความเห็น");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "ขออนุมัติใหม่");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "ยกเลิก");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "ส่งงานให้พัสดุ");
-		
-		return WF_TASK_ACTIONS.get(action);
-	}
-
-	@Override
 	public List<MainWorkflowNextActorModel> listNextActor(SubModuleModel model) {
 		List<MainWorkflowNextActorModel> list = new ArrayList<MainWorkflowNextActorModel>();
 		
@@ -2240,7 +2236,7 @@ public class PcmReqService implements SubModuleService {
 			
 			actorModel.setMasterId(model.getId());
 			actorModel.setLevel(1);
-			actorModel.setActor(PcmReqConstant.NA_BOSS);
+			actorModel.setActor(MainWorkflowConstant.TN_PROCUREMENT_SUPERVISOR);
 			actorModel.setActorUser(MainUserGroupUtil.code2login((String)map.get(MainHrEmployeeConstant.TFN_EMPLOYEE_CODE)));
 			actorModel.setCreatedBy(model.getUpdatedBy());
 			
@@ -2258,7 +2254,7 @@ public class PcmReqService implements SubModuleService {
 	}
 
 	@Override
-	public String getNextActionInfo(SubModuleModel model) {
+	public String getNextActionInfo(SubModuleModel model, String lang) {
 		PcmReqModel prModel = (PcmReqModel)model;
 		if (prModel!=null 
 				&& (prModel.getStatus().equals(PcmReqConstant.ST_CANCEL_BY_PCM) 
@@ -2266,7 +2262,7 @@ public class PcmReqService implements SubModuleService {
 			) {
 			return "";
 		} else {
-			return "ฝ่ายพัสดุ";
+			return mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_PROCUREMENT,lang,null);
 		}
 	}
 	
@@ -2771,7 +2767,9 @@ public class PcmReqService implements SubModuleService {
 		hModel.setLevel(0);
 		hModel.setComment("");
 		hModel.setAction("");
-		hModel.setTask(MainWorkflowConstant.TN_REAL_REQUESTER_CAPTION);
+		hModel.setActionTh("");
+		hModel.setTask(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_REQUESTER));
+		hModel.setTaskTh(MainWorkflowConstant.WF_TASK_NAMES_TH.get(MainWorkflowConstant.TN_REQUESTER));
 		hModel.setBy(model.getReqBy());
 		
 		return hModel;
@@ -2804,6 +2802,26 @@ public class PcmReqService implements SubModuleService {
 	@Override
 	public Boolean addPermissionToAttached() {
 		return false;
+	}
+
+	@Override
+	public List<String> getSpecialGroupForAddPermission() {
+		MainMasterModel topGroup = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_TOP_GROUP);
+		String[] tgs = topGroup!=null && topGroup.getFlag1()!=null ? topGroup.getFlag1().split(",") : null;
+		
+		return Arrays.asList(tgs);
+	}
+
+	@Override
+	public String getActionCaption(String action, String lang) {
+		StringBuffer sb = new StringBuffer();
+		if (lang!=null && lang.indexOf("th")>=0) {
+			sb.append(PcmReqConstant.WF_TASK_ACTIONS_TH.get(action));
+		} else {
+			sb.append(PcmReqConstant.WF_TASK_ACTIONS.get(action));
+		}
+		
+		return sb.toString();
 	}
 
 }

@@ -58,15 +58,16 @@ public class ExpWorkflowWebScript {
 	 * id = av id
 	 */
 	@Uri(URI_PREFIX + "/task/list")
-	public void handleTaskList(@RequestParam final String id
-								, final WebScriptResponse response)
+	public void handleTaskList(@RequestParam final String id,
+							   @RequestParam final String lang,
+							   final WebScriptResponse response)
 								throws Exception {
 
 		String json = null;
 
 		try {
 			workflowService.setModuleService(expBrwService);
-			JSONArray jsArr = workflowService.listTask(id);
+			JSONArray jsArr = workflowService.listTask(id,lang);
 			json = CommonUtil.jsonSuccess(jsArr);
 
 		} catch (Exception ex) {

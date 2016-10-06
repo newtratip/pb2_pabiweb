@@ -3,8 +3,6 @@ package pb.repo.pcm.model;
 import java.sql.Timestamp;
 import java.util.List;
 
-import org.alfresco.service.cmr.repository.NodeRef;
-
 import pb.repo.admin.model.SubModuleModel;
 
 public class PcmReqModel extends SubModuleModel {
@@ -65,6 +63,8 @@ public class PcmReqModel extends SubModuleModel {
 	Integer rewarning;
 	Integer waitingDay;
 	String status;
+	String wfBy;
+	String wfByTime;
 	String wfStatus;
 	
 	List<PcmReqDtlModel> dtlList;
@@ -75,6 +75,18 @@ public class PcmReqModel extends SubModuleModel {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public String getWfBy() {
+		return wfBy;
+	}
+	public void setWfBy(String wfBy) {
+		this.wfBy = wfBy;
+	}
+	public String getWfByTime() {
+		return wfByTime;
+	}
+	public void setWfByTime(String wfByTime) {
+		this.wfByTime = wfByTime;
 	}
 	public String getWfStatus() {
 		return wfStatus;

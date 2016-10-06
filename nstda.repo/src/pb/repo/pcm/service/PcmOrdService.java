@@ -7,12 +7,14 @@ import java.io.Writer;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -461,7 +463,7 @@ public class PcmOrdService implements SubModuleService {
 					int rpos2 = format.indexOf(CommonConstant.REPS_SUFFIX);
 					String fieldName = format.substring(rpos+CommonConstant.REPS_PREFIX.length(), rpos2);
 					
-					SimpleDateFormat df = new SimpleDateFormat(dFormat);
+					SimpleDateFormat df = new SimpleDateFormat(dFormat,Locale.US);
 					folderMap.put("name", df.format(map.get(fieldName)));
 				}	
 				else {
@@ -522,6 +524,19 @@ public class PcmOrdService implements SubModuleService {
             PcmOrdDAO dao = session.getMapper(PcmOrdDAO.class);
             log.info("pcm req list param:"+params);
     		list = dao.list(params);
+    		
+    		String lang = (String)params.get("lang");
+    		
+    		for(PcmOrdModel model : list) {
+    			model.setWfStatus(
+    					model.getWfBy()
+    					+"-"+
+    					model.getWfStatus()
+    					+"-"+
+    					model.getWfByTime()
+    			);
+    		}
+    		
             
         } catch (Exception ex) {
 			log.error("", ex);
@@ -665,7 +680,7 @@ public class PcmOrdService implements SubModuleService {
 	
 	public List<Map<String, Object>> listWorkflowPath(String id, String lang) {
 		
-		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id);
+		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id, lang);
 		
 		/*
 		 * Add Requester
@@ -673,7 +688,7 @@ public class PcmOrdService implements SubModuleService {
 		PcmOrdModel model = get(id);
 		
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("LEVEL", "ผู้ตรวจสอบ");
+		map.put("LEVEL", mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_SUPERVISOR, lang, null));
 		map.put("U", model.getAppBy());
 		map.put("G", "");
 		map.put("IRA", false);
@@ -681,7 +696,7 @@ public class PcmOrdService implements SubModuleService {
 		list.add(0, map);
 		
 		map = new HashMap<String, Object>();
-		map.put("LEVEL", MainWorkflowConstant.TN_REQUESTER_CAPTION);
+		map.put("LEVEL", mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_PREPARER, lang, null));
 		map.put("U", model.getCreatedBy());
 		map.put("G", "");
 		map.put("IRA", false);
@@ -817,23 +832,15 @@ public class PcmOrdService implements SubModuleService {
 	}
 
 	@Override
-	public String getActionCaption(String action) {
-		Map<String, String> WF_TASK_ACTIONS = new HashMap<String, String>();
+	public String getActionCaption(String action, String lang) {
+		StringBuffer sb = new StringBuffer();
+		if (lang!=null && lang.indexOf("th")>=0) {
+			sb.append(PcmOrdConstant.WF_TASK_ACTIONS_TH.get(action));
+		} else {
+			sb.append(PcmOrdConstant.WF_TASK_ACTIONS.get(action));
+		}
 		
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "ขออนุมัติ");
-		
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "อนุมัติ");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "ไม่อนุมัติ");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "ขอคำปรึกษา");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "ให้ความเห็น");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "ขออนุมัติใหม่");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "ยกเลิก");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "PO");
-		
-		return WF_TASK_ACTIONS.get(action);
+		return sb.toString();
 	}
 
 	@Override
@@ -868,8 +875,8 @@ public class PcmOrdService implements SubModuleService {
 	}
 
 	@Override
-	public String getNextActionInfo(SubModuleModel model) {
-		return "ฝ่ายพัสดุ";
+	public String getNextActionInfo(SubModuleModel model, String lang) {
+		return mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_PROCUREMENT,lang,null);
 	}
 
 	@Override
@@ -1099,8 +1106,10 @@ public class PcmOrdService implements SubModuleService {
 		hModel.setTime(model.getCreatedTime());
 		hModel.setLevel(0);
 		hModel.setComment("");
-		hModel.setAction("อนุมัติ");
-		hModel.setTask(MainWorkflowConstant.TN_APPROVER_CAPTION);
+		hModel.setAction(getActionCaption(MainWorkflowConstant.TA_APPROVE,""));
+		hModel.setActionTh(getActionCaption(MainWorkflowConstant.TA_APPROVE,"th"));
+		hModel.setTask(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_SUPERVISOR));
+		hModel.setTaskTh(MainWorkflowConstant.WF_TASK_NAMES_TH.get(MainWorkflowConstant.TN_SUPERVISOR));
 		hModel.setBy(model.getAppBy());
 		
 		return hModel;
@@ -1150,5 +1159,15 @@ public class PcmOrdService implements SubModuleService {
 	public Boolean addPermissionToAttached() {
 		return true;
 	}
-	
+
+	@Override
+	public List<String> getSpecialGroupForAddPermission() {
+		MainMasterModel topGroup = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_ORD_TOP_GROUP);
+		
+		String[] tgs = topGroup!=null && topGroup.getFlag1()!=null ? topGroup.getFlag1().split(",") : null;
+		
+		List<String> list = Arrays.asList(tgs);
+		
+		return list;
+	}
 }

@@ -26,7 +26,7 @@ public interface SubModuleService {
 	
 	public void setWorkflowParameters(Map<QName, Serializable> parameters, SubModuleModel model, List<NodeRef> docList, List<NodeRef> attachDocList);
 	
-	public String getActionCaption(String action);
+	public String getActionCaption(String action, String lang);
 	
 	public List<MainWorkflowNextActorModel> listNextActor(SubModuleModel model);
 	public List<String> listRelatedUser(SubModuleModel model);
@@ -34,7 +34,7 @@ public interface SubModuleService {
 	public String getFirstComment(SubModuleModel model);
 	public String getFirstStatus();
 	
-	public String getNextActionInfo(SubModuleModel model);
+	public String getNextActionInfo(SubModuleModel model, String lang);
 	
     public String getModelUri();
     public String getWfUri();
@@ -43,6 +43,7 @@ public interface SubModuleService {
     public MainWorkflowHistoryModel getReqByWorkflowHistory(SubModuleModel model);
     public MainWorkflowHistoryModel getAppByWorkflowHistory(SubModuleModel model);
     public List<String> getSpecialUserForAddPermission(SubModuleModel model);
+    public List<String> getSpecialGroupForAddPermission();
     
 	public QName getPropNextReviewers();
 	

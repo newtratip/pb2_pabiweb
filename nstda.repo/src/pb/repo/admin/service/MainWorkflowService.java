@@ -55,7 +55,6 @@ import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
-import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.admin.model.MainUserGroupModel;
 import pb.repo.admin.model.MainWorkflowHistoryModel;
 import pb.repo.admin.model.MainWorkflowModel;
@@ -143,8 +142,10 @@ public class MainWorkflowService {
 		String instanceId = null;
 		
 		try {
-			String action = moduleService.getActionCaption(MainWorkflowConstant.TA_START);
-	        String stateTask = MainWorkflowConstant.TN_REQUESTER_CAPTION;
+			String action = moduleService.getActionCaption(MainWorkflowConstant.TA_START,"");
+			String actionTh = moduleService.getActionCaption(MainWorkflowConstant.TA_START,"th");
+	        String stateTask = getTaskCaption(MainWorkflowConstant.TN_PREPARER, "",null);
+	        String stateTaskTh = getTaskCaption(MainWorkflowConstant.TN_PREPARER, "th",null);
 			String wfName = moduleService.getWorkflowName();
 			log.info("  WF Name:"+wfName);
 			WorkflowDefinition workflow = workflowService.getDefinitionByName("activiti$"+wfName);
@@ -181,6 +182,8 @@ public class MainWorkflowService {
 	        setNextActor(model, folderNodeRef);
 	        
 	        setSpecialUserPermission(folderNodeRef, model);
+	        
+	        setSpecialGroupPermission(folderNodeRef, model);
 	        
 	        MainWorkflowReviewerModel paramModel = new MainWorkflowReviewerModel();
 	        paramModel.setMasterId(model.getId());
@@ -226,6 +229,7 @@ public class MainWorkflowService {
 			workflowModel.setTaskId(startTask.getId());
 			workflowModel.setExecutionId("");
 			workflowModel.setStatus(action);
+			workflowModel.setStatusTh(actionTh);
 			workflowModel.setBy(model.getCreatedBy());
 			workflowModel.setCreatedBy(model.getCreatedBy());
 			workflowModel.setAssignee(reviewerModel.getReviewerUser());
@@ -241,9 +245,11 @@ public class MainWorkflowService {
 			workflowHistoryModel = new MainWorkflowHistoryModel();
 	        workflowHistoryModel.setMasterId(wfKey);
 			workflowHistoryModel.setLevel(0);
-			workflowHistoryModel.setAction(action);
 			workflowHistoryModel.setBy(model.getCreatedBy());
+			workflowHistoryModel.setAction(action);
+			workflowHistoryModel.setActionTh(actionTh);
 			workflowHistoryModel.setTask(stateTask);
+			workflowHistoryModel.setTaskTh(stateTaskTh);
 			workflowHistoryModel.setComment(moduleService.getFirstComment(model));
 			workflowHistoryModel.setStatus(moduleService.getFirstStatus());
 	        addWorkflowHistory(workflowHistoryModel);
@@ -804,15 +810,20 @@ public class MainWorkflowService {
 		return null;
 	}
 	
-	public List<Map<String, Object>> listWorkflowPath(String id) {
+	public List<Map<String, Object>> listWorkflowPath(String id, String lang) {
 		List<Map<String, Object>> list = null;
 		
 		SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
             
             MainWorkflowReviewerDAO dao = session.getMapper(MainWorkflowReviewerDAO.class);
+            
+            Map<String, Object> params = new HashMap<String, Object>();
+            
+            params.put("id", id);
+            params.put("reviewer", getTaskCaption(MainWorkflowConstant.TN_REVIEWER, lang, null));
 
-    		list = dao.listWorkflowPath(id);
+    		list = dao.listWorkflowPath(params);
             
         } catch (Exception ex) {
 			log.error("", ex);
@@ -839,7 +850,7 @@ public class MainWorkflowService {
 		return jsArr;
 	}
 	
-	public JSONArray listTask(String id) throws Exception {
+	public JSONArray listTask(String id, String lang) throws Exception {
 		JSONArray jsArr = new JSONArray();
 
 		int index = 0;
@@ -847,6 +858,8 @@ public class MainWorkflowService {
 			SubModuleModel model = (SubModuleModel)moduleService.get(id);
 			 
 			final String workflowInsId = model.getWorkflowInsId();
+			
+			lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
 			
 			log.info("workflowInsId:" + workflowInsId);
 			
@@ -910,13 +923,13 @@ public class MainWorkflowService {
 					assignedTo = task.getProperties().get(q1).toString();
 				}
 				
-				MainHrEmployeeModel empModel = adminHrEmployeeService.get(assignedTo);
+				Map<String, Object> empModel = adminHrEmployeeService.getWithDtl(assignedTo);
 				
-				jsArr.put(createTaskGridModel(index++, task.getTitle(), assignedTo + " - " + empModel.getFirstName(), (String)task.getProperties().get(q2)));
+				jsArr.put(createTaskGridModel(index++, getTaskTitle(task.getTitle(),lang), assignedTo + " - " + empModel.get("first_name"+lang), (String)task.getProperties().get(q2)));
 			}
 			
 			if (jsArr.length()==0) {
-				jsArr.put(createTaskGridModel(index++, moduleService.getNextActionInfo(model), "", ""));
+				jsArr.put(createTaskGridModel(index++, moduleService.getNextActionInfo(model, lang), "", ""));
 			}
 			
 		 } catch (Exception ex) {
@@ -959,11 +972,12 @@ public class MainWorkflowService {
 //			Collections.reverse(hList);
 //		}
 		lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
+		Boolean showTh = (lang!=null && lang.indexOf("th")>=0);
 		
 		for (MainWorkflowHistoryModel model : hList) {
 			Map<String, Object> empModel = adminHrEmployeeService.getWithDtl(model.getBy());
 
-			jsArr.put(createDetailGridModel(index++, model.getTime(), empModel!=null ? (String)empModel.get("first_name"+lang) : model.getBy(), model.getAction(), model.getTask(), StringUtils.defaultIfBlank(model.getComment(),"").replace("\\n", "<br>").replace("'", "\\'")));
+			jsArr.put(createDetailGridModel(index++, model.getTime(), empModel!=null ? (String)empModel.get("first_name"+lang) : model.getBy(), showTh ? model.getActionTh() : model.getAction(), showTh ? model.getTaskTh() : model.getTask(), StringUtils.defaultIfBlank(model.getComment(),"").replace("\\n", "<br>").replace("'", "\\'")));
 		}
 
 		return jsArr;
@@ -1155,7 +1169,11 @@ public class MainWorkflowService {
 	public String saveWorkflowHistory(DelegateExecution execution, String user, String stateTask, String taskComment, String action, DelegateTask task, String id, Integer level, String status) throws Exception {
 		
 		Timestamp now = CommonDateTimeUtil.now();
-		action = moduleService.getActionCaption(action);
+		String actionTh = moduleService.getActionCaption(action, "th");
+		action = moduleService.getActionCaption(action, "");
+		
+		String stateTaskTh = getTaskCaption(stateTask, "th", level);
+		stateTask = getTaskCaption(stateTask, "", level);
 //		if (execution!=null) {
 //		
 //			String commentHistoryAttr = WF_PREFIX+"commentHistory";
@@ -1195,7 +1213,9 @@ public class MainWorkflowService {
 			workflowHistoryModel.setTime(now);
 			workflowHistoryModel.setBy(user);
 			workflowHistoryModel.setAction(action);
+			workflowHistoryModel.setActionTh(actionTh);
 			workflowHistoryModel.setTask(stateTask);
+			workflowHistoryModel.setTaskTh(stateTaskTh);
 			workflowHistoryModel.setComment((taskComment!=null && !taskComment.equalsIgnoreCase(""))?taskComment:null);
 			workflowHistoryModel.setMasterId(workflowModel.getId());
 			workflowHistoryModel.setLevel(level);
@@ -1203,6 +1223,7 @@ public class MainWorkflowService {
 			addWorkflowHistory(workflowHistoryModel);
 			
 			workflowModel.setStatus(action);
+			workflowModel.setStatusTh(actionTh);
 			workflowModel.setBy(user);
 			workflowModel.setByTime(workflowHistoryModel.getTime());
 			update(workflowModel);	
@@ -1212,7 +1233,42 @@ public class MainWorkflowService {
 		log.info("saveHistory finish");
 
 		return action;
-	}	
+	}
+	
+	/*
+	 * For Interface
+	 */
+	public void saveWorkflowHistory(String id, String by, String task, String taskTh, String action, String actionTh, String comment) throws Exception {
+		
+		Timestamp now = CommonDateTimeUtil.now();
+		
+		MainWorkflowModel workflowModel = new MainWorkflowModel();
+		workflowModel.setMasterId(id.toString());
+		workflowModel = getLastWorkflow(workflowModel);
+		if (workflowModel!=null) {
+			MainWorkflowHistoryModel workflowHistoryModel = new MainWorkflowHistoryModel();
+			workflowHistoryModel.setTime(now);
+			workflowHistoryModel.setBy(by);
+			workflowHistoryModel.setAction(action);
+			workflowHistoryModel.setActionTh(actionTh);
+			workflowHistoryModel.setTask(task);
+			workflowHistoryModel.setTaskTh(taskTh);
+			workflowHistoryModel.setComment((comment!=null && !comment.equalsIgnoreCase(""))?comment:null);
+			workflowHistoryModel.setMasterId(workflowModel.getId());
+			workflowHistoryModel.setLevel(0);
+			workflowHistoryModel.setStatus("");
+			addWorkflowHistory(workflowHistoryModel);
+			
+			workflowModel.setStatus(action);
+			workflowModel.setStatusTh(actionTh);
+			workflowModel.setBy(by);
+			workflowModel.setByTime(workflowHistoryModel.getTime());
+			update(workflowModel);	
+		} else {
+			log.info("Not Found WorkflowModel");
+		}
+		log.info("saveHistory finish");
+	}		
 
 	public Object updateExecutionEntity(ExecutionEntity executionEntity, DelegateTask task, String varName) throws Exception {
 		Object obj = ObjectUtils.defaultIfNull(task.getVariable(WF_PREFIX+varName), "");
@@ -1270,6 +1326,54 @@ public class MainWorkflowService {
 		    	return null;
 			}
 	    }, AuthenticationUtil.getAdminUserName());
+	}
+	
+	private void setSpecialGroupPermission(final NodeRef folderNodeRef, final Object model) {
+		
+		// add permission to requester
+        AuthenticationUtil.runAs(new RunAsWork<String>()
+	    {
+			public String doWork() throws Exception
+			{
+				List<String> list = moduleService.getSpecialGroupForAddPermission();
+				if (list!=null) {
+					for(String s : list) {
+						permissionService.setPermission(folderNodeRef, "GROUP_"+s, "SiteCollaborator", true);
+					}
+				}
+		    	return null;
+			}
+	    }, AuthenticationUtil.getAdminUserName());
+	}
+	
+	public String getTaskCaption(String task, String lang, Integer level) {
+		StringBuffer sb = new StringBuffer();
+
+		if (lang!=null && lang.indexOf("th")>=0) {
+			sb.append(MainWorkflowConstant.WF_TASK_NAMES_TH.get(task));
+		} else {
+			sb.append(MainWorkflowConstant.WF_TASK_NAMES.get(task));
+		}
+		
+		if (task.equals(MainWorkflowConstant.TN_REVIEWER) && level!=null) {
+			sb.append(" "+level);
+		}
+		
+		return sb.toString();
+		
+	}
+	
+	public String getTaskTitle(String task, String lang) {
+		String key = task;
+		Integer level = null;
+		
+		if (task.indexOf(MainWorkflowConstant.TN_REVIEWER)>=0) {
+			int pos = task.indexOf(" ");
+			key = task.substring(0, pos);
+			level = Integer.parseInt(task.substring(pos+1));
+		}
+		
+		return getTaskCaption(key, lang, level);
 	}
 	
 	

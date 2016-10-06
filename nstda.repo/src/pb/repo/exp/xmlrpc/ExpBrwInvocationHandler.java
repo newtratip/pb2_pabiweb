@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.exp.constant.ExpBrwConstant;
 import pb.repo.exp.model.ExpBrwModel;
 import pb.repo.exp.service.ExpBrwService;
@@ -70,10 +71,10 @@ public class ExpBrwInvocationHandler
 			if (action.equals("2")) {
 				statusDesc = "Cancel";
 				type = ExpBrwConstant.ST_CANCEL_BY_FIN;
-			} else
-			if (action.equals("3")) {
-				statusDesc = "Paid";
-				type = ExpBrwConstant.ST_PAID_BY_FIN;
+//			} else
+//			if (action.equals("3")) {
+//				statusDesc = "Paid";
+//				type = ExpBrwConstant.ST_PAID_BY_FIN;
 			} else {
     			result.put("success",false);
     			result.put("message","Invalid Action : "+action);
@@ -87,7 +88,42 @@ public class ExpBrwInvocationHandler
 	    	expBrwService.update(expBrwModel);
     		
 	    	mainWorkflowService.setModuleService(expBrwService);
-			mainWorkflowService.saveWorkflowHistory(null, by, "การเงิน" ,  (String)params.get("comment"), statusDesc, null,  avNo, null, type);
+			mainWorkflowService.saveWorkflowHistory(null, by, MainWorkflowConstant.TN_FINANCE ,  (String)params.get("comment"), statusDesc, null,  avNo, null, type);
+			
+			result.put("success",true);
+			result.put("message","Success");
+    	} catch (Exception ex) {
+    		log.error(ex);
+    		ex.printStackTrace();
+			result.put("success",false);
+			result.put("message","Error : "+ex.toString());
+    	}
+    	
+        return result;
+    }
+    
+    public Map<String, Object> history(Map<String, Object> params)
+    {
+    	log.info("params:"+params.toString());
+    	
+    	Map<String, Object> result = new HashMap<String, Object>();
+    	
+    	try {
+	    	String avNo = (String)params.get("avNo");
+	    	final String by = (String)params.get("by");
+	    	String task = (String)params.get("task");
+	    	String taskTh = (String)params.get("task_th");
+	    	String status = (String)params.get("status");
+	    	String statusTh = (String)params.get("status_th");
+	    	
+	    	ExpBrwModel expBrwModel = expBrwService.get(avNo);
+			if (expBrwModel==null) {
+    			result.put("success",false);
+    			result.put("message","Invalid AV NO. : "+avNo);
+    			return result;
+			}
+    		
+			mainWorkflowService.saveWorkflowHistory(avNo, by, task, taskTh, status, statusTh, (String)params.get("comment"));
 			
 			result.put("success",true);
 			result.put("message","Success");

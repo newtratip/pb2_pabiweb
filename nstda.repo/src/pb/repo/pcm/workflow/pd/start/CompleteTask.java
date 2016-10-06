@@ -109,7 +109,7 @@ public class CompleteTask implements ExecutionListener {
 					Integer level = model.getWaitingLevel();
 					
 					String curUser = authenticationService.getCurrentUserName();
-					String taskKey = MainWorkflowConstant.TN_REQUESTER_CAPTION;
+					String taskKey = MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_PREPARER);;
 					String finalAction = MainWorkflowConstant.TA_START;
 					
 					String taskComment = model.getObjective()+ " " + model.getDocType();

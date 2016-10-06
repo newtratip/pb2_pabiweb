@@ -94,6 +94,7 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 	        	},
 	        	{ text: PB.Label.m.seq,  xtype: 'rownumberer', width:60},
 				{ text: PB.Label.m.fullname,  dataIndex: 'name', flex:1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
+				{ text: PB.Label.m.section,  dataIndex: 'unit_type', flex:1},
 				{ text: PB.Label.m.pos,  dataIndex: 'position', flex:1},
 				{ text: PB.Label.m.provCntry,  dataIndex: 'destination', flex:1},
 				{ text: PB.Label.m.route,  dataIndex: 'route', flex:1},

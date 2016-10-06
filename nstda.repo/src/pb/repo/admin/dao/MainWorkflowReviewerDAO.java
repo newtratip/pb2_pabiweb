@@ -12,5 +12,5 @@ public interface MainWorkflowReviewerDAO {
 	
 	public Integer getLastLevel(String id);
 	public List<MainWorkflowReviewerModel> listByLevel(MainWorkflowReviewerModel model);
-	public List<Map<String, Object>> listWorkflowPath(String id);
+	public List<Map<String, Object>> listWorkflowPath(Map<String, Object> params);
 }

@@ -7,7 +7,7 @@ Ext.define('PBExpUse.view.MainFormUserTab', {
 	initComponent: function(config) {
 		var me = this;
 	
-		var lbw = 120;
+		var lbw = parseInt(PBExpUse.Label.u.lbw);
 
 		Ext.applyIf(me, {
 			items:[{
@@ -17,7 +17,7 @@ Ext.define('PBExpUse.view.MainFormUserTab', {
 				items:[{
 					xtype:'trigger',
 					name:'reqBy',
-					fieldLabel:'พนักงานผู้ขอเบิก',
+					fieldLabel:PBExpUse.Label.u.reqBy,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
 					width:250,
@@ -64,7 +64,7 @@ Ext.define('PBExpUse.view.MainFormUserTab', {
 				items:[{
 					xtype:'textfield',
 					name:'reqBu',
-					fieldLabel:'ศูนย์',
+					fieldLabel:PBExpUse.Label.u.reqBu,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
 					flex:1,
@@ -79,7 +79,7 @@ Ext.define('PBExpUse.view.MainFormUserTab', {
 				items:[{
 					xtype:'textfield',
 					name:'reqOuName',
-					fieldLabel:'หน่วยงาน',
+					fieldLabel:PBExpUse.Label.u.reqOu,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
 					flex:1,
@@ -94,7 +94,7 @@ Ext.define('PBExpUse.view.MainFormUserTab', {
 			},{
 				xtype:'datefield',
 				name:'createdTime',
-				fieldLabel:'วันที่บันทึกรายการ',
+				fieldLabel:PBExpUse.Label.u.createdTime,
 				labelWidth:lbw,
 				margin:"5 0 0 10",
 				width:250,
@@ -109,7 +109,7 @@ Ext.define('PBExpUse.view.MainFormUserTab', {
 			},{
 				xtype:'textfield',
 				name:'createdByShow',
-				fieldLabel:'ผู้บันทึกรายการ',
+				fieldLabel:PBExpUse.Label.u.createdBy,
 				labelWidth:lbw,
 				margin:"5 0 0 10",
 				width:600,
@@ -119,7 +119,7 @@ Ext.define('PBExpUse.view.MainFormUserTab', {
 			},{
 				xtype:'textfield',
 				name:'telNo',
-				fieldLabel:'โทรศัพท์',
+				fieldLabel:PBExpUse.Label.u.telNo,
 				labelWidth:lbw,
 				margin:"5 0 0 10",
 				width:600,

@@ -9,6 +9,8 @@
         <result property="by" column="by"/>
         <result property="action" column="action"/>
         <result property="task" column="task"/>
+        <result property="actionTh" column="action_th"/>
+        <result property="taskTh" column="task_th"/>
         <result property="comment" column="comment"/>
         <result property="level" column="level"/>
         <result property="status" column="status"/>
@@ -23,9 +25,9 @@
 		useGeneratedKeys="true"
 		>
 	    INSERT INTO pb2_main_workflow_history(
-	    	master_id,time,by,action,task,comment,level,status
+	    	master_id,time,by,action,action_th,task,task_th,comment,level,status
 	    ) VALUES (
-	    	#{masterId},#{time},#{by},#{action},#{task},#{comment},#{level},#{status}
+	    	#{masterId},#{time},#{by},#{action},#{actionTh},#{task},#{taskTh},#{comment},#{level},#{status}
     	)
 		
 	</insert>
@@ -64,6 +66,7 @@
 		flushCache="true">
      UPDATE pb2_main_workflow_history 
      SET action=#{action}
+     SET action_th=#{actionTh}
      WHERE id=#{id}
     </update>
     

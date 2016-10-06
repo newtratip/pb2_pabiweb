@@ -318,10 +318,6 @@ public class PcmWebScript {
 			model = new PcmReqModel();
 		}
 		
-		if (model.getId() == null) {
-			model.setStatus(PcmReqConstant.ST_DRAFT);
-		}
-		
 		model.setReqBy(reqBy);
 		if (reqOu != null && !reqOu.equals("")) {
 			model.setReqSectionId(Integer.parseInt(reqOu));
@@ -841,7 +837,7 @@ public class PcmWebScript {
 			
 			model.setDtlList(PcmReqDtlUtil.convertJsonToList(items, model.getId()));
 			model.setCmtList(PcmReqCmtHdrUtil.convertJsonToList(cmts, model.getId()));
-			String fileName = pcmReqService.doGenDoc("pr", model);
+			String fileName = pcmReqService.doGenDoc(PcmReqConstant.JR_PR, model);
 			
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put(fileName, "");

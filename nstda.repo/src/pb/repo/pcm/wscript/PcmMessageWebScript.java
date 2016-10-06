@@ -161,6 +161,7 @@ public class PcmMessageWebScript {
 	  lbl.put("err_objType", PcmReqUtil.getMessage(prefix+"err.objectiveType", locale));
 	  lbl.put("obj", PcmReqUtil.getMessage(prefix+"objective", locale));
 	  lbl.put("reason", PcmReqUtil.getMessage(prefix+"reason", locale));
+	  lbl.put("reasonOth", PcmReqUtil.getMessage(prefix+"reasonOth", locale));
 	  lbl.put("currency", PcmReqUtil.getMessage(prefix+"currency", locale));
 	  lbl.put("currencyRate", PcmReqUtil.getMessage(prefix+"currencyRate", locale));
 	  lbl.put("budgetSrc", PcmReqUtil.getMessage(prefix+"budgetSrc", locale));

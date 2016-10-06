@@ -12,6 +12,8 @@ public class MainWorkflowHistoryModel {
 	String by;
 	String action;
 	String task;
+	String actionTh;
+	String taskTh;
 	String comment;
 	Integer level;
 	String status;
@@ -81,6 +83,22 @@ public class MainWorkflowHistoryModel {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getActionTh() {
+		return actionTh;
+	}
+
+	public void setActionTh(String actionTh) {
+		this.actionTh = actionTh;
+	}
+
+	public String getTaskTh() {
+		return taskTh;
+	}
+
+	public void setTaskTh(String taskTh) {
+		this.taskTh = taskTh;
 	}
 	
 }

@@ -9,6 +9,7 @@ public class MainWorkflowModel {
 	String masterId;
 	String workflowInsId;
 	String status;
+	String statusTh;
 	String assignee;
 	String by;
 	Timestamp byTime;
@@ -47,6 +48,12 @@ public class MainWorkflowModel {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public String getStatusTh() {
+		return statusTh;
+	}
+	public void setStatusTh(String statusTh) {
+		this.statusTh = statusTh;
 	}
 	public String getAssignee() {
 		return assignee;

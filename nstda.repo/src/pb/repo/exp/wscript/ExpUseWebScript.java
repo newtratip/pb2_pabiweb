@@ -76,6 +76,7 @@ public class ExpUseWebScript {
 		  	  , @RequestParam(required=false) final String fields
 			  , @RequestParam(required=false) final Integer start
 			  , @RequestParam(required=false) final Integer limit
+			  , @RequestParam(required=false) final String lang
 			  , final WebScriptResponse response)  throws Exception {
 
 	  	/*
@@ -83,12 +84,11 @@ public class ExpUseWebScript {
 	  	 */
 		Map<String, Object> params = new HashMap<String, Object>();
 		
-		String searchTerm = null;
-		
 		if (s != null && !s.equals("")) {
-			searchTerm = "%" + s + "%";
+    		String[] terms = s.split(" ");
+        	
+    		params.put("terms", terms);
 		}
-		params.put("searchTerm", searchTerm);
 		params.put("start", start);
 		params.put("limit", limit);
 		
@@ -128,6 +128,8 @@ public class ExpUseWebScript {
 		
 		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
 	  
+		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
+		
 		/*
 		 * Search
 		 */
@@ -424,10 +426,6 @@ public class ExpUseWebScript {
 			
 			if (model==null) {
 				model = new ExpUseModel();
-			}
-			
-			if (model.getId() == null) {
-				model.setStatus(ExpUseConstant.ST_DRAFT);
 			}
 			
 			model.setReqBy(reqBy);
@@ -791,14 +789,10 @@ public class ExpUseWebScript {
 			model.setTotal(Double.parseDouble(total));
 			model.setStatus(status);
 			
-			log.info("model="+model);
-			
 			if (model.getId() == null || (status!=null && status.equals(ExpUseConstant.ST_DRAFT))) {
 				model.setStatus(ExpUseConstant.ST_WAITING);
 				model.setWaitingLevel(1);
 			}
-			
-			log.info("model="+model);
 			
 			JSONObject validateResult = expUseService.validateAssignee(model);
 			if (!(Boolean)validateResult.get("valid")) {
@@ -807,7 +801,132 @@ public class ExpUseWebScript {
 			else {		
 				model.setAttendeeList(ExpUseAttendeeUtil.convertJsonToList(attendees, model.getId()));
 				model.setDtlList(ExpUseDtlUtil.convertJsonToList(items, model.getId()));
-				String fileName = expUseService.doGenDoc("ap", model);
+				String fileName = expUseService.doGenDoc(ExpUseConstant.JR_EX, model);
+				
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put(fileName, "");
+				
+				json = CommonUtil.jsonSuccess(map);
+			}
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		  
+	}
+	
+	@Uri(method=HttpMethod.GET, value=URI_PREFIX+"/paymentDoc")
+	public void handlePaymentDoc(@RequestParam final String id
+			  					,final WebScriptResponse response) throws Exception {
+		  
+		  String tmpDir = FolderUtil.getTmpDir();
+		  String fullName = tmpDir+File.separator+id+".xls";
+		  Path path = Paths.get(fullName);
+		  byte[] data = Files.readAllBytes(path);
+			
+		  response.setContentType("application/vnd.ms-excel");
+		  java.io.OutputStream out = response.getOutputStream();
+		    
+		  out.write(data);
+		  out.flush();
+		  out.close();
+		  
+		  File file = new File(fullName);
+		  file.delete();
+	}
+	
+	@Uri(method=HttpMethod.POST, value=URI_PREFIX+"/paymentDoc")
+	public void handlePaymentDocGen(@RequestParam(required=false) final String id
+								,@RequestParam(required=false) final String reqBy
+								,@RequestParam(required=false) final String objective
+								,@RequestParam(required=false) final String budgetCc
+								,@RequestParam(required=false) final String budgetCcType
+								,@RequestParam(required=false) final String fundId
+								,@RequestParam(required=false) final String costControlTypeId
+								,@RequestParam(required=false) final String costControlId
+								,@RequestParam(required=false) final String costControl
+								,@RequestParam(required=false) final String costControlFrom
+								,@RequestParam(required=false) final String costControlTo
+								,@RequestParam(required=false) final String bankType
+								,@RequestParam(required=false) final String bank
+								,@RequestParam(required=false) final String payType
+								,@RequestParam(required=false) final String payDtl1
+								,@RequestParam(required=false) final String payDtl2
+								,@RequestParam(required=false) final String payDtl3
+								,@RequestParam(required=false) final String total
+								,@RequestParam(required=false) final String attendees
+								,@RequestParam(required=false) final String items
+								,@RequestParam(required=false) final String files
+								,@RequestParam(required=false) final String status
+								,final WebScriptResponse response) throws Exception {
+		
+		String json = null;
+		
+		try {
+			ExpUseModel model = null;
+			
+			if (CommonUtil.isValidId(id)) {
+				model = expUseService.get(id);
+			}
+			
+			if (model==null) {
+				model = new ExpUseModel();
+			}
+			
+			if (model.getId() == null) {
+				model.setStatus(ExpUseConstant.ST_DRAFT);
+			}
+			
+			model.setReqBy(reqBy);
+			
+			model.setObjective(objective);
+			if (budgetCc != null && !budgetCc.equals("")) {
+				model.setBudgetCc(Integer.parseInt(budgetCc));
+			}
+			model.setBudgetCcType(budgetCcType);
+			if (fundId != null && !fundId.equals("")) {
+				model.setFundId(Integer.parseInt(fundId));
+			}
+			
+			model.setCostControlTypeId((costControlTypeId != null && !costControlTypeId.equals("")) ? Integer.parseInt(costControlTypeId) : null);
+			model.setCostControlId((costControlId != null && !costControlId.equals("")) ? Integer.parseInt(costControlId) : null);
+			model.setCostControl(costControl);
+			if (costControlFrom!=null) {
+				model.setCostControlFrom(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlFrom));
+			}
+			if (costControlTo!=null) {
+				model.setCostControlTo(CommonDateTimeUtil.convertSenchaStringToTimestamp(costControlTo));
+			}
+			
+			model.setBankType(bankType);
+			if (bank != null && !bank.equals("")) {
+				model.setBank(Integer.parseInt(bank));
+			}
+			
+			model.setPayType(payType);
+			model.setPayDtl1(payDtl1);
+			model.setPayDtl2(payDtl2);
+			model.setPayDtl3(payDtl3);
+			
+			model.setTotal(Double.parseDouble(total));
+			model.setStatus(status);
+			
+			if (model.getId() == null || (status!=null && status.equals(ExpUseConstant.ST_DRAFT))) {
+				model.setStatus(ExpUseConstant.ST_WAITING);
+				model.setWaitingLevel(1);
+			}
+			
+			JSONObject validateResult = expUseService.validateAssignee(model);
+			if (!(Boolean)validateResult.get("valid")) {
+				json = CommonUtil.jsonFail(validateResult);
+			}
+			else {		
+				model.setAttendeeList(ExpUseAttendeeUtil.convertJsonToList(attendees, model.getId()));
+				model.setDtlList(ExpUseDtlUtil.convertJsonToList(items, model.getId()));
+				String fileName = expUseService.doGenPaymentDoc(ExpUseConstant.JR_EX_PAYMENT_DOC, model);
 				
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put(fileName, "");

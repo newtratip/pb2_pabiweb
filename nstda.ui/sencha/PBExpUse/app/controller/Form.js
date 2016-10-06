@@ -42,10 +42,10 @@ Ext.define('PBExpUse.controller.Form', {
 	    selector: 'expUseMainForm field[name=bankType]'
 	},{
 	    ref: 'radBankType0',     
-	    selector: 'expUseMainForm field[itemId=bankType1]'
+	    selector: 'expUseMainForm field[itemId=bankType0]'
 	},{
 	    ref: 'radBankType1',     
-	    selector: 'expUseMainForm field[itemId=bankType0]'
+	    selector: 'expUseMainForm field[itemId=bankType1]'
 	},{
 	    ref: 'txtTotal',     
 	    selector: 'expUseMainForm field[name=total]'
@@ -136,6 +136,9 @@ Ext.define('PBExpUse.controller.Form', {
 			'expUseMainForm [action=preview]': {
 				click : me.preview
 			},
+			'expUseMainForm [action=paymentDoc]': {
+				click : me.paymentDoc
+			},
 			'expUseMainForm [action=approvalMatrix]': {
 				click : me.showApprovalMatrix
 			},
@@ -166,11 +169,31 @@ Ext.define('PBExpUse.controller.Form', {
 	URL : ALF_CONTEXT+'/exp/use',
 	MSG_URL : ALF_CONTEXT+'/exp/message',
 	
-	validForm:function(saveDraft,fn) {
+	validForm:function(saveDraft) {
 		var me = this;
-		var result = true;
 		
-		return result;
+		var form = me.getMainForm();
+		
+		var msg = "";
+		var i = 1;
+		if(!validForm(form)) {
+			var r = me.listInvalidField(form);
+			msg = r.msg;
+			i = r.i;
+		}
+		
+		if (!saveDraft) {
+			if (me.getItemGrid().getStore().getCount() == 0) {
+				if (msg) {
+					msg += "<br/>";
+				}
+				
+				msg += i+".รายละเอียดเบิกจ่าย";
+				i++;
+			}
+		}
+		
+		return msg;	
 	},
 	
 	listInvalidField:function(form) {
@@ -181,7 +204,10 @@ Ext.define('PBExpUse.controller.Form', {
 			if (msg) {
 				msg +="<br/>";
 			}
-			var lbl = ifield[a].getFieldLabel();
+			var lbl = ifield[a].errLabel;
+			if (!lbl) {
+				lbl = ifield[a].getFieldLabel();
+			}
 			var pos = lbl.indexOf("<font");
 			if(pos<0) {
 				pos = lbl.length;
@@ -189,20 +215,20 @@ Ext.define('PBExpUse.controller.Form', {
 			msg += i+"."+lbl.substring(0,pos);
 			i++;
 		}
-		
-		return msg;
+
+		return {msg:msg,i:i};
 	},
 	
 	send:function() {
-		var form = this.getMainForm();
+		var me = this;
+//		var form = this.getMainForm();
 		
-		if (validForm(form)) {
-			if(this.validForm(false,'doSend')){
-				PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doSend', MODULE_EXP);
-			}
+		var msg = me.validForm(false);
+		if (!msg) {
+			PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doSend', MODULE_EXP);
 		} else {
-			var msg = this.listInvalidField(form);
 			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
+			return;
 		}
 	},
 	
@@ -360,21 +386,14 @@ Ext.define('PBExpUse.controller.Form', {
 	},
 	
 	saveDraft:function() {
-		var form = this.getMainForm();
+		var me = this;
 	
-		if(!validForm(form)){
-			var msg = this.listInvalidField(form);			
-			
+		var msg = me.validForm(true);
+		if (msg) {
 			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
 			return;
 		}
-	
-		if (!this.validForm(true)) {
-			return;
-		}
-	
-		var me = this;
-	
+
 		var grid = me.getMainGrid();
 		
 		var myMask = new Ext.LoadMask({
@@ -387,11 +406,11 @@ Ext.define('PBExpUse.controller.Form', {
 		var params;
 		try {
 			params = me.prepareParams();
-			} catch (err) {
-				console.error(err);
-				myMask.hide();
-				return;
-			}
+		} catch (err) {
+			console.error(err);
+			myMask.hide();
+			return;
+		}
 		
 		Ext.Ajax.request({
 		    url:me.URL+"/save",
@@ -404,7 +423,16 @@ Ext.define('PBExpUse.controller.Form', {
 			   	if (json.success) {
 			   		var id = json.data.id;
 			   		me.getHidId().setValue(id);
-			   		me.getMainForm().setTitle('Edit : <font color="red">'+id+"</font>");
+			   		me.getHidStatus().setValue(json.data.status);
+			   		me.getMainForm().setTitle(PB.Label.m.edit+' : <font color="red">'+id+"</font>");
+			   		
+			   		var fileStore = me.getUploadGrid().getStore(); 
+					fileStore.getProxy().api.read = ALF_CONTEXT + "/exp/use/file/list";
+					fileStore.getProxy().extraParams = {
+					    id:id
+					}
+					fileStore.load();
+			   		
 			   		me.refreshGrid();
 			   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_EXP, {msg:'ID:'+id, scope:me});
 			   	} else {
@@ -499,15 +527,13 @@ Ext.define('PBExpUse.controller.Form', {
 	},
 	
 	finish:function() {
-		var form = this.getMainForm();
-		
-		if (validForm(form)) {
-			if(this.validForm(false,'doFinish')){
-				PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doFinish', MODULE_EXP);
-			}
+		var me = this;
+		var msg = me.validForm(false);
+		if (!msg) {
+			PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doFinish', MODULE_EXP);
 		} else {
-			var msg = this.listInvalidField(form);
 			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
+			return;
 		}
 	},
 	
@@ -622,14 +648,11 @@ Ext.define('PBExpUse.controller.Form', {
 		
 		var me = this;
 		
-		var form = me.getMainForm();
-		
-		if(!validForm(form)){
-			var msg = this.listInvalidField(form);
-			
+		var msg = me.validForm(false);
+		if (msg) {
 			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
 			return;
-		}		
+		}
 		
 		var grid = me.getMainGrid();
 		
@@ -644,11 +667,11 @@ Ext.define('PBExpUse.controller.Form', {
 		
 		try {
 			params = me.prepareParams();
-			} catch (err) {
-				console.log(err);
-				myMask.hide();
-				return;
-			}
+		} catch (err) {
+			console.log(err);
+			myMask.hide();
+			return;
+		}
 			
 		Ext.Ajax.request({
 		    url:me.URL+"/preview",
@@ -727,18 +750,25 @@ Ext.define('PBExpUse.controller.Form', {
 	
 	selectReqByCallBack:function(id, rec) {
 		var tab = this.targetPanel;
-		setValue(tab, 'reqBy', rec.get('emp_id'));
-		setValue(tab, 'reqByName', rec.get('first_name') + ' ' + rec.get('last_name'));
+		setValue(tab, 'reqBy', rec.get('code'));
+		setValue(tab, 'reqByName', rec.get('fname') + ' ' + rec.get('lname'));
 		
-		var mphone = rec.get("mobile_phone")!=null ? rec.get("mobile_phone") : "";
-		var wphone = rec.get("work_phone")!=null ? rec.get("work_phone") : "";
+		var mphone = rec.get("mphone")!=null ? rec.get("mphone") : "";
+		var wphone = rec.get("wphone")!=null ? rec.get("wphone") : "";
 		var comma = (mphone!="" && wphone!="") ? "," : "";
 		
 		setValue(tab, 'reqTelNo', wphone+comma+mphone);
 		
-		setValue(tab, 'reqByDept', rec.get('pos_name'));
-		setValue(tab, 'reqBu', rec.get('org_desc'));
-		setValue(tab, 'reqOuName', rec.get('section_desc'));
+		setValue(tab, 'reqByDept', rec.get('position'));
+		setValue(tab, 'reqBu', rec.get('org_name'));
+		setValue(tab, 'reqOuName', rec.get('utype'));
+		
+		var cmbOldAV = tab.up("tabpanel").down("combo[name=avCode]");
+		var store = cmbOldAV.getStore();
+		store.load({
+			params:{r:rec.get('code')}
+		});
+
 	},	
 	
 	selectReqBy:function() {
@@ -821,9 +851,22 @@ Ext.define('PBExpUse.controller.Form', {
 		var me = this;
 		
 		var vi = parseInt(v);
+//		console.log(vi);
 		
 		me.getRadBankType0().setDisabled(vi!=0 && vi!=2);
 		me.getRadBankType1().setDisabled(me.getRadBankType0().disabled);
+		if (me.getRadBankType0().disabled) {
+			me.getRadBankType0().setValue(false);
+			me.getCmbBank().setValue(null);
+			me.getRadBankType1().setValue(false);
+		} else {
+			if(!me.getRadBankType0().getValue() && !me.getRadBankType1().getValue()) {
+				me.getRadBankType0().setValue(true);
+			}
+		}
+		
+//		console.log("v="+me.getRadBankType0().disabled +","+ me.getRadBankType0().getValue() +","+ !me.getRadBankType1().getValue());
+		me.getCmbBank().setDisabled(me.getRadBankType1().disabled || (me.getRadBankType0().getValue() && !me.getRadBankType1().getValue()));
 		
 		var i=1;
 		b = vi!=i;
@@ -884,7 +927,65 @@ Ext.define('PBExpUse.controller.Form', {
 				}).show();
 		    }
 		});		
-	}
+	},
 	
+	paymentDoc:function() {
+		var me = this;
+
+		var msg = me.validForm(false);
+		if (msg) {
+			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
+			return;
+		}
+		
+		var grid = me.getMainGrid();
+		
+		var myMask = new Ext.LoadMask({
+			target:me.getMain(), 
+			msg:"Please wait..."
+		});
+		
+		myMask.show();
+		
+		var params;
+		
+		try {
+			params = me.prepareParams();
+		} catch (err) {
+			console.log(err);
+			myMask.hide();
+			return;
+		}
+			
+		Ext.Ajax.request({
+		    url:me.URL+"/paymentDoc",
+		    method: "POST",
+		    params: params,
+		    success: function(response){
+		  	  
+			  	var json = Ext.decode(response.responseText);
+				  
+			   	if (json.success) {
+					window.open(me.URL+"/paymentDoc?id="+json.data[0].id,"_blank");
+			   	} else {
+			   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_EXP);
+			   	}
+			   	 
+		   	 	myMask.hide();
+		
+		    },
+		    failure: function(response, opts){
+		    	try {
+		    		var json = Ext.decode(response.responseText);
+			    	PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY+" ("+json.message+")", MODULE_EXP);
+		    	}
+		    	catch (err) {
+			    	alert(response.responseText);
+		    	}
+			    myMask.hide();
+		    },
+		    headers: getAlfHeader()
+		});
+	}
 	
 });

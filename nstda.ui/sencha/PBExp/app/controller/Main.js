@@ -432,7 +432,8 @@ Ext.define('PBExp.controller.Main', {
 		      url:ALF_CONTEXT+'/exp/wf/task/list',
 		      method: "GET",
 		      params: {
-		    	  id : id
+		    	  id : id,
+		    	  lang:getLang()
 		      },
 		      success: function(response) {
 				  var data = Ext.decode(response.responseText).data[0];
@@ -455,14 +456,16 @@ Ext.define('PBExp.controller.Main', {
 		// Path
 		var store = dlg.items.items[0].items.items[1].getStore(); 
 		store.getProxy().extraParams = {
-			id : id
+			id : id,
+			lang : getLang()
 		}
 		store.load();
 		
 		// History
 		store = dlg.items.items[1].getStore();
 		store.getProxy().extraParams = {
-		   	id : id
+		   	id : id,
+		   	lang : getLang()
 		};
 		store.load();
 		

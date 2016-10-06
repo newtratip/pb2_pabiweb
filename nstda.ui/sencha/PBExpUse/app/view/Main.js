@@ -12,7 +12,14 @@ Ext.define('PBExpUse.view.Main', {
 		
 		var items = [];
 		
-		var store = Ext.create('PBExpUse.store.GridStore',{storeId:'expUseGridStore',autoLoad:true});
+		var store = Ext.create('PBExpUse.store.GridStore',{
+			storeId:'expUseGridStore',
+			autoLoad:false
+		});
+		
+		store.getProxy().extraParams = {
+			lang : getLang()
+		}
 		
 		if (!ID) {
 			items.push({

@@ -3,7 +3,7 @@ package pb.repo.admin.constant;
 public class AdminConstant {
 	public static final StringBuffer CHANGE_LOG = new StringBuffer();
 	
-	public static final String VERSION = "1.0.73";
+	public static final String VERSION = "1.0.80";
 	
     static {
 //		CHANGE_LOG.append("  - Interface : Use user_id to call service\n");
@@ -11,7 +11,47 @@ public class AdminConstant {
 //		CHANGE_LOG.append("  - Workflow : Admin Adhoc Task\n");
 //		CHANGE_LOG.append("  - Workflow History : Action and task : Multiple Languages\n");
 //		CHANGE_LOG.append("  - PR Form : Additional PR : Get Old Committee as default\n");
-    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (22/09/2016)\n");
+//		CHANGE_LOG.append("  - AV : Add Field reason\n");
+    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (06/10/2016)\n");
+		CHANGE_LOG.append("  - PR,AV,EX Pdf : Budget Source\n");
+		CHANGE_LOG.append("  - AV,EX Interface : Parameter Approve Date = now\n");
+		CHANGE_LOG.append("  - AV,EX Pdf : Old AV : Add Field Objective\n");
+		CHANGE_LOG.append("  - PR,AV,EX Pdf : Bold Label\n");
+		CHANGE_LOG.append("  - AV,EX Pdf : Sign Last Approver\n");
+    	CHANGE_LOG.append("\nV.1.0.79 --- (05/10/2016)\n");
+		CHANGE_LOG.append("  - EX Interface : Change parameter advance_expense_id.id to advance_expense_number\n");
+		CHANGE_LOG.append("  - PR Interface : Add History\n");
+    	CHANGE_LOG.append("\nV.1.0.78 --- (04/10/2016)\n");
+		CHANGE_LOG.append("  - EX : Payment Document\n");
+    	CHANGE_LOG.append("\nV.1.0.77 --- (03/10/2016)\n");
+		CHANGE_LOG.append("  - AV : Old AV : Clear Reason Field if change Requester\n");
+		CHANGE_LOG.append("  - EX : Item : Select Activity Group before show Activity List\n");
+		CHANGE_LOG.append("  - Workflow History : 2 Languages\n");
+		CHANGE_LOG.append("  - EX : Duplicated Reviewer\n");
+		CHANGE_LOG.append("  - EX : Warn : No Detail\n");
+    	CHANGE_LOG.append("\nV.1.0.76 --- (30/09/2016)\n");
+		CHANGE_LOG.append("  - System Config : PCM_REQ_TOP_GROUP, PCM_ORD_TOP_GROUP,EXP_BRW_TOP_GROUP, EXP_USE_TOP_GROUP\n");
+		CHANGE_LOG.append("  - Workflow : Add Fields status_th\n");
+		CHANGE_LOG.append("  - Workflow History : Add Fields action_th and task_th\n");
+		CHANGE_LOG.append("  - Folder Path Name : Use A.D. instead of B.E.\n");
+		CHANGE_LOG.append("  - AV,EX : Old AV : Query view pb2_av_outstanding_view\n");
+    	CHANGE_LOG.append("\nV.1.0.75 --- (29/09/2016)\n");
+		CHANGE_LOG.append("  - PR,AV,EX : Cannot Change Requester\n");
+		CHANGE_LOG.append("  - Workflow History Interface\n");
+		CHANGE_LOG.append("  - EX Pdf : Adjust\n");
+    	CHANGE_LOG.append("\nV.1.0.74 --- (28/09/2016)\n");
+		CHANGE_LOG.append("  - AV,EX : Copy : Missing fund_id\n");
+		CHANGE_LOG.append("  - EX Interface : Create EX : not send bank if pay_type is 0 or 2\n");
+		CHANGE_LOG.append("  - EX Pdf : not show bank radio value if pay_type is 0 or 2\n");
+		CHANGE_LOG.append("  - EX Form : not enable bank controls if pay_type is 0 or 2\n");
+		CHANGE_LOG.append("  - AV : Change Old AV Columns' Labels\n");
+		CHANGE_LOG.append("  - AV Pdf : Before and After Save Draft are difference\n");
+		CHANGE_LOG.append("  - AV : Change Old AV Columns' Labels\n");
+		CHANGE_LOG.append("  - EX Pdf : not show supplier name\n");
+		CHANGE_LOG.append("  - AV,EX Form : Set Status Field after Save Draft\n");
+		CHANGE_LOG.append("  - Budget Source Dialog : Remove Columne Cost Center\n");
+		CHANGE_LOG.append("  - AV Interface : Wrong date_back value\n");
+    	CHANGE_LOG.append("\nV.1.0.73 --- (22/09/2016)\n");
 		CHANGE_LOG.append("  - EX : Workflow Form : Pay Type Label\n");
 		CHANGE_LOG.append("  - EX : Edit Attached Files Description\n");
 		CHANGE_LOG.append("  - AV : Gen Pdf\n");

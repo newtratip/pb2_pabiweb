@@ -56,7 +56,7 @@
 
     
 	<select id="listWorkflowPath" resultType="map" parameterType="string">    
-	    SELECT CONCAT('ผู้อนุมัติขั้นที่ ',LEVEL) AS LEVEL,TRIM(BOTH ',' FROM REVIEWER_USER) AS U,TRIM(BOTH ',' FROM REVIEWER_GROUP) AS G,LEVEL AS ORDERVAL
+	    SELECT CONCAT(#{reviewer},' ',LEVEL) AS LEVEL,TRIM(BOTH ',' FROM REVIEWER_USER) AS U,TRIM(BOTH ',' FROM REVIEWER_GROUP) AS G,LEVEL AS ORDERVAL
 		FROM pb2_main_workflow_reviewer
 		WHERE master_id=#{id}
 		ORDER BY ORDERVAL

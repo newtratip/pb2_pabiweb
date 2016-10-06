@@ -50,6 +50,8 @@
         <result property="createdBy" column="created_by"/>
         <result property="updatedTime" column="updated_time"/>
         <result property="updatedBy" column="updated_by"/>
+        <result property="wfBy" column="wf_by"/>
+        <result property="wfByTime" column="wf_by_time"/>
         <result property="wfStatus" column="wf_status"/>
         <result property="rewarning" column="rewarning"/>
         <result property="waitingDay" column="waiting_day"/>
@@ -59,6 +61,7 @@
         SELECT
 		    REQ.ID, total, total_cnv, CASE WHEN #{lang}='' THEN mm.flag2 ELSE mm.name END objective_type, objective, 
 		    	budget_cc, budget_cc_type, CASE WHEN #{lang}='' THEN b.name ELSE b.name_th END budget_cc_name,
+		    	WF_BY, WF_BY_TIME,
 				WF_STATUS, STATUS, reason, currency,
 				cost_control_id, cost_control_type_id, 
 				location, 
@@ -82,6 +85,7 @@
 		    COUNT(*) OVER() totalRowCount
 		FROM
 		    (SELECT ID, total, total_cnv, objective_type, objective, budget_cc, budget_cc_type, contract_date, currency,
+		    	NULL WF_BY, NULL WF_BY_TIME,
 				NULL WF_STATUS, STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				WORKFLOW_INS_ID, NULL TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
@@ -114,9 +118,11 @@
 			WHERE STATUS='D' AND CREATED_BY=#{loginE}
  			UNION
 			SELECT ID, M.total, M.total_cnv, objective_type, objective, budget_cc, budget_cc_type, contract_date, currency,
+				W.BY WF_BY,
 				CASE WHEN (W.STATUS IS NULL) THEN ''
-				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
-				END WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
+				ELSE to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI') 
+				END WF_BY_TIME,
+				W.STATUS${lang} WF_STATUS, M.STATUS, reason, cost_control_id, cost_control_type_id, location, prweb_method_id, method_cond2, method_cond2_rule, method_cond2_dtl,
 				M.WORKFLOW_INS_ID, TASK_ID,
 				UPDATED_TIME, UPDATED_BY, CREATED_TIME, CREATED_BY,
 				(select CASE 
@@ -147,7 +153,18 @@
 			FROM pb2_pcm_req M 
 			LEFT JOIN 
 			(
-			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
+			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, STATUS_TH,
+			CASE 
+			WHEN #{lang}='' THEN 
+				e.first_name
+			ELSE
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,first_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.first_name)
+			END as
+			BY, BY_TIME, TASK_ID 
 			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
 			WHERE TYPE='PCM_REQ' AND 
 			w.ID IN (
@@ -482,66 +499,28 @@
     </select>
     
     <select id="getFirstApprover" parameterType="string" resultType="map">
-		SELECT coalesce((select value
-				from pb2_ext_ir_translation
-				where name = 'res.partner.title,name'
-				and type = 'model' and lang='th_TH'
-				and res_id = e.title_id), t.name) 
-				||' '||
-				coalesce((select value
-				from pb2_ext_ir_translation
-				where name = 'hr.employee,first_name'
-				and type = 'model' and lang='th_TH'
-				and res_id = e.id), e.first_name)
-				||' '||
-				coalesce((select value
-				from pb2_ext_ir_translation
-				where name = 'hr.employee,last_name'
-				and type = 'model' and lang='th_TH'
-				and res_id = e.id), e.last_name)
-		approver
-		, h.time
+		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
-		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
-		LEFT JOIN pb2_ext_res_partner_title t on e.title_id = t.id
+		LEFT JOIN pb2_hr_employee_view e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
 		WHERE w.type='PCM_REQ'
 		AND r.master_id=#{id}
 		AND r.level=1
-		AND h.action='อนุมัติ'
+		AND h.action='Approve'
 		LIMIT 1
     </select>
     
     <select id="getLastApprover" parameterType="string" resultType="map">
-		SELECT
-				coalesce((select value
-				from pb2_ext_ir_translation
-				where name = 'res.partner.title,name'
-				and type = 'model' and lang='th_TH'
-				and res_id = e.title_id), t.name) 
-				||' '||
-				coalesce((select value
-				from pb2_ext_ir_translation
-				where name = 'hr.employee,first_name'
-				and type = 'model' and lang='th_TH'
-				and res_id = e.id), e.first_name)
-				||' '||
-				coalesce((select value
-				from pb2_ext_ir_translation
-				where name = 'hr.employee,last_name'
-				and type = 'model' and lang='th_TH'
-				and res_id = e.id), e.last_name)
-		approver, h.time
+		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
-		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
-		LEFT JOIN pb2_ext_res_partner_title t on e.title_id = t.id
+		LEFT JOIN pb2_hr_employee_view e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
 		WHERE w.type='PCM_REQ'
 		AND r.master_id=#{id}
 		AND r.level=(select max(level) from pb2_main_workflow_reviewer where master_id=#{id})
-		AND h.action='อนุมัติ'
+		AND h.action='Approve'
 		LIMIT 1
     </select>
     

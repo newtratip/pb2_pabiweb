@@ -21,6 +21,9 @@
 	    <if test="actGrpId != null">
 	    	AND activity_group_id=#{actGrpId}
    		</if>  
+	    <if test="actGrpId == null">
+	    	AND 1=0
+   		</if>  
 	    ORDER BY ${orderBy}
     </select>
     

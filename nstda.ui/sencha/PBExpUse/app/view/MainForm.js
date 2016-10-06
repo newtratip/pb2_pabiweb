@@ -32,6 +32,12 @@ Ext.define('PBExpUse.view.MainForm', {
 	            hidden:true
 			},{
 	            xtype: 'button',
+	            text: "Payment Doc",
+	            action: "paymentDoc",
+	            iconCls: "icon_view",
+	            margin:'0 2 0 0'
+			},{
+	            xtype: 'button',
 	            text: "Preview",
 	            action: "preview",
 	            iconCls: "icon_view",

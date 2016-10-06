@@ -1227,7 +1227,8 @@ Ext.define('PBPcm.controller.Main', {
 		      url:ALF_CONTEXT+'/pcm/wf/task/list',
 		      method: "GET",
 		      params: {
-		    	  id : id
+		    	  id : id,
+		    	  lang:getLang()
 		      },
 		      success: function(response) {
 				  var data = Ext.decode(response.responseText).data[0];

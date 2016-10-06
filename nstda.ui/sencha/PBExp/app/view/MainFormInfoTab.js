@@ -37,26 +37,32 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		var lbw = 160;
 		
 		var ocolumns = [{
-        	dataIndex: 'name',
-        	text: '', 
-        	flex:1
+	        dataIndex: 'ord',
+	    	text: PBExp.Label.n.oweOrder, 
+	    	width:80,
+	    	align:'center'
 	    },{
 	        dataIndex: 'number',
         	text: PBExp.Label.n.oweDocNo, 
-        	flex:1,
+        	width:115,
         	align:'center'
+	    },{
+	        dataIndex: 'name',
+        	text: PBExp.Label.n.oweName, 
+        	flex:1,
+        	align:'left'
 	    },{
 	    	xtype:'numbercolumn',
 	        dataIndex: 'waitamt',
         	text: PBExp.Label.n.oweWait, 
-        	flex:1,
+        	width:100,
         	align:'right',
         	format:DEFAULT_MONEY_FORMAT        		
 	    },{
 	    	xtype:'numbercolumn',
 	        dataIndex: 'balance',
         	text: PBExp.Label.n.oweBalance, 
-        	flex:1,
+        	width:100,
         	align:'right',
         	format:DEFAULT_MONEY_FORMAT
 	    }];
@@ -270,6 +276,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 				height:140,
 				items:[{
 					region:'center',
+					itemId:'grdOldAV',
 					xtype:'grid',
 					columns:ocolumns,
 					store:ogridStore
@@ -418,6 +425,9 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		
 		Ext.apply(ogridStore, {pageSize:PAGE_SIZE});
 		ogridStore.load({
+			params:{
+				r:replaceIfNull(me.rec.req_by, null)
+			},
 			callback:function(r) {
 				me.fireEvent("oldStoreLoad",r);
 			}

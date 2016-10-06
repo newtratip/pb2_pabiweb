@@ -130,7 +130,8 @@ Ext.define('PBPcmOrd.controller.Main', {
 			      url:me.URL+"/get",
 			      method: "GET",
 			      params: {
-			    	  id : ID
+			    	  id : ID,
+			    	  lang : getLang()
 			      },
 			      success: function(response){
 			    	  
@@ -155,7 +156,8 @@ Ext.define('PBPcmOrd.controller.Main', {
 		var store = me.getMainGrid().getStore();
 		
 		var params = {
-			s : me.getTxtSearch().getValue()
+			s : me.getTxtSearch().getValue(),
+			lang:getLang()
 		}
 		
 		var fields = {};
@@ -291,7 +293,8 @@ Ext.define('PBPcmOrd.controller.Main', {
 		      url:ALF_CONTEXT+'/pcm/ord/wf/task/list',
 		      method: "GET",
 		      params: {
-		    	  id : id
+		    	  id : id,
+		    	  lang:getLang()
 		      },
 		      success: function(response) {
 				  var data = Ext.decode(response.responseText).data[0];

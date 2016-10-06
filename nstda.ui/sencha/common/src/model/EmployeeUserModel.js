@@ -7,8 +7,11 @@ Ext.define('PB.model.common.EmployeeUserModel', {
     		 , {name : 'lname'}
     		 , {name : 'utype'}
     		 , {name : 'org'}
+    		 , {name : 'org_name'}
     		 , {name : 'position'}
     		 , {name : 'position_id'}
+    		 , {name : 'mphone'}
+    		 , {name : 'wphone'}
     		 , {name : 'desttype'}
     		 , {name : 'destination'}
     		 , {name : 'route'}

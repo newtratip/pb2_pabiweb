@@ -101,6 +101,9 @@ Import-Package: com.github.dynamicextensionsalfresco.actions.annotations
  ,org.apache.xerces.parsers
  ,org.xml.sax
  ,org.xml.sax.helpers
+ ,org.apache.poi.ss.usermodel
+ ,org.apache.poi.hssf.util
+ ,org.apache.poi.hssf.usermodel
 Bundle-SymbolicName: pb-pcm-repo-dyna
 Bundle-ClassPath: .
  ,lib/sun.misc.BASE64Decoder.jar
@@ -113,3 +116,6 @@ Bundle-ClassPath: .
  ,lib/fastjson-1.2.5.jar
  ,lib/xmlrpc-1.1.1.jar
  ,lib/xmlrpc-client-1.1.1.jar
+ ,lib/poi-3.13.jar
+ ,lib/poi-ooxml-3.13.jar
+ ,lib/poi-scratchpad3.13.jar

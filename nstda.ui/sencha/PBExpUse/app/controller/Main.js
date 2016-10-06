@@ -54,10 +54,10 @@ Ext.define('PBExpUse.controller.Main', {
 				edit : me.edit,
 				del : me.del,
 				search : me.search,
-					showDiagram : me.showDiagram,
-					gotoFolder : me.gotoFolder,
-					viewDetail : me.viewDetail,
-					viewHistory : me.viewHistory
+				showDiagram : me.showDiagram,
+				gotoFolder : me.gotoFolder,
+				viewDetail : me.viewDetail,
+				viewHistory : me.viewHistory
 			}
 		});
 	
@@ -161,7 +161,8 @@ Ext.define('PBExpUse.controller.Main', {
 			      url:me.URL+"/get",
 			      method: "GET",
 			      params: {
-			    	  id : ID
+			    	  id : ID,
+			    	  lang : getLang()
 			      },
 			      success: function(response){
 			    	  
@@ -186,7 +187,8 @@ Ext.define('PBExpUse.controller.Main', {
 		var store = me.getMainGrid().getStore();
 		
 		var params = {
-			s : me.getTxtSearch().getValue()
+			s : me.getTxtSearch().getValue(),
+			lang : getLang()
 		}
 		
 		var fields = {};
@@ -432,7 +434,8 @@ Ext.define('PBExpUse.controller.Main', {
 		      url:ALF_CONTEXT+'/exp/use/wf/task/list',
 		      method: "GET",
 		      params: {
-		    	  id : id
+		    	  id : id,
+		    	  lang:getLang()
 		      },
 		      success: function(response) {
 				  var data = Ext.decode(response.responseText).data[0];
@@ -455,14 +458,16 @@ Ext.define('PBExpUse.controller.Main', {
 		// Path
 		var store = dlg.items.items[0].items.items[1].getStore(); 
 		store.getProxy().extraParams = {
-			id : id
+			id : id,
+		    lang:getLang()
 		}
 		store.load();
 		
 		// History
 		store = dlg.items.items[1].getStore();
 		store.getProxy().extraParams = {
-		   	id : id
+		   	id : id,
+		   	lang:getLang()
 		};
 		store.load();
 		

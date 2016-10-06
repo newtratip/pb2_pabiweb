@@ -126,7 +126,7 @@ public class EndRemoteExecutor implements ExecutionListener {
 					mainWorkflowService.setModuleService(pcmOrdService);
 					
 					String curUser = (String)execution.getVariable("reqBy");
-					String taskKey = MainWorkflowConstant.TN_REQUESTER_CAPTION;
+					String taskKey = MainWorkflowConstant.TN_PREPARER;
 					if (finalAction.equals(MainWorkflowConstant.TA_CANCEL)) {
 						model.setStatus(PcmOrdConstant.ST_CANCEL_BY_PCM);
 						model.setWaitingLevel(null);

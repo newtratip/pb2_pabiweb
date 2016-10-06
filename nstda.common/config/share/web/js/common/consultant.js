@@ -57,22 +57,23 @@ function renderConsultant(Id,v,n,width,vv){
 			},
 			onTrigger2Click:function(evt) {
 				Ext.create("PB.view.common.SearchUserDlg",{
-					title:'ค้นหา',
+					title:PB.Label.m.search,
 					targetPanel:panel,
 					callback:this.selectCallBack
 				}).show();
 				
 			},
 			selectCallBack:function(id, rec) {
-				setValue(this.targetPanel, Id+'-tgr', rec.get('emp_id'));
+				setValue(this.targetPanel, Id+'-tgr', rec.get('code'));
 				setValue(this.targetPanel, Id+'-desc', 
-					rec.get('first_name') 
-					+ ' ' + rec.get('last_name')
-					+ ' ' + rec.get('pos_name')
+					rec.get('title') 
+					+ ' ' + rec.get('fname')
+					+ ' ' + rec.get('lname')
+					+ ' ' + rec.get('position')
 //					+ ' ' + rec.get('org_desc')
 //					+ ' ' + rec.get('section_desc')
 				);
-				field.value = rec.get('emp_id');
+				field.value = rec.get('code');
 			},
 			listeners:{
 				boxready:function() {

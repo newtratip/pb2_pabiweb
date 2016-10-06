@@ -118,10 +118,10 @@ public class InterfaceService {
 	        map.put("number",data.get("av_id"));
 	        map.put("employee_code",data.get("req_by"));
 	        map.put("preparer_code",data.get("created_by"));
-	        map.put("date",CommonDateTimeUtil.convertToOdooFieldDate(data.get("by_time")!=null ? (Timestamp) data.get("by_time") : CommonDateTimeUtil.now()));
+	        map.put("date",CommonDateTimeUtil.convertToOdooFieldDate(CommonDateTimeUtil.now()));
 //	        map.put("write_date",CommonDateTimeUtil.convertToOdooFieldDateTime((Timestamp) data.get("updated_time")));
 	        map.put("advance_type",data.get("objective_type"));
-	        map.put("date_back",CommonDateTimeUtil.convertToOdooFieldDate(data.get("cost_control_to")!=null ? (Timestamp) data.get("cost_control_to") : CommonDateTimeUtil.now()));
+	        map.put("date_back",CommonDateTimeUtil.convertToOdooFieldDate(data.get("date_back")!=null ? (Timestamp) data.get("date_back") : CommonDateTimeUtil.now()));
 	        map.put("name", data.get("objective"));
 	        map.put("note", data.get("reason")!=null ? data.get("reason") : "");
 	        map.put("apweb_ref_url", NodeUtil.trimNodeRef((String)data.get("doc_ref")));
@@ -283,7 +283,7 @@ public class InterfaceService {
 		return success ? "OK" : msgs+":"+map.toString();
 	}	
 	
-	public String createAP(ExpUseModel model) throws Exception {
+	public String createEX(ExpUseModel model) throws Exception {
 		log.info("interface : createAP");
 		
 		Boolean success = false;
@@ -310,15 +310,13 @@ public class InterfaceService {
 	        map.put("number",data.get("ap_id"));
 	        map.put("employee_code",data.get("req_by"));
 	        map.put("preparer_code",data.get("created_by"));
-	        map.put("date",CommonDateTimeUtil.convertToOdooFieldDate(data.get("by_time")!=null ? (Timestamp) data.get("by_time") : CommonDateTimeUtil.now()));
+	        map.put("date",CommonDateTimeUtil.convertToOdooFieldDate(CommonDateTimeUtil.now()));
 //	        map.put("write_date",CommonDateTimeUtil.convertToOdooFieldDateTime((Timestamp) data.get("updated_time")));
 	        map.put("advance_type","");
 	        map.put("date_back",CommonDateTimeUtil.convertToOdooFieldDate(data.get("cost_control_to")!=null ? (Timestamp) data.get("cost_control_to") : CommonDateTimeUtil.now()));
 	        map.put("name", data.get("objective"));
 	        map.put("note", "");
 	        map.put("apweb_ref_url", NodeUtil.trimNodeRef((String)data.get("doc_ref")));
-	        map.put("receive_method", receiveMethodForInf((String)data.get("bank_type")));
-	        map.put("employee_bank_id.id", data.get("bank")!=null ? data.get("bank") : "");
 	        
 	        String payType = (String)data.get("pay_type");
 	        String payTo = null;
@@ -350,10 +348,12 @@ public class InterfaceService {
 	        	supText = "";
 	        }
 	        
+	        map.put("receive_method", payType.equals("0") || payType.equals("2") ? receiveMethodForInf((String)data.get("bank_type")) : "");
+	        map.put("employee_bank_id.id", data.get("bank")!=null ? data.get("bank") : "");
 	        map.put("pay_to", payTo);
 	        map.put("supplier_text", supText);
 	        map.put("is_advance_clearing", avClear);
-	        map.put("advance_expense_id.id", avId);
+	        map.put("advance_expense_number", avId);
 	        
 	        for(String key : map.keySet()) {
 	        	log.info(" - "+key+":"+map.get(key));
@@ -523,7 +523,8 @@ public class InterfaceService {
 		
 		if (r.equals("0")) {
 			result = "salary_bank";
-		} else {
+		} else
+		{
 			result = "other_bank";
 		}
 			

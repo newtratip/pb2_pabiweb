@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.exp.constant.ExpUseConstant;
 import pb.repo.exp.model.ExpUseModel;
 import pb.repo.exp.service.ExpUseService;
@@ -70,10 +71,10 @@ public class ExpUseInvocationHandler
 			if (action.equals("2")) {
 				statusDesc = "Cancel";
 				type = ExpUseConstant.ST_CANCEL_BY_FIN;
-			} else
-			if (action.equals("3")) {
-				statusDesc = "Paid";
-				type = ExpUseConstant.ST_PAID_BY_FIN;
+//			} else
+//			if (action.equals("3")) {
+//				statusDesc = "Paid";
+//				type = ExpUseConstant.ST_PAID_BY_FIN;
 			} else {
     			result.put("success",false);
     			result.put("message","Invalid Action : "+action);
@@ -87,7 +88,7 @@ public class ExpUseInvocationHandler
 	    	expUseService.update(expUseModel);
     		
 	    	mainWorkflowService.setModuleService(expUseService);
-			mainWorkflowService.saveWorkflowHistory(null, by, "การเงิน" ,  (String)params.get("comment"), statusDesc, null,  apNo, null, type);
+			mainWorkflowService.saveWorkflowHistory(null, by, MainWorkflowConstant.TN_FINANCE,  (String)params.get("comment"), statusDesc, null,  apNo, null, type);
 			
 			result.put("success",true);
 			result.put("message","Success");
@@ -101,4 +102,39 @@ public class ExpUseInvocationHandler
         return result;
     }
     
+    public Map<String, Object> history(Map<String, Object> params)
+    {
+    	log.info("params:"+params.toString());
+    	
+    	Map<String, Object> result = new HashMap<String, Object>();
+    	
+    	try {
+	    	String exNo = (String)params.get("exNo");
+	    	final String by = (String)params.get("by");
+	    	String task = (String)params.get("task");
+	    	String taskTh = (String)params.get("task_th");
+	    	String status = (String)params.get("status");
+	    	String statusTh = (String)params.get("status_th");
+	    	
+	    	ExpUseModel expUseModel = expUseService.get(exNo);
+			if (expUseModel==null) {
+    			result.put("success",false);
+    			result.put("message","Invalid EX NO. : "+exNo);
+    			return result;
+			}
+    		
+			mainWorkflowService.saveWorkflowHistory(exNo, by, task, taskTh, status, statusTh, (String)params.get("comment"));
+			
+			result.put("success",true);
+			result.put("message","Success");
+    	} catch (Exception ex) {
+    		log.error(ex);
+    		ex.printStackTrace();
+			result.put("success",false);
+			result.put("message","Error : "+ex.toString());
+    	}
+    	
+        return result;
+    }
+
 }

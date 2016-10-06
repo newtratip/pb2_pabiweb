@@ -166,4 +166,8 @@ public class MainMasterConstant {
 	public static final String SCC_EXP_BRW_SEARCH_GRID_ORDER_BY	= "EXP_BRW_SEARCH_GRID_ORDER_BY";
 	public static final String SCC_EXP_USE_SEARCH_GRID_ORDER_BY	= "EXP_USE_SEARCH_GRID_ORDER_BY";
 
+	public static final String SCC_EXP_BRW_TOP_GROUP	= "EXP_BRW_TOP_GROUP";
+	public static final String SCC_EXP_USE_TOP_GROUP	= "EXP_USE_TOP_GROUP";
+	public static final String SCC_PCM_REQ_TOP_GROUP	= "PCM_REQ_TOP_GROUP";
+	public static final String SCC_PCM_ORD_TOP_GROUP	= "PCM_ORD_TOP_GROUP";
 }

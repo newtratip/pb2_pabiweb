@@ -38,6 +38,8 @@ public class ExpBrwModel extends SubModuleModel {
 	Integer rewarning;
 	Integer waitingDay;
 	String status;
+	String wfBy;
+	String wfByTime;
 	String wfStatus;
 	
 	List<ExpBrwDtlModel> dtlList;
@@ -48,6 +50,18 @@ public class ExpBrwModel extends SubModuleModel {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public String getWfBy() {
+		return wfBy;
+	}
+	public void setWfBy(String wfBy) {
+		this.wfBy = wfBy;
+	}
+	public String getWfByTime() {
+		return wfByTime;
+	}
+	public void setWfByTime(String wfByTime) {
+		this.wfByTime = wfByTime;
 	}
 	public String getWfStatus() {
 		return wfStatus;

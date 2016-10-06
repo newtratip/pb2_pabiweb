@@ -11,6 +11,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,7 +32,11 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
+import net.sf.jasperreports.engine.export.JRXlsExporter;
 import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -68,6 +73,7 @@ import pb.common.util.DocUtil;
 import pb.common.util.FolderUtil;
 import pb.common.util.ImageUtil;
 import pb.common.util.PersonUtil;
+import pb.common.util.StringUtil;
 import pb.repo.admin.constant.MainBudgetSrcConstant;
 import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
@@ -567,7 +573,7 @@ public class ExpUseService implements SubModuleService {
 		/*
 		 * Gen Doc in tmp folder
 		 */
-    	String fileName =  doGenDoc("ap", model);
+    	String fileName =  doGenDoc(ExpUseConstant.JR_EX, model);
 		String tmpDir = FolderUtil.getTmpDir();
     	String fullName = tmpDir + File.separator + fileName+".pdf"; // real code
     	File file = new File(fullName);
@@ -603,7 +609,7 @@ public class ExpUseService implements SubModuleService {
 		/*
 		 * Gen Doc in tmp folder
 		 */
-    	String fileName =  doGenDoc("ap", model);
+    	String fileName =  doGenDoc(ExpUseConstant.JR_EX, model);
 		String tmpDir = FolderUtil.getTmpDir();
     	String fullName = tmpDir + File.separator + fileName+".pdf"; 
     	File file = new File(fullName);
@@ -640,8 +646,8 @@ public class ExpUseService implements SubModuleService {
         	attendeeMap = new HashMap<String, Object>();
 			
         	attendeeMap.put("code", tmpAttendee.getCode());
-        	attendeeMap.put("name", tmpAttendee.getFname()+" "+tmpAttendee.getLname());
-        	attendeeMap.put("section", tmpAttendee.getUnitType());
+        	attendeeMap.put("name", StringUtil.replaceNBSP(tmpAttendee.getTitle()+" "+tmpAttendee.getFname()+" "+tmpAttendee.getLname()));
+        	attendeeMap.put("section", StringUtil.replaceNBSP(tmpAttendee.getUnitType()));
         	attendeeMap.put("position", tmpAttendee.getPosition());
 			
 			if (tmpAttendee.getType().equals(ExpUseAttendeeConstant.T_EMPLOYEE)) {
@@ -650,6 +656,8 @@ public class ExpUseService implements SubModuleService {
 				othList.add(attendeeMap);
 			}
         }
+        log.info("empList.size="+empList.size());
+        log.info("othList.size="+othList.size());
         
 		/*
 		 * Dtl
@@ -664,7 +672,7 @@ public class ExpUseService implements SubModuleService {
         	dtlMap.put("actGrp", tmpDtl.getActGrpName());
         	dtlMap.put("act", tmpDtl.getActName());
         	dtlMap.put("cond1", tmpDtl.getCondition1());
-        	dtlMap.put("amount", tmpDtl.getAmount().toString());
+        	dtlMap.put("amount", df.format(tmpDtl.getAmount()));
 			
         	dtlList.add(dtlMap);
         }
@@ -676,6 +684,7 @@ public class ExpUseService implements SubModuleService {
 		parameters.put("imgPath", CommonConstant.GP_REPORT_IMG_PATH);
 		
 		if (empList.size()>0) {
+			log.info("empList.size()>0");
 			parameters.put("EmpDataSource", new JRMapCollectionDataSource(new ArrayList<Map<String,?>>(empList)));
 		}
 		if (othList.size()>0) {
@@ -696,16 +705,16 @@ public class ExpUseService implements SubModuleService {
 		map.put("id", model.getId() != null ? model.getId() : "");
 		
 		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getReqBy());
-		map.put("reqBy", empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang));
-		map.put("reqOrg", empDtl.get("org_desc"+lang));
-		map.put("reqSection", empDtl.get("section_desc"+lang));
+		map.put("reqBy", StringUtil.replaceNBSP(empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang)));
+		map.put("reqOrg", StringUtil.replaceNBSP((String)empDtl.get("org_desc"+lang)));
+		map.put("reqSection", StringUtil.replaceNBSP((String)empDtl.get("section_desc"+lang)));
 		String mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
 		String wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
 		String comma = (!mphone.equals("") && !wphone.equals("")) ? "," : "";
 		map.put("reqPhone", wphone+comma+mphone);
 		
 		empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
-		map.put("createdBy", empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang));
+		map.put("createdBy", StringUtil.replaceNBSP(empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang)));
 		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
 		mphone = StringUtils.defaultIfEmpty((String)empDtl.get("mobile_phone"),"");
 		wphone = StringUtils.defaultIfEmpty((String)empDtl.get("work_phone"),"");
@@ -728,33 +737,36 @@ public class ExpUseService implements SubModuleService {
 		String budgetCcName = null;
 		if (model.getBudgetCcType().equals(MainBudgetSrcConstant.TYPE_PROJECT)) {
 			Map<String, Object> prjMap = adminProjectService.get(model.getBudgetCc());
-			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
-			budgetCcName = (String)prjMap.get("code")+ " - "+(String)prjMap.get("name")+ " ("+(String)fundMap.get("name")+")";			
+			budgetCcName = "["+prjMap.get("code")+ "] "+prjMap.get("name");			
 		} else {
 			Map<String, Object> sectMap = adminSectionService.get(model.getBudgetCc());
-			Map<String, Object> fundMap = adminFundService.get(model.getFundId());
-			budgetCcName = (String)sectMap.get("name")+ " ("+(String)fundMap.get("name")+")";
+			budgetCcName = "["+sectMap.get("code")+"] "+sectMap.get("name");
 		}
 		map.put("budgetCc", budgetCcName);
+		
+		Map<String, Object> fundMap = adminFundService.get(model.getFundId());
+		map.put("fund", fundMap.get("name"));
 
 		Map<String, Object> ccMap = adminCostControlService.get(model.getCostControlId());
 		String ccName = ccMap!=null ? (String)ccMap.get("name") : null;
 		
 		map.put("costControl", StringUtils.defaultIfBlank(ccName,""));
 		
-		map.put("supName", model.getPayType().equals("2") ? model.getPayDtl1() : "");
-		map.put("avCode", model.getPayType().equals("3") ? model.getPayDtl1() : "");
+		map.put("supName", model.getPayType().equals("1") ? model.getPayDtl1() : "");
+		map.put("avCode", model.getPayType().equals("2") ? model.getPayDtl1() : "");
 		
 		map.put("pay1", RptUtil.radio(model.getPayType().equals("0")));
 		map.put("pay2", RptUtil.radio(model.getPayType().equals("1")));
 		map.put("pay3", RptUtil.radio(model.getPayType().equals("2")));
 		map.put("pay4", RptUtil.radio(model.getPayType().equals("3")));
 		
+		Boolean useBank = model.getPayType().equals("0") || model.getPayType().equals("2");
+		
 		Map<String, Object> bankMap = adminBankMasterService.get(model.getBank());
 		
 		map.put("bank", bankMap!=null ? bankMap.get("name") : "");
-		map.put("bank1", RptUtil.radio(model.getBankType().equals("0")));
-		map.put("bank2", RptUtil.radio(model.getBankType().equals("1")));
+		map.put("bank1", RptUtil.radio(useBank && model.getBankType().equals("0")));
+		map.put("bank2", RptUtil.radio(useBank && model.getBankType().equals("1")));
 		
 		listData.add(map);
 
@@ -782,6 +794,99 @@ public class ExpUseService implements SubModuleService {
 		log.info("fullName="+fullName);			
 			
 		JasperExportManager.exportReportToPdfFile(jasperPrint, fullName);
+			
+		return fileName;
+	}
+	
+	public String doGenPaymentDoc(String name, ExpUseModel model) throws Exception {
+		
+		String lang = "_th";
+		
+		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
+		
+		List<Map<String, Object>> empList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> attendeeMap = null;
+		
+        List<ExpUseAttendeeModel> tmpAttendeeList = model.getAttendeeList();
+        for(ExpUseAttendeeModel tmpAttendee : tmpAttendeeList) {
+        	attendeeMap = new HashMap<String, Object>();
+			
+//        	attendeeMap.put("code", tmpAttendee.getCode());
+        	attendeeMap.put("name", StringUtil.replaceNBSP(tmpAttendee.getTitle()+" "+tmpAttendee.getFname()+" "+tmpAttendee.getLname()));
+//        	attendeeMap.put("section", StringUtil.replaceNBSP(tmpAttendee.getUnitType()));
+        	attendeeMap.put("position", tmpAttendee.getPosition());
+			
+			if (tmpAttendee.getType().equals(ExpUseAttendeeConstant.T_EMPLOYEE)) {
+				empList.add(attendeeMap);
+			} else {
+				empList.add(attendeeMap);
+			}
+        }
+        
+		/*
+		 * Parameters
+		 */
+		Map parameters = new HashMap();
+		parameters.put("imgPath", CommonConstant.GP_REPORT_IMG_PATH);
+		
+		if (empList.size()>0) {
+			parameters.put("DtlDataSource", new JRMapCollectionDataSource(new ArrayList<Map<String,?>>(empList)));
+		}
+		
+		parameters.put("total", df.format(model.getTotal()));
+		
+		/*
+		 * Data
+		 */
+		List<Map<String, Object>> listData = new ArrayList<Map<String,Object>>();
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		Map<String,Object> empDtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy()!=null ? model.getCreatedBy() : authService.getCurrentUserName());
+		map.put("createdBy", StringUtil.replaceNBSP(empDtl.get("title"+lang)+" "+empDtl.get("first_name"+lang)+" "+empDtl.get("last_name"+lang)));
+		map.put("createdTime", CommonDateTimeUtil.convertToGridDateTime(model.getCreatedTime()!=null?model.getCreatedTime():new Timestamp(Calendar.getInstance().getTimeInMillis())));
+		map.put("position", StringUtil.replaceNBSP((String)empDtl.get("position"+lang)));
+		map.put("objective", model.getObjective());
+		
+		listData.add(map);
+
+		Collection<Map<String, ?>> collection = new ArrayList<Map<String,?>>(listData);
+		JRMapCollectionDataSource data = new JRMapCollectionDataSource(collection);
+		  
+		/*
+		 * Gen PDF 
+		 */
+		String rptName = CommonConstant.GP_REPORT_PATH + "/" + CommonConstant.MODULE_EXP.toLowerCase() + "/" + name + ".jasper";
+		InputStream is = getClass().getResourceAsStream(rptName);
+
+		JasperReport jasperReport = (JasperReport)JRLoader.loadObject(is);
+		JasperPrint jasperPrint = JasperFillManager.fillReport(
+															jasperReport, 
+															parameters, 
+															data
+													);
+			
+		DocUtil docUtil = new DocUtil();
+		String tmpDir = FolderUtil.getTmpDir();
+		String fileName = docUtil.genUniqueFileName();
+		String fullName = tmpDir + File.separator + fileName + ".xls";
+			
+		log.info("fullName="+fullName);			
+			
+//		JasperExportManager.exportReportToPdfFile(jasperPrint, fullName);
+		
+        JRXlsExporter xlsExporter = new JRXlsExporter();
+
+        xlsExporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+        xlsExporter.setExporterOutput(new SimpleOutputStreamExporterOutput(fullName));
+        SimpleXlsReportConfiguration xlsReportConfiguration = new SimpleXlsReportConfiguration();
+        xlsReportConfiguration.setOnePagePerSheet(false);
+        xlsReportConfiguration.setRemoveEmptySpaceBetweenRows(true);
+        xlsReportConfiguration.setDetectCellType(false);
+        xlsReportConfiguration.setWhitePageBackground(false);
+        xlsExporter.setConfiguration(xlsReportConfiguration);
+
+        xlsExporter.exportReport();
 			
 		return fileName;
 	}
@@ -894,7 +999,7 @@ public class ExpUseService implements SubModuleService {
 		
 		if (!exists) {
 			JSONObject map = ExpUseUtil.convertToJSONObject(model,false);
-			Calendar cal = Calendar.getInstance();
+			Calendar cal = Calendar.getInstance(Locale.US);
     		if (cal.get(Calendar.MONTH) >= 9) { // >= October (Thai Start Budget Year)
     			cal.add(Calendar.YEAR, 1);
     		}
@@ -939,7 +1044,7 @@ public class ExpUseService implements SubModuleService {
 					int rpos2 = format.indexOf(CommonConstant.REPS_SUFFIX);
 					String fieldName = format.substring(rpos+CommonConstant.REPS_PREFIX.length(), rpos2);
 					
-					SimpleDateFormat df = new SimpleDateFormat(dFormat);
+					SimpleDateFormat df = new SimpleDateFormat(dFormat, Locale.US);
 					folderMap.put("name", df.format(map.get(fieldName)));
 				}	
 				else {
@@ -1000,6 +1105,18 @@ public class ExpUseService implements SubModuleService {
             ExpUseDAO dao = session.getMapper(ExpUseDAO.class);
             log.info("exp use list param:"+params);
     		list = dao.list(params);
+    		
+    		String lang = (String)params.get("lang");
+    		
+    		for(ExpUseModel model : list) {
+    			model.setWfStatus(
+    					model.getWfBy()
+    					+"-"+
+    					model.getWfStatus()
+    					+"-"+
+    					model.getWfByTime()
+    			);
+    		}
             
         } catch (Exception ex) {
 			log.error("", ex);
@@ -1743,15 +1860,15 @@ public class ExpUseService implements SubModuleService {
 	
 	public List<Map<String, Object>> listWorkflowPath(String id,String lang) {
 		
-		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id);
+		List<Map<String, Object>> list = mainWorkflowService.listWorkflowPath(id, lang);
 		
 		/*
-		 * Add Requester
+		 * Add Preparer
 		 */
 		ExpUseModel model = get(id);
 		
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("LEVEL", MainWorkflowConstant.TN_REQUESTER_CAPTION);
+		map.put("LEVEL", mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_PREPARER, lang, null));
 		map.put("U", model.getCreatedBy());
 		map.put("G", "");
 		map.put("IRA", false);
@@ -1759,10 +1876,10 @@ public class ExpUseService implements SubModuleService {
 		list.add(0, map);
 		
 		/*
-		 * Add Real Requester
+		 * Add Requester
 		 */
 		map = new HashMap<String, Object>();
-		map.put("LEVEL", MainWorkflowConstant.TN_REAL_REQUESTER_CAPTION);
+		map.put("LEVEL", mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_REQUESTER, lang, null));
 		map.put("U", model.getReqBy());
 		map.put("G", "");
 		map.put("IRA", false);
@@ -1779,6 +1896,10 @@ public class ExpUseService implements SubModuleService {
             MainWorkflowNextActorDAO dao = session.getMapper(MainWorkflowNextActorDAO.class);
 
     		actorList = dao.listWorkflowPath(id);
+    		
+    		for(Map<String, Object> actor : actorList) {
+    			actor.put("LEVEL", mainWorkflowService.getTaskCaption((String)actor.get("LEVEL"),lang,null));
+    		}
     		
     		list.addAll(actorList);
             
@@ -1868,6 +1989,7 @@ public class ExpUseService implements SubModuleService {
         	
         	model.setBudgetCcType(oModel.getBudgetCcType());
         	model.setBudgetCc(oModel.getBudgetCc());
+        	model.setFundId(oModel.getFundId());
         	
         	model.setCostControlTypeId(oModel.getCostControlTypeId());
         	model.setCostControlId(oModel.getCostControlId());
@@ -2028,26 +2150,16 @@ public class ExpUseService implements SubModuleService {
 	}
 
 	@Override
-	public String getActionCaption(String action) {
+	public String getActionCaption(String action, String lang) {
+		StringBuffer sb = new StringBuffer();
+
+		if (lang!=null && lang.indexOf("th")>=0) {
+			sb.append(ExpUseConstant.WF_TASK_ACTIONS_TH.get(action));
+		} else {
+			sb.append(ExpUseConstant.WF_TASK_ACTIONS.get(action));
+		}
 		
-		Map<String, String> WF_TASK_ACTIONS = new HashMap<String, String>();
-		
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "ขออนุมัติ");
-		
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "อนุมัติ");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "ไม่อนุมัติ");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "ขอคำปรึกษา");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "ให้ความเห็น");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "ขออนุมัติใหม่");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "ยกเลิก");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "ส่งงานให้การเงิน");
-    	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_PAID, "จ่ายเงิน");
-		
-		return WF_TASK_ACTIONS.get(action);
+		return sb.toString();
 	}
 
 	@Override
@@ -2060,7 +2172,7 @@ public class ExpUseService implements SubModuleService {
 		
 		actorModel.setMasterId(model.getId());
 		actorModel.setLevel(1);
-		actorModel.setActor(ExpUseConstant.NA_OFFICER);
+		actorModel.setActor(MainWorkflowConstant.TN_FINANCE_OFFICER);
 		actorModel.setActorUser(CommonConstant.DUMMY_EMPLOYEE_CODE);
 		actorModel.setCreatedBy(model.getUpdatedBy());
 		
@@ -2077,7 +2189,7 @@ public class ExpUseService implements SubModuleService {
 	}
 
 	@Override
-	public String getNextActionInfo(SubModuleModel model) {
+	public String getNextActionInfo(SubModuleModel model, String lang) {
 		ExpUseModel exModel = (ExpUseModel)model;
 		if (exModel!=null 
 				&& (exModel.getStatus().equals(ExpUseConstant.ST_CANCEL_BY_FIN) 
@@ -2085,7 +2197,7 @@ public class ExpUseService implements SubModuleService {
 			) {
 			return "";
 		} else {
-			return "การเงิน";
+			return mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_FINANCE,lang,null);
 		}
 	}
 	
@@ -2330,36 +2442,80 @@ public class ExpUseService implements SubModuleService {
 		return map;
 	}
 
-	public Map<String, String> getProjectBossMap(ExpUseModel model, List<Map<String, Object>> bossList,Map<String, String> tmpMap ) throws Exception {
+	public Map<String, String> getProjectBossMap(ExpUseModel model, List<Map<String, Object>> bossList,Map<String, String> tmpMap) throws Exception {
 		
 		String reqByCode = MainUserGroupUtil.login2code(model.getReqBy());
+		
+		String pm = tmpMap.get("00");
+		
+    	/*
+    	 * Find Boss by money, if reqByCode not exist in workflow path
+    	 */
+    	Double total = model.getTotal();
     	
+    	log.info("total:"+total);
+    	
+    	/*
+    	 * Case PM get special budget
+    	 */
+		if (!pm.equals(model.getReqBy())) {
+			List<Map<String, Object>> list = adminProjectService.listPMSpecialBudget(model.getBudgetCc());
+			if (list!=null && list.size()>0) {
+				Map<String, Object> map = list.get(0);
+				log.info("min:"+map.get("amount_min")+",max:"+map.get("amount_max"));
+				if (total <= (Double)map.get("amount_max")) {
+					log.info("total<=max");
+					return tmpMap;
+				}
+			}
+		}
+    	
+		
+		/*
+		 * Other cases
+		 */
     	Map<String, Object> reservedBoss = null;
     	Map<String, Object> lastBossMap = null;
     	
     	/*
-    	 * Find Boss by money
+    	 * Find Boss by level, if reqByCode exist in workflow path
     	 */
+    	int start = 0;
+    	int i = 0;
+    	
     	for(Map<String, Object> boss : bossList) {
     		
     		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code"));
-    		log.info("    amt_min:"+boss.get("amount_min"));
-    		if ((Double)boss.get("amount_min") <= model.getTotal()) {
-        		if (boss.get("employee_code").equals(reqByCode)) {
-        			tmpMap.clear();
-        		}
-    			tmpMap.put((String)boss.get("lvl"), MainUserGroupUtil.code2login((String)boss.get("employee_code")));
-    			lastBossMap = boss;
-    		} else {
-    			if (reservedBoss==null) {
-    				reservedBoss = boss;
-    			}
-    		}
     		
-    		if (reservedBoss!=null) {
+    		if (boss.get("employee_code").equals(model.getReqBy())) {
+    			log.info(model.getReqBy()+" is in path");
+    			start = i;
     			break;
     		}
+    		i++;
+    	}    	
+    	
+    	i = 0;
+    	log.info("  start:"+start);
+    	for(Map<String, Object> boss : bossList) {
+    		
+    		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code")+" (amt:"+boss.get("amount_min")+"-"+boss.get("amount_max")+")");
+    		
+    		if (i>=start) {
+    			if (tmpMap.size()<=1 || total > (Double)lastBossMap.get("amount_max")) {
+    				tmpMap.put((String)boss.get("lvl"), (String)boss.get("employee_code"));
+    				lastBossMap = boss;
+    			}
+    			else
+    			if (reservedBoss==null) {
+    				reservedBoss = boss;
+    				break;
+    			}
+    		}
+    		i++;
     	}
+    	
+    	log.info("lastBoss:"+lastBossMap.get("employee_code")+", reqBy:"+model.getReqBy());
     	
     	/*
     	 * Replace Last Boss if he is Requester
@@ -2371,41 +2527,32 @@ public class ExpUseService implements SubModuleService {
     		}
     		else {
     			// Waiting SA
-    			
     		}
-    	}
-    	
-    	
-    	/*
-    	 * Remove Requester from Boss List
-    	 */
-    	List<String> rmList = new ArrayList<String>();
-    	int i = 1;
-    	int size = tmpMap.size();
-    	for(Entry<String, String> e : tmpMap.entrySet()) {
-    		log.info("  e.key:"+e.getKey()+", value:"+e.getValue());
-    		
-    		if (i==size) {
-    			break;
-    		}
-    		
-    		if (e.getValue().equals(reqByCode)) {
-    			rmList.add(e.getKey());
-    		}
-    		
-    		i++;
-    	}
-
-    	for(String k : rmList) {
-    		tmpMap.remove(k);
     	}
     	
 		/*
          * Remove duplicated Boss
          */
-		Map<String, String> map = removeDuplicatedBoss(tmpMap);
+		tmpMap = removeDuplicatedBoss(tmpMap);
+    	
+    	/*
+    	 * Remove Requester
+    	 */
+		List<String> rmList = new ArrayList<String>();
 		
-		return map;
+    	if (tmpMap.size()>1) {
+    		for(Entry<String, String> e : tmpMap.entrySet()) {
+				if (e.getValue().equals(model.getReqBy())) {
+					rmList.add(e.getKey());
+				}
+    		}
+    	}
+
+    	for(String k:rmList) {
+    		tmpMap.remove(k);
+    	}
+    	
+		return tmpMap;
 	}
 	
 	private Map<String, String> removeDuplicatedBoss(Map<String, String> tmpMap) {
@@ -2422,9 +2569,9 @@ public class ExpUseService implements SubModuleService {
 			prevEntry = e;
 		}
 		
-		if (prevEntry != null) {
-			map.put((String)prevEntry.getKey(), (String)prevEntry.getValue());
-		}
+//		if (prevEntry != null) {
+//			map.put((String)prevEntry.getKey(), (String)prevEntry.getValue());
+//		}
 		
         log.info("  map="+map);
 
@@ -2494,7 +2641,9 @@ public class ExpUseService implements SubModuleService {
 		hModel.setLevel(0);
 		hModel.setComment("");
 		hModel.setAction("");
-		hModel.setTask(MainWorkflowConstant.TN_REAL_REQUESTER_CAPTION);
+		hModel.setActionTh("");
+		hModel.setTask(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_REQUESTER));
+		hModel.setTaskTh(MainWorkflowConstant.WF_TASK_NAMES_TH.get(MainWorkflowConstant.TN_REQUESTER));
 		hModel.setBy(model.getReqBy());
 		
 		return hModel;
@@ -2605,6 +2754,17 @@ public class ExpUseService implements SubModuleService {
         }
         
         return list;
-	}	
+	}
+
+	@Override
+	public List<String> getSpecialGroupForAddPermission() {
+		MainMasterModel topGroup = masterService.getSystemConfig(MainMasterConstant.SCC_EXP_USE_TOP_GROUP);
+		
+		String[] tgs = topGroup!=null && topGroup.getFlag1()!=null ? topGroup.getFlag1().split(",") : null;
+		
+		List<String> list = Arrays.asList(tgs);
+		
+		return list;
+	}
 	
 }

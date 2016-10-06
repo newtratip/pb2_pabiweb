@@ -159,8 +159,10 @@ public class ExpMessageWebScript {
 	  lbl.put("reason", ExpBrwUtil.getMessage(prefix+"reason", locale));
 	  lbl.put("err_refId", ExpBrwUtil.getMessage(prefix+"err.refId", locale));
 	  lbl.put("itemTitle", ExpBrwUtil.getMessage(prefix+"item.title", locale));
+	  lbl.put("oweOrder", ExpBrwUtil.getMessage(prefix+"owe.order", locale));
 	  lbl.put("oweTitle", ExpBrwUtil.getMessage(prefix+"owe.title", locale));
 	  lbl.put("oweDocNo", ExpBrwUtil.getMessage(prefix+"owe.docno", locale));
+	  lbl.put("oweName", ExpBrwUtil.getMessage(prefix+"owe.name", locale));
 	  lbl.put("oweWait", ExpBrwUtil.getMessage(prefix+"owe.wait", locale));
 	  lbl.put("oweBalance", ExpBrwUtil.getMessage(prefix+"owe.balance", locale));
 	  lbl.put("methodTitle", ExpBrwUtil.getMessage(prefix+"method.title", locale));

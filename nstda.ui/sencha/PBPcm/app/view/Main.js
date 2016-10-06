@@ -32,7 +32,7 @@ Ext.define('PBPcm.view.Main', {
 		});
 
 		store.getProxy().extraParams = {
-				lang : getLang()
+			lang : getLang()
 		}
 		
 		if (!ID) {

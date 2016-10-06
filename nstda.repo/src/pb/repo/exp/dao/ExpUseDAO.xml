@@ -36,6 +36,8 @@
         <result property="createdBy" column="created_by"/>
         <result property="updatedTime" column="updated_time"/>
         <result property="updatedBy" column="updated_by"/>
+        <result property="wfBy" column="wf_by"/>
+        <result property="wfByTime" column="wf_by_time"/>
         <result property="wfStatus" column="wf_status"/>
         <result property="rewarning" column="rewarning"/>
         <result property="waitingDay" column="waiting_day"/>
@@ -45,6 +47,7 @@
         SELECT
 		    REQ.ID, total, objective, 
 		    	budget_cc, budget_cc_type, CASE WHEN #{lang}='' THEN b.name ELSE b.name_th END budget_cc_name,
+		    	WF_BY, WF_BY_TIME,
 				WF_STATUS, STATUS, 
 				cost_control_id, cost_control_type_id,
 				cost_control,
@@ -70,6 +73,7 @@
 		    COUNT(*) OVER() totalRowCount
 		FROM
 		    (SELECT ID, total, objective, budget_cc, budget_cc_type,
+		    	NULL WF_BY, NULL WF_BY_TIME,
 				NULL WF_STATUS, STATUS, cost_control_id, cost_control_type_id,
 				cost_control,
 				cost_control_from,cost_control_to,
@@ -106,9 +110,11 @@
 			WHERE STATUS='D' AND CREATED_BY=#{loginE}
  			UNION
 			SELECT ID, M.total, objective, budget_cc, budget_cc_type,
+				W.BY WF_BY,
 				CASE WHEN (W.STATUS IS NULL) THEN ''
-				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
-				END WF_STATUS, M.STATUS, cost_control_id, cost_control_type_id,
+				ELSE to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI') 
+				END WF_BY_TIME,
+				W.STATUS${lang} WF_STATUS, M.STATUS, cost_control_id, cost_control_type_id,
 				cost_control,
 				cost_control_from,cost_control_to,
 				bank, bank_type,
@@ -142,7 +148,18 @@
 				from pb2_ext_hr_employee e2 where lpad(employee_code,6,'0') = M.req_by) RBY 
 			FROM pb2_exp_use M LEFT JOIN 
 			(
-			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, e.first_name as BY, BY_TIME, TASK_ID 
+			SELECT MASTER_ID, WORKFLOW_INS_ID, STATUS, STATUS_TH, 
+			CASE 
+			WHEN #{lang}='' THEN 
+				e.first_name
+			ELSE
+				coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'hr.employee,first_name'
+				and type = 'model' and lang='th_TH'
+				and res_id = e.id), e.first_name)
+			END as
+			BY, BY_TIME, TASK_ID 
 			FROM pb2_main_workflow w  left join pb2_ext_hr_employee e on w.by = lpad(e.employee_code,6,'0')
 			WHERE TYPE='EXP_USE' AND 
 			w.ID IN (
@@ -469,28 +486,28 @@
     </select>
     
     <select id="getFirstApprover" parameterType="string" resultType="map">
-		SELECT e.first_name||' '||e.last_name approver, h.time
+		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
-		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
+		LEFT JOIN pb2_hr_employee_view e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
 		WHERE w.type='EXP_USE'
 		AND r.master_id=#{id}
 		AND r.level=1
-		AND h.action='อนุมัติ'
+		AND h.action='Approve'
 		LIMIT 1
     </select>
     
     <select id="getLastApprover" parameterType="string" resultType="map">
-		SELECT e.first_name||' '||e.last_name approver, h.time
+		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
-		LEFT JOIN pb2_ext_hr_employee e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
+		LEFT JOIN pb2_hr_employee_view e on r.reviewer_user = lpad(e.employee_code, 6 ,'0')
 		WHERE w.type='EXP_USE'
 		AND r.master_id=#{id}
 		AND r.level=(select max(level) from pb2_main_workflow_reviewer where master_id=#{id})
-		AND h.action='อนุมัติ'
+		AND h.action='Approve'
 		LIMIT 1
     </select>
     

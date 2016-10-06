@@ -156,8 +156,7 @@ Ext.define('PB.view.common.SearchBudgetSrcDlg', {
 	        	    	 }
 	        	     },
 	        	     { text:PB.Label.m.org, dataIndex: 'type', width: 70 },
-	        	     { text:PB.Label.b.sectName, dataIndex: 'name', flex:1 },
-	        	     { text:'Cost Center', dataIndex: 'cc', flex:1 }
+	        	     { text:PB.Label.b.sectName, dataIndex: 'name', flex:1 }
 	        	],
 	        	store:store
 	        },{

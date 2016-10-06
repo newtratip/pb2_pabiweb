@@ -45,6 +45,9 @@ Ext.define('PBExpUse.Application', {
         'PB.vtype.Validation',
 
         'PBExpUse.view.Main',
+        
+        'PBExpUse.store.OldComboStore',
+        'PBExpUse.model.OldComboModel',
 
         'PBExpUse.controller.Main',
         'PBExpUse.controller.Form',

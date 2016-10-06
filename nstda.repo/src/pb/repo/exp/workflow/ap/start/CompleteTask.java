@@ -178,7 +178,7 @@ public class CompleteTask implements ExecutionListener {
 //					ExecutionEntity executionEntity = ((ExecutionEntity)task.getExecution()).getProcessInstance();
 					
 					String curUser = authenticationService.getCurrentUserName();
-					String taskKey = MainWorkflowConstant.TN_REQUESTER_CAPTION;
+					String taskKey = MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_PREPARER);;
 					String finalAction = MainWorkflowConstant.TA_START;
 					
 //					log.info("  level:"+level);

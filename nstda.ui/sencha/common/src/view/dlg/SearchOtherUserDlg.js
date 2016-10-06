@@ -74,6 +74,19 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 		if (me.needPosition) {
 			items[0].items.push({
 			    xtype: 'textfield',
+			    fieldLabel : mandatoryLabel(PB.Label.m.section), 
+			    labelWidth: lbw,
+			    anchor:"-10",
+			    hideTrigger:true,
+			    name : 'section',
+			    msgTarget: 'side',
+			    margin: '10 0 0 10',
+			    allowBlank:false,
+			    value:me.rec ? replaceIfNull(me.rec.get("section"), null) : null
+			});
+			
+			items[0].items.push({
+			    xtype: 'textfield',
 			    fieldLabel : mandatoryLabel(PB.Label.m.pos), 
 			    labelWidth: lbw,
 			    anchor:"-10",

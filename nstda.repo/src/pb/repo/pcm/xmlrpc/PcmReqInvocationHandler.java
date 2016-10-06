@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.PcmReqService;
@@ -78,7 +79,7 @@ public class PcmReqInvocationHandler
 	    	pcmReqService.update(pcmReqModel);
     		
 	    	mainWorkflowService.setModuleService(pcmReqService);
-			mainWorkflowService.saveWorkflowHistory(null, by, "ผู้จัดซื้อ" , comment, statusDesc, null,  prNo, null, type);
+			mainWorkflowService.saveWorkflowHistory(null, by, MainWorkflowConstant.TN_PROCUREMENT , comment, statusDesc, null,  prNo, null, type);
 			
 			result.put("success",true);
 			result.put("message","Success");
@@ -91,5 +92,40 @@ public class PcmReqInvocationHandler
     	
         return result;
     }
+    
+    public Map<String, Object> history(Map<String, Object> params)
+    {
+    	log.info("params:"+params.toString());
+    	
+    	Map<String, Object> result = new HashMap<String, Object>();
+    	
+    	try {
+	    	String prNo = (String)params.get("prNo");
+	    	final String by = (String)params.get("by");
+	    	String task = (String)params.get("task");
+	    	String taskTh = (String)params.get("task_th");
+	    	String status = (String)params.get("status");
+	    	String statusTh = (String)params.get("status_th");
+	    	
+	    	PcmReqModel pcmReqModel = pcmReqService.get(prNo);
+			if (pcmReqModel==null) {
+    			result.put("success",false);
+    			result.put("message","Invalid PR NO. : "+prNo);
+    			return result;
+			}
+    		
+			mainWorkflowService.saveWorkflowHistory(prNo, by, task, taskTh, status, statusTh, (String)params.get("comment"));
+			
+			result.put("success",true);
+			result.put("message","Success");
+    	} catch (Exception ex) {
+    		log.error(ex);
+    		ex.printStackTrace();
+			result.put("success",false);
+			result.put("message","Error : "+ex.toString());
+    	}
+    	
+        return result;
+    }    
 
 }
