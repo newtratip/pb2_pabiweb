@@ -17,9 +17,10 @@ public interface SubModuleService {
 	public List<Map<String, Object>> listWorkflowPath(String id, String lang);
 	
 	public void update(SubModuleModel model) throws Exception;
-	public Object get(String id);
+	public Object get(String id, String lang);
 	public String getWorkflowName() throws Exception;
 	public String getWorkflowDescription(SubModuleModel paramModel) throws Exception;
+	public String getWorkflowDescriptionEn(SubModuleModel paramModel) throws Exception;
 	
 	public Map<String, Object> convertToMap(SubModuleModel model);
 	public String getSubModuleType();
@@ -46,6 +47,7 @@ public interface SubModuleService {
     public List<String> getSpecialGroupForAddPermission();
     
 	public QName getPropNextReviewers();
+	public QName getPropDescEn();
 	
 //	public Map<String, String> getBossMap(String docType, String type, String costCenter, String reqUser, Double amount);
 	public Map<String, String> getBossMap(String docType, SubModuleModel model) throws Exception;

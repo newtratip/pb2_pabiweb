@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import pb.common.constant.JsonConstant;
+import pb.common.util.CommonUtil;
 import pb.repo.admin.constant.MainAccountActivityConstant;
 import pb.repo.admin.dao.MainAccountActivityDAO;
 import pb.repo.common.mybatis.DbConnectionFactory;
@@ -45,6 +46,8 @@ public class AdminAccountActivityService {
     			Map<String, Object> map = new HashMap<String, Object>();
 	    		map.put(JsonConstant.COMBOBOX_ID, (Integer)tmpMap.get(MainAccountActivityConstant.TFN_ID));
 	    		map.put(JsonConstant.COMBOBOX_NAME, (String)tmpMap.get(name.toUpperCase()));
+
+	    		tmpMap = CommonUtil.removeThElement(tmpMap);
 	    		map.put(JsonConstant.COMBOBOX_DATA, tmpMap);
 	    		
 	    		list.add(map);

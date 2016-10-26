@@ -3,7 +3,7 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pb.repo.admin.dao.MainUserDAO">
 
-	<select id="list" resultType="map" parameterType="map">
+	<select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select * from (
 			select	e.id,
 					lpad(e.employee_code, 6 ,'0') emp_id,
@@ -71,7 +71,7 @@
 		ORDER BY ${orderBy}
 	</select>
 	
-	<select id="getByLogin" resultType="map" parameterType="map">
+	<select id="getByLogin" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select * from pb2_ext_res_users
 		where login=#{login}
 		and active is true

@@ -174,6 +174,23 @@ public class ExpMessageWebScript {
 	  jObj.put("n", lbl);
 	  
 	  /*
+	   * Item
+	   */
+	  lbl = new JSONObject();
+	  prefix = "av.form.tab.item.";
+	  lbl.put("lbw", ExpBrwUtil.getMessage(prefix+"lbw", locale));
+	  lbl.put("actGrp", ExpBrwUtil.getMessage(prefix+"actGrp", locale));
+	  lbl.put("desc", ExpBrwUtil.getMessage(prefix+"desc", locale));
+	  lbl.put("desc2", ExpBrwUtil.getMessage(prefix+"desc2", locale));
+	  lbl.put("cond", ExpBrwUtil.getMessage(prefix+"cond", locale));
+	  lbl.put("pos", ExpBrwUtil.getMessage(prefix+"pos", locale));
+	  lbl.put("amt", ExpBrwUtil.getMessage(prefix+"amt", locale));
+	  lbl.put("amtAllow", ExpBrwUtil.getMessage(prefix+"amt.allow", locale));
+	  lbl.put("total", ExpBrwUtil.getMessage(prefix+"total", locale));
+	  
+	  jObj.put("i", lbl);
+	  
+	  /*
 	   * Attendee
 	   */
 	  lbl = new JSONObject();
@@ -223,8 +240,8 @@ public class ExpMessageWebScript {
 	   */
 	  JSONObject lbl = new JSONObject();
 	  String prefix = "ap.main.";
-	  lbl.put("apNo", ExpUseUtil.getMessage(prefix+"apNo", locale));
-	  lbl.put("apType", ExpUseUtil.getMessage(prefix+"apType", locale));
+	  lbl.put("exNo", ExpUseUtil.getMessage(prefix+"exNo", locale));
+	  lbl.put("exType", ExpUseUtil.getMessage(prefix+"exType", locale));
 	  lbl.put("budget", ExpUseUtil.getMessage(prefix+"budget", locale));
 	  lbl.put("objective", ExpUseUtil.getMessage(prefix+"objective", locale));
 	  lbl.put("amount", ExpUseUtil.getMessage(prefix+"amount", locale));
@@ -267,10 +284,12 @@ public class ExpMessageWebScript {
 	  lbl.put("payAv", ExpBrwUtil.getMessage(prefix+"pay.av", locale));	  
 	  lbl.put("payAvNo", ExpBrwUtil.getMessage(prefix+"pay.avNo", locale));	  
 	  lbl.put("payIntUnit", ExpBrwUtil.getMessage(prefix+"pay.intUnit", locale));	  
+	  lbl.put("payCash", ExpBrwUtil.getMessage(prefix+"pay.cash", locale));	  
 	  lbl.put("methodTitle", ExpBrwUtil.getMessage(prefix+"method.title", locale));
 	  lbl.put("bankBbl", ExpBrwUtil.getMessage(prefix+"bank.bbl", locale));
 	  lbl.put("bank", ExpBrwUtil.getMessage(prefix+"bank", locale));
 	  lbl.put("bankWarn", ExpBrwUtil.getMessage(prefix+"bank.warn", locale));
+	  lbl.put("reason", ExpBrwUtil.getMessage(prefix+"reason", locale));
 	  
 	  jObj.put("n", lbl);
 	  

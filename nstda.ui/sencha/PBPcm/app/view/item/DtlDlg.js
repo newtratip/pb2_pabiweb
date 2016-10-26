@@ -5,6 +5,10 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 	initComponent: function(config) {
 		var me = this;
 		
+		var fstore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
+		fstore.getProxy().api.read = ALF_CONTEXT+'/admin/main/fiscalyear/list';
+		fstore.load();		
+		
 		var astore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
 		astore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/group/list';
 		if (me.rec) {
@@ -54,25 +58,39 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 //					           {name:'isEqmt',boxLabel:'ใช่',inputValue:'1'}
 //					    ]
 					},{
-					    xtype: 'numberfield',
-					    fieldLabel : mandatoryLabel(PBPcm.Label.t.fiscalYear), 
-					    labelWidth: lbw,
-					    anchor:"-10",
-					    hideTrigger:true,
-					    name : 'fiscalYear',
-					    msgTarget: 'side',
-					    margin: '10 0 0 10',
-					    allowBlank:false,
-					    hidden:!me.acrossBudget,
-					    disabled:!me.acrossBudget,
+						xtype:'combo',
+						name:'fiscalYear',
+						fieldLabel:mandatoryLabel(PBPcm.Label.t.fiscalYear),
+				    	displayField:'name',
+				    	valueField:'name',
+				        emptyText : PB.Label.m.select,
+				        store: fstore,
+//				        queryMode: 'local',
+				        typeAhead:true,
+				        multiSelect:false,
+				        forceSelection:true,
+				        anchor:"-10",
+						labelWidth:lbw,
+						margin: '10 0 0 10',
+						allowBlank:false,
+				        listConfig : {
+						    getInnerTpl: function () {
+								return '<div>{name}</div>';
+						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
+						    }
+						},
 				        listeners:{
-							afterrender:function(txt) {
+							beforequery : function(qe) {
+								qe.query = getLang()+" "+qe.query;
+							},
+							afterrender:function(cmb) {
 								Ext.defer(function(){
-									txt.focus();
+									cmb.focus();
 								},300);
 							}
-						}
-					    
+						},
+					    hidden:!me.acrossBudget,
+					    disabled:!me.acrossBudget
 					},{
 						xtype:'combo',
 						name:'actGrp',

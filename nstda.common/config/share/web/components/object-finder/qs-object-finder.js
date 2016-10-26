@@ -1784,25 +1784,31 @@
 	
 //			 }
 
+console.log("pass 1");
     	  	url = appContext + "/proxy/alfresco/pb/main/editDesc";
+    	  	console.log("pass 2");
              
 	        var params = {
 	           n:this.curNodeRef
 	        };
+	        console.log("pass 3");
 			Ext.Ajax.request({
 			    url:url,
 			    method: "GET",
 			    params: params,
 			    success: function(response){
-			  	  
+				console.log("ajax success");
+
 				  	var json = Ext.decode(response.responseText);
 					  
 				   	if (json.success) {
 //				         this.widgets.editDescPanel.show();
+				   		 var desc = json.data.desc ? json.data.desc : "";
+				   		
 				         this.userInputDlg = Alfresco.util.PopupManager.getUserInput({
 				        	 title: me.msg("title.edit.desc"), // the title of the dialog, default is null 
 				        	 //text: 'Test Text', // optional label next to input box 
-				        	 value: json.data.desc, // optional default value to populate textbox with 
+				        	 value: desc, // optional default value to populate textbox with 
 				        	 callback: {
 				        		 fn:me.editDescFn, // Object literal specifying function callback to receive user input. Only called if default button config used.
 				        		 scope:me

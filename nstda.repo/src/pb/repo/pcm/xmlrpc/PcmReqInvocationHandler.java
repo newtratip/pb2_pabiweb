@@ -48,7 +48,7 @@ public class PcmReqInvocationHandler
 			if (type.equals(PcmReqConstant.ST_CLOSED_BY_PCM)) {
 				statusDesc = "Approve";
 				
-		    	pcmReqModel = pcmReqService.get(prNo);
+		    	pcmReqModel = pcmReqService.get(prNo, null);
 				final NodeRef folderNodeRef = new NodeRef(pcmReqModel.getFolderRef());
 				
 		        AuthenticationUtil.runAs(new RunAsWork<String>()
@@ -73,7 +73,7 @@ public class PcmReqInvocationHandler
 			}
     		
 			if (pcmReqModel==null) {
-				pcmReqModel = pcmReqService.get(prNo);
+				pcmReqModel = pcmReqService.get(prNo, null);
 			}
 	    	pcmReqModel.setStatus(type);
 	    	pcmReqService.update(pcmReqModel);
@@ -107,7 +107,7 @@ public class PcmReqInvocationHandler
 	    	String status = (String)params.get("status");
 	    	String statusTh = (String)params.get("status_th");
 	    	
-	    	PcmReqModel pcmReqModel = pcmReqService.get(prNo);
+	    	PcmReqModel pcmReqModel = pcmReqService.get(prNo, null);
 			if (pcmReqModel==null) {
     			result.put("success",false);
     			result.put("message","Invalid PR NO. : "+prNo);

@@ -10,7 +10,7 @@
         <result property="amountMin" column="amount_min"/>
     </resultMap>
 
-	<select id="list" resultType="map" parameterType="map">
+	<select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		SELECT *,COUNT(*) OVER() totalRowCount 
 		FROM pb2_pr_method_committee_view
 		WHERE

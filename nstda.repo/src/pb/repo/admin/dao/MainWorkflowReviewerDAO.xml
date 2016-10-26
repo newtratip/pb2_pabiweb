@@ -55,7 +55,7 @@
     </select>
 
     
-	<select id="listWorkflowPath" resultType="map" parameterType="string">    
+	<select id="listWorkflowPath" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="string">    
 	    SELECT CONCAT(#{reviewer},' ',LEVEL) AS LEVEL,TRIM(BOTH ',' FROM REVIEWER_USER) AS U,TRIM(BOTH ',' FROM REVIEWER_GROUP) AS G,LEVEL AS ORDERVAL
 		FROM pb2_main_workflow_reviewer
 		WHERE master_id=#{id}

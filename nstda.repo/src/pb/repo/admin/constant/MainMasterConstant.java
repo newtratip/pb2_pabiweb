@@ -53,6 +53,8 @@ public class MainMasterConstant {
 	public static final String TYPE_REPORT = "R";
 	public static final String TYPE_PROTOTYPE = "PTT";
 	
+	public static final String TYPE_PCM_REQ_PURCHASE_TYPE = "PC";
+	public static final String TYPE_PCM_REQ_REASON = "PR_RSN";
 	public static final String TYPE_EXP_BRW_TYPE = "BRW_TYPE";
 	public static final String TYPE_EXP_EXP_TYPE = "EXP_TYPE";
 

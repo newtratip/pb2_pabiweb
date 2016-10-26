@@ -254,6 +254,7 @@ public class PcmMessageWebScript {
 	  lbl.put("pdNo", PcmReqUtil.getMessage(prefix+"pdNo", locale));
 	  lbl.put("org", PcmReqUtil.getMessage(prefix+"org", locale));
 	  lbl.put("objective", PcmReqUtil.getMessage(prefix+"objective", locale));
+	  lbl.put("method", PcmReqUtil.getMessage(prefix+"method", locale));
 	  lbl.put("total", PcmReqUtil.getMessage(prefix+"total", locale));
 	  lbl.put("preparer", PcmReqUtil.getMessage(prefix+"preparer", locale));
 	  lbl.put("requestTime", PcmReqUtil.getMessage(prefix+"requestTime", locale));

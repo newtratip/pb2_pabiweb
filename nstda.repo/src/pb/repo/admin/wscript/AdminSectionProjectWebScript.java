@@ -1,5 +1,6 @@
 package pb.repo.admin.wscript;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,4 +57,33 @@ public class AdminSectionProjectWebScript {
 		}
 		
 	}
+	
+	@Uri(URI_PREFIX+"/get")
+	public void handleGet(@RequestParam String v,
+						   @RequestParam(required=false) String lang,
+			 final WebScriptResponse response)  throws Exception {
+		
+		String json = null;
+
+		try {
+			String[] s = v.split(",");
+			
+			Map<String, Object> map = sectionProjectService.get(s[0], s[1], lang);
+			
+			json = CommonUtil.jsonSuccess(map);
+		} catch (Exception ex) {
+			log.error("", ex);
+			try {
+				json = CommonUtil.jsonFail(ex.toString());
+			} catch (JSONException e) {
+				log.error("", e);
+			}
+			throw ex;
+			
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+		
+	}
+
 }

@@ -24,6 +24,7 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String TFN_REASON = "REASON";
 	
 	public static final String TFN_BUDGET_CC = "BUDGET_CC";
+	public static final String TFN_BUDGET_CC_NAME = "BUDGET_CC_NAME";
 	public static final String TFN_BUDGET_CC_TYPE = "BUDGET_CC_TYPE";
 	public static final String TFN_FUND_ID = "FUND_ID";
 	
@@ -34,6 +35,10 @@ public class ExpBrwConstant extends SubModuleConstant {
 	
 	public static final String TFN_BANK_TYPE = "BANK_TYPE";
 	public static final String TFN_BANK = "BANK";
+	
+	public static final String TFN_WF_BY = "WF_BY";
+	public static final String TFN_WF_STATUS = "WF_STATUS";
+	public static final String TFN_WF_BY_TIME = "WF_BY_TIME";
 	
     /*
      * JSON Field Name

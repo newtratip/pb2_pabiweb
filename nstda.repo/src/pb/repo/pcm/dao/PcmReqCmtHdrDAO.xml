@@ -69,7 +69,7 @@
    		DELETE FROM pb2_pcm_req_committee_hdr WHERE pcm_req_id=#{masterId}
 	</delete>   
 	
-    <select id="listForInf" resultType="map" parameterType="map">
+    <select id="listForInf" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select 
 		   r.id, 
 		   h.committee,

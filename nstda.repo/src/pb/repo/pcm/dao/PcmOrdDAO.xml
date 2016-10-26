@@ -25,7 +25,27 @@
         <result property="orgName" column="org_name"/>
     </resultMap>
     
-    <select id="list" resultMap="result" parameterType="map">
+    <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
+		select *
+		from pb2_pcm_ord_view
+		where (created_by_code = #{loginE} or app_by = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
+		<if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+				concat(id, ' ', org_name, ' ', org_name_th, ' ', method_name, ' ',objective,' ',created_by,' ',created_by_th,' ',created_by_th,to_char(created_time,'dd/mm/yyyy')) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  
+		<if test="doc_type != null">
+			AND doc_type=#{doc_type}
+		</if>
+		<if test="status != null">
+			AND status=#{status}
+		</if>
+		ORDER BY ${orderBy}
+		LIMIT #{limit}
+		OFFSET #{start}
+    </select>
+    
+    <select id="llist" resultMap="result" parameterType="map">
         SELECT
 		    REQ.ID, total, objective,
 		    	section_id, pr_id, doc_type, app_by,
@@ -209,7 +229,7 @@
      WHERE id=#{id}
     </update>
     
-	<select id="listWorkflowPath" resultType="map" parameterType="string">    
+	<select id="listWorkflowPath" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="string">    
     (SELECT CONCAT('REVIEWER #',LEVEL) AS LEVEL,TRIM(BOTH ',' FROM REVIEWER_USER) AS U,TRIM(BOTH ',' FROM REVIEWER_GROUP) AS G,LEVEL AS ORDERVAL
 	FROM pb2_PCM_ORD_REVIEWER
 	WHERE MASTER_ID = #{id})

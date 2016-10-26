@@ -41,7 +41,6 @@ public class MainSrcUrlWebScript {
 	
 	@Autowired
 	AuthenticationService authService;
-
 	
 	/*
 	 * p1 = where condition : type='M'
@@ -130,6 +129,36 @@ public class MainSrcUrlWebScript {
 	}
 	
 	/*
+	 * t = type
+	 * c = code
+	 * lang = language
+	 */
+	@Uri(URI_PREFIX + "/masterValue")
+	public void handleMainMasterValue(@RequestParam final String t, 
+									  @RequestParam final String c,
+									  @RequestParam final String lang,
+									  final WebScriptResponse response)
+			throws Exception {
+
+		String json = null;
+
+		try {
+			Map<String, Object> value = mainSrcUrlService.getMainMasterValue(t,c,lang);
+			
+			json = CommonUtil.jsonSuccess(value);
+			
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+
+		} finally {
+			CommonUtil.responseWrite(response, json);
+
+		}
+	}
+	
+	/*
 	 * p1 = user property : organization
 	 */
 	@Uri(URI_PREFIX + "/userProfile")
@@ -197,5 +226,34 @@ public class MainSrcUrlWebScript {
 			CommonUtil.responseWrite(response, json);
 
 		}
-	}	
+	}
+	
+	/*
+	 * c = code
+	 */
+	@Uri(URI_PREFIX + "/userName")
+	public void handleUserName(@RequestParam final String c,
+								  @RequestParam final String lang,
+								  final WebScriptResponse response)
+			throws Exception {
+
+		String json = null;
+
+		try {
+			Map<String, Object> value = mainSrcUrlService.getUserName(c,lang);
+			
+			json = CommonUtil.jsonSuccess(value);
+			
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+
+		} finally {
+			CommonUtil.responseWrite(response, json);
+
+		}
+	}
+	
+	
 }

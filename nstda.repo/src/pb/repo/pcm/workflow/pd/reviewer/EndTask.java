@@ -59,7 +59,7 @@ public class EndTask implements ExecutionListener {
 			String id = (String)ObjectUtils.defaultIfNull(execution.getVariable(WF_PREFIX+"id"), "");
 			log.info("  id:" + id);
 			
-			PcmOrdModel model = pcmOrdService.get(id.toString());
+			PcmOrdModel model = pcmOrdService.get(id.toString(), null);
 			model.setStatus(PcmOrdConstant.ST_CLOSED_BY_ACT);
 			pcmOrdService.updateStatus(model);
 		} catch (Exception ex) {

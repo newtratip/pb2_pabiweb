@@ -76,6 +76,27 @@ public class PcmOrdUtil {
 		return action.toString();
 	}
 	
+	public static String getAction(Map<String,Object> map) {
+		StringBuffer action = new StringBuffer();
+		
+		action.append(PcmOrdConstant.ACTION_SHOW_HISTORY);
+		if (map.get(PcmOrdConstant.JFN_STATUS)!=null) {
+			if (map.get(PcmOrdConstant.JFN_STATUS).equals(PcmOrdConstant.ST_WAITING)) {
+				action.append(PcmOrdConstant.ACTION_SHOW_DIAGRAM);
+			}
+			
+			if (map.get(PcmOrdConstant.JFN_FOLDER_REF) != null && !((String)map.get(PcmOrdConstant.JFN_FOLDER_REF)).trim().equals("")) {
+				action.append(PcmOrdConstant.ACTION_GOTO_FOLDER);
+			}
+			
+			if (map.get(PcmOrdConstant.JFN_DOC_REF) != null && !((String)map.get(PcmOrdConstant.JFN_DOC_REF)).trim().equals("")) {
+				action.append(PcmOrdConstant.ACTION_SHOW_DETAIL);
+			}
+		}
+		
+		return action.toString();
+	}
+	
 	public static JSONArray convertToJSONArray(List<PcmOrdModel> inList) throws Exception {
 		JSONArray jsArr = new JSONArray();
 		

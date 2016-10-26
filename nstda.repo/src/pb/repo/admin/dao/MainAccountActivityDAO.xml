@@ -9,7 +9,7 @@
         
     </resultMap>
     
-    <select id="list" resultType="hashmap" parameterType="map">
+    <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
         SELECT * FROM
 	    pb2_activity_view
 	    WHERE 1=1
@@ -27,7 +27,7 @@
 	    ORDER BY ${orderBy}
     </select>
     
-    <select id="get" resultType="map" parameterType="int">
+    <select id="get" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
         select * from pb2_ext_account_activity
         where id=#{id}
     </select>    

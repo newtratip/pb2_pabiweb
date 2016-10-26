@@ -12,7 +12,7 @@
         
     </resultMap>
 
-	<select id="list" resultType="map" parameterType="map">
+	<select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select *
 		from pb2_project_view		
 		<if test="terms != null">
@@ -30,8 +30,8 @@
 		    pb2_ext_res_project
     </select>
     
-    <select id="get" resultType="map" parameterType="int">
-        select * from pb2_ext_res_project
+    <select id="get" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
+        select * from pb2_project_view
         where id=#{id}
     </select>
 	

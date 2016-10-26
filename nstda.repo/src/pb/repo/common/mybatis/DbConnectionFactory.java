@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import pb.repo.admin.dao.MainAccountActivityDAO;
 import pb.repo.admin.dao.MainAccountActivityGroupDAO;
+import pb.repo.admin.dao.MainAccountFiscalYearDAO;
 import pb.repo.admin.dao.MainAccountTaxDAO;
 import pb.repo.admin.dao.MainBankMasterDAO;
 import pb.repo.admin.dao.MainCompleteNotificationDAO;
@@ -55,6 +56,7 @@ import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
 import pb.repo.admin.model.MainAccountActivityGroupModel;
 import pb.repo.admin.model.MainAccountActivityModel;
+import pb.repo.admin.model.MainAccountFiscalYearModel;
 import pb.repo.admin.model.MainAccountTaxModel;
 import pb.repo.admin.model.MainBankMasterModel;
 import pb.repo.admin.model.MainCompleteNotificationModel;
@@ -137,6 +139,7 @@ public class DbConnectionFactory {
         config.getTypeAliasRegistry().registerAlias("mainMasterModel", MainMasterModel.class);
         config.getTypeAliasRegistry().registerAlias("mainMsgModel", MainMsgModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCompleteNotificationModel", MainCompleteNotificationModel.class);
+        config.getTypeAliasRegistry().registerAlias("mainAccountFiscalYearModel", MainAccountFiscalYearModel.class);
         config.getTypeAliasRegistry().registerAlias("mainAccountTaxModel", MainAccountTaxModel.class);
         config.getTypeAliasRegistry().registerAlias("mainAccountActivityGroupModel", MainAccountActivityGroupModel.class);
         config.getTypeAliasRegistry().registerAlias("mainAccountActivityModel", MainAccountActivityModel.class);
@@ -177,6 +180,7 @@ public class DbConnectionFactory {
         config.addMapper(MainMasterDAO.class);
         config.addMapper(MainMsgDAO.class);
         config.addMapper(MainCompleteNotificationDAO.class);
+        config.addMapper(MainAccountFiscalYearDAO.class);
         config.addMapper(MainAccountTaxDAO.class);
         config.addMapper(MainAccountActivityGroupDAO.class);
         config.addMapper(MainAccountActivityDAO.class);

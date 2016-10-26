@@ -91,6 +91,9 @@
 				<property name="pcmreqwf:lang">
 					<type>d:text</type>
 				</property>
+				<property name="pcmreqwf:description">
+					<type>d:text</type>
+				</property>
 			</properties>
 			
 			<associations>

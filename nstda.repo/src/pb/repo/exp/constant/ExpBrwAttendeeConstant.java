@@ -30,7 +30,7 @@ public class ExpBrwAttendeeConstant {
 	public static final String JFN_TITLE = "title";
 	public static final String JFN_FNAME = "fname";
 	public static final String JFN_LNAME = "lname";
-	public static final String JFN_UNIT_TYPE = "unit_type";
+	public static final String JFN_UNIT_TYPE = "utype";
 	public static final String JFN_POSITION = "position";
 	public static final String JFN_POSITION_ID = "position_id";
 	public static final String JFN_CREATED_TIME = "createdTime";

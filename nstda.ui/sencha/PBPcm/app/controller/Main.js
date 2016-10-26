@@ -892,7 +892,8 @@ Ext.define('PBPcm.controller.Main', {
 		      url:me.URL+"/get",
 		      method: "GET",
 		      params: {
-		    	  id : rec.get("id")
+		    	  id : rec.get("id"),
+		    	  lang:getLang()
 		      },
 		      success: function(response){
 		    	  

@@ -62,7 +62,7 @@
     </select>
 
     
-	<select id="listWorkflowPath" resultType="map" parameterType="string">    
+	<select id="listWorkflowPath" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="string">    
 	    SELECT actor as LEVEL,TRIM(BOTH ',' FROM actor_user) AS U,TRIM(BOTH ',' FROM actor_group) AS G,LEVEL AS ORDERVAL
 		FROM pb2_main_workflow_next_actor
 		WHERE master_id=#{id}

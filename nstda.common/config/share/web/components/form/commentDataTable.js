@@ -19,11 +19,12 @@
     * @return {Alfresco.UserDataTable} The new UserDataTable instance
     * @constructor
     */
-   Alfresco.UserDataTable = function Alfresco_UserDataTable(htmlId, currentValueHtmlId, dsUrl)
+   Alfresco.UserDataTable = function Alfresco_UserDataTable(htmlId, currentValueHtmlId, dsUrl, dsSuffix)
    {
       Alfresco.UserDataTable.superclass.constructor.call(this, "Alfresco.UserDataTable", htmlId, ["button", "container", "datasource", "datatable"]);
       this.currentValueHtmlId = currentValueHtmlId;
       this.dsUrl = dsUrl;
+      this.dsSuffix = dsSuffix;
       
       return this;
    };
@@ -116,7 +117,7 @@
 			   ];          
           
           var dsFieldValue = Dom.get(this.currentValueHtmlId).value;
-          var url = Alfresco.constants.PROXY_URI_RELATIVE + this.dsUrl + dsFieldValue;
+          var url = Alfresco.constants.PROXY_URI_RELATIVE + this.dsUrl + dsFieldValue + this.dsSuffix;
 		  var myCallback = {
 			  success: function(o) {
 			        var fieldValue = o.responseText;

@@ -82,9 +82,10 @@ public class PcmOrdWebScript {
 		String searchTerm = null;
 		
 		if (s != null && !s.equals("")) {
-			searchTerm = "%" + s + "%";
+    		String[] terms = s.split(" ");
+        	
+    		params.put("terms", terms);
 		}
-		params.put("searchTerm", searchTerm);
 		params.put("start", start);
 		params.put("limit", limit);
 		
@@ -132,8 +133,8 @@ public class PcmOrdWebScript {
 		String json = null;
 		
 		try {
-			List<PcmOrdModel> list = pcmOrdService.list(params);
-			json = PcmOrdUtil.jsonSuccess(list);
+			List<Map<String, Object>> list = pcmOrdService.list(params);
+			json = CommonUtil.jsonSuccess(list);
 			
 		} catch (Exception ex) {
 			log.error("", ex);
@@ -159,13 +160,15 @@ public class PcmOrdWebScript {
   }
   
   @Uri(URI_PREFIX+"/get")
-  public void handleGet(@RequestParam final String id, final WebScriptResponse response)
+  public void handleGet(@RequestParam final String id,
+		  				@RequestParam final String lang,
+		  				final WebScriptResponse response)
       throws Exception {
 		
 	String json = null;
 	 
 	try {
-	  PcmOrdModel model = pcmOrdService.get(id);
+	  PcmOrdModel model = pcmOrdService.get(id, lang);
 	  
 	  List<PcmOrdModel> list = new ArrayList<PcmOrdModel>();
 	  list.add(model);

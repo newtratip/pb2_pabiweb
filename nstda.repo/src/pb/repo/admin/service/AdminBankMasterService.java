@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import pb.common.constant.JsonConstant;
+import pb.common.util.CommonUtil;
 import pb.repo.admin.constant.MainBankMasterConstant;
 import pb.repo.admin.dao.MainBankMasterDAO;
 import pb.repo.common.mybatis.DbConnectionFactory;
@@ -55,6 +56,8 @@ public class AdminBankMasterService {
     			Map<String, Object> map = new HashMap<String, Object>();
 	    		map.put(JsonConstant.COMBOBOX_ID, (Integer)tmpMap.get(MainBankMasterConstant.TFN_ID));
 	    		map.put(JsonConstant.COMBOBOX_NAME, (String)tmpMap.get(nameLang));
+	    		
+	    		tmpMap = CommonUtil.removeThElement(tmpMap);
 	    		map.put(JsonConstant.COMBOBOX_DATA, tmpMap);
 	    		
 	    		list.add(map);

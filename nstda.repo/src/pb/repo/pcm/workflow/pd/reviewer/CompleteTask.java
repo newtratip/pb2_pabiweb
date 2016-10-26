@@ -130,7 +130,7 @@ public class CompleteTask implements TaskListener {
 					
 						Object id = ObjectUtils.defaultIfNull(task.getVariable(WF_PREFIX+"id"), "");
 						log.info("  id :: " + id.toString());
-						PcmOrdModel model = pcmOrdService.get(id.toString());
+						PcmOrdModel model = pcmOrdService.get(id.toString(), null);
 						Integer level = model.getWaitingLevel();
 						Integer lastLevel = mainWorkflowService.getLastReviewerLevel(model.getId());
 						ExecutionEntity executionEntity = ((ExecutionEntity)task.getExecution()).getProcessInstance();

@@ -79,4 +79,35 @@ public class AdminSectionProjectService {
 		
 		return list;
 	}
+	
+	public Map<String, Object> get(String type, String id, String lang) {
+		
+		Map<String, Object> map = new HashMap<String,Object>();
+		
+        try {
+        	if (type.equals(MainBudgetSrcConstant.TYPE_UNIT)) {
+        		Map<String, Object> tmpMap = sectionService.get(Integer.parseInt(id));
+        		
+        		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
+        		
+        		map.put("data", tmpMap.get("description"+lang));
+        	}
+        	else
+        	if (type.equals(MainBudgetSrcConstant.TYPE_PROJECT)) {
+        		Map<String, Object> tmpMap = projectService.get(Integer.parseInt(id));
+        		
+        		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
+        		
+        		map.put("data", "["+((String)tmpMap.get("code")).trim() + "] " + tmpMap.get("name"+lang));
+        	} else {
+        		// do nothing
+        	}
+        	
+        	
+        } catch (Exception ex) {
+        	log.error(ex);
+        }
+		
+		return map;
+	}
 }

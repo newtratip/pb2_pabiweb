@@ -14,9 +14,9 @@ public interface PcmReqDAO {
 	
 	public Long count();
 	
-	public PcmReqModel get(String id);
+	public PcmReqModel get(Map<String, Object> params);
 
-	public List<PcmReqModel> list(Map<String, Object> params);
+	public List<Map<String, Object>> list(Map<String, Object> params);
 	public List<PcmReqModel> listForSearch(Map<String, Object> params);
 	public List<Map<String, Object>> listForInf(Map<String, Object> params);
 	

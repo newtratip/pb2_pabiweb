@@ -33,6 +33,9 @@ public class ExpBrwDtlUtil {
 			
 			jsObj.put(ExpBrwDtlConstant.JFN_ID, model.getId());
 			jsObj.put(ExpBrwDtlConstant.JFN_MASTER_ID, model.getMasterId());
+			jsObj.put(ExpBrwDtlConstant.JFN_ACT_ID, model.getActId());
+			jsObj.put(ExpBrwDtlConstant.JFN_ACT_GRP_ID, model.getActGrpId());
+			jsObj.put(ExpBrwDtlConstant.JFN_CONDITION_1, model.getCondition1());
 			jsObj.put(ExpBrwDtlConstant.JFN_ACTIVITY, model.getActivity());
 			jsObj.put(ExpBrwDtlConstant.JFN_AMOUNT, model.getAmount());
 			jsObj.put(ExpBrwDtlConstant.JFN_CREATED_TIME, model.getCreatedTime());
@@ -57,6 +60,11 @@ public class ExpBrwDtlUtil {
 				
 				ExpBrwDtlModel model = new ExpBrwDtlModel();
 				model.setMasterId(masterId);
+				model.setActId(jsonObj.getInt(ExpBrwDtlConstant.JFN_ACT_ID));
+				model.setActGrpId(jsonObj.getInt(ExpBrwDtlConstant.JFN_ACT_GRP_ID));
+				model.setActName(jsonObj.getString(ExpBrwDtlConstant.JFN_ACT_NAME));
+				model.setActGrpName(jsonObj.getString(ExpBrwDtlConstant.JFN_ACT_GRP_NAME));
+				model.setCondition1(jsonObj.getString(ExpBrwDtlConstant.JFN_CONDITION_1));
 				model.setActivity(jsonObj.getString(ExpBrwDtlConstant.JFN_ACTIVITY));
 				model.setAmount(jsonObj.getDouble(ExpBrwDtlConstant.JFN_AMOUNT));
 				

@@ -10,6 +10,7 @@ public class ExpUseModel extends SubModuleModel {
 	String reqBy;
 	
 	String objective;
+	String reason;
 	
 	Integer budgetCc;
 	String budgetCcType;
@@ -251,6 +252,12 @@ public class ExpUseModel extends SubModuleModel {
 	}
 	public void setCostControlTypeName(String costControlTypeName) {
 		this.costControlTypeName = costControlTypeName;
+	}
+	public String getReason() {
+		return reason;
+	}
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 	
 }

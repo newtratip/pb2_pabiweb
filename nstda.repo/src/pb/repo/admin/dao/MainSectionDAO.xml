@@ -14,7 +14,7 @@
         
     </resultMap>
 
-	<select id="list" resultType="map" parameterType="map">
+	<select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select * from 
 		pb2_section_view
 		<if test="terms != null">
@@ -32,12 +32,12 @@
 		    pb2_ext_res_section
     </select>
     
-    <select id="get" resultType="map" parameterType="int">
-        select *,id section_id from pb2_ext_res_section
+    <select id="get" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
+        select * from pb2_section_view
         where id=#{id}
     </select>
 
-	<!-- select id="listWarehouse" resultType="map" parameterType="map">
+	<!-- select id="listWarehouse" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select w.name warehouse, p.id as picking_type_id, p.name as picking_type_name
 		from pb2_ext_res_section s join pb2_ext_res_org o on s.org_id = o.id
 		join pb2_ext_stock_warehouse w on o.operating_unit_id = w.operating_unit_id

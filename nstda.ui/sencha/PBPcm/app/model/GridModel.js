@@ -3,6 +3,7 @@ Ext.define('PBPcm.model.GridModel', {
     fields : [ {name : 'id'}
     		 , {name : 'req_by'}
     		 , {name : 'req_ou'}
+    		 , {name : 'objective_type_name'}
     		 , {name : 'objective_type'}
     		 , {name : 'objective'}
     		 , {name : 'currency'}
@@ -17,11 +18,11 @@ Ext.define('PBPcm.model.GridModel', {
     		 , {name : 'file_name'}
     		 , {name : 'folder_ref'}
     		 , {name : 'status'}
-    		 , {name : 'wfStatus'}
+    		 , {name : 'wfstatus'}
     		 , {name : 'created_by'}
     		 , {name : 'updated_by'}
     		 , {name : 'updated_time'}
-    		 , {name : 'overDue'}
+    		 , {name : 'overdue'}
     		 , {name : 'action'}
     ]
 });

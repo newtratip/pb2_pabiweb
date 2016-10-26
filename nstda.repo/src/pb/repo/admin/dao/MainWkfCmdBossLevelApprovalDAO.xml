@@ -23,11 +23,11 @@
 		    pb2_ext_wkf_cmd_boss_level_approval
     </select>
     
-	<select id="listBoss" resultType="map" parameterType="map">
+	<select id="listBoss" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select 	b.org_id,
 				b.section_id,
 				employee_id,
-				lpad(employee_code, 6 ,'0') employee_code,
+				employee_code,
 				l.name lvl,
 				amount_min,
 				amount_max,

@@ -73,7 +73,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 		}); 
 		
 		//columns.push({ text: 'Requested Time',  dataIndex: 'created_time_show', width:130});
-		columns.push({ text: PBPcmOrd.Label.m.status,  dataIndex: 'wfStatus', width:300,
+		columns.push({ text: PBPcmOrd.Label.m.status,  dataIndex: 'wfstatus', width:300,
 		  	  renderer: function (v, m, r) {
 			
 					if (r.get("overDue")) {
@@ -151,7 +151,7 @@ Ext.define('PBPcmOrd.view.MainGrid', {
 		if (Ext.get(id)) {
             Ext.widget('linkbutton', {
                 renderTo: id,
-                text: s+' (' + r.get("wfStatus") + ')',
+                text: s+' (' + r.get("wfstatus") + ')',
                 iconCls:'icon_postpone',
                 width: 75,
                 handler: function () { 

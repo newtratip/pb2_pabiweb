@@ -158,6 +158,8 @@ public class InterfaceService {
 		        line.put("invest_construction_phase_id.id",cid);
 		        line.put("fund_id.id",fundid);
 		        line.put("is_advance_product_line","True");
+		        line.put("activity_group_id.id",String.valueOf(dtl.get("act_grp_id")));
+		        line.put("activity_id.id",String.valueOf(dtl.get("act_id")));
 		        line.put("name",dtl.get("activity"));
 		        line.put("unit_amount",String.valueOf(dtl.get("amount")));
 		        line.put("cost_control_id.id", ccid);
@@ -210,6 +212,7 @@ public class InterfaceService {
 		        nonemployee.put("sequence", String.valueOf(seq++));
 		        nonemployee.put("attendee_name", nonemp.get("title")+" "+nonemp.get("fname")+" "+nonemp.get("lname")); 
 		        nonemployee.put("position", nonemp.get("position")!=null ? nonemp.get("position") : ""); 
+		        nonemployee.put("organization", nonemp.get("unit_type")!=null ? nonemp.get("unit_type") : ""); 
 		        nonemployees.add(nonemployee);
 		        
 		        for(String key : nonemployee.keySet()) {
@@ -284,7 +287,7 @@ public class InterfaceService {
 	}	
 	
 	public String createEX(ExpUseModel model) throws Exception {
-		log.info("interface : createAP");
+		log.info("interface : createEX");
 		
 		Boolean success = false;
 		String msgs = null;
@@ -317,6 +320,7 @@ public class InterfaceService {
 	        map.put("name", data.get("objective"));
 	        map.put("note", "");
 	        map.put("apweb_ref_url", NodeUtil.trimNodeRef((String)data.get("doc_ref")));
+	        map.put("reason_bypass_procure", data.get("reason")!=null ? data.get("reason") : "");
 	        
 	        String payType = (String)data.get("pay_type");
 	        String payTo = null;
@@ -440,6 +444,7 @@ public class InterfaceService {
 		        nonemployee.put("sequence", String.valueOf(seq++));
 		        nonemployee.put("attendee_name", nonemp.get("title")+" "+nonemp.get("fname")+" "+nonemp.get("lname")); 
 		        nonemployee.put("position", nonemp.get("position")!=null ? nonemp.get("position") : ""); 
+		        nonemployee.put("organization", nonemp.get("unit_type")!=null ? nonemp.get("unit_type") : ""); 
 		        nonemployees.add(nonemployee);
 		        
 		        for(String key : nonemployee.keySet()) {

@@ -19,7 +19,7 @@
         <result property="updatedBy" column="updated_by"/>
     </resultMap>
     
-    <select id="list" resultType="map" parameterType="map">
+    <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
     
         SELECT
 		    a.*, COUNT(*) OVER() totalRowCount,
@@ -151,7 +151,7 @@
 		WHERE id=#{id}
     </select>
     
-    <select id="listForInf" resultType="map" parameterType="map">
+    <select id="listForInf" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select 
 			d.description, 
 			d.quantity, 

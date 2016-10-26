@@ -91,6 +91,9 @@
 				<property name="pcmordwf:lang">
 					<type>d:text</type>
 				</property>
+				<property name="pcmordwf:description">
+					<type>d:text</type>
+				</property>
 				
 			</properties>
 			

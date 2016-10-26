@@ -51,6 +51,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pb.common.constant.CommonConstant;
 import pb.common.model.FileModel;
+import pb.common.util.CommonDateTimeUtil;
+import pb.common.util.CommonUtil;
 import pb.common.util.FileUtil;
 import pb.common.util.FolderUtil;
 import pb.common.util.NodeUtil;
@@ -62,7 +64,6 @@ import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
 import pb.repo.admin.dao.MainWorkflowReviewerDAO;
-import pb.repo.admin.model.MainHrEmployeeModel;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainWorkflowHistoryModel;
 import pb.repo.admin.model.MainWorkflowNextActorModel;
@@ -79,7 +80,6 @@ import pb.repo.admin.util.MainUserGroupUtil;
 import pb.repo.common.mybatis.DbConnectionFactory;
 import pb.repo.pcm.constant.PcmOrdConstant;
 import pb.repo.pcm.constant.PcmOrdWorkflowConstant;
-import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.dao.PcmOrdDAO;
 import pb.repo.pcm.exception.NotFoundApprovalMatrixException;
 import pb.repo.pcm.model.PcmOrdModel;
@@ -268,26 +268,27 @@ public class PcmOrdService implements SubModuleService {
 		/*
 		 * Save Doc
 		 */
-		model.setDocRef(genDoc(model, folderNodeRef, docMap));
+		model.setDocRef(genDoc(model, folderNodeRef, docMap, getDocDesc()));
     	
     	/*
     	 * Save Attachments
     	 */
     	for(Map<String, Object> attMap : attList) {
     		log.info(" + "+attMap.get("name"));
-		    model.setAttachDoc(genDoc(model, folderNodeRef, attMap));
+		    model.setAttachDoc(genDoc(model, folderNodeRef, attMap, ""));
     	}
 	}
 	
-	public String genDoc(PcmOrdModel model, NodeRef folderNodeRef, Map<String, Object> docMap) throws Exception {
+	public String genDoc(PcmOrdModel model, NodeRef folderNodeRef, Map<String, Object> docMap, String docDesc) throws Exception {
 
 		NodeRef docRef = null;
 		
 		if (docMap.get("url")!=null && !((String)docMap.get("url")).equals("")) {
 			String url = (String)docMap.get("url"); 
 			docRef = new NodeRef(NodeUtil.fullNodeRef(url));
+			log.info("Gen Doc : "+docRef.toString());
 			
-			NodeRef refDocRef = alfrescoService.createLink(folderNodeRef, docRef, "Link to "+(String)docMap.get("name"));
+			NodeRef refDocRef = alfrescoService.createLink(folderNodeRef, docRef, (String)docMap.get("name"));
 		} else {
 			/*
 			 * Convert Base64 String to InputStream 
@@ -306,7 +307,7 @@ public class PcmOrdService implements SubModuleService {
 	    		alfrescoService.cancelCheckout(oldDocRef);
 	    		alfrescoService.deleteFileFolder(oldDocRef.toString());
 	    	}
-	    	docRef = alfrescoService.createDoc(folderNodeRef, is, ecmFileName, getDocDesc());
+	    	docRef = alfrescoService.createDoc(folderNodeRef, is, ecmFileName, docDesc);
 		}
 		
 		return docRef.toString();
@@ -314,7 +315,7 @@ public class PcmOrdService implements SubModuleService {
 	
 	public List<FileModel> listFile(String id) throws Exception {
 
-		final PcmOrdModel model = get(id);
+		final PcmOrdModel model = get(id, null);
 		log.info("list file : memoId:"+model.getId());
 		
 		final NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
@@ -423,7 +424,7 @@ public class PcmOrdService implements SubModuleService {
     			cal.add(Calendar.YEAR, 1);
     		}
     		Timestamp timestampValue = new Timestamp(cal.getTimeInMillis());
-    		map.put(PcmReqConstant.JFN_FISCAL_YEAR, timestampValue);
+    		map.put(PcmOrdConstant.JFN_FISCAL_YEAR, timestampValue);
 			
 			
 			Iterator it = map.keys();
@@ -446,9 +447,9 @@ public class PcmOrdService implements SubModuleService {
 				paths.add(folderMap);
 				
 				int pos;
-				if (format.indexOf(PcmReqConstant.JFN_FISCAL_YEAR) >= 0
-					|| format.indexOf(PcmReqConstant.JFN_CREATED_TIME) >= 0
-					|| format.indexOf(PcmReqConstant.JFN_UPDATED_TIME) >= 0
+				if (format.indexOf(PcmOrdConstant.JFN_FISCAL_YEAR) >= 0
+					|| format.indexOf(PcmOrdConstant.JFN_CREATED_TIME) >= 0
+					|| format.indexOf(PcmOrdConstant.JFN_UPDATED_TIME) >= 0
 					) {
 					
 					String dFormat = CommonConstant.RDF_DATE;
@@ -515,9 +516,9 @@ public class PcmOrdService implements SubModuleService {
 //		model.setRequesterGroup(apModel.getRequesterGroup());
 	}
 	
-	public List<PcmOrdModel> list(Map<String, Object> params) {
+	public List<Map<String, Object>> list(Map<String, Object> params) {
 		
-		List<PcmOrdModel> list = null;
+		List<Map<String, Object>> list = null;
 		
 		SqlSession session = PcmUtil.openSession(dataSource);
         try {
@@ -525,18 +526,25 @@ public class PcmOrdService implements SubModuleService {
             log.info("pcm req list param:"+params);
     		list = dao.list(params);
     		
-    		String lang = (String)params.get("lang");
+    		String lang = ((String)params.get("lang")).toUpperCase();
     		
-    		for(PcmOrdModel model : list) {
-    			model.setWfStatus(
-    					model.getWfBy()
-    					+"-"+
-    					model.getWfStatus()
-    					+"-"+
-    					model.getWfByTime()
-    			);
-    		}
-    		
+    		for(Map<String, Object> map : list) {
+
+				map.put(PcmOrdConstant.JFN_WF_STATUS, 
+						map.get(PcmOrdConstant.TFN_WF_BY+lang)
+						+"-"+
+						map.get(PcmOrdConstant.TFN_WF_STATUS+lang)
+						+"-"+
+						CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(PcmOrdConstant.TFN_WF_BY_TIME))
+				);
+				map.put(PcmOrdConstant.JFN_CREATED_BY,map.get(PcmOrdConstant.TFN_CREATED_BY+lang));
+				map.put(PcmOrdConstant.JFN_CREATED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(PcmOrdConstant.TFN_CREATED_TIME)));
+				map.put(PcmOrdConstant.JFN_ORG_NAME,map.get(PcmOrdConstant.TFN_ORG_NAME+lang));
+				
+				map.put(PcmOrdConstant.JFN_ACTION, PcmOrdUtil.getAction(map));
+				
+				map = CommonUtil.removeThElement(map);
+			}
             
         } catch (Exception ex) {
 			log.error("", ex);
@@ -558,7 +566,7 @@ public class PcmOrdService implements SubModuleService {
             MainWorkflowReviewerDAO workflowReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
             MainWorkflowNextActorDAO workflowNextActorDAO = session.getMapper(MainWorkflowNextActorDAO.class);
 
-    		PcmOrdModel model = get(id);
+    		PcmOrdModel model = get(id, null);
     		boolean exists = (model.getFolderRef()!=null) && fileFolderService.exists(new NodeRef(model.getFolderRef()));    		
     		if(exists) {
     			alfrescoService.deleteFileFolder(model.getFolderRef());
@@ -593,7 +601,7 @@ public class PcmOrdService implements SubModuleService {
         }
 	}
 	
-	public PcmOrdModel get(String id) {
+	public PcmOrdModel get(String id, String lang) {
 		
 		PcmOrdModel model = null;
 		
@@ -685,7 +693,7 @@ public class PcmOrdService implements SubModuleService {
 		/*
 		 * Add Requester
 		 */
-		PcmOrdModel model = get(id);
+		PcmOrdModel model = get(id, null);
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("LEVEL", mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_SUPERVISOR, lang, null));
@@ -827,8 +835,10 @@ public class PcmOrdService implements SubModuleService {
 		}
 		parameters.put(PcmOrdWorkflowConstant.PROP_METHOD, desc);
 		
-		MainHrEmployeeModel empModel = adminHrEmployeeService.get(model.getAppBy());
-		parameters.put(PcmOrdWorkflowConstant.PROP_REQUESTER, empModel.getFirstName()+" "+empModel.getLastName());
+		
+//		MainHrEmployeeModel empModel = adminHrEmployeeService.get(model.getAppBy());
+//		parameters.put(PcmOrdWorkflowConstant.PROP_REQUESTER, empModel.getFirstName()+" "+empModel.getLastName());
+		parameters.put(PcmOrdWorkflowConstant.PROP_REQUESTER, model.getAppBy());
 	}
 
 	@Override
@@ -1169,5 +1179,23 @@ public class PcmOrdService implements SubModuleService {
 		List<String> list = Arrays.asList(tgs);
 		
 		return list;
+	}
+
+	@Override
+	public String getWorkflowDescriptionEn(SubModuleModel paramModel)
+			throws Exception {
+		PcmOrdModel model = (PcmOrdModel)paramModel;
+		
+		PcmOrdModel enModel = new PcmOrdModel();
+		enModel.setId(model.getId());
+		enModel.setObjective(model.getObjective());
+		enModel.setStatus("");
+		
+		return getWorkflowDescription(enModel);
+	}
+
+	@Override
+	public QName getPropDescEn() {
+		return PcmOrdWorkflowConstant.PROP_DESCRIPTION;
 	}
 }

@@ -60,7 +60,7 @@ public class EndTask implements ExecutionListener {
 			String id = (String)ObjectUtils.defaultIfNull(execution.getVariable(WF_PREFIX+"id"), "");
 			log.info("  id:" + id);
 			
-			ExpUseModel model = expUseService.get(id.toString());
+			ExpUseModel model = expUseService.get(id.toString(), null);
 			model.setStatus(ExpUseConstant.ST_CLOSED_BY_ACT);
 			expUseService.updateStatus(model);
 			

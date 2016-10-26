@@ -12,7 +12,7 @@
         
     </resultMap>
     
-    <select id="list" resultType="hashmap" parameterType="map">
+    <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
        SELECT 		*
 	   FROM 		pb2_ext_account_tax
 	   WHERE type_tax_use='purchase'
@@ -24,7 +24,7 @@
 	   ORDER BY id DESC
     </select>
     
-    <select id="get" resultType="map" parameterType="int">
+    <select id="get" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
         select * from pb2_ext_account_tax
         where id=#{id}
     </select>    

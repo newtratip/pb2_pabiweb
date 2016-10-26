@@ -16,6 +16,9 @@ Ext.define('PB.controller.common.OtherUser', {
 	},{
     	ref:'txtLName',
     	selector:'searchOtherUserDlg field[name=lname]'
+	},{
+    	ref:'txtSection',
+    	selector:'searchOtherUserDlg field[name=section]'
     },{
     	ref:'txtPosition',
     	selector:'searchOtherUserDlg field[name=position]'
@@ -64,6 +67,7 @@ Ext.define('PB.controller.common.OtherUser', {
 			r.data.title = me.getTxtTitle().getValue();
 			r.data.fname = me.getTxtFName().getValue();
 			r.data.lname = me.getTxtLName().getValue();
+			r.data.utype = me.getTxtSection().getValue();
 			
 			if (me.getDlg().needPosition) {
 				r.data.position = me.getTxtPosition().getValue();

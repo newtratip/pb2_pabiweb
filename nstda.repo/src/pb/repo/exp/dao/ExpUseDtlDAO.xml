@@ -114,7 +114,7 @@
 		WHERE id=#{id}
     </select>
     
-    <select id="listForInf" resultType="map" parameterType="map">
+    <select id="listForInf" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select 
 			d.act_id,
 			d.act_grp_id,

@@ -22,7 +22,7 @@
 		    pb2_ext_wkf_config_doctype
     </select>
     
-    <select id="getByName" resultType="map" parameterType="string">
+    <select id="getByName" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="string">
         select
 		    *
 		from

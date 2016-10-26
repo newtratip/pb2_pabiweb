@@ -62,7 +62,7 @@ public class CreateTask implements TaskListener {
 		
 			String id = (String)ObjectUtils.defaultIfNull(executionEntity.getVariable(WF_PREFIX+"id"), "");
 			log.info("  id:" + id);
-			ExpUseModel model = expUseService.get(id.toString());
+			ExpUseModel model = expUseService.get(id.toString(), null);
 			Integer level = model.getWaitingLevel();
 			
 			task.setVariable("bpm_status", mainWorkflowService.getWorkflowStatus(WF_PREFIX, executionEntity, taskKey, level));

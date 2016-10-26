@@ -120,7 +120,7 @@ public class EndRemoteExecutor implements ExecutionListener {
 					}
 					
 					String finalAction = (String)execution.getVariable(WF_PREFIX+"reSubmitOutcome");
-					PcmOrdModel model = pcmOrdService.get(id.toString());
+					PcmOrdModel model = pcmOrdService.get(id.toString(), null);
 					Integer level = model.getWaitingLevel();
 					log.info("finalAction:"+finalAction);
 					mainWorkflowService.setModuleService(pcmOrdService);

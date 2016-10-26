@@ -52,7 +52,7 @@ public class PcmOrdInvocationHandler
     		 * Create Pcm Ord
     		 */
     		Boolean found = false;
-    		PcmOrdModel model = pcmOrdService.get((String)params.get("pdNo"));
+    		PcmOrdModel model = pcmOrdService.get((String)params.get("pdNo"), null);
     		if (model==null) {
     			model = new PcmOrdModel();
         		model.setId((String)params.get("pdNo"));

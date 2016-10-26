@@ -23,6 +23,12 @@ public class PcmOrdConstant extends SubModuleConstant {
 	public static final String TFN_TOTAL = "TOTAL";
 	public static final String TFN_STATUS = "STATUS";
 	
+	public static final String TFN_WF_BY = "WF_BY";
+	public static final String TFN_WF_STATUS = "WF_STATUS";
+	public static final String TFN_WF_BY_TIME = "WF_BY_TIME";
+	
+	public static final String TFN_ORG_NAME = "ORG_NAME";
+	
     /*
      * JSON Field Name
      */
@@ -37,6 +43,8 @@ public class PcmOrdConstant extends SubModuleConstant {
 	public static final String JFN_STATUS = "status";
 	public static final String JFN_WF_STATUS = "wfStatus";
 	public static final String JFN_ACTION = "action";
+	
+	public static final String JFN_FISCAL_YEAR = "fiscal_year";
 	
 	public static final String JFN_CREATED_TIME_SHOW = "created_time_show";
 

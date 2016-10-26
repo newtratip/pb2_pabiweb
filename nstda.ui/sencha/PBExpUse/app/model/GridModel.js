@@ -16,7 +16,7 @@ Ext.define('PBExpUse.model.GridModel', {
     		 , {name : 'doc_ref'}
     		 , {name : 'folder_ref'}
     		 , {name : 'status'}
-    		 , {name : 'wfStatus'}
+    		 , {name : 'wfstatus'}
     		 , {name : 'created_by'}
     		 , {name : 'updated_by'}
     		 , {name : 'updated_time'}

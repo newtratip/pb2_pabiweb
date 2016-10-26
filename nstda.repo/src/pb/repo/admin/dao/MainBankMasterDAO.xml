@@ -11,7 +11,7 @@
         
     </resultMap>
     
-    <select id="list" resultType="hashmap" parameterType="map">
+    <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
        SELECT * FROM (
 	       SELECT id,code,name,coalesce(ir.value,name) name_th
 		   FROM  pb2_ext_bank_master m
@@ -30,7 +30,7 @@
 	   ORDER BY name${lang}
     </select>
     
-    <select id="get" resultType="map" parameterType="int">
+    <select id="get" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
         select * from pb2_ext_bank_master
         where id=#{id}
     </select>    

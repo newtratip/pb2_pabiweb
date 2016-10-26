@@ -22,7 +22,7 @@
 		    pb2_ext_res_project_member
     </select>
     
-	<select id="listProjectManager" resultType="map" parameterType="map">
+	<select id="listProjectManager" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select project_id, employee_id, e.section_id, 
 		lpad(e.employee_code, 6 ,'0') employee_code
 		from pb2_ext_res_project_member m, pb2_ext_hr_employee e
@@ -31,7 +31,7 @@
 		and  m.project_position = 'manager'
 	</select>    
 
-	<select id="listPMSpecialBudget" resultType="map" parameterType="map">
+	<select id="listPMSpecialBudget" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select pm.project_id, pm.employee_id, amount_min, amount_max 
 		from pb2_ext_res_project_member pm,
 		     pb2_ext_wkf_cmd_special_amount_project_approval am,
@@ -39,7 +39,7 @@
 		where project_position = 'manager'
 		and pm.employee_id=am.employee_id
 		and am.doctype_id=d.id
-		and d.name='PR'
+		and d.name=#{module}
 		and pm.project_id =  #{projectId}
 	</select>    
 	

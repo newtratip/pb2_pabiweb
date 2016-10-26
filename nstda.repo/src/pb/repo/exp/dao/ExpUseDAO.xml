@@ -6,6 +6,7 @@
         <result property="id" column="id"/>
         <result property="reqBy" column="req_by"/>
         <result property="objective" column="objective"/>
+        <result property="reason" column="reason"/>
         <result property="budgetCc" column="budget_cc"/>
         <result property="budgetCcType" column="budget_cc_type"/>
         <result property="budgetCcName" column="budget_cc_name"/>
@@ -43,9 +44,25 @@
         <result property="waitingDay" column="waiting_day"/>
     </resultMap>
     
-    <select id="list" resultMap="result" parameterType="map">
+    <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
+		select *
+		from pb2_exp_use_view
+		where 
+		(created_by_code = #{loginE} or req_by_code = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
+		<if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+				concat(id,' ',objective, ' ',created_by, ' ',created_by_th, ' ',req_by, ' ',req_by_th, ' ',pay_type_name, ' ',pay_type_name_th,' ', to_char(created_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  
+		<if test="status != null">
+			AND status=#{status}
+		</if>
+		ORDER BY ${orderBy}
+    </select>
+    
+    <select id="llist" resultMap="result" parameterType="map">
         SELECT
-		    REQ.ID, total, objective, 
+		    REQ.ID, total, objective, reason,
 		    	budget_cc, budget_cc_type, CASE WHEN #{lang}='' THEN b.name ELSE b.name_th END budget_cc_name,
 		    	WF_BY, WF_BY_TIME,
 				WF_STATUS, STATUS, 
@@ -72,7 +89,7 @@
 			mm.name pay_type_name,
 		    COUNT(*) OVER() totalRowCount
 		FROM
-		    (SELECT ID, total, objective, budget_cc, budget_cc_type,
+		    (SELECT ID, total, objective, reason, budget_cc, budget_cc_type,
 		    	NULL WF_BY, NULL WF_BY_TIME,
 				NULL WF_STATUS, STATUS, cost_control_id, cost_control_type_id,
 				cost_control,
@@ -109,7 +126,7 @@
 			FROM pb2_exp_use
 			WHERE STATUS='D' AND CREATED_BY=#{loginE}
  			UNION
-			SELECT ID, M.total, objective, budget_cc, budget_cc_type,
+			SELECT ID, M.total, objective, reason, budget_cc, budget_cc_type,
 				W.BY WF_BY,
 				CASE WHEN (W.STATUS IS NULL) THEN ''
 				ELSE to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI') 
@@ -208,11 +225,11 @@
 		pb2_main_master mm on REQ.pay_type=mm.code and mm.type='EXP_TYPE'
 		WHERE
 			1=1
-		<if test="searchTerm != null">
-		AND (REQ.id ilike #{searchTerm}
-		OR objective ilike #{searchTerm}
-		)			
-		</if>
+		<if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+	    			concat(REQ.id, ' ', objective, ' ', reason) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  
 		<if test="status != null">
 			AND status=#{status}
 		</if>
@@ -223,7 +240,7 @@
     
     <select id="listForSearch" resultMap="result" parameterType="map">
         SELECT
-		    REQ.ID, total, objective, 
+		    REQ.ID, total, objective, reason,
 		    	budget_cc, budget_cc_type, b.name budget_cc_name,
 				WF_STATUS, STATUS, 
 				cost_control_id, cost_control_type_id, 
@@ -245,7 +262,7 @@
 	      	COALESCE(RBY ,REQ_BY) REQ_BY,
 		    COUNT(*) OVER() totalRowCount
 		FROM
-		    (SELECT ID, M.total, objective, budget_cc, budget_cc_type,
+		    (SELECT ID, M.total, objective, reason, budget_cc, budget_cc_type,
 				CASE WHEN (W.STATUS IS NULL) THEN ''
 				ELSE CONCAT (W.BY ,'-', W.STATUS ,'-', to_char(W.BY_TIME, 'DD/MM/YYYY HH24:MI')) 
 				END WF_STATUS, M.STATUS, cost_control_id, cost_control_type_id,
@@ -299,6 +316,7 @@
 	    	id
 	    	,req_by
 	    	,objective
+	    	,reason
 	    	,budget_cc,budget_cc_type
 	    	,fund_id
 	    	,cost_control_id,cost_control_type_id,cost_control
@@ -313,6 +331,7 @@
 	    	#{id}
 	    	,#{reqBy}
 	    	,#{objective}
+	    	,#{reason}
 	    	,#{budgetCc},#{budgetCcType}
 	    	,#{fundId}
 	    	,#{costControlId},#{costControlTypeId},#{costControl}
@@ -354,6 +373,7 @@
 		</if>			
 		,req_by =#{reqBy}
 	    ,objective =#{objective}
+	    ,reason =#{reason}
 	    ,budget_cc =#{budgetCc}
 	    ,budget_cc_type =#{budgetCcType}
 	    ,fund_id =#{fundId}
@@ -377,12 +397,13 @@
      WHERE id=#{id}
     </update>
     
-    <select id="get" parameterType="string" resultMap="result">
+    <select id="get" parameterType="map" resultMap="result">
         SELECT
-		    *, b.name budget_cc_name, c.name cost_control_name, ct.name cost_control_type_name, f.name fund_name,
+		    *, CASE WHEN #{lang}='' THEN b.name ELSE b.name_th END budget_cc_name,
+		    c.name cost_control_name, ct.name cost_control_type_name, f.name fund_name,
 		    CASE 
-  				WHEN budget_cc_type='U' THEN 'หน่วยงาน'
-            	WHEN budget_cc_type='P' THEN 'โครงการ'
+  				WHEN budget_cc_type='U' THEN CASE WHEN #{lang}='' THEN 'Organization' ELSE 'หน่วยงาน' END 
+            	WHEN budget_cc_type='P' THEN CASE WHEN #{lang}='' THEN 'Project' ELSE 'โครงการ' END
             	ELSE budget_cc_type
        		END budget_cc_type_name,
        		ic.name icharge_name,
@@ -395,12 +416,24 @@
 		    pb2_exp_use r
 		LEFT JOIN
 		(
-		select 'U' _type,id,'['||trim(code)||'] '||name as name
-		from pb2_ext_res_section
-		union
-		select 'P' _type,id,'['||trim(code)||'] '||name as name
-		from pb2_ext_res_project
-		) b on (r.budget_cc_type = b._type and r.budget_cc = b.id)
+			select 'U' _type,id,concat('[',trim(code),'] ',name) "name", concat('[',trim(code),'] ',name_th) name_th
+			from (select code,id,name,
+				coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'res.section,name'
+					and type = 'model' and lang='th_TH'
+					and res_id = sec.id), name) as name_th
+				from pb2_ext_res_section sec) s
+			union
+			select 'P' _type,id,concat('[',trim(code),'] ',name) "name", concat('[',trim(code),'] ',name_th) name_th
+			from (select p.id,p.name, p.code,
+			coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'res.project,name'
+				and type = 'model' and lang='th_TH'
+				and res_id = p.id), p.name) as name_th
+				FROM pb2_ext_res_project p) pro
+		) b on (r.budget_cc_type = b._type and r.budget_cc = b.id)		
 		
 		LEFT JOIN
 		(
@@ -459,7 +492,7 @@
     </update>
     
     
-    <select id="listForInf" resultType="map" parameterType="map">
+    <select id="listForInf" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select
 			ap.id ap_id,
 			ap.req_by,
@@ -467,6 +500,7 @@
 			w.by_time,
 			ap.updated_time, 	
 			objective,
+			reason,
 			bank_type,
 			bank,
 			cost_control_to,
@@ -485,7 +519,7 @@
 		where ap.id=#{id}
     </select>
     
-    <select id="getFirstApprover" parameterType="string" resultType="map">
+    <select id="getFirstApprover" parameterType="string" resultType="org.apache.commons.collections.map.CaseInsensitiveMap">
 		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
@@ -498,7 +532,7 @@
 		LIMIT 1
     </select>
     
-    <select id="getLastApprover" parameterType="string" resultType="map">
+    <select id="getLastApprover" parameterType="string" resultType="org.apache.commons.collections.map.CaseInsensitiveMap">
 		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id

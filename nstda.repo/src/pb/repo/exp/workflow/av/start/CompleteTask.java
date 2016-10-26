@@ -172,7 +172,7 @@ public class CompleteTask implements ExecutionListener {
 					Object id = ObjectUtils.defaultIfNull(execution.getVariable(WF_PREFIX+"id"), "");
 					
 					log.info("  id :: " + id.toString());
-					ExpBrwModel model = expBrwService.get(id.toString());
+					ExpBrwModel model = expBrwService.get(id.toString(), null);
 					Integer level = model.getWaitingLevel();
 //					Integer lastLevel = mainWorkflowService.getLastReviewerLevel(model.getId());
 //					ExecutionEntity executionEntity = ((ExecutionEntity)task.getExecution()).getProcessInstance();

@@ -86,8 +86,9 @@
 				</field>
 				 
 				<field id="pcmreqwf:objectiveType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 	<control-param name="style">width:40%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/masterValue?t=PC&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -98,14 +99,16 @@
 				</field>				
 				
 				<field id="pcmreqwf:reason"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 <control-param name="style">width: 99%</control-param> 
+					 <control-param name="dsUrl">pb/srcUrl/main/masterValue?t=PR_RSN&amp;c=</control-param> 
 				  </control>
 				</field>
 								
 				<field id="pcmreqwf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								
@@ -225,8 +228,9 @@
 				</field>
 				 
 				<field id="pcmreqwf:objectiveType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 	<control-param name="style">width:40%</control-param> 
+					<control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 40%</control-param> 
+					 <control-param name="dsUrl">pb/srcUrl/main/masterValue?t=PC&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -237,14 +241,16 @@
 				</field>				
 				
 				<field id="pcmreqwf:reason"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 <control-param name="style">width: 99%</control-param> 
+					 <control-param name="dsUrl">pb/srcUrl/main/masterValue?t=PR_RSN&amp;c=</control-param> 
 				  </control>
 				</field>
 								
 				<field id="pcmreqwf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								
@@ -359,8 +365,9 @@
 				</field>
 				 
 				<field id="pcmreqwf:objectiveType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 	<control-param name="style">width:40%</control-param> 
+					<control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 40%</control-param> 
+					 <control-param name="dsUrl">pb/srcUrl/main/masterValue?t=PC&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -371,14 +378,16 @@
 				</field>				
 				
 				<field id="pcmreqwf:reason"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 <control-param name="style">width: 99%</control-param> 
+					 <control-param name="dsUrl">pb/srcUrl/main/masterValue?t=PR_RSN&amp;c=</control-param> 
 				  </control>
 				</field>
 								
 				<field id="pcmreqwf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								
@@ -491,7 +500,7 @@
 		 <form>
 			<field-visibility>
 				<show id="pcmordwf:id"/>
-				<show id="pcmordwf:requester"/>
+				<!-- show id="pcmordwf:requester"/-->
 				<show id="pcmordwf:objective"/>
 				<show id="pcmordwf:method"/>
 				<show id="pcmordwf:total"/>
@@ -524,10 +533,12 @@
 					</control>
 				</field>
 				 
-				<field id="pcmordwf:requester" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+				<!-- field id="pcmordwf:requester" set="docInfo">
+					<control template="/pb/components/form/controls/info.ftl">
+					 	<control-param name="style">width:99%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/userName?c=</control-param> 
 					</control> 
-				</field>
+				</field-->
 				
 				<field id="pcmordwf:objective" set="docInfo">
 					<control template="/org/alfresco/components/form/controls/info.ftl">
@@ -595,7 +606,7 @@
 		 <form>
 			<field-visibility>
 				<show id="pcmordwf:id"/>
-				<show id="pcmordwf:requester"/>
+				<!-- show id="pcmordwf:requester"/-->
 				<show id="pcmordwf:objective"/>
 				<show id="pcmordwf:method"/>
 				<show id="pcmordwf:total"/>
@@ -630,10 +641,12 @@
 					</control>
 				</field>
 				 
-				<field id="pcmordwf:requester" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+				<!-- field id="pcmordwf:requester" set="docInfo">
+					<control template="/pb/components/form/controls/info.ftl">
+					 	<control-param name="style">width:99%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/userName?c=</control-param> 
 					</control> 
-				</field>
+				</field-->
 				
 				<field id="pcmordwf:objective" set="docInfo">
 					<control template="/org/alfresco/components/form/controls/info.ftl">
@@ -707,7 +720,7 @@
 		 <form>
 			<field-visibility>
 				<show id="pcmordwf:id"/>
-				<show id="pcmordwf:requester"/>
+				<!-- show id="pcmordwf:requester"/-->
 				<show id="pcmordwf:objective"/>
 				<show id="pcmordwf:method"/>
 				<show id="pcmordwf:total"/>
@@ -740,10 +753,12 @@
 					</control>
 				</field>
 				 
-				<field id="pcmordwf:requester" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+				<!--field id="pcmordwf:requester" set="docInfo">
+					<control template="/pb/components/form/controls/info.ftl">
+					 	<control-param name="style">width:99%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/userName?c=</control-param> 
 					</control> 
-				</field>
+				</field-->
 				
 				<field id="pcmordwf:objective" set="docInfo">
 					<control template="/org/alfresco/components/form/controls/info.ftl">

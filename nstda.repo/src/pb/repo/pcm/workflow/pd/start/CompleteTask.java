@@ -105,7 +105,7 @@ public class CompleteTask implements ExecutionListener {
 					Object id = ObjectUtils.defaultIfNull(execution.getVariable(WF_PREFIX+"id"), "");
 					
 					log.info("  id :: " + id.toString());
-					PcmOrdModel model = pcmOrdService.get(id.toString());
+					PcmOrdModel model = pcmOrdService.get(id.toString(), null);
 					Integer level = model.getWaitingLevel();
 					
 					String curUser = authenticationService.getCurrentUserName();

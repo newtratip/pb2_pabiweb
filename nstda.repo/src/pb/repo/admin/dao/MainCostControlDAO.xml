@@ -11,7 +11,7 @@
         
     </resultMap>
 
-	<select id="list" resultType="map" parameterType="map">
+	<select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select id,cost_control_type_id,name,description,
 		coalesce(value,name) name_th
 		from pb2_ext_cost_control c left join
@@ -38,7 +38,7 @@
 		    pb2_ext_cost_control
     </select>
     
-    <select id="get" parameterType="int" resultType="map">
+    <select id="get" parameterType="int" resultType="org.apache.commons.collections.map.CaseInsensitiveMap">
         select
 		    *
 		from

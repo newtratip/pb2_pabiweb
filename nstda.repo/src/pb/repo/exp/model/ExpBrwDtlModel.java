@@ -8,6 +8,11 @@ public class ExpBrwDtlModel extends BaseDataModel {
 	
 	Long id;
 	String masterId;
+	Integer actId;
+	String actName;
+	Integer actGrpId;
+	String actGrpName;
+	String condition1;
 	String activity;
 	Double amount;
 	
@@ -34,6 +39,46 @@ public class ExpBrwDtlModel extends BaseDataModel {
 		this.masterId = masterId;
 	}
 	
+	public Integer getActId() {
+		return actId;
+	}
+
+	public void setActId(Integer actId) {
+		this.actId = actId;
+	}
+
+	public String getActName() {
+		return actName;
+	}
+
+	public void setActName(String actName) {
+		this.actName = actName;
+	}
+
+	public Integer getActGrpId() {
+		return actGrpId;
+	}
+
+	public void setActGrpId(Integer actGrpId) {
+		this.actGrpId = actGrpId;
+	}
+
+	public String getActGrpName() {
+		return actGrpName;
+	}
+
+	public void setActGrpName(String actGrpName) {
+		this.actGrpName = actGrpName;
+	}
+
+	public String getCondition1() {
+		return condition1;
+	}
+
+	public void setCondition1(String condition1) {
+		this.condition1 = condition1;
+	}
+
 	public String getActivity() {
 		return activity;
 	}

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pb.repo.admin.dao.MainPurchaseConditionDAO">
-	<select id="list" resultType="map" parameterType="map">
+	<select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select d.name,d.id
 		from pb2_ext_purchase_condition c, pb2_ext_purchase_condition_detail d,pb2_ext_purchase_condition_rel r
 		where c.id = #{id}

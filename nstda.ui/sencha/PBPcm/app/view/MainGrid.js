@@ -95,10 +95,10 @@ Ext.define('PBPcm.view.MainGrid', {
 		      async:false
 		}); 
 		
-		columns.push({ text: PBPcm.Label.m.status,  dataIndex: 'wfStatus', width:370,
+		columns.push({ text: PBPcm.Label.m.status,  dataIndex: 'wfstatus', width:370,
 		  	  renderer: function (v, m, r) {
 			
-					if (r.get("overDue")) {
+					if (r.get("overdue")) {
 						m.style = "background-color:#FFFF66";
 					}
 					
@@ -183,7 +183,7 @@ Ext.define('PBPcm.view.MainGrid', {
 		if (Ext.get(id)) {
             Ext.widget('linkbutton', {
                 renderTo: id,
-                text: s+' (' + r.get("wfStatus") + ')',
+                text: s+' (' + r.get("wfstatus") + ')',
                 iconCls:'icon_postpone',
                 width: 75,
                 handler: function () { 

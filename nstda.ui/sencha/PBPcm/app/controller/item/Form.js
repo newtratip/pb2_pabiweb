@@ -29,6 +29,9 @@ Ext.define('PBPcm.controller.item.Form', {
         ref: 'hidIsEqmt',
         selector:'pcmItemDtlDlg [name=isEqmt]'
     },{
+        ref: 'cmbFiscalYear',
+        selector:'pcmItemDtlDlg field[name=fiscalYear]'
+    },{
         ref: 'cmbActGrp',
         selector:'pcmItemDtlDlg field[name=actGrp]'
     },{
@@ -43,9 +46,6 @@ Ext.define('PBPcm.controller.item.Form', {
     },{
         ref: 'txtPrc',
         selector:'pcmItemDtlDlg field[name=prc]'
-    },{
-        ref: 'txtFiscalYear',
-        selector:'pcmItemDtlDlg field[name=fiscalYear]'
     },{
         ref: 'txtCurrencyRate',
         selector:'pcmReqInfoTab field[name=currencyRate]'
@@ -152,14 +152,14 @@ Ext.define('PBPcm.controller.item.Form', {
 			var qty = parseFloat(me.getTxtQty().getValue());
 			var total = prc * qty;
 			
-			rec.set("actGrp",me.getCmbActGrp().getRawValue()); 
+			rec.set("actGrp",me.getCmbActGrp().getRawValue());
 			rec.set("actGrpId",me.getCmbActGrp().getValue()); 
 			rec.set("description",me.getTxtDesc().getValue()); 
 			rec.set("quantity",qty); 
 			rec.set("unit",me.getCmbUnit().getRawValue());
 			rec.set("unitId",me.getCmbUnit().getValue());
 			rec.set("price",prc);
-			rec.set("fiscalYear",me.getTxtFiscalYear().getValue());
+			rec.set("fiscalYear",me.getCmbFiscalYear().getValue() ? me.getCmbFiscalYear().getValue() : 0);
 			rec.set("total",total);
 			
 			if (!id) {
@@ -204,12 +204,12 @@ Ext.define('PBPcm.controller.item.Form', {
 		var dialog = me.createDlg(PBPcm.Label.m.edit, rec);
 		
 		me.getHidId().setValue(rec.get("id"));
+		me.getCmbFiscalYear().setValue(rec.get("fiscalYear").toString());
 		me.getCmbActGrp().setValue(rec.get("actGrpId"));
 		me.getTxtDesc().setValue(rec.get("description"));
 		me.getTxtQty().setValue(rec.get("quantity"));
 		me.getCmbUnit().setValue(rec.get("unitId"));
 		me.getTxtPrc().setValue(rec.get("price"));
-		me.getTxtFiscalYear().setValue(rec.get("fiscalYear"));
 		
 		dialog.show();
 	},

@@ -14,6 +14,7 @@ import pb.common.constant.JsonConstant;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
 import pb.repo.exp.constant.ExpBrwConstant;
+import pb.repo.exp.constant.ExpUseConstant;
 import pb.repo.exp.model.ExpBrwAttendeeModel;
 import pb.repo.exp.model.ExpBrwModel;
 
@@ -138,6 +139,32 @@ public class ExpBrwUtil {
 		}
 		
 		if (model.getDocRef() != null && !model.getDocRef().trim().equals("")) {
+			action.append(ExpBrwConstant.ACTION_SHOW_DETAIL);
+		}
+		
+		return action.toString();
+	}
+	
+	public static String getAction(Map<String, Object> map) {
+		StringBuffer action = new StringBuffer();
+		
+		action.append(ExpBrwConstant.ACTION_COPY);
+		if (map.get(ExpBrwConstant.TFN_STATUS).equals(ExpBrwConstant.ST_DRAFT)) {
+			action.append(ExpBrwConstant.ACTION_EDIT);
+			action.append(ExpBrwConstant.ACTION_DELETE);
+		}
+		else {
+			action.append(ExpBrwConstant.ACTION_SHOW_HISTORY);
+			if (map.get(ExpBrwConstant.TFN_STATUS).equals(ExpBrwConstant.ST_WAITING)) {
+				action.append(ExpBrwConstant.ACTION_SHOW_DIAGRAM);
+			}
+		}
+		
+		if (map.get(ExpBrwConstant.TFN_FOLDER_REF) != null && !((String)map.get(ExpBrwConstant.TFN_FOLDER_REF)).trim().equals("")) {
+			action.append(ExpBrwConstant.ACTION_GOTO_FOLDER);
+		}
+		
+		if (map.get(ExpBrwConstant.TFN_DOC_REF) != null && !((String)map.get(ExpBrwConstant.TFN_DOC_REF)).trim().equals("")) {
 			action.append(ExpBrwConstant.ACTION_SHOW_DETAIL);
 		}
 		

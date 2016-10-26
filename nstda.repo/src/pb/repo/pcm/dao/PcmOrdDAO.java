@@ -16,7 +16,7 @@ public interface PcmOrdDAO {
 	
 	public PcmOrdModel get(String id);
 
-	public List<PcmOrdModel> list(Map<String, Object> params);
+	public List<Map<String,Object>> list(Map<String, Object> params);
 	public List<Map<String, Object>> listWorkflowPath(String id);
 	
 }

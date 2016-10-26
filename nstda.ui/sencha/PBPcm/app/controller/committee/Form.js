@@ -190,7 +190,7 @@ Ext.define('PBPcm.controller.committee.Form', {
 //			rec.set("fname", items[a].data['fname']);
 //			rec.set("lname", items[a].data['lname']);
 //			
-////			rec.set("unit_type", items[a].data['utype']);
+////			rec.set("utype", items[a].data['utype']);
 ////			rec.set("position", items[a].data['position']);
 ////			rec.set("position_id", items[a].data['position_id']);
 //			

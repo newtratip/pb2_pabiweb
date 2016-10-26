@@ -2,6 +2,7 @@
    <#-- JavaScript Dependencies -->
 	<@script type="text/javascript" src="${url.context}/res/page/common/constant.js"></@script>
 	<@script type="text/javascript" src="${url.context}/res/page/common/util.js"></@script>
+	<@script type="text/javascript" src="${url.context}/res/page/PBAdmin/app.js"></@script>
 </@>
 <#-- Renders a hidden form field for edit and create modes only -->
 <#assign fieldValue = "">

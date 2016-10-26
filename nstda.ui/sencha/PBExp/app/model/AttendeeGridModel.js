@@ -5,7 +5,7 @@ Ext.define('PBExp.model.AttendeeGridModel', {
     		 , {name : 'title'}
     		 , {name : 'fname'}
     		 , {name : 'lname'}
-    		 , {name : 'unit_type'}
+    		 , {name : 'utype'}
     		 , {name : 'position'}
     		 , {name : 'position_id'}
     		 , {name : 'action'}

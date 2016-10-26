@@ -52,7 +52,7 @@ public class ExpBrwInvocationHandler
 				type = ExpBrwConstant.ST_CLOSED_BY_FIN;
 				statusDesc = "Approve";
 				
-		    	expBrwModel = expBrwService.get(avNo);
+		    	expBrwModel = expBrwService.get(avNo, null);
 				final NodeRef folderNodeRef = new NodeRef(expBrwModel.getFolderRef());
 				
 		        AuthenticationUtil.runAs(new RunAsWork<String>()
@@ -82,7 +82,7 @@ public class ExpBrwInvocationHandler
 			}
     		
 			if (expBrwModel==null) {
-				expBrwModel = expBrwService.get(avNo);
+				expBrwModel = expBrwService.get(avNo, null);
 			}
 	    	expBrwModel.setStatus(type);
 	    	expBrwService.update(expBrwModel);
@@ -116,7 +116,7 @@ public class ExpBrwInvocationHandler
 	    	String status = (String)params.get("status");
 	    	String statusTh = (String)params.get("status_th");
 	    	
-	    	ExpBrwModel expBrwModel = expBrwService.get(avNo);
+	    	ExpBrwModel expBrwModel = expBrwService.get(avNo, null);
 			if (expBrwModel==null) {
     			result.put("success",false);
     			result.put("message","Invalid AV NO. : "+avNo);

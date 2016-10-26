@@ -136,8 +136,8 @@ public class ExpUseWebScript {
 		String json = null;
 		
 		try {
-			List<ExpUseModel> list = expUseService.list(params);
-			json = ExpUseUtil.jsonSuccess(list, false);
+			List<Map<String,Object>> list = expUseService.list(params);
+			json = CommonUtil.jsonSuccess(list);
 			
 		} catch (Exception ex) {
 			log.error("", ex);
@@ -342,14 +342,15 @@ public class ExpUseWebScript {
 	}
 	
 	@Uri(URI_PREFIX+"/get")
-	public void handleGet(@RequestParam final String id
-			, final WebScriptResponse response)
+	public void handleGet(@RequestParam final String id,
+						  @RequestParam final String lang,
+						  final WebScriptResponse response)
 	      throws Exception {
 			
 		String json = null;
 
 		try {
-		  ExpUseModel model = expUseService.get(id);
+		  ExpUseModel model = expUseService.get(id, lang);
 
 		  List<ExpUseModel> list = new ArrayList<ExpUseModel>();
 		  list.add(model);
@@ -395,6 +396,7 @@ public class ExpUseWebScript {
 	public void handleSave(@RequestParam(required=false) final String id
 							,@RequestParam(required=false) final String reqBy
 			  				,@RequestParam(required=false) final String objective
+			  				,@RequestParam(required=false) final String reason
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
 							,@RequestParam(required=false) final String fundId
@@ -421,7 +423,7 @@ public class ExpUseWebScript {
 			ExpUseModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expUseService.get(id);
+				model = expUseService.get(id, null);
 			}
 			
 			if (model==null) {
@@ -431,6 +433,7 @@ public class ExpUseWebScript {
 			model.setReqBy(reqBy);
 			
 			model.setObjective(objective);
+			model.setReason(reason);
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
@@ -484,6 +487,7 @@ public class ExpUseWebScript {
 	public void handleSendToReview(@RequestParam(required=false) final String id
 							,@RequestParam(required=false) final String reqBy
 			  				,@RequestParam(required=false) final String objective
+			  				,@RequestParam(required=false) final String reason
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
 							,@RequestParam(required=false) final String fundId
@@ -511,7 +515,7 @@ public class ExpUseWebScript {
 			ExpUseModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expUseService.get(id);
+				model = expUseService.get(id, null);
 			}
 			
 			if (model==null) {
@@ -525,6 +529,7 @@ public class ExpUseWebScript {
 			model.setReqBy(reqBy);
 			
 			model.setObjective(objective);
+			model.setReason(reason);
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
@@ -717,6 +722,7 @@ public class ExpUseWebScript {
 	public void handlePreviewGen(@RequestParam(required=false) final String id
 								,@RequestParam(required=false) final String reqBy
 								,@RequestParam(required=false) final String objective
+								,@RequestParam(required=false) final String reason
 								,@RequestParam(required=false) final String budgetCc
 								,@RequestParam(required=false) final String budgetCcType
 								,@RequestParam(required=false) final String fundId
@@ -744,7 +750,7 @@ public class ExpUseWebScript {
 			ExpUseModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expUseService.get(id);
+				model = expUseService.get(id,null);
 			}
 			
 			if (model==null) {
@@ -758,6 +764,7 @@ public class ExpUseWebScript {
 			model.setReqBy(reqBy);
 			
 			model.setObjective(objective);
+			model.setReason(reason);
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
@@ -869,7 +876,7 @@ public class ExpUseWebScript {
 			ExpUseModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expUseService.get(id);
+				model = expUseService.get(id,null);
 			}
 			
 			if (model==null) {
@@ -947,6 +954,7 @@ public class ExpUseWebScript {
 	public void handleFinish(@RequestParam(required=false) final String id
 							,@RequestParam(required=false) final String reqBy
 			  				,@RequestParam(required=false) final String objective
+			  				,@RequestParam(required=false) final String reason
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
 							,@RequestParam(required=false) final String fundId
@@ -974,7 +982,7 @@ public class ExpUseWebScript {
 			ExpUseModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expUseService.get(id);
+				model = expUseService.get(id, null);
 			}
 			
 			if (model==null) {
@@ -985,6 +993,7 @@ public class ExpUseWebScript {
 			model.setReqBy(reqBy);
 			
 			model.setObjective(objective);
+			model.setReason(reason);
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}

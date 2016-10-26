@@ -33,6 +33,7 @@ public class ExpUseUtil {
 		jsObj.put(ExpUseConstant.JFN_REQ_BY, model.getReqBy());
 		
 		jsObj.put(ExpUseConstant.JFN_OBJECTIVE, model.getObjective());
+		jsObj.put(ExpUseConstant.JFN_REASON, model.getReason());
 		
 		jsObj.put(ExpUseConstant.JFN_BUDGET_CC, model.getBudgetCc());
 		jsObj.put(ExpUseConstant.JFN_BUDGET_CC_NAME, model.getBudgetCcName());
@@ -124,7 +125,7 @@ public class ExpUseUtil {
 		map.put(ExpUseConstant.JFN_ACTION, getAction(model, showDelBtn));
 		
 		return map;
-	}	
+	}
 	
 	private static String getAction(ExpUseModel model, Boolean showDelBtn) {
 		StringBuffer action = new StringBuffer();
@@ -146,6 +147,32 @@ public class ExpUseUtil {
 		}
 		
 		if (model.getDocRef() != null && !model.getDocRef().trim().equals("")) {
+			action.append(ExpUseConstant.ACTION_SHOW_DETAIL);
+		}
+		
+		return action.toString();
+	}
+	
+	public static String getAction(Map<String, Object> map) {
+		StringBuffer action = new StringBuffer();
+		
+		action.append(ExpUseConstant.ACTION_COPY);
+		if (map.get(ExpUseConstant.TFN_STATUS).equals(ExpUseConstant.ST_DRAFT)) {
+			action.append(ExpUseConstant.ACTION_EDIT);
+			action.append(ExpUseConstant.ACTION_DELETE);
+		}
+		else {
+			action.append(ExpUseConstant.ACTION_SHOW_HISTORY);
+			if (map.get(ExpUseConstant.TFN_STATUS).equals(ExpUseConstant.ST_WAITING)) {
+				action.append(ExpUseConstant.ACTION_SHOW_DIAGRAM);
+			}
+		}
+		
+		if (map.get(ExpUseConstant.TFN_FOLDER_REF) != null && !((String)map.get(ExpUseConstant.TFN_FOLDER_REF)).trim().equals("")) {
+			action.append(ExpUseConstant.ACTION_GOTO_FOLDER);
+		}
+		
+		if (map.get(ExpUseConstant.TFN_DOC_REF) != null && !((String)map.get(ExpUseConstant.TFN_DOC_REF)).trim().equals("")) {
 			action.append(ExpUseConstant.ACTION_SHOW_DETAIL);
 		}
 		

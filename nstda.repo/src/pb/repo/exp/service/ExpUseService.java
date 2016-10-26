@@ -69,6 +69,7 @@ import pb.common.constant.CommonConstant;
 import pb.common.constant.FileConstant;
 import pb.common.model.FileModel;
 import pb.common.util.CommonDateTimeUtil;
+import pb.common.util.CommonUtil;
 import pb.common.util.DocUtil;
 import pb.common.util.FolderUtil;
 import pb.common.util.ImageUtil;
@@ -733,16 +734,17 @@ public class ExpUseService implements SubModuleService {
 		map.put("lastAppTime", lastAppMap != null ? CommonDateTimeUtil.convertToGridDateTime((Timestamp)lastAppMap.get("time")) : "");
 		
 		map.put("objective", model.getObjective());
+		map.put("reason", model.getReason());
 		
 		String budgetCcName = null;
 		if (model.getBudgetCcType().equals(MainBudgetSrcConstant.TYPE_PROJECT)) {
 			Map<String, Object> prjMap = adminProjectService.get(model.getBudgetCc());
-			budgetCcName = "["+prjMap.get("code")+ "] "+prjMap.get("name");			
+			budgetCcName = "["+prjMap.get("code")+ "] "+prjMap.get("name"+lang);			
 		} else {
 			Map<String, Object> sectMap = adminSectionService.get(model.getBudgetCc());
-			budgetCcName = "["+sectMap.get("code")+"] "+sectMap.get("name");
+			budgetCcName = (String)sectMap.get("description"+lang);
 		}
-		map.put("budgetCc", budgetCcName);
+		map.put("budgetCc", StringUtil.replaceNBSP(budgetCcName));
 		
 		Map<String, Object> fundMap = adminFundService.get(model.getFundId());
 		map.put("fund", fundMap.get("name"));
@@ -759,6 +761,7 @@ public class ExpUseService implements SubModuleService {
 		map.put("pay2", RptUtil.radio(model.getPayType().equals("1")));
 		map.put("pay3", RptUtil.radio(model.getPayType().equals("2")));
 		map.put("pay4", RptUtil.radio(model.getPayType().equals("3")));
+		map.put("pay5", RptUtil.radio(model.getPayType().equals("4")));
 		
 		Boolean useBank = model.getPayType().equals("0") || model.getPayType().equals("2");
 		
@@ -893,7 +896,7 @@ public class ExpUseService implements SubModuleService {
 	
 	public List<FileModel> listFile(String id,final Boolean allFile) throws Exception {
 
-		final ExpUseModel model = get(id);
+		final ExpUseModel model = get(id, null);
 		log.info("list file : id:"+model.getId());
 		
 		final NodeRef folderNodeRef = new NodeRef(model.getFolderRef());
@@ -1006,7 +1009,6 @@ public class ExpUseService implements SubModuleService {
     		Timestamp timestampValue = new Timestamp(cal.getTimeInMillis());
     		map.put(ExpUseConstant.JFN_FISCAL_YEAR, timestampValue);
 			
-			
 			Iterator it = map.keys();
 			while(it.hasNext()) {
 				Object obj = it.next();
@@ -1096,26 +1098,35 @@ public class ExpUseService implements SubModuleService {
 //		model.setRequesterGroup(apModel.getRequesterGroup());
 	}
 	
-	public List<ExpUseModel> list(Map<String, Object> params) {
+	public List<Map<String, Object>> list(Map<String, Object> params) {
 		
-		List<ExpUseModel> list = null;
+		List<Map<String, Object>> list = null;
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
             ExpUseDAO dao = session.getMapper(ExpUseDAO.class);
             log.info("exp use list param:"+params);
     		list = dao.list(params);
+
+    		String lang = ((String)params.get("lang")).toUpperCase();
     		
-    		String lang = (String)params.get("lang");
-    		
-    		for(ExpUseModel model : list) {
-    			model.setWfStatus(
-    					model.getWfBy()
+    		for(Map<String,Object> map: list) {
+    			map.put(ExpUseConstant.JFN_WF_STATUS, 
+    					map.get(ExpUseConstant.TFN_WF_BY+lang)
     					+"-"+
-    					model.getWfStatus()
+    					map.get(ExpUseConstant.TFN_WF_STATUS+lang)
     					+"-"+
-    					model.getWfByTime()
+    					CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(ExpUseConstant.TFN_WF_BY_TIME))
     			);
+    			map.put(ExpUseConstant.JFN_BUDGET_CC_NAME,map.get(ExpUseConstant.TFN_BUDGET_CC_NAME+lang));
+    			map.put(ExpUseConstant.JFN_CREATED_BY,map.get(ExpUseConstant.TFN_CREATED_BY+lang));
+    			map.put(ExpUseConstant.JFN_REQ_BY,map.get(ExpUseConstant.TFN_REQ_BY+lang));
+    			map.put(ExpUseConstant.JFN_PAY_TYPE_NAME,map.get(ExpUseConstant.TFN_PAY_TYPE_NAME+lang));
+    			map.put(ExpUseConstant.JFN_CREATED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(ExpUseConstant.TFN_CREATED_TIME)));
+    			
+    			map.put(ExpUseConstant.JFN_ACTION, ExpUseUtil.getAction(map));
+    			
+    			map = CommonUtil.removeThElement(map);
     		}
             
         } catch (Exception ex) {
@@ -1160,7 +1171,7 @@ public class ExpUseService implements SubModuleService {
             MainWorkflowReviewerDAO workflowReviewerDAO = session.getMapper(MainWorkflowReviewerDAO.class);
             MainWorkflowNextActorDAO workflowNextActorDAO = session.getMapper(MainWorkflowNextActorDAO.class);
 
-    		ExpUseModel model = get(id);
+    		ExpUseModel model = get(id, null);
     		boolean exists = (model.getFolderRef()!=null) && fileFolderService.exists(new NodeRef(model.getFolderRef()));    		
     		if(exists) {
     			alfrescoService.deleteFileFolder(model.getFolderRef());
@@ -1183,15 +1194,22 @@ public class ExpUseService implements SubModuleService {
         }
 	}
 	
-	public ExpUseModel get(String id) {
+	public ExpUseModel get(String id, String lang) {
 		
 		ExpUseModel model = null;
+		
+		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
 		
 		SqlSession session = ExpUtil.openSession(dataSource);
         try {
             ExpUseDAO expUseDAO = session.getMapper(ExpUseDAO.class);
             
-    		model = expUseDAO.get(id);
+            Map<String,Object> params = new HashMap<String,Object>();
+            
+            params.put("id", id);
+            params.put("lang", lang);
+            
+    		model = expUseDAO.get(params);
     		model.setTotalRowCount(1l);
         } catch (Exception ex) {
 			log.error("", ex);
@@ -1224,24 +1242,15 @@ public class ExpUseService implements SubModuleService {
     				map.put("fname", map.get("efirst_name"+lang));
     				map.put("lname", map.get("elast_name"+lang));
     				map.put("position", map.get("eposition"+lang));
-    				map.put("unit_type", "["+map.get("scode")+"] "+map.get("esection"+lang));
+    				map.put("utype", "["+map.get("scode")+"] "+map.get("esection"+lang));
     				
     				map.remove("etitle");
     				map.remove("efirst_name");
     				map.remove("elast_name");
     				map.remove("eposition");
     				map.remove("esection");
-
-    				List<String> rkey = new ArrayList<String>();
-    				for(String key:map.keySet()) {
-    					if (key.equals(key.toUpperCase())) {
-    						rkey.add(key);
-    					}
-    				}
     				
-    				for(String key:rkey) {
-    					map.remove(key);
-    				}
+    				map = CommonUtil.removeThElement(map);
     			}
     		}
         } catch (Exception ex) {
@@ -1342,7 +1351,7 @@ public class ExpUseService implements SubModuleService {
 			id = dataMap.getString(ExpUseConstant.JFN_ID);
 			
 			if (!dataMap.has(ExpUseConstant.JFN_CREATED_BY)) {
-				ExpUseModel docModel = get(id);
+				ExpUseModel docModel = get(id, null);
 				reqUser = docModel.getCreatedBy();
 			}
 			else {
@@ -1865,7 +1874,7 @@ public class ExpUseService implements SubModuleService {
 		/*
 		 * Add Preparer
 		 */
-		ExpUseModel model = get(id);
+		ExpUseModel model = get(id, null);
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("LEVEL", mainWorkflowService.getTaskCaption(MainWorkflowConstant.TN_PREPARER, lang, null));
@@ -1974,7 +1983,7 @@ public class ExpUseService implements SubModuleService {
             /*
              * Get Old Exp Use
              */
-            ExpUseModel oModel = get(id);
+            ExpUseModel oModel = get(id,null);
             
             /*
              * Prepare New Exp Use
@@ -2102,18 +2111,21 @@ public class ExpUseService implements SubModuleService {
 		parameters.put(ExpUseWorkflowConstant.PROP_OBJECTIVE, model.getObjective());
 		parameters.put(ExpUseWorkflowConstant.PROP_TOTAL, model.getTotal());
 		
-		Map<String, Object> map = null;
-		if (model.getBudgetCcType().equals(ExpUseConstant.BCCT_UNIT)) {
-			map = adminSectionService.get(model.getBudgetCc());
-			model.setBudgetCcName((String)map.get("name"));
-		} else {
-			map = adminProjectService.get(model.getBudgetCc());
-			model.setBudgetCcName((String)map.get("code")+" - "+(String)map.get("name"));
-		}
+//		Map<String, Object> map = null;
+//		if (model.getBudgetCcType().equals(ExpUseConstant.BCCT_UNIT)) {
+//			map = adminSectionService.get(model.getBudgetCc());
+//			model.setBudgetCcName((String)map.get("name"));
+//		} else {
+//			map = adminProjectService.get(model.getBudgetCc());
+//			model.setBudgetCcName((String)map.get("code")+" - "+(String)map.get("name"));
+//		}
+//		
+//		parameters.put(ExpUseWorkflowConstant.PROP_BUDGET_CC, model.getBudgetCcName());
 		
-		parameters.put(ExpUseWorkflowConstant.PROP_BUDGET_CC, model.getBudgetCcName());
+		parameters.put(ExpUseWorkflowConstant.PROP_BUDGET_CC, model.getBudgetCcType() + "," + model.getBudgetCc());
 		
-		parameters.put(ExpUseWorkflowConstant.PROP_PAYMENT_TYPE, getPayTypeName(model));
+//		parameters.put(ExpUseWorkflowConstant.PROP_PAYMENT_TYPE, getPayTypeName(model));
+		parameters.put(ExpUseWorkflowConstant.PROP_PAYMENT_TYPE, model.getPayType());
 	}
 	
 	private String getPayTypeName(ExpUseModel model) {
@@ -2297,7 +2309,10 @@ public class ExpUseService implements SubModuleService {
         		Map<String, Object> map = list.get(0);
         		params.put("sectionId", map.get(MainHrEmployeeConstant.TFN_SECTION_ID));
         		
-        		tmpMap.put("00", MainUserGroupUtil.code2login((String)map.get("employee_code")));
+        		String pm = MainUserGroupUtil.code2login((String)map.get("employee_code"));
+        		if (!model.getReqBy().equals(pm)) {
+        			tmpMap.put("00", pm);
+        		}
         	}
         	
         	List<Map<String, Object>> bossList = dao.listBoss(params);
@@ -2444,22 +2459,20 @@ public class ExpUseService implements SubModuleService {
 
 	public Map<String, String> getProjectBossMap(ExpUseModel model, List<Map<String, Object>> bossList,Map<String, String> tmpMap) throws Exception {
 		
-		String reqByCode = MainUserGroupUtil.login2code(model.getReqBy());
-		
-		String pm = tmpMap.get("00");
-		
     	/*
     	 * Find Boss by money, if reqByCode not exist in workflow path
     	 */
     	Double total = model.getTotal();
-    	
     	log.info("total:"+total);
     	
     	/*
     	 * Case PM get special budget
     	 */
-		if (!pm.equals(model.getReqBy())) {
-			List<Map<String, Object>> list = adminProjectService.listPMSpecialBudget(model.getBudgetCc());
+		String pm = tmpMap.get("00");
+    	log.info("pm:"+pm);
+    	
+		if (pm!=null && !pm.equals(model.getReqBy())) {
+			List<Map<String, Object>> list = adminProjectService.listPMSpecialBudget(model.getBudgetCc(),"EX");
 			if (list!=null && list.size()>0) {
 				Map<String, Object> map = list.get(0);
 				log.info("min:"+map.get("amount_min")+",max:"+map.get("amount_max"));
@@ -2474,8 +2487,6 @@ public class ExpUseService implements SubModuleService {
 		/*
 		 * Other cases
 		 */
-    	Map<String, Object> reservedBoss = null;
-    	Map<String, Object> lastBossMap = null;
     	
     	/*
     	 * Find Boss by level, if reqByCode exist in workflow path
@@ -2495,6 +2506,9 @@ public class ExpUseService implements SubModuleService {
     		i++;
     	}    	
     	
+    	Map<String, Object> reservedBoss = null;
+    	Map<String, Object> lastBossMap = new HashMap<String, Object>();
+    	lastBossMap.put("amount_max", (Double)0.0);
     	i = 0;
     	log.info("  start:"+start);
     	for(Map<String, Object> boss : bossList) {
@@ -2502,12 +2516,14 @@ public class ExpUseService implements SubModuleService {
     		log.info("  "+boss.get("lvl")+" "+boss.get("employee_code")+" (amt:"+boss.get("amount_min")+"-"+boss.get("amount_max")+")");
     		
     		if (i>=start) {
-    			if (tmpMap.size()<=1 || total > (Double)lastBossMap.get("amount_max")) {
+    			if (total > (Double)lastBossMap.get("amount_max")) {
+    				log.info("   add");
     				tmpMap.put((String)boss.get("lvl"), (String)boss.get("employee_code"));
     				lastBossMap = boss;
     			}
     			else
     			if (reservedBoss==null) {
+    				log.info("   reserve");
     				reservedBoss = boss;
     				break;
     			}
@@ -2520,9 +2536,9 @@ public class ExpUseService implements SubModuleService {
     	/*
     	 * Replace Last Boss if he is Requester
     	 */
-    	if (lastBossMap.get("employee_code").equals(reqByCode)) {
+    	if (lastBossMap.get("employee_code").equals(model.getReqBy())) {
+    		tmpMap.remove(lastBossMap.get("lvl"));
     		if (reservedBoss!=null) {
-        		tmpMap.remove(lastBossMap.get("lvl"));
     			tmpMap.put((String)reservedBoss.get("lvl"), MainUserGroupUtil.code2login((String)reservedBoss.get("employee_code")));
     		}
     		else {
@@ -2540,13 +2556,11 @@ public class ExpUseService implements SubModuleService {
     	 */
 		List<String> rmList = new ArrayList<String>();
 		
-    	if (tmpMap.size()>1) {
-    		for(Entry<String, String> e : tmpMap.entrySet()) {
-				if (e.getValue().equals(model.getReqBy())) {
-					rmList.add(e.getKey());
-				}
-    		}
-    	}
+		for(Entry<String, String> e : tmpMap.entrySet()) {
+			if (e.getValue().equals(model.getReqBy())) {
+				rmList.add(e.getKey());
+			}
+		}
 
     	for(String k:rmList) {
     		tmpMap.remove(k);
@@ -2765,6 +2779,24 @@ public class ExpUseService implements SubModuleService {
 		List<String> list = Arrays.asList(tgs);
 		
 		return list;
+	}
+
+	@Override
+	public String getWorkflowDescriptionEn(SubModuleModel paramModel)
+			throws Exception {
+		ExpUseModel model = (ExpUseModel)paramModel;
+		
+		ExpUseModel enModel = new ExpUseModel();
+		enModel.setId(model.getId());
+		enModel.setObjective(model.getObjective());
+		enModel.setStatus("");
+		
+		return getWorkflowDescription(enModel);
+	}
+
+	@Override
+	public QName getPropDescEn() {
+		return ExpUseWorkflowConstant.PROP_DESCRIPTION;
 	}
 	
 }

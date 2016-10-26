@@ -36,6 +36,7 @@ import pb.common.constant.CommonConstant;
 import pb.common.constant.JsonConstant;
 import pb.common.util.PersonUtil;
 import pb.repo.admin.constant.MainMasterConstant;
+import pb.repo.admin.model.MainMasterModel;
 import pb.repo.common.mybatis.DbConnectionFactory;
 
 @Service
@@ -64,6 +65,9 @@ public class MainSrcUrlService {
 	@Autowired
 	NodeService nodeService;
 	
+	@Autowired
+	AdminHrEmployeeService employeeService;
+
 	private String selectMainMasterSql(String cond, String orderBy) {
 		BEGIN();
 		
@@ -197,6 +201,34 @@ public class MainSrcUrlService {
         } finally {
         	conn.close();
         }
+        
+        return map;
+	}
+	
+	public Map<String, Object> getMainMasterValue(String type, String code, String lang) throws Exception {
+		
+    	MainMasterModel model = masterService.getByTypeAndCode(type, code);
+    	
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		
+    	if (lang!=null && lang.startsWith("th")) {
+	    	map.put("data",model.getName());
+    	} else {
+    		map.put("data",model.getFlag2());
+    	}
+        
+        return map;
+	}
+	
+	public Map<String, Object> getUserName(String code, String lang) throws Exception {
+		
+    	Map<String, Object> user = employeeService.getWithDtl(code);
+    	
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		
+		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
+		
+    	map.put("data", user.get("title"+lang) + " " + user.get("first_name"+lang) + " " + user.get("last_name"+lang));
         
         return map;
 	}

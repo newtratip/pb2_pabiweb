@@ -26,11 +26,23 @@ Ext.define('PBExp.controller.item.Form', {
         ref: 'hidId',     
         selector:'expBrwItemDtlDlg field[name=id]'
     },{
+        ref: 'cmbActGrpId',
+        selector:'expBrwItemDtlDlg field[name=actGrpId]'
+    },{
+        ref: 'cmbActId',
+        selector:'expBrwItemDtlDlg field[name=actId]'
+    },{
+        ref: 'cmbCondition1',
+        selector:'expBrwItemDtlDlg field[name=condition1]'
+    },{
         ref: 'txtActivity',
         selector:'expBrwItemDtlDlg field[name=activity]'
     },{
         ref: 'txtAmount',     
         selector:'expBrwItemDtlDlg field[name=amount]'
+    },{
+        ref: 'gridAct',
+        selector:'expBrwItemDtlDlg grid'
     }],
     
     init:function() {
@@ -39,6 +51,12 @@ Ext.define('PBExp.controller.item.Form', {
 		me.control({
 			'expBrwItemDtlDlg [action=ok]': {
 				click : me.ok
+			},
+			'expBrwItemDtlDlg': {
+				selectActivityGroup : me.selectActivityGroup,
+				selectActivity : me.selectActivity,
+				selectCond1 : me.selectCond1,
+				cond1Load : me.cond1Load
 			},
 			'expBrwInfoTab [action=addItem]': {
 				click : me.add
@@ -89,6 +107,19 @@ Ext.define('PBExp.controller.item.Form', {
 			} else {
 				rec = me.selectedRec;
 			}
+			rec.set("actGrpId",me.getCmbActGrpId().getValue());
+			me.getCmbActGrpId().getStore().each(function(r){
+				if (r.get("id")==me.getCmbActGrpId().getValue()) {
+					rec.set("actGrpName", r.get("name"));
+				}
+			});
+			rec.set("actId",me.getCmbActId().getValue());
+			me.getCmbActId().getStore().each(function(r){
+				if (r.get("id")==me.getCmbActId().getValue()) {
+					rec.set("actName", r.get("name"));
+				}
+			});
+			rec.set("condition1",me.getCmbCondition1().getValue() ? me.getCmbCondition1().getValue() : "");
 			rec.set("activity",me.getTxtActivity().getValue());
 			rec.set("amount",me.getTxtAmount().getValue());
 			
@@ -160,6 +191,60 @@ Ext.define('PBExp.controller.item.Form', {
 		
 		me.getLblTotal().setText(Ext.util.Format.number(total, DEFAULT_MONEY_FORMAT));
 		me.getTxtTotal().setValue(total);
+	},
+	
+	selectActivityGroup:function(cmb, rec) {
+		var me = this;
+		
+	//	console.log("id:"+rec[0].data.id);
+	
+		var store = me.getCmbActId().getStore();
+		store.getProxy().extraParams = {
+			actGrpId:rec[0].data.id,
+			query:getLang()+" "
+		}
+		store.load();
+	},
+	
+	selectActivity:function(cmb, rec) {
+		var me = this;
+		
+	//	console.log("id:"+rec[0].data.id);
+	
+		var store = me.getCmbCondition1().getStore();
+		store.getProxy().extraParams = {
+			id:rec[0].data.id
+		}
+		store.load();
+		
+		store = me.getGridAct().getStore();
+		store.getProxy().extraParams = {
+			id:0,
+			cond:0
+		}
+		store.load();		
+	},
+	
+	selectCond1:function(cmb, rec) {
+		var me = this;
+		
+	//	console.log("cond1:"+rec[0].data.id);
+	
+		var store = me.getGridAct().getStore();
+		store.getProxy().extraParams = {
+			id:rec[0].data.data.activity_id,
+			cond:rec[0].data.data.condition_1
+		}
+		store.load();
+	},
+	
+	cond1Load:function(recs) {
+		var me = this;
+		
+		var cmbCond1 = me.getCmbCondition1(); 
+		
+		cmbCond1.setDisabled(recs.length<=0);
 	}
+	
 	
 });

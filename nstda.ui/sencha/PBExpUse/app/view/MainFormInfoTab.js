@@ -142,6 +142,21 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 					xtype:'container',
 					layout:'hbox',
 					anchor:'-10',
+					margin:'0 10 0 0',
+					items:[{
+						xtype:'textfield',
+						name:'reason',
+						fieldLabel:PBExpUse.Label.n.reason,
+						labelWidth:lbw,
+						margin:"5 0 0 10",
+						flex:1,
+						allowBlank:true,
+						value:replaceIfNull(me.rec.reason, null)
+					}]
+				},{
+					xtype:'container',
+					layout:'hbox',
+					anchor:'-10',
 					margin:'0 10 5 0',
 					items:[{
 						xtype:'hidden',
@@ -414,6 +429,21 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						readOnly:true,
 						fieldStyle:READ_ONLY
 					}]
+				},{
+					xtype:'radio',
+					name:'payType',
+					boxLabel:PBExpUse.Label.n.payCash,
+					inputValue:'4',
+					margin:'5 0 0 10',
+					width:ptw,
+					checked:replaceIfNull(me.rec.pay_type, "0") == "4",
+					listeners:{
+						change:function(rad, newV, oldV) {
+							if (newV) {
+								me.fireEvent("selectPayType",rad, '4');
+							}
+						}
+					}
 				}]
 			},{
 				xtype:'panel',

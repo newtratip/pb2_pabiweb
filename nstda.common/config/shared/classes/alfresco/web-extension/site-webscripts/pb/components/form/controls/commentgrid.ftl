@@ -57,7 +57,8 @@
 <script type="text/javascript">
 
 YAHOO.util.Event.onDOMReady(function(){
-   new Alfresco.UserDataTable("${controlId}", "${fieldHtmlId}-h", "${dsUrl}").setMessages(${messages});
+
+   new Alfresco.UserDataTable("${controlId}", "${fieldHtmlId}-h", "${dsUrl}", "&lang="+getLang()).setMessages(${messages});
    			/*
    		var divs = document.getElementsByTagName("div");
     	for(var i = 0; i < divs.length; i++){
@@ -74,13 +75,20 @@ YAHOO.util.Event.onDOMReady(function(){
     		}
     	}
     	*/
+    	
+   		var myReferrer = window.location.origin+Alfresco.constants.URL_PAGECONTEXT+"user/"+Alfresco.constants.USERNAME+"/dashboard";
+		window.document.__defineGetter__('referrer', function () {
+			return myReferrer;
+		});
+    	
     	var div = document.getElementById('ext-edit-btn');
-    	var oImg=document.createElement("img");
-		oImg.setAttribute('src', '../res/page/img/icon/edit.png');
-		oImg.setAttribute('id','oImg');
-		oImg.setAttribute('alt', 'edit');
-		oImg.style.height= '15px';
-		oImg.style.width= '15px';
+    	if (div) {
+	    	var oImg=document.createElement("img");
+			oImg.setAttribute('src', '../res/page/img/icon/edit.png');
+			oImg.setAttribute('id','oImg');
+			oImg.setAttribute('alt', 'edit');
+			oImg.style.height= '15px';
+			oImg.style.width= '15px';
 			oImg.onclick = function () {
 				var pbmodule = "${pbmodule}";
 				console.log("pbmodule:"+pbmodule);
@@ -98,13 +106,8 @@ YAHOO.util.Event.onDOMReady(function(){
 //				}
 	    		window.location = "${url.context}/page/"+pbmodule+"?id="+hid.value+"&tid=${taskId}";
 			};
-		div.appendChild(oImg);                    // Append <button> to <body>
-		
-   		var myReferrer = window.location.origin+Alfresco.constants.URL_PAGECONTEXT+"user/"+Alfresco.constants.USERNAME+"/dashboard";
-		window.document.__defineGetter__('referrer', function () {
-			return myReferrer;
-		});
-			   		
+			div.appendChild(oImg);                    // Append <button> to <body>
+		}
 });
 
 </script>

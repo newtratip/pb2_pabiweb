@@ -91,6 +91,9 @@
 				<property name="expusewf:lang">
 					<type>d:text</type>
 				</property>
+				<property name="expusewf:description">
+					<type>d:text</type>
+				</property>
 			</properties>
 			
 			<associations>

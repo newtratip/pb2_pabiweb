@@ -140,8 +140,8 @@ public class ExpWebScript {
 		String json = null;
 		
 		try {
-			List<ExpBrwModel> list = expBrwService.list(params);
-			json = ExpBrwUtil.jsonSuccess(list, false);
+			List<Map<String,Object>> list = expBrwService.list(params);
+			json = CommonUtil.jsonSuccess(list);
 			
 		} catch (Exception ex) {
 			log.error("", ex);
@@ -385,7 +385,7 @@ public class ExpWebScript {
 			ExpBrwModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expBrwService.get(id);
+				model = expBrwService.get(id, null);
 			}
 			
 			if (model==null) {
@@ -463,7 +463,7 @@ public class ExpWebScript {
 			ExpBrwModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expBrwService.get(id);
+				model = expBrwService.get(id, null);
 			}
 			
 			if (model==null) {
@@ -538,13 +538,15 @@ public class ExpWebScript {
 	}
 	
 	@Uri(URI_PREFIX+"/brw/get")
-	public void handleGet(@RequestParam final String id, final WebScriptResponse response)
+	public void handleGet(@RequestParam final String id, 
+						  @RequestParam final String lang,
+						  final WebScriptResponse response)
 	      throws Exception {
 			
 		String json = null;
 
 		try {
-		  ExpBrwModel model = expBrwService.get(id);
+		  ExpBrwModel model = expBrwService.get(id, lang);
 
 		  List<ExpBrwModel> list = new ArrayList<ExpBrwModel>();
 		  list.add(model);
@@ -676,7 +678,7 @@ public class ExpWebScript {
 			ExpBrwModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expBrwService.get(id);
+				model = expBrwService.get(id, null);
 			}
 			
 			if (model==null) {
@@ -795,7 +797,7 @@ public class ExpWebScript {
 			ExpBrwModel model = null;
 			
 			if (CommonUtil.isValidId(id)) {
-				model = expBrwService.get(id);
+				model = expBrwService.get(id, null);
 			}
 			
 			if (model==null) {

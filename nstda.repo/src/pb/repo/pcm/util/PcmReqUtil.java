@@ -182,6 +182,32 @@ public class PcmReqUtil {
 		return action.toString();
 	}
 	
+	public static String getAction(Map<String,Object> map) {
+		StringBuffer action = new StringBuffer();
+		
+		action.append(PcmReqConstant.ACTION_COPY);
+		if (map.get(PcmReqConstant.JFN_STATUS).equals(PcmReqConstant.ST_DRAFT)) {
+			action.append(PcmReqConstant.ACTION_EDIT);
+			action.append(PcmReqConstant.ACTION_DELETE);
+		}
+		else {
+			action.append(PcmReqConstant.ACTION_SHOW_HISTORY);
+			if (map.get(PcmReqConstant.JFN_STATUS).equals(PcmReqConstant.ST_WAITING)) {
+				action.append(PcmReqConstant.ACTION_SHOW_DIAGRAM);
+			}
+		}
+		
+		if (map.get(PcmReqConstant.JFN_FOLDER_REF) != null && !((String)map.get(PcmReqConstant.JFN_FOLDER_REF)).trim().equals("")) {
+			action.append(PcmReqConstant.ACTION_GOTO_FOLDER);
+		}
+		
+		if (map.get(PcmReqConstant.JFN_DOC_REF) != null && !((String)map.get(PcmReqConstant.JFN_DOC_REF)).trim().equals("")) {
+			action.append(PcmReqConstant.ACTION_SHOW_DETAIL);
+		}
+		
+		return action.toString();
+	}
+	
 	public static JSONArray convertToJSONArray(List<PcmReqModel> inList, Boolean showDelBtn) throws Exception {
 		JSONArray jsArr = new JSONArray();
 		

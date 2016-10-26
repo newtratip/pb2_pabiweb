@@ -209,6 +209,7 @@ public class MainWorkflowService {
 	        moduleService.setWorkflowParameters(parameters, model, docList, attachDocList);
 	        
 	        parameters.put(WorkflowModel.PROP_WORKFLOW_DESCRIPTION, moduleService.getWorkflowDescription(model));
+	        parameters.put(moduleService.getPropDescEn(), moduleService.getWorkflowDescriptionEn(model));
 	        
 	        WorkflowPath workflowPath = workflowService.startWorkflow(workflow.getId(), parameters);
 	        log.info("Start Workflow Successfully");
@@ -685,6 +686,7 @@ public class MainWorkflowService {
 	         params.put(QName.createQName(MODEL_URI , "document"), (Serializable)docList);
 	         
 	         params.put(WorkflowModel.PROP_DESCRIPTION, moduleService.getWorkflowDescription(model));
+	         params.put(moduleService.getPropDescEn(), moduleService.getWorkflowDescriptionEn(model));
 	         
 	         moduleService.setWorkflowParameters(params, model, docList, attachDocList);
 	         
@@ -738,6 +740,9 @@ public class MainWorkflowService {
 	         String desc = moduleService.getWorkflowDescription(model);
 	         params.put(WorkflowModel.PROP_DESCRIPTION, desc);
 	         
+	         String descEn = moduleService.getWorkflowDescriptionEn(model);
+	         params.put(moduleService.getPropDescEn(), descEn);
+	         
 			 for (WorkflowTask t : tasks)
 			 {
 			     String taskId = t.getId();
@@ -778,6 +783,9 @@ public class MainWorkflowService {
          
          String desc = moduleService.getWorkflowDescription(model);
          params.put(WorkflowModel.PROP_DESCRIPTION, desc);
+         
+         String descEn = moduleService.getWorkflowDescriptionEn(model);
+         params.put(moduleService.getPropDescEn(), descEn);
 
 	     String taskId = task.getId();
 	     workflowService.updateTask("activiti$"+taskId, params, null, null);   
@@ -855,7 +863,7 @@ public class MainWorkflowService {
 
 		int index = 0;
 		try {
-			SubModuleModel model = (SubModuleModel)moduleService.get(id);
+			SubModuleModel model = (SubModuleModel)moduleService.get(id, null);
 			 
 			final String workflowInsId = model.getWorkflowInsId();
 			

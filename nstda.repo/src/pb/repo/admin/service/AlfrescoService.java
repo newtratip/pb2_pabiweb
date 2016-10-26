@@ -23,6 +23,8 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.repository.AssociationRef;
@@ -76,6 +78,9 @@ public class AlfrescoService {
 	
 	@Autowired
 	AdminHrEmployeeService adminHrEmployeeService;
+	
+	@Autowired
+	DictionaryService dictionaryService;
 	
     public ContentReader getContentByNodeRef(final NodeRef nodeRef) {
 		
@@ -146,26 +151,49 @@ public class AlfrescoService {
     public NodeRef createLink(NodeRef parentFolder, NodeRef docRef, String desc) throws Exception {
     	
 		Map<QName, Serializable> props = new HashMap<QName, Serializable>(2, 1.0f);
-		String targetNewName = desc + ".url";
-
+//		String targetNewName = desc + ".url";
+		String targetNewName = desc;
+		
+		String docDesc = (String)nodeService.getProperty(docRef, ContentModel.PROP_DESCRIPTION);
+		
+//		Map<QName,Serializable> propss = nodeService.getProperties(docRef);
+//		for(Entry e : propss.entrySet()) {
+//			log.info("docRef -- "+e.getKey()+":"+e.getValue());
+//		}
+//		
+//		Map<QName, Serializable> allNodeProps = nodeService.getProperties(docRef);
+//		Map<QName, PropertyDefinition> aspectPropDefs = dictionaryService.getAspect(ContentModel.ASPECT_TITLED).getProperties(); // including inherited props
+//		Map<QName, Serializable> nodeProps = new HashMap<QName, Serializable>(aspectPropDefs.size());
+//		for (QName propQName : aspectPropDefs.keySet())
+//		{
+//		    Serializable value = allNodeProps.get(propQName);
+//		    if (value != null)
+//		    {
+//		        log.info("aspect:"+propQName+":"+value);
+//		    }
+//		}
+		
 		// common properties
 		props.put(ContentModel.PROP_NAME, targetNewName);
 		props.put(ContentModel.PROP_LINK_DESTINATION, docRef);
+		props.put(ContentModel.PROP_DESCRIPTION, docDesc);
     	
 		ChildAssociationRef childRef = nodeService.createNode(parentFolder, ContentModel.ASSOC_CONTAINS,
 				QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, targetNewName),
 				ApplicationModel.TYPE_FILELINK, props);
 
 		// apply the titled aspect - title and description
+		
 		Map<QName, Serializable> titledProps = new HashMap<QName, Serializable>(2, 1.0f);
-		titledProps.put(ContentModel.PROP_TITLE, desc);
-		titledProps.put(ContentModel.PROP_DESCRIPTION, desc);
+		titledProps.put(ContentModel.PROP_TITLE, docDesc);
+		titledProps.put(ContentModel.PROP_DESCRIPTION, docDesc);
+		
 		nodeService.addAspect(childRef.getChildRef(), ContentModel.ASPECT_TITLED, titledProps);
 
-		NodeRef newNode = childRef.getChildRef();    	
-    	
-//        if (desc!=null) {
-//        	nodeService.setProperty(newNode, ContentModel.PROP_DESCRIPTION, desc);
+		NodeRef newNode = childRef.getChildRef();
+		
+//        if (docDesc!=null) {
+//        	nodeService.setProperty(newNode, ContentModel.PROP_DESCRIPTION, docDesc);
 //        }
 
         return newNode;
@@ -370,11 +398,17 @@ public class AlfrescoService {
 				
 		    	Set<QName> qnames = new HashSet<QName>();
 		    	qnames.add(ContentModel.TYPE_CONTENT);
+		    	qnames.add(ApplicationModel.TYPE_FILELINK);
 		    	List<ChildAssociationRef> docs = nodeService.getChildAssocs(folderNodeRef, qnames);
 		    	for(ChildAssociationRef doc : docs) {
 		    		log.info("doc:"+doc.toString());
 		    		log.info("   childRef:"+doc.getChildRef().toString());
 		    		log.info("   qname:"+doc.getQName().getLocalName());
+		    		
+		    		Map<QName,Serializable> props = nodeService.getProperties(doc.getChildRef());
+		    		for(Entry e : props.entrySet()) {
+		    			log.info("-- " + e.getKey()+":"+e.getValue());
+		    		}
 		    		
 	    			FileModel fileModel = new FileModel();
 	    			fileModel.setName(doc.getQName().getLocalName());
@@ -388,6 +422,12 @@ public class AlfrescoService {
 	    			fileModel.setBy(emp!=null ? (String)emp.get("first_name"+lang_suffix) : "");
 	    			Date time = (Date)nodeService.getProperty(doc.getChildRef(), ContentModel.PROP_CREATED);
 	    			fileModel.setTime(CommonDateTimeUtil.convertToGridDateTime(new Timestamp(time.getTime())));
+	    			
+		    		NodeRef linkDest = (NodeRef)nodeService.getProperty(doc.getChildRef(), ContentModel.PROP_LINK_DESTINATION);		    		
+		    		if (linkDest!=null) {
+		    			fileModel.setNodeRef(linkDest.toString());
+		    		}
+	    			
 	    			files.add(fileModel);
 		    	}
 		    	return files;

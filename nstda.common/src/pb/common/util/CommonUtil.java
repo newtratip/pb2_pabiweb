@@ -2,6 +2,7 @@ package pb.common.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -300,5 +301,20 @@ public class CommonUtil {
 		}
 		  
 		return lang;
+	}
+	
+	public static Map removeThElement(Map<String, Object> map) {
+		List<String> list = new ArrayList<String>();
+		for (String key : map.keySet()) {
+			if (key.endsWith("_th")) {
+				list.add(key);
+			}
+		}
+		
+		for(String key : list) {
+			map.remove(key);
+		}
+		
+		return map;
 	}
 }

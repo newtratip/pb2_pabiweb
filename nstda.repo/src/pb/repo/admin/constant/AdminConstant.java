@@ -3,7 +3,7 @@ package pb.repo.admin.constant;
 public class AdminConstant {
 	public static final StringBuffer CHANGE_LOG = new StringBuffer();
 	
-	public static final String VERSION = "1.0.80";
+	public static final String VERSION = "1.0.84";
 	
     static {
 //		CHANGE_LOG.append("  - Interface : Use user_id to call service\n");
@@ -12,7 +12,27 @@ public class AdminConstant {
 //		CHANGE_LOG.append("  - Workflow History : Action and task : Multiple Languages\n");
 //		CHANGE_LOG.append("  - PR Form : Additional PR : Get Old Committee as default\n");
 //		CHANGE_LOG.append("  - AV : Add Field reason\n");
-    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (06/10/2016)\n");
+    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (26/10/2016)\n");
+		CHANGE_LOG.append("  - PD : Change Attachment Description\n");
+    	CHANGE_LOG.append("\nV.1.0.83 --- (25/10/2016)\n");
+		CHANGE_LOG.append("  - Optimize Code\n");
+		CHANGE_LOG.append("  - EX : Change Column AP Type to EX Type\n");
+		CHANGE_LOG.append("  - PD Workflow Form : Remove Requester Field\n");
+    	CHANGE_LOG.append("\nV.1.0.82 --- (17/10/2016)\n");
+		CHANGE_LOG.append("  - Workflow Form : 2 Languages\n");
+		CHANGE_LOG.append("  - My Task : 2 Languages\n");
+		CHANGE_LOG.append("  - PR Pdf : Adjust\n");
+		CHANGE_LOG.append("  - EX : Payment Type : Add Petty Cash\n");
+    	CHANGE_LOG.append("\nV.1.0.82 --- (14/10/2016)\n");
+		CHANGE_LOG.append("  - Approval Matrix : Project : Wrong Result\n");
+    	CHANGE_LOG.append("\nV.1.0.81 --- (11/10/2016)\n");
+		CHANGE_LOG.append("  - AV,EX : External Attendee : Add Field section\n");
+		CHANGE_LOG.append("  - EX : Add Field reason for bypass procurement\n");
+		CHANGE_LOG.append("  - PR,AV,EX Pdf : Adjust Org Name Length\n");
+		CHANGE_LOG.append("  - PR Form : Change Fiscal Year Field to Combobox\n");
+		CHANGE_LOG.append("  - AV Item : Add Fields\n");
+		CHANGE_LOG.append("  - EX Share UI : Edit Attachment Description\n");
+    	CHANGE_LOG.append("\nV.1.0.80 --- (06/10/2016)\n");
 		CHANGE_LOG.append("  - PR,AV,EX Pdf : Budget Source\n");
 		CHANGE_LOG.append("  - AV,EX Interface : Parameter Approve Date = now\n");
 		CHANGE_LOG.append("  - AV,EX Pdf : Old AV : Add Field Objective\n");

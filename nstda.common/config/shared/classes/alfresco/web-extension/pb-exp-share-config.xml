@@ -83,8 +83,9 @@
 				</field>
 				 
 				<field id="expbrwwf:objectiveType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 	<control-param name="style">width:40%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/masterValue?t=BRW_TYPE&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -95,8 +96,9 @@
 				</field>				
 				
 				<field id="expbrwwf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								
@@ -204,8 +206,9 @@
 				</field>
 				 
 				<field id="expbrwwf:objectiveType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 	<control-param name="style">width:40%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/masterValue?t=BRW_TYPE&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -216,8 +219,9 @@
 				</field>				
 				
 				<field id="expbrwwf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								
@@ -320,8 +324,9 @@
 				</field>
 				 
 				<field id="expbrwwf:objectiveType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 	<control-param name="style">width:40%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/masterValue?t=BRW_TYPE&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -332,8 +337,9 @@
 				</field>				
 				
 				<field id="expbrwwf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								
@@ -474,8 +480,9 @@
 				</field>
 				 
 				<field id="expusewf:payType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 	<control-param name="style">width:40%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/masterValue?t=EXP_TYPE&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -486,8 +493,9 @@
 				</field>				
 				
 				<field id="expusewf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								
@@ -595,8 +603,9 @@
 				</field>
 				 
 				<field id="expusewf:payType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 	<control-param name="style">width:40%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/masterValue?t=EXP_TYPE&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -607,8 +616,9 @@
 				</field>				
 				
 				<field id="expusewf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								
@@ -711,8 +721,9 @@
 				</field>
 				 
 				<field id="expusewf:payType" set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
+					<control template="/pb/components/form/controls/info.ftl">
 					 	<control-param name="style">width:40%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/masterValue?t=EXP_TYPE&amp;c=</control-param> 
 					</control> 
 				</field>
 				
@@ -723,8 +734,9 @@
 				</field>				
 				
 				<field id="expusewf:budgetCc"  set="docInfo">
-					<control template="/org/alfresco/components/form/controls/info.ftl">
-					 <control-param name="style">width: 99%</control-param> 
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
 				  </control>
 				</field>
 								

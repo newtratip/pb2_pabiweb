@@ -99,7 +99,7 @@ public class AdminProjectService {
 		return list;
 	}
 	
-	public List<Map<String, Object>> listPMSpecialBudget(Integer projectId) {
+	public List<Map<String, Object>> listPMSpecialBudget(Integer projectId, String module) {
 		
 		List<Map<String, Object>> list = null;
 		
@@ -110,6 +110,7 @@ public class AdminProjectService {
         	Map<String, Object> params = new HashMap<String, Object>();
         	
         	params.put("projectId", projectId);
+        	params.put("module", module);
         	
             list = dao.listPMSpecialBudget(params);
             

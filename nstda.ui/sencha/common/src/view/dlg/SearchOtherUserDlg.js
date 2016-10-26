@@ -82,7 +82,7 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 			    msgTarget: 'side',
 			    margin: '10 0 0 10',
 			    allowBlank:false,
-			    value:me.rec ? replaceIfNull(me.rec.get("section"), null) : null
+			    value:me.rec ? replaceIfNull(me.rec.get("utype"), null) : null
 			});
 			
 			items[0].items.push({

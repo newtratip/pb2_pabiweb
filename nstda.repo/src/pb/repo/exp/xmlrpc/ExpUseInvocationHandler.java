@@ -52,7 +52,7 @@ public class ExpUseInvocationHandler
 				type = ExpUseConstant.ST_CLOSED_BY_FIN;
 				statusDesc = "Approve";
 				
-		    	expUseModel = expUseService.get(apNo);
+		    	expUseModel = expUseService.get(apNo, null);
 				final NodeRef folderNodeRef = new NodeRef(expUseModel.getFolderRef());
 				
 		        AuthenticationUtil.runAs(new RunAsWork<String>()
@@ -82,7 +82,7 @@ public class ExpUseInvocationHandler
 			}
     		
 			if (expUseModel==null) {
-				expUseModel = expUseService.get(apNo);
+				expUseModel = expUseService.get(apNo, null);
 			}
 	    	expUseModel.setStatus(type);
 	    	expUseService.update(expUseModel);
@@ -116,7 +116,7 @@ public class ExpUseInvocationHandler
 	    	String status = (String)params.get("status");
 	    	String statusTh = (String)params.get("status_th");
 	    	
-	    	ExpUseModel expUseModel = expUseService.get(exNo);
+	    	ExpUseModel expUseModel = expUseService.get(exNo, null);
 			if (expUseModel==null) {
     			result.put("success",false);
     			result.put("message","Invalid EX NO. : "+exNo);

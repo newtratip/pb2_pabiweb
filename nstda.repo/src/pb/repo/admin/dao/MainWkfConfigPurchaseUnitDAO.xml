@@ -23,7 +23,7 @@
 		    pb2_ext_wkf_config_purchase_unit
     </select>
     
-    <select id="listPurchasingUnitBySectionId" resultType="map" parameterType="int">
+    <select id="listPurchasingUnitBySectionId" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
 	    select 	purchasing_unit_id, p.name, p.org_id
 		from	pb2_ext_wkf_config_purchase_unit p, pb2_ext_purchasingunit_section_rel r, pb2_ext_wkf_config_doctype d
 		where	p.id = r.purchasing_unit_id

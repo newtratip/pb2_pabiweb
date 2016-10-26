@@ -14,9 +14,9 @@ public interface ExpBrwDAO {
 	
 	public Long count();
 	
-	public ExpBrwModel get(String id);
+	public ExpBrwModel get(Map<String, Object> params);
 
-	public List<ExpBrwModel> list(Map<String, Object> params);
+	public List<Map<String,Object>> list(Map<String, Object> params);
 	public List<ExpBrwModel> listForSearch(Map<String, Object> params);
 	public List<Map<String, Object>> listOld(Map<String, Object> params);
 	public List<Map<String, Object>> listForInf(Map<String, Object> params);

@@ -22,6 +22,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String TFN_REQ_SECTION_ID = "REQ_SECTION_ID"; 
 
 	public static final String TFN_OBJECTIVE_TYPE = "OBJECTIVE_TYPE"; // buy, employ, hire
+	public static final String TFN_OBJECTIVE_TYPE_NAME = "OBJECTIVE_TYPE_NAME"; // buy, employ, hire
 	public static final String TFN_OBJECTIVE = "OBJECTIVE";
 	public static final String TFN_REASON = "REASON";
 	
@@ -29,6 +30,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String TFN_CURRENCY_RATE = "CURRENCY_RATE";
 	
 	public static final String TFN_BUDGET_CC = "BUDGET_CC";
+	public static final String TFN_BUDGET_CC_NAME = "BUDGET_CC_NAME";
 	public static final String TFN_BUDGET_CC_TYPE = "BUDGET_CC_TYPE";
 	public static final String TFN_FUND_ID = "FUND_ID";
 	
@@ -61,13 +63,17 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String TFN_VAT = "VAT";
 	public static final String TFN_VAT_ID = "VAT_ID";
 	
+	public static final String TFN_WF_BY = "WF_BY";
+	public static final String TFN_WF_STATUS = "WF_STATUS";
+	public static final String TFN_WF_BY_TIME = "WF_BY_TIME";
+	
     /*
      * JSON Field Name
      */
 	public static final String JFN_ID = "id";
 	
 	public static final String JFN_TOTAL = "total";
-	public static final String JFN_TOTAL_CNV = "totalCnv";
+	public static final String JFN_TOTAL_CNV = "totalcnv";
 	public static final String JFN_STATUS = "status";
 	public static final String JFN_WF_STATUS = "wfStatus";
 	public static final String JFN_OVER_DUE = "overDue";
@@ -83,6 +89,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_REQ_SECTION_NAME = "req_ou_name";
 
 	public static final String JFN_OBJECTIVE_TYPE = "objective_type"; // buy, employ, hire
+	public static final String JFN_OBJECTIVE_TYPE_NAME = "objective_type_name"; // buy, employ, hire
 	public static final String JFN_OBJECTIVE = "objective";
 	public static final String JFN_REASON = "reason";
 	public static final String JFN_REASON_OTH = "reasonOth";

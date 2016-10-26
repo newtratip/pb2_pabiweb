@@ -22,7 +22,7 @@
 		    pb2_ext_wkf_config_purchase_unit_responsible
     </select>
     
-    <select id="listSupervisor" resultType="map" parameterType="int">
+    <select id="listSupervisor" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
 		select p.employee_id ,p.level,e.first_name, e.last_name, 
 		lpad(e.employee_code, 6 ,'0') employee_code
 		from pb2_ext_wkf_config_purchase_unit_responsible p left join pb2_ext_hr_employee e on p.employee_id = e.id

@@ -9,7 +9,7 @@
         
     </resultMap>
 
-	<select id="list" resultType="map" parameterType="map">
+	<select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		SELECT * FROM (
 			select id,name, 
 			coalesce((select value
@@ -29,7 +29,7 @@
 		ORDER BY ${orderBy}
 	</select>
 	
-	<select id="listForSection" resultType="map" parameterType="map">
+	<select id="listForSection" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select f.id,f.name,coalesce(value,name) name_th
 		from pb2_ext_res_fund f inner join pb2_ext_res_fund_section_rel r on (f.id = r.fund_id and f.active = true)
 			left join (
@@ -42,7 +42,7 @@
 		ORDER BY ${orderBy}
 	</select>
 	
-	<select id="listForProject" resultType="map" parameterType="map">
+	<select id="listForProject" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select f.id,f.name,coalesce(value,name) name_th
 		from pb2_ext_res_fund f inner join pb2_ext_res_fund_project_rel r on (f.id = r.fund_id and f.active = true)
 			left join (
@@ -55,7 +55,7 @@
 		ORDER BY ${orderBy}
 	</select>
 	
-	<select id="listForAsset" resultType="map" parameterType="map">
+	<select id="listForAsset" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select f.id,f.name,coalesce(value,name) name_th
 		from pb2_ext_res_fund f inner join pb2_ext_res_fund_project_rel r on (f.id = r.fund_id and f.active = true)
 			left join (
@@ -68,7 +68,7 @@
 		ORDER BY ${orderBy}
 	</select>
 
-	<select id="listForConstruction" resultType="map" parameterType="map">
+	<select id="listForConstruction" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select f.id,f.name,coalesce(value,name) name_th
 		from pb2_ext_res_fund f inner join pb2_ext_res_fund_project_rel r on (f.id = r.fund_id and f.active = true)
 			left join (
@@ -88,7 +88,7 @@
 		    pb2_ext_res_fund
     </select>
     
-    <select id="get" parameterType="int" resultType="map">
+    <select id="get" parameterType="int" resultType="org.apache.commons.collections.map.CaseInsensitiveMap">
         select
 		    *
 		from

@@ -162,8 +162,8 @@ public class PcmWebScript {
 		String json = null;
 		
 		try {
-			List<PcmReqModel> list = pcmReqService.list(params);
-			json = PcmReqUtil.jsonSuccess(list, false);
+			List<Map<String, Object>> list = pcmReqService.list(params);
+			json = CommonUtil.jsonSuccess(list);
 			
 		} catch (Exception ex) {
 			log.error("", ex);
@@ -311,7 +311,7 @@ public class PcmWebScript {
 		PcmReqModel model = null;
 		
 		if (CommonUtil.isValidId(id)) {
-			model = pcmReqService.get(id);
+			model = pcmReqService.get(id, null);
 		}
 		
 		if (model==null) {
@@ -430,7 +430,7 @@ public class PcmWebScript {
 		PcmReqModel model = null;
 		
 		if (CommonUtil.isValidId(id)) {
-			model = pcmReqService.get(id);
+			model = pcmReqService.get(id, null);
 		}
 		
 		if (model==null) {
@@ -563,13 +563,14 @@ public class PcmWebScript {
 
   @Uri(URI_PREFIX+"/req/get")
   public void handleGet(@RequestParam final String id,
+		  				@RequestParam final String lang,
 						  final WebScriptResponse response)
       throws Exception {
 		
 	String json = null;
 
 	try {
-	  PcmReqModel model = pcmReqService.get(id);
+	  PcmReqModel model = pcmReqService.get(id, lang);
 
 	  List<PcmReqModel> list = new ArrayList<PcmReqModel>();
 	  list.add(model);
@@ -766,7 +767,7 @@ public class PcmWebScript {
 		PcmReqModel model = null;
 		
 		if (CommonUtil.isValidId(id)) {
-			model = pcmReqService.get(id);
+			model = pcmReqService.get(id, null);
 		}
 		
 		if (model==null) {
@@ -943,7 +944,7 @@ public class PcmWebScript {
 		PcmReqModel model = null;
 		
 		if (CommonUtil.isValidId(id)) {
-			model = pcmReqService.get(id);
+			model = pcmReqService.get(id, null);
 		}
 		
 		if (model==null) {
@@ -1157,7 +1158,7 @@ public class PcmWebScript {
 		try {
 		  MainMasterModel percentModel = masterService.getSystemConfig(MainMasterConstant.SCC_PCM_REQ_REF_PR_PERCENT);
 			
-		  PcmReqModel model = pcmReqService.get(refId);
+		  PcmReqModel model = pcmReqService.get(refId, null);
 		  
 		  JSONObject jobj = new JSONObject();
 		  

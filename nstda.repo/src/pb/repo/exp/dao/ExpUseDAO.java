@@ -14,9 +14,9 @@ public interface ExpUseDAO {
 	
 	public Long count();
 	
-	public ExpUseModel get(String id);
+	public ExpUseModel get(Map<String, Object> params);
 
-	public List<ExpUseModel> list(Map<String, Object> params);
+	public List<Map<String, Object>> list(Map<String, Object> params);
 	public List<ExpUseModel> listForSearch(Map<String, Object> params);
 	public List<Map<String, Object>> listForInf(Map<String, Object> params);
 	

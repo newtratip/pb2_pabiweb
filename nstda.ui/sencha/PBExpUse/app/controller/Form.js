@@ -26,6 +26,9 @@ Ext.define('PBExpUse.controller.Form', {
 	    ref: 'txtObjective',
 	    selector: 'expUseMainForm field[name=objective]'
 	},{
+	    ref: 'txtReason',
+	    selector: 'expUseMainForm field[name=reason]'
+	},{
 	    ref: 'hidBudgetCcType',
 	    selector: 'expUseMainForm field[name=budgetCcType]'
 	},{
@@ -326,7 +329,8 @@ Ext.define('PBExpUse.controller.Form', {
 			reqBy:me.getTxtReqBy().getValue(),
 			reqOu:me.getTxtReqOu().getValue(),
 				
-			objective:me.getTxtObjective().getValue()
+			objective:me.getTxtObjective().getValue(),
+			reason:me.getTxtReason().getValue()
 		};
 		params.budgetCcType = me.getHidBudgetCcType().getValue();
 		params.budgetCc = me.getHidBudgetCc().getValue();

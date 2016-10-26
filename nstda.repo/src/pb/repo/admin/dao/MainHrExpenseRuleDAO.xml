@@ -13,7 +13,7 @@
         <result property="totalRowCount" column="totalRowCount"/>
     </resultMap>
 
-	<select id="list" resultType="map" parameterType="map">
+	<select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select e.*,a.name activity_name
 		FROM pb2_ext_hr_expense_rule e
 		left join pb2_ext_account_activity a on e.activity_id=a.id
@@ -22,7 +22,7 @@
 		order by condition_1
 	</select>
 	
-	<select id="listDistinct" resultType="map" parameterType="map">
+	<select id="listDistinct" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select activity_id,condition_1
 		from pb2_ext_hr_expense_rule
 		WHERE activity_id=#{id}

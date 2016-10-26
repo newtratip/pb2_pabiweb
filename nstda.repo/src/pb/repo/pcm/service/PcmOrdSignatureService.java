@@ -95,7 +95,7 @@ public class PcmOrdSignatureService {
 			{
 				String refId = task.getVariable(PcmOrdWorkflowConstant.MODEL_PREFIX+"id").toString();
 				
-				PcmOrdModel model = pcmOrdService.get(refId);
+				PcmOrdModel model = pcmOrdService.get(refId, null);
 							
 				String docRef = model.getDocRef();
 				NodeRef pdfNodeRef = new NodeRef(docRef);

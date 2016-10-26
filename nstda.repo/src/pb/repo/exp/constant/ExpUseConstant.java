@@ -20,9 +20,11 @@ public class ExpUseConstant extends SubModuleConstant {
 	public static final String TFN_REQ_BY = "REQ_BY"; 
 
 	public static final String TFN_OBJECTIVE = "OBJECTIVE";
+	public static final String TFN_REASON = "REASON";
 	
 	public static final String TFN_BUDGET_CC = "BUDGET_CC";
 	public static final String TFN_BUDGET_CC_TYPE = "BUDGET_CC_TYPE";
+	public static final String TFN_BUDGET_CC_NAME = "BUDGET_CC_NAME";
 	public static final String TFN_FUND_ID = "FUND_ID";	
 	
 	public static final String TFN_COST_CONTROL_TYPE_ID = "COST_CONTROL_TYPE_ID";
@@ -42,6 +44,11 @@ public class ExpUseConstant extends SubModuleConstant {
 	
 	public static final String TFN_ICHARGE_TYPE_NAME = "ICHARGE_TYPE_NAME";
 	public static final String TFN_ICHARGE_NAME = "ICHARGE_NAME";
+
+	public static final String TFN_WF_BY = "WF_BY";
+	public static final String TFN_WF_STATUS = "WF_STATUS";
+	public static final String TFN_WF_BY_TIME = "WF_BY_TIME";
+
 	
     /*
      * JSON Field Name
@@ -53,17 +60,18 @@ public class ExpUseConstant extends SubModuleConstant {
 	public static final String JFN_WF_STATUS = "wfStatus";
 	public static final String JFN_OVER_DUE = "overDue";
 	
-	public static final String JFN_REQ_BY = "req_by"; 
+	public static final String JFN_REQ_BY = "req_by";
 	public static final String JFN_REQ_BY_NAME = "req_by_name";
 	public static final String JFN_REQ_TEL_NO = "req_tel_no";
-	public static final String JFN_REQ_BY_DEPT = "req_by_dept"; 
+	public static final String JFN_REQ_BY_DEPT = "req_by_dept";
 	
-	public static final String JFN_REQ_BU = "req_bu"; 
+	public static final String JFN_REQ_BU = "req_bu";
 	
-	public static final String JFN_REQ_SECTION_ID = "req_ou"; 
+	public static final String JFN_REQ_SECTION_ID = "req_ou";
 	public static final String JFN_REQ_SECTION_NAME = "req_ou_name";
 	
 	public static final String JFN_OBJECTIVE = "objective";
+	public static final String JFN_REASON = "reason";
 	
 	public static final String JFN_BUDGET_CC = "budget_cc";
 	public static final String JFN_BUDGET_CC_NAME = "budget_cc_name";
