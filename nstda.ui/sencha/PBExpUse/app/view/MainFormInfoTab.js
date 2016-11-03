@@ -371,7 +371,10 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 							beforequery : function(qe) {
 								qe.query = new RegExp(qe.query, 'i');
 				//				qe.forceAll = true;
-		    	       	    }
+		    	       	    },
+		    	       	    change : function(cmb, newV, oldV, e){
+			    	       		me.fireEvent("selectOldAv", cmb, newV, oldV);
+			    	       	}
 						},
 						value:replaceIfNull(pd2.av_code, null),
 						disabled:true

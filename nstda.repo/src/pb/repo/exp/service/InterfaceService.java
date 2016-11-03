@@ -391,7 +391,7 @@ public class InterfaceService {
 		        line.put("is_advance_product_line","False");
 		        line.put("activity_group_id.id",String.valueOf(dtl.get("act_grp_id")));
 		        line.put("activity_id.id",String.valueOf(dtl.get("act_id")));
-		        line.put("name","");
+		        line.put("name",dtl.get("activity"));
 		        line.put("unit_amount",String.valueOf(dtl.get("amount")));
 		        line.put("cost_control_id.id", ccid);
 		        

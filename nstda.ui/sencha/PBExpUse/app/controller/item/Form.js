@@ -29,6 +29,9 @@ Ext.define('PBExpUse.controller.item.Form', {
         ref: 'cmbActId',
         selector:'expUseItemDtlDlg field[name=actId]'
     },{
+        ref: 'txtActivity',
+        selector:'expUseItemDtlDlg field[name=activity]'
+    },{
         ref: 'cmbCondition1',
         selector:'expUseItemDtlDlg field[name=condition1]'
     },{
@@ -129,6 +132,7 @@ Ext.define('PBExpUse.controller.item.Form', {
 					rec.set("actName", r.get("name"));
 				}
 			});
+			rec.set("activity", me.getTxtActivity().getValue());
 			rec.set("position", "");
 			rec.set("condition2", "");
 			rec.set("uom" ,"");

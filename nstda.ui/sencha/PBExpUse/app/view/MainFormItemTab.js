@@ -31,7 +31,8 @@ Ext.define('PBExpUse.view.MainFormItemTab', {
 		            }]
 	        	},			
 				{ text: PBExpUse.Label.i.actGrp,  dataIndex: 'actGrpName', flex:1},
-				{ text: PBExpUse.Label.i.desc,  dataIndex: 'actName', flex:1},
+				{ text: PBExpUse.Label.i.act,  dataIndex: 'actName', flex:1},
+				{ text: PBExpUse.Label.i.desc,  dataIndex: 'activity', flex:1},
 				{ text: PBExpUse.Label.i.cond,  dataIndex: 'condition1', flex:1, renderer:function(v){return (v ? v :"")}},
 				{ text: PBExpUse.Label.i.amt,  dataIndex: 'amount', width:180, align:'right', xtype: 'numbercolumn', format:'0,000.00'}
 		);

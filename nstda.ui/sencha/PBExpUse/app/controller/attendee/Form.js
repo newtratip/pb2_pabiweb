@@ -64,13 +64,14 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 			rec.set("utype", items[a].data['utype']);
 			rec.set("position", items[a].data['position']);
 			rec.set("position_id", items[a].data['position_id']);
-			rec.set("dest_type", items[a].data['desttype']);
-			rec.set("destination", items[a].data['destination']);
-			rec.set("route", items[a].data['route']);
-			rec.set("depart", items[a].data['depart']);
-			rec.set("arrive", items[a].data['arrive']);
-			rec.set("cls", items[a].data['cls']);
-			rec.set("amount", items[a].data['amount']);
+			
+//			rec.set("dest_type", items[a].data['desttype']);
+//			rec.set("destination", items[a].data['destination']);
+//			rec.set("route", items[a].data['route']);
+//			rec.set("depart", items[a].data['depart']);
+//			rec.set("arrive", items[a].data['arrive']);
+//			rec.set("cls", items[a].data['cls']);
+//			rec.set("amount", items[a].data['amount']);
 			
 			rec.commit();
 			store.add(rec);
@@ -90,7 +91,7 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 			targetPanel:me.getEmpGrid(),
 			callback:me.dlgEmployeeUserCallBack,
 			rec : rec,
-			needFootPrint:true
+			needFootPrint:false
 		});
 		
 		return dlg;
@@ -150,13 +151,13 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 		rec.set("utype", r.data.utype);
 		rec.set("position", r.data.position);
 		
-		rec.set("dest_type", r.data['desttype']);
-		rec.set("destination", r.data['destination']);
-		rec.set("route", r.data['route']);
-		rec.set("depart", r.data['depart']);
-		rec.set("arrive", r.data['arrive']);
-		rec.set("cls", r.data['cls']);
-		rec.set("amount", r.data['amount']);
+//		rec.set("dest_type", r.data['desttype']);
+//		rec.set("destination", r.data['destination']);
+//		rec.set("route", r.data['route']);
+//		rec.set("depart", r.data['depart']);
+//		rec.set("arrive", r.data['arrive']);
+//		rec.set("cls", r.data['cls']);
+//		rec.set("amount", r.data['amount']);
 		
 		if (!id) {
 			rec.commit();
@@ -179,7 +180,7 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 			callback:me.dlgOtherUserCallBack,
 			rec : rec,
 			needPosition:true,
-			needFootPrint:true
+			needFootPrint:false
 		});
 		
 		return dlg;

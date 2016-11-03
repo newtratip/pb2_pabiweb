@@ -5,6 +5,7 @@
     <resultMap id="result" type="expUseDtlModel">
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
+        <result property="activity" column="activity"/>
         <result property="actId" column="act_id"/>
         <result property="actName" column="act_name"/>
         <result property="actGrpId" column="act_grp_id"/>
@@ -60,6 +61,7 @@
 		>
 	    INSERT INTO pb2_exp_use_dtl(
 	    	master_id
+	    	,activity
 	    	,act_id
 	    	,act_grp_id
 	    	,condition_1
@@ -70,6 +72,7 @@
 	    	,created_by,updated_by
 	    )VALUES( 
     		#{masterId}
+    		,#{activity}
     		,#{actId}
     		,#{actGrpId}
     		,#{condition1}
@@ -116,6 +119,7 @@
     
     <select id="listForInf" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select 
+			d.activity,
 			d.act_id,
 			d.act_grp_id,
 			d.amount,

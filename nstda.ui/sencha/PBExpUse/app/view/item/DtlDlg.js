@@ -73,7 +73,7 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		        	xtype : 'form',
 			        itemId : 'formDetail',
 			        border : 0,
-			        height:140,
+			        height:170,
 			        items:[{
 						xtype: 'hidden',
 						name: 'id',
@@ -112,7 +112,7 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 					},{
 						xtype:'combo',
 						name:'actId',
-						fieldLabel:mandatoryLabel(PBExpUse.Label.i.desc),
+						fieldLabel:mandatoryLabel(PBExpUse.Label.i.act),
 				    	displayField:'name',
 				    	valueField:'id',
 				        emptyText : PB.Label.m.select,
@@ -140,6 +140,15 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		    	       	    }
 						},
 						value:me.rec ? me.rec.get("actId") : null
+					},{
+						xtype:'textfield',
+						name:'activity',
+						fieldLabel:mandatoryLabel(PBExpUse.Label.i.desc),
+				        anchor:"-10",
+						labelWidth:lbw,
+						margin: '10 0 0 10',
+						allowBlank:false,
+						value:me.rec ? me.rec.get("activity") : null
 					},{
 						xtype:'combo',
 						name:'condition1',

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-10-14T13:51:56 -->
+<!-- 2016-10-29T15:41:38 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AV" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e2aa35d9-8812-4e0d-9672-faccfe6da8b6">
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
@@ -801,10 +801,10 @@
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 						<jr:tableFooter height="22" rowSpan="1">
 							<property name="com.jaspersoft.studio.unit.height" value="px"/>
-							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 							<property name="com.jaspersoft.studio.unit.width" value="px"/>
 							<staticText>
-								<reportElement x="0" y="0" width="170" height="22" uuid="432918e7-398d-41a1-8beb-3c27a74a907e"/>
+								<reportElement x="0" y="0" width="108" height="22" uuid="432918e7-398d-41a1-8beb-3c27a74a907e"/>
 								<textElement textAlignment="Center">
 									<font fontName="TH SarabunPSK" size="14"/>
 								</textElement>
@@ -822,22 +822,27 @@
 									<font fontName="TH SarabunPSK" size="14" isBold="true" isUnderline="true"/>
 									<paragraph leftIndent="4"/>
 								</textElement>
-								<text><![CDATA[รายการยืมเงิน]]></text>
+								<text><![CDATA[รายละเอียด]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell height="40">
 							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 							<property name="com.jaspersoft.studio.unit.height" value="px"/>
-							<textField>
-								<reportElement x="0" y="0" width="170" height="40" uuid="23c14649-bf29-43da-8895-ddf31ba0b1e9">
-									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<frame>
+								<reportElement x="0" y="0" width="170" height="40" uuid="13f22aec-c96f-4920-b693-dd09dbaed907">
+									<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 								</reportElement>
-								<textElement>
-									<font fontName="TH SarabunPSK" size="14"/>
-									<paragraph leftIndent="4"/>
-								</textElement>
-								<textFieldExpression><![CDATA[$F{item}]]></textFieldExpression>
-							</textField>
+								<textField>
+									<reportElement x="0" y="0" width="108" height="40" uuid="23c14649-bf29-43da-8895-ddf31ba0b1e9">
+										<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+									</reportElement>
+									<textElement>
+										<font fontName="TH SarabunPSK" size="14"/>
+										<paragraph leftIndent="4"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{item}]]></textFieldExpression>
+								</textField>
+							</frame>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="88" uuid="03e2423f-cdf3-40e2-a5e4-06dbe186e2e0">
@@ -875,10 +880,10 @@
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 						<jr:tableFooter height="22" rowSpan="1">
-							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 							<property name="com.jaspersoft.studio.unit.width" value="px"/>
 							<textField pattern="#,##0.00;(-#,##0.00)">
-								<reportElement x="0" y="0" width="85" height="22" uuid="b0b54563-9275-44aa-b069-ac5999122410"/>
+								<reportElement x="0" y="0" width="40" height="22" uuid="b0b54563-9275-44aa-b069-ac5999122410"/>
 								<textElement textAlignment="Right">
 									<font fontName="TH SarabunPSK" size="14"/>
 									<paragraph rightIndent="4"/>

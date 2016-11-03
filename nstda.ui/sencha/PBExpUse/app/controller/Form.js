@@ -157,7 +157,8 @@ Ext.define('PBExpUse.controller.Form', {
 				selectPayType:me.selectPayType,
 				selectCostControl:me.selectCostControl,
 				clearCostControl:me.clearCostControl,
-				selectIcharge:me.selectIcharge
+				selectIcharge:me.selectIcharge,
+				selectOldAv:me.selectOldAv
 			},
 			'expUseAttendeeTab':{
 //				selectCostControl:me.selectCostControl
@@ -990,6 +991,44 @@ Ext.define('PBExpUse.controller.Form', {
 		    },
 		    headers: getAlfHeader()
 		});
+	},
+	
+	selectOldAv:function(cmb, newV, oldV) {
+		if (newV) {
+			var me = this;
+			
+//			newV = "AV17001032";
+			
+			var estore = me.getAttendeeEmpGrid().getStore();
+			estore.getProxy().api.read = ALF_CONTEXT+'/exp/brw/attendee/list';
+			estore.getProxy().extraParams = {
+				id:newV,
+				type:'E',
+				lang:getLang()
+			}
+			estore.load();
+			
+			var ostore = me.getAttendeeOthGrid().getStore();
+			ostore.getProxy().api.read = ALF_CONTEXT+'/exp/brw/attendee/list';
+			ostore.getProxy().extraParams = {
+				id:newV,
+				type:'O',
+				lang:getLang()
+			}
+			ostore.load();
+
+			var istore = me.getItemGrid().getStore();
+			istore.getProxy().api.read = ALF_CONTEXT+'/exp/brw/item/list';
+			istore.getProxy().extraParams = {
+				id:newV
+			}
+			istore.load();
+			
+//						me.getAttendeeEmpGrid().getStore().removeAll();
+//						me.getAttendeeOthGrid().getStore().removeAll();
+//				    	me.getItemGrid().getStore().removeAll();
+			
+		}
 	}
 	
 });

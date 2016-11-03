@@ -672,6 +672,7 @@ public class ExpUseService implements SubModuleService {
 			
         	dtlMap.put("actGrp", tmpDtl.getActGrpName());
         	dtlMap.put("act", tmpDtl.getActName());
+        	dtlMap.put("item", tmpDtl.getActivity());
         	dtlMap.put("cond1", tmpDtl.getCondition1());
         	dtlMap.put("amount", df.format(tmpDtl.getAmount()));
 			

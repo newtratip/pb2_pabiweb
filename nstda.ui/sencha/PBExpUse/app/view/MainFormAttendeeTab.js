@@ -57,17 +57,17 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 				{ text: PB.Label.m.ecode,  dataIndex: 'code', width:120},
 				{ text: PB.Label.m.fullname,  dataIndex: 'name', flex:1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
 				{ text: PB.Label.m.section,  dataIndex: 'utype', flex:1},
-				{ text: PB.Label.m.pos,  dataIndex: 'position', flex:1},
-				{ text: PB.Label.m.provCntry,  dataIndex: 'destination', flex:1},
-				{ text: PB.Label.m.route,  dataIndex: 'route', flex:1},
-				{ text: PB.Label.m.period,  dataIndex: 'depart', flex:1, 
-						renderer:function(v,m,r){
-							return (v ? Ext.util.Format.date(v, DEFAULT_DATE_FORMAT) : "")
-									+"-"
-									+(r.get('arrive') ? Ext.util.Format.date(r.get('arrive'), DEFAULT_DATE_FORMAT) : "");
-						}},
-				{ text: 'Class',  dataIndex: 'cls', flex:1},
-				{ text: PB.Label.m.amt,  dataIndex: 'amount', flex:1}
+				{ text: PB.Label.m.pos,  dataIndex: 'position', flex:1}
+//				{ text: PB.Label.m.provCntry,  dataIndex: 'destination', flex:1},
+//				{ text: PB.Label.m.route,  dataIndex: 'route', flex:1},
+//				{ text: PB.Label.m.period,  dataIndex: 'depart', flex:1, 
+//						renderer:function(v,m,r){
+//							return (v ? Ext.util.Format.date(v, DEFAULT_DATE_FORMAT) : "")
+//									+"-"
+//									+(r.get('arrive') ? Ext.util.Format.date(r.get('arrive'), DEFAULT_DATE_FORMAT) : "");
+//						}},
+//				{ text: 'Class',  dataIndex: 'cls', flex:1},
+//				{ text: PB.Label.m.amt,  dataIndex: 'amount', flex:1}
 		);
 		
 		var ocolumns = []
@@ -95,17 +95,17 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 	        	{ text: PB.Label.m.seq,  xtype: 'rownumberer', width:60},
 				{ text: PB.Label.m.fullname,  dataIndex: 'name', flex:1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
 				{ text: PB.Label.m.section,  dataIndex: 'utype', flex:1},
-				{ text: PB.Label.m.pos,  dataIndex: 'position', flex:1},
-				{ text: PB.Label.m.provCntry,  dataIndex: 'destination', flex:1},
-				{ text: PB.Label.m.route,  dataIndex: 'route', flex:1},
-				{ text: PB.Label.m.period,  dataIndex: 'depart', flex:1,
-						renderer:function(v,m,r){
-							return (v ? Ext.util.Format.date(v, DEFAULT_DATE_FORMAT) : "")
-									+"-"
-									+(r.get('arrive') ? Ext.util.Format.date(r.get('arrive'), DEFAULT_DATE_FORMAT) : "");
-						}},
-				{ text: 'Class',  dataIndex: 'cls', flex:1},
-				{ text: PB.Label.m.amt,  dataIndex: 'amount', flex:1}
+				{ text: PB.Label.m.pos,  dataIndex: 'position', flex:1}
+//				{ text: PB.Label.m.provCntry,  dataIndex: 'destination', flex:1},
+//				{ text: PB.Label.m.route,  dataIndex: 'route', flex:1},
+//				{ text: PB.Label.m.period,  dataIndex: 'depart', flex:1,
+//						renderer:function(v,m,r){
+//							return (v ? Ext.util.Format.date(v, DEFAULT_DATE_FORMAT) : "")
+//									+"-"
+//									+(r.get('arrive') ? Ext.util.Format.date(r.get('arrive'), DEFAULT_DATE_FORMAT) : "");
+//						}},
+//				{ text: 'Class',  dataIndex: 'cls', flex:1},
+//				{ text: PB.Label.m.amt,  dataIndex: 'amount', flex:1}
 		);
 		
 		var c1 = {};
@@ -314,11 +314,11 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 						titlePosition:0,
 						items:[{
 					    	xtype:'tbfill'
-					    },{
-			        		xtype: 'button',
-			                text: "Import",
-			                iconCls: "icon_excel",
-			                action:'impEmp'
+//					    },{
+//			        		xtype: 'button',
+//			                text: "Import",
+//			                iconCls: "icon_excel",
+//			                action:'impEmp'
 					    },{
 			        		xtype: 'button',
 			                text: "Add",
@@ -339,11 +339,11 @@ Ext.define('PBExpUse.view.MainFormAttendeeTab', {
 						titlePosition:0,
 						items:[{
 					    	xtype:'tbfill'
-					    },{
-			        		xtype: 'button',
-			                text: "Import",
-			                iconCls: "icon_excel",
-			                action:'impOth'
+//					    },{
+//			        		xtype: 'button',
+//			                text: "Import",
+//			                iconCls: "icon_excel",
+//			                action:'impOth'
 					    },{
 			        		xtype: 'button',
 			                text: "Add",

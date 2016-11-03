@@ -3,7 +3,7 @@ package pb.repo.admin.constant;
 public class AdminConstant {
 	public static final StringBuffer CHANGE_LOG = new StringBuffer();
 	
-	public static final String VERSION = "1.0.84";
+	public static final String VERSION = "1.0.85";
 	
     static {
 //		CHANGE_LOG.append("  - Interface : Use user_id to call service\n");
@@ -13,6 +13,12 @@ public class AdminConstant {
 //		CHANGE_LOG.append("  - PR Form : Additional PR : Get Old Committee as default\n");
 //		CHANGE_LOG.append("  - AV : Add Field reason\n");
     	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (26/10/2016)\n");
+		CHANGE_LOG.append("  - AV,EX : Hide Carbon Footprint section\n");
+		CHANGE_LOG.append("  - EX : Hide Import Attendee Button\n");
+		CHANGE_LOG.append("  - EX : Add Field Description and Change Label\n");
+		CHANGE_LOG.append("  - AV : Change Label\n");
+		CHANGE_LOG.append("  - EX : Clear AV : Get Data from AV\n");
+    	CHANGE_LOG.append("\nV.1.0.84 --- (26/10/2016)\n");
 		CHANGE_LOG.append("  - PD : Change Attachment Description\n");
     	CHANGE_LOG.append("\nV.1.0.83 --- (25/10/2016)\n");
 		CHANGE_LOG.append("  - Optimize Code\n");

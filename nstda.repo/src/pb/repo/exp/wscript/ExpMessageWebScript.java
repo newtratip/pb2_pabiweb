@@ -180,8 +180,8 @@ public class ExpMessageWebScript {
 	  prefix = "av.form.tab.item.";
 	  lbl.put("lbw", ExpBrwUtil.getMessage(prefix+"lbw", locale));
 	  lbl.put("actGrp", ExpBrwUtil.getMessage(prefix+"actGrp", locale));
+	  lbl.put("act", ExpBrwUtil.getMessage(prefix+"act", locale));
 	  lbl.put("desc", ExpBrwUtil.getMessage(prefix+"desc", locale));
-	  lbl.put("desc2", ExpBrwUtil.getMessage(prefix+"desc2", locale));
 	  lbl.put("cond", ExpBrwUtil.getMessage(prefix+"cond", locale));
 	  lbl.put("pos", ExpBrwUtil.getMessage(prefix+"pos", locale));
 	  lbl.put("amt", ExpBrwUtil.getMessage(prefix+"amt", locale));
@@ -239,7 +239,7 @@ public class ExpMessageWebScript {
 	   * Main
 	   */
 	  JSONObject lbl = new JSONObject();
-	  String prefix = "ap.main.";
+	  String prefix = "ex.main.";
 	  lbl.put("exNo", ExpUseUtil.getMessage(prefix+"exNo", locale));
 	  lbl.put("exType", ExpUseUtil.getMessage(prefix+"exType", locale));
 	  lbl.put("budget", ExpUseUtil.getMessage(prefix+"budget", locale));
@@ -271,7 +271,7 @@ public class ExpMessageWebScript {
 	   * Info
 	   */
 	  lbl = new JSONObject();
-	  prefix = "ap.form.tab.info.";
+	  prefix = "ex.form.tab.info.";
 	  lbl.put("lbw", ExpBrwUtil.getMessage(prefix+"lbw", locale));
 	  lbl.put("obj", ExpBrwUtil.getMessage(prefix+"objective", locale));
 	  lbl.put("budgetSrc", ExpBrwUtil.getMessage(prefix+"budgetSrc", locale));
@@ -297,9 +297,10 @@ public class ExpMessageWebScript {
 	   * Item
 	   */
 	  lbl = new JSONObject();
-	  prefix = "ap.form.tab.item.";
+	  prefix = "ex.form.tab.item.";
 	  lbl.put("lbw", ExpBrwUtil.getMessage(prefix+"lbw", locale));
 	  lbl.put("actGrp", ExpBrwUtil.getMessage(prefix+"actGrp", locale));
+	  lbl.put("act", ExpBrwUtil.getMessage(prefix+"act", locale));
 	  lbl.put("desc", ExpBrwUtil.getMessage(prefix+"desc", locale));
 	  lbl.put("cond", ExpBrwUtil.getMessage(prefix+"cond", locale));
 	  lbl.put("pos", ExpBrwUtil.getMessage(prefix+"pos", locale));
@@ -313,7 +314,7 @@ public class ExpMessageWebScript {
 	   * Attendee
 	   */
 	  lbl = new JSONObject();
-	  prefix = "ap.form.tab.att.";
+	  prefix = "ex.form.tab.att.";
 	  lbl.put("lbw", ExpBrwUtil.getMessage(prefix+"lbw", locale));
 	  lbl.put("empList", ExpBrwUtil.getMessage(prefix+"empList", locale));
 	  lbl.put("othList", ExpBrwUtil.getMessage(prefix+"othList", locale));

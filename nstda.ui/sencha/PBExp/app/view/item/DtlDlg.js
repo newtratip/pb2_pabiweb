@@ -112,7 +112,7 @@ Ext.define('PBExp.view.item.DtlDlg', {
 					},{
 						xtype:'combo',
 						name:'actId',
-						fieldLabel:mandatoryLabel(PBExp.Label.i.desc),
+						fieldLabel:mandatoryLabel(PBExp.Label.i.act),
 				    	displayField:'name',
 				    	valueField:'id',
 				        emptyText : PB.Label.m.select,
@@ -143,7 +143,7 @@ Ext.define('PBExp.view.item.DtlDlg', {
 					},{
 						xtype:'textfield',
 						name:'activity',
-						fieldLabel:mandatoryLabel(PBExp.Label.i.desc2),
+						fieldLabel:mandatoryLabel(PBExp.Label.i.desc),
 				        anchor:"-10",
 						labelWidth:lbw,
 						margin: '10 0 0 10',

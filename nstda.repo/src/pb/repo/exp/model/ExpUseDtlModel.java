@@ -8,6 +8,7 @@ public class ExpUseDtlModel extends BaseDataModel {
 	
 	Long id;
 	String masterId;
+	String activity;
 	Integer actId;
 	String actName;
 	Integer actGrpId;
@@ -41,6 +42,14 @@ public class ExpUseDtlModel extends BaseDataModel {
 		this.masterId = masterId;
 	}
 	
+	public String getActivity() {
+		return activity;
+	}
+
+	public void setActivity(String activity) {
+		this.activity = activity;
+	}
+
 	public Integer getActId() {
 		return actId;
 	}

@@ -83,7 +83,7 @@ Ext.define('PBExp.controller.attendee.Form', {
 			targetPanel:me.getEmpGrid(),
 			callback:me.dlgEmployeeUserCallBack,
 			rec : rec,
-			needFootPrint:true
+			needFootPrint:false
 		});
 		
 		return dlg;
@@ -143,13 +143,13 @@ Ext.define('PBExp.controller.attendee.Form', {
 		rec.set("utype", r.data.utype);
 		rec.set("position", r.data.position);
 		
-		rec.set("dest_type", r.data['desttype']);
-		rec.set("destination", r.data['destination']);
-		rec.set("route", r.data['route']);
-		rec.set("depart", r.data['depart']);
-		rec.set("arrive", r.data['arrive']);
-		rec.set("cls", r.data['cls']);
-		rec.set("amount", r.data['amount']);
+//		rec.set("dest_type", r.data['desttype']);
+//		rec.set("destination", r.data['destination']);
+//		rec.set("route", r.data['route']);
+//		rec.set("depart", r.data['depart']);
+//		rec.set("arrive", r.data['arrive']);
+//		rec.set("cls", r.data['cls']);
+//		rec.set("amount", r.data['amount']);
 		
 		if (!id) {
 			rec.commit();
@@ -172,7 +172,7 @@ Ext.define('PBExp.controller.attendee.Form', {
 			callback:me.dlgOtherUserCallBack,
 			rec : rec,
 			needPosition:true,
-			needFootPrint:true
+			needFootPrint:false
 		});
 		
 		return dlg;

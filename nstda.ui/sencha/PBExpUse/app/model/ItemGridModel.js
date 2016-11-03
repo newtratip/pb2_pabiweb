@@ -1,6 +1,7 @@
 Ext.define('PBExpUse.model.ItemGridModel', {
     extend: 'Ext.data.Model',
     fields : [ {name : 'id'}
+    		 , {name : 'activity'}
     		 , {name : 'actGrpId'}
     		 , {name : 'actGrpName'}
     		 , {name : 'actId'}

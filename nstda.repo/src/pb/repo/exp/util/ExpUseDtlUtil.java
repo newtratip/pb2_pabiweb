@@ -62,6 +62,7 @@ public class ExpUseDtlUtil {
 				
 				ExpUseDtlModel model = new ExpUseDtlModel();
 				model.setMasterId(masterId);
+				model.setActivity(jsonObj.getString(ExpUseDtlConstant.JFN_ACTIVITY));
 				model.setActId(jsonObj.getInt(ExpUseDtlConstant.JFN_ACT_ID));
 				model.setActGrpId(jsonObj.getInt(ExpUseDtlConstant.JFN_ACT_GRP_ID));
 				model.setActName(jsonObj.getString(ExpUseDtlConstant.JFN_ACT_NAME));
