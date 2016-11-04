@@ -1,0 +1,2 @@
+ALTER server foreign_server  OPTIONS (SET host '10.226.202.133', SET port '5432', SET dbname 'PABI2_v4');
+ALTER USER MAPPING FOR alfresco SERVER foreign_server OPTIONS (SET user 'openerp', SET password 'VZbv29Nl');
