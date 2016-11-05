@@ -61,7 +61,7 @@ ALTER TABLE pb2_exp_brw OWNER TO alfresco;
 --
 
 CREATE TABLE pb2_exp_brw_attendee (
-    id bigint DEFAULT nextval('pb2_exp_brw_voyager_id_seq'::regclass) NOT NULL,
+    id bigint NOT NULL,
     master_id character varying(50) NOT NULL,
     code character varying,
     created_time timestamp with time zone DEFAULT statement_timestamp(),
@@ -260,7 +260,7 @@ ALTER TABLE pb2_exp_use OWNER TO alfresco;
 --
 
 CREATE TABLE pb2_exp_use_attendee (
-    id bigint DEFAULT nextval('pb2_exp_use_voyager_id_seq'::regclass) NOT NULL,
+    id bigint NOT NULL,
     master_id character varying(50) NOT NULL,
     code character varying,
     fname character varying,
@@ -285,7 +285,7 @@ ALTER TABLE pb2_exp_use_attendee OWNER TO alfresco;
 --
 
 CREATE TABLE pb2_exp_use_dtl (
-    id bigint DEFAULT nextval('pb2_exp_use_dtl_id_seq'::regclass) NOT NULL,
+    id bigint NOT NULL,
     master_id character varying(50) NOT NULL,
     created_time timestamp with time zone DEFAULT statement_timestamp(),
     created_by character varying(20),
@@ -303,6 +303,52 @@ CREATE TABLE pb2_exp_use_dtl (
 
 
 ALTER TABLE pb2_exp_use_dtl OWNER TO alfresco;
+
+CREATE SEQUENCE public.pb2_exp_use_dtl_id_seq
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 269
+  CACHE 1;
+ALTER TABLE public.pb2_exp_use_dtl_id_seq
+  OWNER TO alfresco;
+
+ALTER SEQUENCE pb2_exp_use_dtl_id_seq OWNED BY pb2_exp_use_dtl.id;
+
+
+
+CREATE SEQUENCE public.pb2_exp_use_voyager_id_seq
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 269
+  CACHE 1;
+ALTER TABLE public.pb2_exp_use_voyager_id_seq
+  OWNER TO alfresco;
+
+ALTER SEQUENCE pb2_exp_use_voyager_id_seq OWNED BY pb2_exp_use_attendee.id;
+
+
+CREATE SEQUENCE public.pb2_exp_brw_voyager_id_seq
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 269
+  CACHE 1;
+ALTER TABLE public.pb2_exp_brw_voyager_id_seq
+  OWNER TO alfresco;
+
+ALTER SEQUENCE pb2_exp_brw_voyager_id_seq OWNED BY pb2_exp_brw_attendee.id;
+
+
+
+--
+-- TOC entry 2977 (class 0 OID 0)
+-- Dependencies: 397
+-- Name: pb2_exp_brw_dtl_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alfresco
+--
+
+ALTER SEQUENCE pb2_exp_use_dtl_id_seq OWNED BY pb2_exp_use_dtl.id;
 
 --
 -- TOC entry 358 (class 1259 OID 72581)
@@ -1228,7 +1274,7 @@ ALTER SEQUENCE pb2_pcm_req_dtl_id_seq OWNED BY pb2_pcm_req_dtl.id;
 
 ALTER TABLE ONLY pb2_exp_brw_dtl ALTER COLUMN id SET DEFAULT nextval('pb2_exp_brw_dtl_id_seq'::regclass);
 
-
+ALTER TABLE ONLY pb2_exp_use_dtl ALTER COLUMN id SET DEFAULT nextval('pb2_exp_use_dtl_id_seq'::regclass);
 --
 -- TOC entry 2737 (class 2604 OID 72674)
 -- Name: id; Type: DEFAULT; Schema: public; Owner: alfresco
@@ -1301,29 +1347,6 @@ ALTER TABLE ONLY pb2_pcm_req_committee_hdr ALTER COLUMN id SET DEFAULT nextval('
 ALTER TABLE ONLY pb2_pcm_req_dtl ALTER COLUMN id SET DEFAULT nextval('pb2_pcm_req_dtl_id_seq'::regclass);
 
 
-
-
-
-
---
--- TOC entry 3043 (class 0 OID 0)
--- Dependencies: 397
--- Name: pb2_exp_brw_dtl_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_exp_brw_dtl_id_seq', 914, true);
-
-
-
-
-
---
--- TOC entry 3044 (class 0 OID 0)
--- Dependencies: 359
--- Name: pb2_main_complete_notification_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_main_complete_notification_id_seq', 1, false);
 
 
 --
@@ -1538,85 +1561,13 @@ SELECT pg_catalog.setval('pb2_main_master_id_seq', 630, true);
 -- Data for Name: pb2_main_msg; Type: TABLE DATA; Schema: public; Owner: alfresco
 --
 
-
-
-
-
---
--- TOC entry 3046 (class 0 OID 0)
--- Dependencies: 363
--- Name: pb2_main_workflow_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_main_workflow_history_id_seq', 9261, true);
-
-
---
--- TOC entry 3047 (class 0 OID 0)
--- Dependencies: 364
--- Name: pb2_main_workflow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_main_workflow_id_seq', 2254, true);
-
-
-
---
--- TOC entry 3048 (class 0 OID 0)
--- Dependencies: 366
--- Name: pb2_main_workflow_next_actor_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_main_workflow_next_actor_id_seq', 1723, true);
-
-
-
---
--- TOC entry 3049 (class 0 OID 0)
--- Dependencies: 368
--- Name: pb2_main_workflow_reviewer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_main_workflow_reviewer_id_seq', 3668, true);
-
-
-
---
--- TOC entry 3050 (class 0 OID 0)
--- Dependencies: 372
--- Name: pb2_pcm_req_committee_dtl_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_pcm_req_committee_dtl_id_seq', 6581, true);
-
-
-
---
--- TOC entry 3051 (class 0 OID 0)
--- Dependencies: 374
--- Name: pb2_pcm_req_committee_hdr_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_pcm_req_committee_hdr_id_seq', 2614, true);
-
-
-
---
--- TOC entry 3052 (class 0 OID 0)
--- Dependencies: 376
--- Name: pb2_pcm_req_dtl_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
---
-
-SELECT pg_catalog.setval('pb2_pcm_req_dtl_id_seq', 2867, true);
-
-
 --
 -- TOC entry 2797 (class 2606 OID 164098)
 -- Name: pk_nstda_main_master; Type: CONSTRAINT; Schema: public; Owner: alfresco
 --
 
 ALTER TABLE ONLY pb2_main_master
-    ADD CONSTRAINT pk_nstda_main_master PRIMARY KEY (id);
+    ADD CONSTRAINT pk_pb2_main_master PRIMARY KEY (id);
 
 
 --
