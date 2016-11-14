@@ -29,6 +29,9 @@ Ext.define('PBExpUse.controller.Form', {
 	    ref: 'txtReason',
 	    selector: 'expUseMainForm field[name=reason]'
 	},{
+	    ref: 'txtNote',
+	    selector: 'expUseMainForm field[name=note]'
+	},{
 	    ref: 'hidBudgetCcType',
 	    selector: 'expUseMainForm field[name=budgetCcType]'
 	},{
@@ -110,6 +113,9 @@ Ext.define('PBExpUse.controller.Form', {
     	ref:'itemGrid',
     	selector:'expUseItemTab grid'
 	},{
+    	ref:'itemTab',
+    	selector:'expUseItemTab'
+	},{
 		ref:'infoTab',
 		selector:'expUseInfoTab'
 	},{
@@ -171,6 +177,7 @@ Ext.define('PBExpUse.controller.Form', {
 	SEND_MSG_KEY : 'SEND_EXP_USE',
 	MSG_KEY : 'SAVE_EXP_USE',
 	URL : ALF_CONTEXT+'/exp/use',
+	AV_URL : ALF_CONTEXT+'/exp/brw',
 	MSG_URL : ALF_CONTEXT+'/exp/message',
 	
 	validForm:function(saveDraft) {
@@ -331,7 +338,8 @@ Ext.define('PBExpUse.controller.Form', {
 			reqOu:me.getTxtReqOu().getValue(),
 				
 			objective:me.getTxtObjective().getValue(),
-			reason:me.getTxtReason().getValue()
+			reason:me.getTxtReason().getValue(),
+			note:me.getTxtNote().getValue()
 		};
 		params.budgetCcType = me.getHidBudgetCcType().getValue();
 		params.budgetCc = me.getHidBudgetCc().getValue();
@@ -1022,12 +1030,39 @@ Ext.define('PBExpUse.controller.Form', {
 			istore.getProxy().extraParams = {
 				id:newV
 			}
-			istore.load();
+			istore.load({
+				callback:function() {
+					me.getItemTab().fireEvent("itemStoreLoad");
+				}
+			});
 			
-//						me.getAttendeeEmpGrid().getStore().removeAll();
-//						me.getAttendeeOthGrid().getStore().removeAll();
-//				    	me.getItemGrid().getStore().removeAll();
+			var params = {
+				id:newV,
+				lang:getLang()
+			}
 			
+			Ext.Ajax.request({
+			    url:me.AV_URL+"/get",
+			    method: "GET",
+			    params: params,
+			    success: function(response){
+			  	  
+				  	var json = Ext.decode(response.responseText);
+					  
+				  	me.getTxtReason().setValue(json.data[0].reason);
+			    },
+			    failure: function(response, opts){
+			    	try {
+			    		var json = Ext.decode(response.responseText);
+				    	PB.Dlg.error('ERR_'+me.SEND_MSG_KEY+" ("+json.message+")", MODULE_EXP);
+			    	}
+			    	catch (err) {
+				    	alert(response.responseText);
+			    	}
+				    myMask.hide();
+			    },
+			    headers: getAlfHeader()
+			});
 		}
 	}
 	

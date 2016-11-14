@@ -142,21 +142,6 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 					xtype:'container',
 					layout:'hbox',
 					anchor:'-10',
-					margin:'0 10 0 0',
-					items:[{
-						xtype:'textfield',
-						name:'reason',
-						fieldLabel:PBExpUse.Label.n.reason,
-						labelWidth:lbw,
-						margin:"5 0 0 10",
-						flex:1,
-						allowBlank:true,
-						value:replaceIfNull(me.rec.reason, null)
-					}]
-				},{
-					xtype:'container',
-					layout:'hbox',
-					anchor:'-10',
 					margin:'0 10 5 0',
 					items:[{
 						xtype:'hidden',

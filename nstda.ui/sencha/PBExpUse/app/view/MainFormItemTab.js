@@ -45,12 +45,39 @@ Ext.define('PBExpUse.view.MainFormItemTab', {
 		
 		var store = Ext.create('PBExpUse.store.ItemGridStore');
 		
+		var lbw = 245;
+		
 		Ext.applyIf(me, {
 			items:[{
 				xtype:'container',
 				layout:'border',
 				border:0,
 				items:[{
+					region:'north',
+					xtype:'form',
+					height:110,
+					items:[{
+						xtype:'textfield',
+						name:'reason',
+						fieldLabel:PBExpUse.Label.i.reason,
+						labelWidth:lbw,
+						margin:"5 0 0 10",
+						width:WIDTH-40,
+						allowBlank:true,
+						value:replaceIfNull(me.rec.reason, null)
+					},{
+						xtype:'textareafield',
+						name:'note',
+						fieldLabel:PBExpUse.Label.i.note,
+						labelWidth:lbw,
+						margin:"5 0 0 10",
+						width:WIDTH-40,
+						height:70,
+						allowBlank:true,
+						maxLength:255,
+						value:replaceIfNull(me.rec.note, null)
+					}]
+				},{
 					xtype:'grid',
 					region:'center',
 					columns : columns,

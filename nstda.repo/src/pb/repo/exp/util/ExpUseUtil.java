@@ -34,6 +34,7 @@ public class ExpUseUtil {
 		
 		jsObj.put(ExpUseConstant.JFN_OBJECTIVE, model.getObjective());
 		jsObj.put(ExpUseConstant.JFN_REASON, model.getReason());
+		jsObj.put(ExpUseConstant.JFN_NOTE, model.getNote());
 		
 		jsObj.put(ExpUseConstant.JFN_BUDGET_CC, model.getBudgetCc());
 		jsObj.put(ExpUseConstant.JFN_BUDGET_CC_NAME, model.getBudgetCcName());
@@ -78,6 +79,8 @@ public class ExpUseUtil {
 		jsObj.put(ExpUseConstant.JFN_UPDATED_BY, model.getUpdatedBy());
 		jsObj.put(ExpUseConstant.JFN_ACTION, getAction(model, showDelBtn));
 		
+		jsObj.put(ExpUseConstant.JFN_REQUESTED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime(model.getRequestedTime()));
+		
 		return jsObj;
 	}
 	
@@ -93,6 +96,7 @@ public class ExpUseUtil {
 		map.put(ExpUseConstant.JFN_REQ_BY, model.getReqBy());
 		
 		map.put(ExpUseConstant.JFN_OBJECTIVE, model.getObjective());
+		map.put(ExpUseConstant.JFN_NOTE, model.getNote());
 		
 		map.put(ExpUseConstant.JFN_BUDGET_CC, model.getBudgetCc());
 		

@@ -123,10 +123,12 @@ public class InterfaceService {
 	        map.put("advance_type",data.get("objective_type"));
 	        map.put("date_back",CommonDateTimeUtil.convertToOdooFieldDate(data.get("date_back")!=null ? (Timestamp) data.get("date_back") : CommonDateTimeUtil.now()));
 	        map.put("name", data.get("objective"));
-	        map.put("note", data.get("reason")!=null ? data.get("reason") : "");
 	        map.put("apweb_ref_url", NodeUtil.trimNodeRef((String)data.get("doc_ref")));
 	        map.put("receive_method", receiveMethodForInf((String)data.get("bank_type")));
 	        map.put("employee_bank_id.id", data.get("bank")!=null ? data.get("bank") : "");
+	        map.put("reason_bypass_procure", data.get("reason")!=null ? data.get("reason") : "");
+	        map.put("note", data.get("note")!=null ? data.get("note") : "");
+	        map.put("remark", data.get("av_remark")!=null ? data.get("av_remark") : "");
 	        
 	        for(String key : map.keySet()) {
 	        	log.info(" - "+key+":"+map.get(key));
@@ -318,9 +320,10 @@ public class InterfaceService {
 	        map.put("advance_type","");
 	        map.put("date_back",CommonDateTimeUtil.convertToOdooFieldDate(data.get("cost_control_to")!=null ? (Timestamp) data.get("cost_control_to") : CommonDateTimeUtil.now()));
 	        map.put("name", data.get("objective"));
-	        map.put("note", "");
+	        map.put("note", data.get("note")!=null ? data.get("note") : "");
 	        map.put("apweb_ref_url", NodeUtil.trimNodeRef((String)data.get("doc_ref")));
 	        map.put("reason_bypass_procure", data.get("reason")!=null ? data.get("reason") : "");
+	        map.put("remark", "");
 	        
 	        String payType = (String)data.get("pay_type");
 	        String payTo = null;

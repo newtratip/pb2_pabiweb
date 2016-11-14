@@ -67,6 +67,8 @@ public class PcmReqModel extends SubModuleModel {
 	String wfByTime;
 	String wfStatus;
 	
+	Timestamp requestedTime;
+	
 	List<PcmReqDtlModel> dtlList;
 	List<PcmReqCmtHdrModel> cmtList;
 	
@@ -342,6 +344,12 @@ public class PcmReqModel extends SubModuleModel {
 	}
 	public void setContractDate(Timestamp contractDate) {
 		this.contractDate = contractDate;
+	}
+	public Timestamp getRequestedTime() {
+		return requestedTime;
+	}
+	public void setRequestedTime(Timestamp requestedTime) {
+		this.requestedTime = requestedTime;
 	}
 	public List<PcmReqDtlModel> getDtlList() {
 		return dtlList;

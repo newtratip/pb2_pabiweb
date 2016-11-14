@@ -3,7 +3,7 @@ package pb.repo.admin.constant;
 public class AdminConstant {
 	public static final StringBuffer CHANGE_LOG = new StringBuffer();
 	
-	public static final String VERSION = "1.0.85";
+	public static final String VERSION = "1.0.88";
 	
     static {
 //		CHANGE_LOG.append("  - Interface : Use user_id to call service\n");
@@ -12,7 +12,20 @@ public class AdminConstant {
 //		CHANGE_LOG.append("  - Workflow History : Action and task : Multiple Languages\n");
 //		CHANGE_LOG.append("  - PR Form : Additional PR : Get Old Committee as default\n");
 //		CHANGE_LOG.append("  - AV : Add Field reason\n");
-    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (26/10/2016)\n");
+    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (11/11/2016)\n");
+		CHANGE_LOG.append("  - EX,AV : Change field names : av_reason->av_remark,reamrk->note\n");
+    	CHANGE_LOG.append("\nV.1.0.87 --- (10/11/2016)\n");
+		CHANGE_LOG.append("  - EX Pdf : Label mixed up\n");
+		CHANGE_LOG.append("  - AV,EX : Seach Activity by field search_keyword\n");
+    	CHANGE_LOG.append("\nV.1.0.86 --- (09/11/2016)\n");
+		CHANGE_LOG.append("  - AV : Change AV Type Label\n");
+		CHANGE_LOG.append("  - EX : Move file Reason to Item Tab\n");
+		CHANGE_LOG.append("  - EX : Add Field Remark to Item Tab\n");
+		CHANGE_LOG.append("  - AV : Add Item Tab\n");
+		CHANGE_LOG.append("  - AV : Add Field Reason and Remark to Item Tab\n");
+		CHANGE_LOG.append("  - AV : Add Field av_reason\n");
+		CHANGE_LOG.append("  - PR,AV,EX : Add Field requested_time\n");
+    	CHANGE_LOG.append("\nV.1.0.85 --- (26/10/2016)\n");
 		CHANGE_LOG.append("  - AV,EX : Hide Carbon Footprint section\n");
 		CHANGE_LOG.append("  - EX : Hide Import Attendee Button\n");
 		CHANGE_LOG.append("  - EX : Add Field Description and Change Label\n");

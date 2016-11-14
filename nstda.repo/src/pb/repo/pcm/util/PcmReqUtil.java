@@ -96,6 +96,8 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_UPDATED_BY, model.getUpdatedBy());
 		jsObj.put(PcmReqConstant.JFN_ACTION, getAction(model, showDelBtn));
 		
+		jsObj.put(PcmReqConstant.JFN_REQUESTED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime(model.getRequestedTime()));
+		
 		return jsObj;
 	}
 	

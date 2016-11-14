@@ -21,6 +21,7 @@ public class ExpUseConstant extends SubModuleConstant {
 
 	public static final String TFN_OBJECTIVE = "OBJECTIVE";
 	public static final String TFN_REASON = "REASON";
+	public static final String TFN_NOTE = "NOTE";
 	
 	public static final String TFN_BUDGET_CC = "BUDGET_CC";
 	public static final String TFN_BUDGET_CC_TYPE = "BUDGET_CC_TYPE";
@@ -49,6 +50,7 @@ public class ExpUseConstant extends SubModuleConstant {
 	public static final String TFN_WF_STATUS = "WF_STATUS";
 	public static final String TFN_WF_BY_TIME = "WF_BY_TIME";
 
+	public static final String TFN_REQUESTED_TIME = "REQUESTED_TIME";
 	
     /*
      * JSON Field Name
@@ -72,6 +74,7 @@ public class ExpUseConstant extends SubModuleConstant {
 	
 	public static final String JFN_OBJECTIVE = "objective";
 	public static final String JFN_REASON = "reason";
+	public static final String JFN_NOTE = "note";
 	
 	public static final String JFN_BUDGET_CC = "budget_cc";
 	public static final String JFN_BUDGET_CC_NAME = "budget_cc_name";
@@ -108,6 +111,9 @@ public class ExpUseConstant extends SubModuleConstant {
 	public static final String JFN_CREATED_BY_SHOW = "created_by_show";
 	public static final String JFN_CREATED_TIME_SHOW = "created_time_show";
 	public static final String JFN_TEL_NO = "tel_no";
+	
+	public static final String JFN_REQUESTED_TIME = "requested_time";
+	public static final String JFN_REQUESTED_TIME_SHOW = "requested_time_show";
 
 	
 	/*

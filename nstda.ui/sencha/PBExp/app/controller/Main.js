@@ -231,7 +231,7 @@ Ext.define('PBExp.controller.Main', {
 		      url:me.MSG_URL+"/list",
 		      method: "GET",
 		      params: {
-		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ATTENDEE,TAB_TITLE_FILE",
+		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ITEM,TAB_TITLE_ATTENDEE,TAB_TITLE_FILE",
 		    	  lang : getLang()
 		      },
 		      success: function(response){
@@ -242,8 +242,9 @@ Ext.define('PBExp.controller.Main', {
 		    	form.setActiveTab(firstTab);
 		    	
 		    	form.add({ xtype:'expBrwInfoTab', title:data[1].message, rec:rec });
-				form.add({ xtype:'expBrwAttendeeTab', title:data[2].message, rec:rec });
-				form.add({ xtype:'expBrwFileTab', title:data[3].message, rec:rec });
+		    	form.add({ xtype:'expBrwItemTab', title:data[2].message, rec:rec });
+				form.add({ xtype:'expBrwAttendeeTab', title:data[3].message, rec:rec });
+				form.add({ xtype:'expBrwFileTab', title:data[4].message, rec:rec });
 				
 				Ext.defer(function() {
 					validForm(me.getMainForm());

@@ -754,7 +754,9 @@ public class ExpBrwService implements SubModuleService {
 			objective += "    วันที่กลับ    " + CommonDateTimeUtil.convertToGridDate(model.getDateBack());
 		}
 		map.put("objective", objective);
+		map.put("avRemark", model.getAvRemark());
 		map.put("reason", model.getReason());
+		map.put("note", model.getNote());
 		
 		String budgetCcName = null;
 		if (model.getBudgetCcType().equals(MainBudgetSrcConstant.TYPE_PROJECT)) {
@@ -1064,7 +1066,7 @@ public class ExpBrwService implements SubModuleService {
     			map.put(ExpBrwConstant.JFN_CREATED_BY,map.get(ExpBrwConstant.TFN_CREATED_BY+lang));
     			map.put(ExpBrwConstant.JFN_REQ_BY,map.get(ExpBrwConstant.TFN_REQ_BY+lang));
     			map.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE_NAME,map.get(ExpBrwConstant.TFN_OBJECTIVE_TYPE_NAME+lang));
-    			map.put(ExpBrwConstant.JFN_CREATED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(ExpBrwConstant.TFN_CREATED_TIME)));
+    			map.put(ExpBrwConstant.JFN_REQUESTED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(ExpBrwConstant.TFN_REQUESTED_TIME)));
     			
     			map.put(ExpBrwConstant.JFN_ACTION, ExpBrwUtil.getAction(map));
     			

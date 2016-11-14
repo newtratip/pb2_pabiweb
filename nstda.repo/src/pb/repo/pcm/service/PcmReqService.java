@@ -1120,7 +1120,7 @@ public class PcmReqService implements SubModuleService {
     			map.put(PcmReqConstant.JFN_BUDGET_CC_NAME,map.get(PcmReqConstant.TFN_BUDGET_CC_NAME+lang));
     			map.put(PcmReqConstant.JFN_CREATED_BY,map.get(PcmReqConstant.TFN_CREATED_BY+lang));
     			map.put(PcmReqConstant.JFN_REQ_BY,map.get(PcmReqConstant.TFN_REQ_BY+lang));
-    			map.put(PcmReqConstant.JFN_CREATED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(PcmReqConstant.TFN_CREATED_TIME)));
+    			map.put(PcmReqConstant.JFN_REQUESTED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(PcmReqConstant.TFN_REQUESTED_TIME)));
     			map.put(PcmReqConstant.JFN_OBJECTIVE_TYPE,map.get(PcmReqConstant.TFN_OBJECTIVE_TYPE+lang));
     			map.put(PcmReqConstant.JFN_OBJECTIVE_TYPE_NAME,map.get(PcmReqConstant.TFN_OBJECTIVE_TYPE_NAME+lang));
     			

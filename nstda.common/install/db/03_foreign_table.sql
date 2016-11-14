@@ -1,7 +1,8 @@
 CREATE FOREIGN TABLE public.pb2_ext_account_activity
    (id integer NOT NULL,
     name character varying ,
-    active boolean )
+    active boolean ,
+    search_keywords character varying )
    SERVER foreign_server
    OPTIONS (table_name 'account_activity');
 ALTER FOREIGN TABLE public.pb2_ext_account_activity

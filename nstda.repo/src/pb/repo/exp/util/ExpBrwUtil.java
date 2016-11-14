@@ -36,7 +36,9 @@ public class ExpBrwUtil {
 		jsObj.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE, model.getObjectiveType());
 		jsObj.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE_NAME, model.getObjectiveTypeName());
 		jsObj.put(ExpBrwConstant.JFN_OBJECTIVE, model.getObjective());
+		jsObj.put(ExpBrwConstant.JFN_AV_REMARK, model.getAvRemark());
 		jsObj.put(ExpBrwConstant.JFN_REASON, model.getReason());
+		jsObj.put(ExpBrwConstant.JFN_NOTE, model.getNote());
 		
 		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC, model.getBudgetCc());
 		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC_NAME, model.getBudgetCcName());
@@ -71,6 +73,8 @@ public class ExpBrwUtil {
 		jsObj.put(ExpBrwConstant.JFN_UPDATED_BY, model.getUpdatedBy());
 		jsObj.put(ExpBrwConstant.JFN_ACTION, getAction(model, showDelBtn));
 		
+		jsObj.put(ExpBrwConstant.JFN_REQUESTED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime(model.getRequestedTime()));
+
 		return jsObj;
 	}
 	
@@ -88,6 +92,8 @@ public class ExpBrwUtil {
 		map.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE, model.getObjectiveType());
 		map.put(ExpBrwConstant.JFN_OBJECTIVE, model.getObjective());
 		map.put(ExpBrwConstant.JFN_REASON, model.getReason());
+		map.put(ExpBrwConstant.JFN_AV_REMARK, model.getAvRemark());
+		map.put(ExpBrwConstant.JFN_NOTE, model.getNote());
 		
 		map.put(ExpBrwConstant.JFN_BUDGET_CC, model.getBudgetCc());
 		

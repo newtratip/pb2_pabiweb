@@ -8,7 +8,9 @@
         <result property="objectiveType" column="objective_type"/>
         <result property="objectiveTypeName" column="objective_type_name"/>
         <result property="objective" column="objective"/>
+        <result property="avRemark" column="av_remark"/>
         <result property="reason" column="reason"/>
+        <result property="note" column="note"/>
         <result property="budgetCc" column="budget_cc"/>
         <result property="budgetCcType" column="budget_cc_type"/>
         <result property="budgetCcName" column="budget_cc_name"/>
@@ -26,6 +28,7 @@
         <result property="docRef" column="doc_ref"/>
         <result property="folderRef" column="folder_ref"/>
         <result property="waitingLevel" column="waiting_level"/>
+        <result property="requestedTime" column="requested_time"/>
         <result property="createdTime" column="created_time"/>
         <result property="createdBy" column="created_by"/>
         <result property="updatedTime" column="updated_time"/>
@@ -43,7 +46,7 @@
 		where (created_by_code = #{loginE} or req_by_code = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-				concat(id, ' ', objective_type_name, ' ', objective_type_name_th, ' ',objective,' ',req_by,' ',req_by_th,' ',created_by,' ',created_by_th,to_char(created_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
+				concat(id, ' ', objective_type_name, ' ', objective_type_name_th, ' ',objective,' ',req_by,' ',req_by_th,' ',created_by,' ',requested_by_th,to_char(created_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
 	   		</foreach>
    		</if>  
 		<if test="status != null">
@@ -315,7 +318,7 @@
 	    INSERT INTO pb2_exp_brw(
 	    	id
 	    	,req_by
-	    	,objective_type,objective,reason
+	    	,objective_type,objective,reason,note,av_remark
 	    	,budget_cc,budget_cc_type
 	    	,fund_id
 	    	,cost_control_id,cost_control_type_id
@@ -328,7 +331,7 @@
 	    ) VALUES (
 	    	#{id}
 	    	,#{reqBy}
-	    	,#{objectiveType},#{objective},#{reason}
+	    	,#{objectiveType},#{objective},#{reason},#{note},#{avRemark}
 	    	,#{budgetCc},#{budgetCcType}
 	    	,#{fundId}
 	    	,#{costControlId},#{costControlTypeId}
@@ -370,7 +373,9 @@
 		,req_by =#{reqBy}
 	    ,objective_type =#{objectiveType}
 	    ,objective =#{objective}
+	    ,av_remark =#{avRemark}
 	    ,reason =#{reason}
+	    ,note =#{note}
 	    ,budget_cc =#{budgetCc}
 	    ,budget_cc_type =#{budgetCcType}
 	    ,fund_id =#{fundId}
@@ -385,6 +390,7 @@
 	    ,waiting_level =#{waitingLevel}
         ,updated_by =#{updatedBy}
         ,updated_time =Now()
+        ,requested_time =#{requestedTime}
      WHERE id=#{id}
     </update>
     
@@ -474,10 +480,12 @@
 			av.req_by,
 			av.created_by,
 			w.by_time,
-			av.updated_time, 	
+			av.updated_time,
 			objective_type,
 			objective,
+			av_remark,
 			reason,
+			note,
 			bank_type,
 			bank,
 			date_back,

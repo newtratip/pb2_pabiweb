@@ -7,7 +7,7 @@ Ext.define('PBExpUse.model.GridModel', {
     		 , {name : 'objective'}
     		 , {name : 'total'}
     		 , {name : 'workflow_ins_id'}
-    		 , {name : 'created_time_show'}
+    		 , {name : 'requested_time_show'}
     		 , {name : 'budget_cc'}
     		 , {name : 'budget_cc_name'}
     		 , {name : 'fund_id'}

@@ -38,7 +38,7 @@ public class CommonDateTimeUtil {
 	 */
 	public static String convertToGridDateTime(Timestamp timestamp) {
 		if (timestamp==null) {
-			return null;
+			return "";
 		}
 		
 		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.GRID_COLUMN_DATE_TIME_FORMAT,Locale.US);

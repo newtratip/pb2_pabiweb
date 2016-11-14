@@ -15,7 +15,7 @@
 	    WHERE 1=1
 	    <if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-	    		concat(name,' ',name_th) ILIKE '%'||#{item}||'%'
+	    		concat(name,' ',name_th,' ',search_keywords) ILIKE '%'||#{item}||'%'
 	   		</foreach>
    		</if>  
 	    <if test="actGrpId != null">

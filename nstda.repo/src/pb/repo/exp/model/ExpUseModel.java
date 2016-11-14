@@ -11,6 +11,7 @@ public class ExpUseModel extends SubModuleModel {
 	
 	String objective;
 	String reason;
+	String note;
 	
 	Integer budgetCc;
 	String budgetCcType;
@@ -48,6 +49,8 @@ public class ExpUseModel extends SubModuleModel {
 	String wfBy;
 	String wfByTime;
 	String wfStatus;
+	
+	Timestamp requestedTime;
 	
 	List<ExpUseAttendeeModel> attendeeList;
 	List<ExpUseDtlModel> dtlList;
@@ -258,6 +261,18 @@ public class ExpUseModel extends SubModuleModel {
 	}
 	public void setReason(String reason) {
 		this.reason = reason;
+	}
+	public String getNote() {
+		return note;
+	}
+	public void setNote(String note) {
+		this.note = note;
+	}
+	public Timestamp getRequestedTime() {
+		return requestedTime;
+	}
+	public void setRequestedTime(Timestamp requestedTime) {
+		this.requestedTime = requestedTime;
 	}
 	
 }

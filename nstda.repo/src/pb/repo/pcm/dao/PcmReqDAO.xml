@@ -46,6 +46,7 @@
         <result property="docRef" column="doc_ref"/>
         <result property="folderRef" column="folder_ref"/>
         <result property="waitingLevel" column="waiting_level"/>
+        <result property="requestedTime" column="requested_time"/>
         <result property="createdTime" column="created_time"/>
         <result property="createdBy" column="created_by"/>
         <result property="updatedTime" column="updated_time"/>
@@ -63,7 +64,7 @@
 		where (created_by_code = #{loginE} or req_by_code = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-				concat(id, ' ', objective_type_name, ' ', objective_type_name_th, ' ',objective,' ',currency,' ',req_by,' ',req_by_th,' ',created_by,' ',created_by_th,to_char(created_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
+				concat(id, ' ', objective_type_name, ' ', objective_type_name_th, ' ',objective,' ',currency,' ',req_by,' ',req_by_th,' ',created_by,' ',created_by_th,to_char(requested_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
 	   		</foreach>
    		</if>  
 		<if test="status != null">
@@ -405,6 +406,7 @@
 	    ,waiting_level =#{waitingLevel}
         ,updated_by =#{updatedBy}
         ,updated_time =Now()
+        ,requested_time =#{requestedTime}
      WHERE id=#{id}
     </update>
     

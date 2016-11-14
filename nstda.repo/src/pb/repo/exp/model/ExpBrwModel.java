@@ -13,7 +13,9 @@ public class ExpBrwModel extends SubModuleModel {
 	String objectiveType;
 	String objectiveTypeName;
 	String objective;
+	String avRemark;
 	String reason;
+	String note;
 	
 	Integer budgetCc;
 	String budgetCcType;
@@ -41,6 +43,8 @@ public class ExpBrwModel extends SubModuleModel {
 	String wfBy;
 	String wfByTime;
 	String wfStatus;
+	
+	Timestamp requestedTime;
 	
 	List<ExpBrwDtlModel> dtlList;
 	List<ExpBrwAttendeeModel> attendeeList;
@@ -209,6 +213,24 @@ public class ExpBrwModel extends SubModuleModel {
 	}
 	public void setDateBack(Timestamp dateBack) {
 		this.dateBack = dateBack;
+	}
+	public String getAvRemark() {
+		return avRemark;
+	}
+	public void setAvRemark(String avRemark) {
+		this.avRemark = avRemark;
+	}
+	public String getNote() {
+		return note;
+	}
+	public void setNote(String note) {
+		this.note = note;
+	}
+	public Timestamp getRequestedTime() {
+		return requestedTime;
+	}
+	public void setRequestedTime(Timestamp requestedTime) {
+		this.requestedTime = requestedTime;
 	}
 	
 }

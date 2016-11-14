@@ -736,6 +736,7 @@ public class ExpUseService implements SubModuleService {
 		
 		map.put("objective", model.getObjective());
 		map.put("reason", model.getReason());
+		map.put("note", model.getNote());
 		
 		String budgetCcName = null;
 		if (model.getBudgetCcType().equals(MainBudgetSrcConstant.TYPE_PROJECT)) {
@@ -1123,7 +1124,7 @@ public class ExpUseService implements SubModuleService {
     			map.put(ExpUseConstant.JFN_CREATED_BY,map.get(ExpUseConstant.TFN_CREATED_BY+lang));
     			map.put(ExpUseConstant.JFN_REQ_BY,map.get(ExpUseConstant.TFN_REQ_BY+lang));
     			map.put(ExpUseConstant.JFN_PAY_TYPE_NAME,map.get(ExpUseConstant.TFN_PAY_TYPE_NAME+lang));
-    			map.put(ExpUseConstant.JFN_CREATED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(ExpUseConstant.TFN_CREATED_TIME)));
+    			map.put(ExpUseConstant.JFN_REQUESTED_TIME_SHOW, CommonDateTimeUtil.convertToGridDateTime((Timestamp)map.get(ExpUseConstant.TFN_REQUESTED_TIME)));
     			
     			map.put(ExpUseConstant.JFN_ACTION, ExpUseUtil.getAction(map));
     			

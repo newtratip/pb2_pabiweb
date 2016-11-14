@@ -170,6 +170,7 @@ public class ExpMessageWebScript {
 	  lbl.put("bank", ExpBrwUtil.getMessage(prefix+"bank", locale));
 	  lbl.put("bankWarn", ExpBrwUtil.getMessage(prefix+"bank.warn", locale));
 	  lbl.put("dateBack", ExpBrwUtil.getMessage(prefix+"dateBack", locale));
+	  lbl.put("avRemark", ExpBrwUtil.getMessage(prefix+"avRemark", locale));
 	  
 	  jObj.put("n", lbl);
 	  
@@ -187,6 +188,9 @@ public class ExpMessageWebScript {
 	  lbl.put("amt", ExpBrwUtil.getMessage(prefix+"amt", locale));
 	  lbl.put("amtAllow", ExpBrwUtil.getMessage(prefix+"amt.allow", locale));
 	  lbl.put("total", ExpBrwUtil.getMessage(prefix+"total", locale));
+	  
+	  lbl.put("reason", ExpBrwUtil.getMessage(prefix+"reason", locale));
+	  lbl.put("note", ExpBrwUtil.getMessage(prefix+"note", locale));
 	  
 	  jObj.put("i", lbl);
 	  
@@ -289,7 +293,6 @@ public class ExpMessageWebScript {
 	  lbl.put("bankBbl", ExpBrwUtil.getMessage(prefix+"bank.bbl", locale));
 	  lbl.put("bank", ExpBrwUtil.getMessage(prefix+"bank", locale));
 	  lbl.put("bankWarn", ExpBrwUtil.getMessage(prefix+"bank.warn", locale));
-	  lbl.put("reason", ExpBrwUtil.getMessage(prefix+"reason", locale));
 	  
 	  jObj.put("n", lbl);
 	  
@@ -307,6 +310,9 @@ public class ExpMessageWebScript {
 	  lbl.put("amt", ExpBrwUtil.getMessage(prefix+"amt", locale));
 	  lbl.put("amtAllow", ExpBrwUtil.getMessage(prefix+"amt.allow", locale));
 	  lbl.put("total", ExpBrwUtil.getMessage(prefix+"total", locale));
+	  
+	  lbl.put("reason", ExpBrwUtil.getMessage(prefix+"reason", locale));
+	  lbl.put("note", ExpBrwUtil.getMessage(prefix+"note", locale));
 	  
 	  jObj.put("i", lbl);
 	  

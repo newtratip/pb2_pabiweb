@@ -397,6 +397,7 @@ public class ExpUseWebScript {
 							,@RequestParam(required=false) final String reqBy
 			  				,@RequestParam(required=false) final String objective
 			  				,@RequestParam(required=false) final String reason
+			  				,@RequestParam(required=false) final String note
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
 							,@RequestParam(required=false) final String fundId
@@ -434,6 +435,8 @@ public class ExpUseWebScript {
 			
 			model.setObjective(objective);
 			model.setReason(reason);
+			model.setNote(note);
+			
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
@@ -488,6 +491,7 @@ public class ExpUseWebScript {
 							,@RequestParam(required=false) final String reqBy
 			  				,@RequestParam(required=false) final String objective
 			  				,@RequestParam(required=false) final String reason
+			  				,@RequestParam(required=false) final String note
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
 							,@RequestParam(required=false) final String fundId
@@ -530,6 +534,8 @@ public class ExpUseWebScript {
 			
 			model.setObjective(objective);
 			model.setReason(reason);
+			model.setNote(note);
+			
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
@@ -560,6 +566,8 @@ public class ExpUseWebScript {
 			
 			model.setTotal(Double.parseDouble(total));
 			model.setStatus(status);
+			
+			model.setRequestedTime(CommonDateTimeUtil.now());
 			
 			if (model.getId() == null || (status!=null && status.equals(ExpUseConstant.ST_DRAFT))) {
 				model.setStatus(ExpUseConstant.ST_WAITING);
@@ -723,6 +731,7 @@ public class ExpUseWebScript {
 								,@RequestParam(required=false) final String reqBy
 								,@RequestParam(required=false) final String objective
 								,@RequestParam(required=false) final String reason
+				  				,@RequestParam(required=false) final String note
 								,@RequestParam(required=false) final String budgetCc
 								,@RequestParam(required=false) final String budgetCcType
 								,@RequestParam(required=false) final String fundId
@@ -765,6 +774,8 @@ public class ExpUseWebScript {
 			
 			model.setObjective(objective);
 			model.setReason(reason);
+			model.setNote(note);
+			
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
@@ -955,6 +966,7 @@ public class ExpUseWebScript {
 							,@RequestParam(required=false) final String reqBy
 			  				,@RequestParam(required=false) final String objective
 			  				,@RequestParam(required=false) final String reason
+			  				,@RequestParam(required=false) final String note
 							,@RequestParam(required=false) final String budgetCc
 							,@RequestParam(required=false) final String budgetCcType
 							,@RequestParam(required=false) final String fundId
@@ -994,6 +1006,8 @@ public class ExpUseWebScript {
 			
 			model.setObjective(objective);
 			model.setReason(reason);
+			model.setNote(note);
+			
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}

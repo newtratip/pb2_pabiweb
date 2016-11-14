@@ -38,8 +38,14 @@ Ext.define('PBExp.controller.Form', {
         ref: 'pnlOldAV',
         selector: 'expBrwInfoTab panel[itemId=oldAV]'
     },{
+        ref: 'txtAvRemark',
+        selector: 'expBrwMainForm field[name=avRemark]'
+    },{
         ref: 'txtReason',
         selector: 'expBrwMainForm field[name=reason]'
+    },{
+        ref: 'txtNote',
+        selector: 'expBrwMainForm field[name=note]'
     },{
         ref: 'hidBudgetCcType',
         selector: 'expBrwMainForm field[name=budgetCcType]'
@@ -78,7 +84,7 @@ Ext.define('PBExp.controller.Form', {
         selector: 'expBrwMainForm button[action=approvalMatrix]'
 	},{
     	ref:'itemGrid',
-    	selector:'expBrwInfoTab grid[itemId=itemGrid]'
+    	selector:'expBrwItemTab grid[itemId=itemGrid]'
 	},{
     	ref:'attendeeEmpGrid',
     	selector:'expBrwAttendeeTab #empGrid'
@@ -302,7 +308,9 @@ Ext.define('PBExp.controller.Form', {
   			
 			objectiveType:me.getCmbObjectiveType().getValue(),
 			objective:me.getTxtObjective().getValue(),
-			reason:me.getTxtReason().getValue()
+			avRemark:me.getTxtAvRemark().getValue(),
+			reason:me.getTxtReason().getValue(),
+			note:me.getTxtNote().getValue()
   		};
 		params.budgetCcType = me.getHidBudgetCcType().getValue();
 		params.budgetCc = me.getHidBudgetCc().getValue();
@@ -762,14 +770,16 @@ Ext.define('PBExp.controller.Form', {
 //		for(var a in r) {
 //			console.log("- "+a+":"+r[a]);
 //		}
+		var avRemark = this.getTxtAvRemark();
+
 		if (!r || r.length<=0) {
-			this.getTxtReason().setFieldStyle('background-color: #ddd; background-image:none;');
-			this.getTxtReason().setDisabled(true);
-			this.getTxtReason().setValue(null);
+			avRemark.setFieldStyle('background-color: #ddd; background-image:none;');
+			avRemark.setDisabled(true);
+			avRemark.setValue(null);
 			this.getPnlOldAV().setDisabled(true);
 		} else {
-			this.getTxtReason().setFieldStyle("background-color: #ffffff;");
-			this.getTxtReason().setDisabled(false);
+			avRemark.setFieldStyle("background-color: #ffffff;");
+			avRemark.setDisabled(false);
 			this.getPnlOldAV().setDisabled(false);
 		}
 	},

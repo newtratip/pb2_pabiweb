@@ -34,7 +34,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		
 		var ogridStore = Ext.create('PBExp.store.OldGridStore',{storeId:'oldExpBrwGridStore',autoLoad:false});
 		
-		var lbw = 160;
+		var lbw = 140;
 		
 		var ocolumns = [{
 	        dataIndex: 'ord',
@@ -67,11 +67,6 @@ Ext.define('PBExp.view.MainFormInfoTab', {
         	format:DEFAULT_MONEY_FORMAT
 	    }];
 		
-		var gridStore = Ext.create('PBExp.store.ItemGridStore',{storeId:'expBrwItemGridStore',autoLoad:false});
-		gridStore.getProxy().extraParams = {
-			id : me.rec.id
-		}
-
 		var columns = [{
 	        		xtype: 'actioncolumn',
 		        	dataIndex: 'action',
@@ -120,7 +115,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					xtype:'trigger',
 					name:'budgetCcTypeName',
 					fieldLabel:mandatoryLabel(PB.Label.b.name),
-					width:lbw+180,
+					width:lbw+200,
 					labelWidth:lbw,
 					margin:"5 0 0 10",
 					triggerCls:'x-form-search-trigger',
@@ -155,10 +150,6 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					value:replaceIfNull(me.rec.fund_name, ''),
 					readOnly:true,
 					fieldStyle:READ_ONLY
-				},{
-					xtype:'hidden',
-					name:'total',
-					value:replaceIfNull(me.rec.total, 0)
 				}]
 			},{
 				xtype:'container',
@@ -178,7 +169,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 			        typeAhead:true,
 			        multiSelect:false,
 			        forceSelection:true,
-					width:lbw+180,
+					width:lbw+200,
 					labelWidth:lbw,
 					allowBlank:false,
 			        listConfig : {
@@ -201,7 +192,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					xtype:'textfield',
 					name:'objective',
 					fieldLabel:mandatoryLabel(PBExp.Label.n.obj),
-					labelWidth:120,
+					labelWidth:100,
 					margin:"0 0 0 15",
 					flex:1,
 					allowBlank:false,
@@ -236,7 +227,7 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					xtype:'trigger',
 					name:'costControlTypeName',
 					fieldLabel:PBExp.Label.n.cc,
-					width:lbw+180,
+					width:lbw+200,
 					labelWidth:lbw,
 					trigger1Cls: 'x-form-clear-trigger',
 				    trigger2Cls: 'x-form-search-trigger',
@@ -291,54 +282,21 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					layout:'fit',
 					split:true,
 					collapsible:true,
-					title:mandatoryLabel(PBExp.Label.n.reason),
+					title:mandatoryLabel(PBExp.Label.n.avRemark),
 					items:[{
 						xtype:'textarea',
-						name:'reason',
+						name:'avRemark',
 						hideLabel:true,
-						fieldLabel:PBExp.Label.n.reason,
+						fieldLabel:PBExp.Label.n.avRemark,
 						margin:"0 0 0 0",
 //						fieldLabel:,
 //						labelWidth:130,
 //						margin:"5 5 5 10",
-						value:replaceIfNull(me.rec.reason, null),
+						value:replaceIfNull(me.rec.av_remark, null),
 						allowBlank:false,
 						maxLength:255
 					}]
 				}]
-			},{
-				title:PBExp.Label.n.itemTitle,
-				margin:'0 0 0 0',
-				xtype:'grid',
-				itemId:'itemGrid',
-				columns:columns,
-				store:gridStore,
-				height:HEIGHT-500,
-			    header:{
-					titlePosition:0,
-					items:[{
-				    	xtype:'tbfill'
-				    },{
-		        		xtype: 'button',
-		                text: PB.Label.m.add,
-		                iconCls: "icon_add",
-		                action:'addItem'
-		        	}]
-			    },
-			    bbar:{
-			    	items:[{
-			    		xtype:'tbfill'
-			    	},{
-			    		xtype:'label',
-			    		text:PBExp.Label.n.total
-			    	},{
-			    		xtype:'label',
-			    		name:'total',
-			    		text:'0.00',
-			    		style:'text-align:right;',
-			    		margin:'0 5 0 170'
-			    	}]
-			    }
 			},{
 				xtype:'panel',
 				title:PBExp.Label.n.methodTitle,
@@ -418,14 +376,6 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 		
 	    this.callParent(arguments);
 	    
-		Ext.apply(gridStore, {pageSize:PAGE_SIZE});
-		gridStore.load({
-			params:{id:me.rec.id},
-			callback:function() {
-				me.fireEvent("itemStoreLoad");
-			}
-		});
-		
 		Ext.apply(ogridStore, {pageSize:PAGE_SIZE});
 		ogridStore.load({
 			params:{

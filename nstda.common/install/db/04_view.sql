@@ -15,7 +15,8 @@ CREATE OR REPLACE VIEW public.pb2_activity_view AS
  SELECT a.id,
     a.name,
     COALESCE(ir.value, a.name::text) AS name_th,
-    r.activity_group_id
+    r.activity_group_id,
+    a.search_keywords
    FROM pb2_ext_account_activity a
      JOIN pb2_ext_activity_group_activity_rel r ON a.id = r.activity_id AND a.active = true
      LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
@@ -119,6 +120,333 @@ CREATE OR REPLACE VIEW public.pb2_employee_info_view AS
 ALTER TABLE public.pb2_employee_info_view
   OWNER TO alfresco;
 
+CREATE OR REPLACE VIEW public.pb2_exp_brw_view AS 
+ SELECT req.id,
+    req.total,
+    req.objective_type,
+    mm.objective_type_name,
+    mm.objective_type_name_th,
+    req.objective,
+    req.budget_cc,
+    req.budget_cc_type,
+    b.name AS budget_cc_name,
+    b.name_th AS budget_cc_name_th,
+    req.wf_by,
+    req.wf_by_th,
+    req.wf_by_time,
+    req.wf_status,
+    req.wf_status_th,
+    req.status,
+    req.reason,
+    req.cost_control_id,
+    req.cost_control_type_id,
+    req.workflow_ins_id,
+    req.task_id,
+    req.updated_time,
+    req.updated_by,
+    req.created_time,
+    req.folder_ref,
+    req.doc_ref,
+        CASE
+            WHEN req.status::text = 'D'::text THEN '1'::character varying
+            WHEN req.status::text = 'W2'::text THEN '2'::character varying
+            WHEN req.status::text = 'W1'::text THEN '3'::character varying
+            WHEN req.status::text = 'S'::text THEN '4'::character varying
+            WHEN req.status::text = 'C1'::text THEN '5'::character varying
+            WHEN req.status::text = 'C2'::text THEN '6'::character varying
+            WHEN req.status::text = 'X1'::text THEN '7'::character varying
+            WHEN req.status::text = 'X2'::text THEN '8'::character varying
+            ELSE req.status
+        END AS order_field,
+    COALESCE(v_created_by.first_name, req.created_by) AS created_by,
+    COALESCE(v_created_by.first_name_th, req.created_by::text) AS created_by_th,
+    COALESCE(v_req_by.first_name, req.req_by) AS req_by,
+    COALESCE(v_req_by.first_name_th, req.req_by::text) AS req_by_th,
+    all_rev.all_rev,
+    req.created_by AS created_by_code,
+    req.req_by AS req_by_code,
+    req.remark,
+    req.av_reason,
+    req.requested_time
+   FROM ( SELECT pb2_exp_brw.id,
+            pb2_exp_brw.total,
+            pb2_exp_brw.objective_type,
+            pb2_exp_brw.objective,
+            pb2_exp_brw.budget_cc,
+            pb2_exp_brw.budget_cc_type,
+            NULL::character varying AS wf_by,
+            NULL::text AS wf_by_th,
+            NULL::timestamp with time zone AS wf_by_time,
+            NULL::character varying AS wf_status,
+            NULL::character varying AS wf_status_th,
+            NULL::character varying AS task_id,
+            pb2_exp_brw.workflow_ins_id,
+            pb2_exp_brw.status,
+            pb2_exp_brw.reason,
+            pb2_exp_brw.cost_control_id,
+            pb2_exp_brw.cost_control_type_id,
+            pb2_exp_brw.folder_ref,
+            pb2_exp_brw.doc_ref,
+            pb2_exp_brw.created_by,
+            pb2_exp_brw.req_by,
+            pb2_exp_brw.updated_time,
+            pb2_exp_brw.created_time,
+            pb2_exp_brw.updated_by,
+            pb2_exp_brw.note AS remark,
+            pb2_exp_brw.av_remark AS av_reason,
+            pb2_exp_brw.requested_time
+           FROM pb2_exp_brw
+          WHERE pb2_exp_brw.status::text = 'D'::text
+        UNION
+         SELECT brw.id,
+            brw.total,
+            brw.objective_type,
+            brw.objective,
+            brw.budget_cc,
+            brw.budget_cc_type,
+            w.by,
+            w.by_th,
+            w.by_time,
+            w.status AS wf_status,
+            w.status_th AS wf_status_th,
+            w.task_id,
+            brw.workflow_ins_id,
+            brw.status,
+            brw.reason,
+            brw.cost_control_id,
+            brw.cost_control_type_id,
+            brw.folder_ref,
+            brw.doc_ref,
+            brw.created_by,
+            brw.req_by,
+            brw.updated_time,
+            brw.created_time,
+            brw.updated_by,
+            brw.note AS remark,
+            brw.av_remark AS av_reason,
+            brw.requested_time
+           FROM pb2_exp_brw brw
+             LEFT JOIN ( SELECT w_1.master_id,
+                    w_1.workflow_ins_id,
+                    w_1.status,
+                    w_1.status_th,
+                    e.first_name AS by,
+                    e.first_name_th AS by_th,
+                    w_1.by_time,
+                    w_1.task_id
+                   FROM pb2_main_workflow w_1,
+                    pb2_hr_employee_view e
+                  WHERE w_1.type::text = 'EXP_BRW'::text AND w_1.by::text = e.employee_code::text) w ON brw.id::text = w.master_id::text
+          WHERE brw.status::text <> 'D'::text) req
+     LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
+            pb2_hr_employee_view.first_name,
+            pb2_hr_employee_view.first_name_th
+           FROM pb2_hr_employee_view) v_created_by ON req.created_by::text = v_created_by.employee_code::text
+     LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
+            pb2_hr_employee_view.first_name,
+            pb2_hr_employee_view.first_name_th
+           FROM pb2_hr_employee_view) v_req_by ON req.req_by::text = v_req_by.employee_code::text
+     LEFT JOIN ( SELECT pb2_main_master.code,
+            pb2_main_master.name AS objective_type_name_th,
+            pb2_main_master.flag2 AS objective_type_name
+           FROM pb2_main_master
+          WHERE pb2_main_master.type::text = 'BRW_TYPE'::text) mm ON req.objective_type::text = mm.code::text
+     LEFT JOIN ( SELECT 'U'::text AS _type,
+            pb2_section_view.id,
+            pb2_section_view.description AS name,
+            pb2_section_view.description_th AS name_th
+           FROM pb2_section_view
+        UNION
+         SELECT 'P'::text AS _type,
+            pb2_project_view.id,
+            pb2_project_view.description AS name,
+            pb2_project_view.description_th AS name_th
+           FROM pb2_project_view) b ON req.budget_cc_type::text = b._type AND req.budget_cc = b.id
+     LEFT JOIN ( SELECT e.master_id,
+            string_agg(e.all_rev::text, ' '::text) AS all_rev
+           FROM ( SELECT pb2_main_workflow_reviewer.master_id,
+                    pb2_main_workflow_reviewer.reviewer_user AS all_rev
+                   FROM pb2_main_workflow_reviewer
+                  WHERE pb2_main_workflow_reviewer.master_id::text ~~ 'AV%'::text
+                UNION
+                 SELECT pb2_main_workflow_next_actor.master_id,
+                    pb2_main_workflow_next_actor.actor_user AS all_rev
+                   FROM pb2_main_workflow_next_actor
+                  WHERE pb2_main_workflow_next_actor.master_id::text ~~ 'AV%'::text) e
+          GROUP BY e.master_id) all_rev ON req.id::text = all_rev.master_id::text;
+
+ALTER TABLE public.pb2_exp_brw_view
+  OWNER TO alfresco;
+
+CREATE OR REPLACE VIEW public.pb2_exp_use_view AS 
+ SELECT req.id,
+    req.status,
+    req.total,
+    req.objective,
+    req.reason,
+    req.budget_cc,
+    req.budget_cc_type,
+    req.cost_control_id,
+    req.cost_control_type_id,
+    req.cost_control,
+    req.cost_control_from,
+    req.cost_control_to,
+    req.bank,
+    req.bank_type,
+    req.workflow_ins_id,
+    req.updated_time,
+    req.updated_by,
+    req.created_time,
+    req.folder_ref,
+    req.doc_ref,
+        CASE
+            WHEN req.status::text = 'D'::text THEN '1'::character varying
+            WHEN req.status::text = 'W2'::text THEN '2'::character varying
+            WHEN req.status::text = 'W1'::text THEN '3'::character varying
+            WHEN req.status::text = 'S'::text THEN '4'::character varying
+            WHEN req.status::text = 'C1'::text THEN '5'::character varying
+            WHEN req.status::text = 'C2'::text THEN '6'::character varying
+            WHEN req.status::text = 'X1'::text THEN '7'::character varying
+            WHEN req.status::text = 'X2'::text THEN '8'::character varying
+            ELSE req.status
+        END AS order_field,
+    b.name AS budget_cc_name,
+    b.name_th AS budget_cc_name_th,
+    req.wf_by,
+    req.wf_by_th,
+    req.wf_by_time,
+    req.wf_status,
+    req.wf_status_th,
+    req.task_id,
+    COALESCE(v_created_by.first_name, req.created_by) AS created_by,
+    COALESCE(v_created_by.first_name_th, req.created_by::text) AS created_by_th,
+    COALESCE(v_req_by.first_name, req.req_by) AS req_by,
+    COALESCE(v_req_by.first_name_th, req.req_by::text) AS req_by_th,
+    mm.pay_type_name,
+    mm.pay_type_name_th,
+    all_rev.all_rev,
+    req.created_by AS created_by_code,
+    req.req_by AS req_by_code,
+    req.remark,
+    req.requested_time
+   FROM ( SELECT pb2_exp_use.id,
+            pb2_exp_use.status,
+            pb2_exp_use.total,
+            pb2_exp_use.objective,
+            pb2_exp_use.reason,
+            pb2_exp_use.budget_cc,
+            pb2_exp_use.budget_cc_type,
+            pb2_exp_use.cost_control_id,
+            pb2_exp_use.cost_control_type_id,
+            pb2_exp_use.cost_control,
+            pb2_exp_use.cost_control_from,
+            pb2_exp_use.cost_control_to,
+            pb2_exp_use.bank,
+            pb2_exp_use.bank_type,
+            pb2_exp_use.workflow_ins_id,
+            pb2_exp_use.updated_time,
+            pb2_exp_use.updated_by,
+            pb2_exp_use.created_time,
+            pb2_exp_use.folder_ref,
+            pb2_exp_use.doc_ref,
+            NULL::character varying AS wf_by,
+            NULL::text AS wf_by_th,
+            NULL::timestamp with time zone AS wf_by_time,
+            NULL::character varying AS wf_status,
+            NULL::character varying AS wf_status_th,
+            NULL::character varying AS task_id,
+            pb2_exp_use.created_by,
+            pb2_exp_use.req_by,
+            pb2_exp_use.pay_type,
+            pb2_exp_use.note AS remark,
+            pb2_exp_use.requested_time
+           FROM pb2_exp_use
+          WHERE pb2_exp_use.status::text = 'D'::text
+        UNION
+         SELECT exp.id,
+            exp.status,
+            exp.total,
+            exp.objective,
+            exp.reason,
+            exp.budget_cc,
+            exp.budget_cc_type,
+            exp.cost_control_id,
+            exp.cost_control_type_id,
+            exp.cost_control,
+            exp.cost_control_from,
+            exp.cost_control_to,
+            exp.bank,
+            exp.bank_type,
+            exp.workflow_ins_id,
+            exp.updated_time,
+            exp.updated_by,
+            exp.created_time,
+            exp.folder_ref,
+            exp.doc_ref,
+            w.by,
+            w.by_th,
+            w.by_time,
+            w.status AS wf_status,
+            w.status_th AS wf_status_th,
+            w.task_id,
+            exp.created_by,
+            exp.req_by,
+            exp.pay_type,
+            exp.note AS remark,
+            exp.requested_time
+           FROM pb2_exp_use exp
+             LEFT JOIN ( SELECT w_1.master_id,
+                    w_1.workflow_ins_id,
+                    w_1.status,
+                    w_1.status_th,
+                    e.first_name AS by,
+                    e.first_name_th AS by_th,
+                    w_1.by_time,
+                    w_1.task_id
+                   FROM pb2_main_workflow w_1,
+                    pb2_hr_employee_view e
+                  WHERE w_1.type::text = 'EXP_USE'::text AND w_1.by::text = e.employee_code::text) w ON exp.id::text = w.master_id::text
+          WHERE exp.status::text <> 'D'::text) req
+     LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
+            pb2_hr_employee_view.first_name,
+            pb2_hr_employee_view.first_name_th
+           FROM pb2_hr_employee_view) v_created_by ON req.created_by::text = v_created_by.employee_code::text
+     LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
+            pb2_hr_employee_view.first_name,
+            pb2_hr_employee_view.first_name_th
+           FROM pb2_hr_employee_view) v_req_by ON req.req_by::text = v_req_by.employee_code::text
+     LEFT JOIN ( SELECT pb2_main_master.code,
+            pb2_main_master.name AS pay_type_name_th,
+            pb2_main_master.flag2 AS pay_type_name
+           FROM pb2_main_master
+          WHERE pb2_main_master.type::text = 'EXP_TYPE'::text) mm ON req.pay_type::text = mm.code::text
+     LEFT JOIN ( SELECT 'U'::text AS _type,
+            pb2_section_view.id,
+            pb2_section_view.description AS name,
+            pb2_section_view.description_th AS name_th
+           FROM pb2_section_view
+        UNION
+         SELECT 'P'::text AS _type,
+            pb2_project_view.id,
+            pb2_project_view.description AS name,
+            pb2_project_view.description_th AS name_th
+           FROM pb2_project_view) b ON req.budget_cc_type::text = b._type AND req.budget_cc = b.id
+     LEFT JOIN ( SELECT e.master_id,
+            string_agg(e.all_rev::text, ' '::text) AS all_rev
+           FROM ( SELECT pb2_main_workflow_reviewer.master_id,
+                    pb2_main_workflow_reviewer.reviewer_user AS all_rev
+                   FROM pb2_main_workflow_reviewer
+                  WHERE pb2_main_workflow_reviewer.master_id::text ~~ 'EX%'::text
+                UNION
+                 SELECT pb2_main_workflow_next_actor.master_id,
+                    pb2_main_workflow_next_actor.actor_user AS all_rev
+                   FROM pb2_main_workflow_next_actor
+                  WHERE pb2_main_workflow_next_actor.master_id::text ~~ 'EX%'::text) e
+          GROUP BY e.master_id) all_rev ON req.id::text = all_rev.master_id::text;
+
+ALTER TABLE public.pb2_exp_use_view
+  OWNER TO alfresco;
+
 CREATE OR REPLACE VIEW public.pb2_hr_employee_view AS 
  SELECT e.employee_code,
     e.first_name,
@@ -191,442 +519,6 @@ CREATE OR REPLACE VIEW public.pb2_hr_employee_view AS
 
 ALTER TABLE public.pb2_hr_employee_view
   OWNER TO alfresco;
-
-CREATE OR REPLACE VIEW public.pb2_pr_method_committee_view AS 
- SELECT c.id,
-    1 AS seq,
-    c.name AS title,
-    1 AS amount_min,
-    r.method_id
-   FROM pb2_ext_prweb_purchase_method_rel r,
-    pb2_ext_purchase_committee_type c
-  WHERE r.committee_type_id = c.id;
-
-ALTER TABLE public.pb2_pr_method_committee_view
-  OWNER TO alfresco;
-
-CREATE OR REPLACE VIEW public.pb2_pr_method_view AS 
- SELECT p.id,
-    t.name AS obj,
-    m.name AS method,
-    pr.name AS cond1,
-    c.name AS cond2,
-    d.name AS doc_type,
-    p.price_range_id,
-    p.condition_id,
-    p.doctype_id,
-    p.method_id,
-    pr.price_from,
-    pr.price_to
-   FROM pb2_ext_prweb_purchase_method p
-     LEFT JOIN pb2_ext_purchase_type t ON p.type_id = t.id
-     LEFT JOIN pb2_ext_purchase_method m ON p.method_id = m.id
-     LEFT JOIN pb2_ext_purchase_price_range pr ON p.price_range_id = pr.id
-     LEFT JOIN pb2_ext_purchase_condition c ON p.condition_id = c.id
-     LEFT JOIN pb2_ext_wkf_config_doctype d ON p.doctype_id = d.id
-  ORDER BY t.name, m.name;
-
-ALTER TABLE public.pb2_pr_method_view
-  OWNER TO alfresco;
-
-
-CREATE OR REPLACE VIEW public.pb2_project_view AS 
- SELECT p.id,
-    p.name,
-    p.code,
-    COALESCE(irp.value, p.name::text) AS name_th,
-    o.name AS org_name,
-    COALESCE(iro.value, o.name::text) AS org_name_th,
-    o.name_short AS org_name_short,
-    COALESCE(iro_short.value, o.name_short::text) AS org_name_short_th,
-    e.employee_code AS pm_code,
-    (((t.name::text || ' '::text) || e.first_name::text) || ' '::text) || e.last_name::text AS pm_name,
-    (((COALESCE(irt.value, t.name::text) || ' '::text) || COALESCE(irf.value, e.first_name::text)) || ' '::text) || COALESCE(irl.value, e.last_name::text) AS pm_name_th,
-    concat('[', btrim(p.code::text), '] ', p.name) AS description,
-    concat('[', btrim(p.code::text), '] ', COALESCE(irp.value, p.name::text)) AS description_th
-   FROM pb2_ext_res_project p
-     LEFT JOIN pb2_ext_res_org o ON p.org_id = o.id
-     LEFT JOIN pb2_ext_res_project_member m ON m.project_id = p.id AND m.project_position::text = 'manager'::text
-     LEFT JOIN pb2_ext_hr_employee e ON m.employee_id = e.id
-     LEFT JOIN pb2_ext_res_partner_title t ON e.title_id = t.id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'res.project,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irp ON p.id = irp.res_id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'res.org,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) iro ON p.org_id = iro.res_id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'res.org,name_short'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) iro_short ON p.org_id = iro_short.res_id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'res.partner.title,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irt ON e.title_id = irt.res_id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'hr.employee,first_name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irf ON e.id = irf.res_id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'hr.employee,last_name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irl ON e.id = irl.res_id
-  WHERE p.active = true AND e.employee_code::text <> ''::text;
-
-ALTER TABLE public.pb2_project_view
-  OWNER TO alfresco;
-
-
-CREATE OR REPLACE VIEW public.pb2_section_view AS 
- SELECT s.id,
-    concat('[', btrim(s.code::text), '] ', s.name) AS description,
-    concat('[', btrim(s.code::text), '] ', COALESCE(irs.value, s.name::text)) AS description_th,
-    o.name,
-    COALESCE(iro.value, o.name::text) AS name_th,
-    o.name_short,
-    COALESCE(iro_short.value, o.name_short::text) AS name_short_th,
-    concat('[', btrim(c.code::text), '] ', c.name) AS costcenter,
-    concat('[', btrim(c.code::text), '] ', COALESCE(irc.value, c.name::text)) AS costcenter_th
-   FROM pb2_ext_res_section s
-     LEFT JOIN pb2_ext_res_org o ON s.org_id = o.id
-     LEFT JOIN pb2_ext_res_costcenter c ON s.costcenter_id = c.id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'res.section,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irs ON s.id = irs.res_id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'res.org,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) iro ON s.org_id = iro.res_id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'res.org,name_short'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) iro_short ON s.org_id = iro_short.res_id
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'res.costcenter,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irc ON s.costcenter_id = irc.res_id
-  WHERE s.active = true;
-
-ALTER TABLE public.pb2_section_view
-  OWNER TO alfresco;
-
-
-CREATE OR REPLACE VIEW public.pb2_exp_brw_view AS 
- SELECT req.id,
-    req.total,
-    req.objective_type,
-    mm.objective_type_name,
-    mm.objective_type_name_th,
-    req.objective,
-    req.budget_cc,
-    req.budget_cc_type,
-    b.name AS budget_cc_name,
-    b.name_th AS budget_cc_name_th,
-    req.wf_by,
-    req.wf_by_th,
-    req.wf_by_time,
-    req.wf_status,
-    req.wf_status_th,
-    req.status,
-    req.reason,
-    req.cost_control_id,
-    req.cost_control_type_id,
-    req.workflow_ins_id,
-    req.task_id,
-    req.updated_time,
-    req.updated_by,
-    req.created_time,
-    req.folder_ref,
-    req.doc_ref,
-        CASE
-            WHEN req.status::text = 'D'::text THEN '1'::character varying
-            WHEN req.status::text = 'W2'::text THEN '2'::character varying
-            WHEN req.status::text = 'W1'::text THEN '3'::character varying
-            WHEN req.status::text = 'S'::text THEN '4'::character varying
-            WHEN req.status::text = 'C1'::text THEN '5'::character varying
-            WHEN req.status::text = 'C2'::text THEN '6'::character varying
-            WHEN req.status::text = 'X1'::text THEN '7'::character varying
-            WHEN req.status::text = 'X2'::text THEN '8'::character varying
-            ELSE req.status
-        END AS order_field,
-    COALESCE(v_created_by.first_name, req.created_by) AS created_by,
-    COALESCE(v_created_by.first_name_th, req.created_by::text) AS created_by_th,
-    COALESCE(v_req_by.first_name, req.req_by) AS req_by,
-    COALESCE(v_req_by.first_name_th, req.req_by::text) AS req_by_th,
-    all_rev.all_rev,
-    req.created_by AS created_by_code,
-    req.req_by AS req_by_code
-   FROM ( SELECT pb2_exp_brw.id,
-            pb2_exp_brw.total,
-            pb2_exp_brw.objective_type,
-            pb2_exp_brw.objective,
-            pb2_exp_brw.budget_cc,
-            pb2_exp_brw.budget_cc_type,
-            NULL::character varying AS wf_by,
-            NULL::text AS wf_by_th,
-            NULL::timestamp with time zone AS wf_by_time,
-            NULL::character varying AS wf_status,
-            NULL::character varying AS wf_status_th,
-            NULL::character varying AS task_id,
-            pb2_exp_brw.workflow_ins_id,
-            pb2_exp_brw.status,
-            pb2_exp_brw.reason,
-            pb2_exp_brw.cost_control_id,
-            pb2_exp_brw.cost_control_type_id,
-            pb2_exp_brw.folder_ref,
-            pb2_exp_brw.doc_ref,
-            pb2_exp_brw.created_by,
-            pb2_exp_brw.req_by,
-            pb2_exp_brw.updated_time,
-            pb2_exp_brw.created_time,
-            pb2_exp_brw.updated_by
-           FROM pb2_exp_brw
-          WHERE pb2_exp_brw.status::text = 'D'::text
-        UNION
-         SELECT brw.id,
-            brw.total,
-            brw.objective_type,
-            brw.objective,
-            brw.budget_cc,
-            brw.budget_cc_type,
-            w.by,
-            w.by_th,
-            w.by_time,
-            w.status AS wf_status,
-            w.status_th AS wf_status_th,
-            w.task_id,
-            brw.workflow_ins_id,
-            brw.status,
-            brw.reason,
-            brw.cost_control_id,
-            brw.cost_control_type_id,
-            brw.folder_ref,
-            brw.doc_ref,
-            brw.created_by,
-            brw.req_by,
-            brw.updated_time,
-            brw.created_time,
-            brw.updated_by
-           FROM pb2_exp_brw brw
-             LEFT JOIN ( SELECT w_1.master_id,
-                    w_1.workflow_ins_id,
-                    w_1.status,
-                    w_1.status_th,
-                    e.first_name AS by,
-                    e.first_name_th AS by_th,
-                    w_1.by_time,
-                    w_1.task_id
-                   FROM pb2_main_workflow w_1,
-                    pb2_hr_employee_view e
-                  WHERE w_1.type::text = 'EXP_BRW'::text AND w_1.by::text = e.employee_code::text) w ON brw.id::text = w.master_id::text
-          WHERE brw.status::text <> 'D'::text) req
-     LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
-            pb2_hr_employee_view.first_name,
-            pb2_hr_employee_view.first_name_th
-           FROM pb2_hr_employee_view) v_created_by ON req.created_by::text = v_created_by.employee_code::text
-     LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
-            pb2_hr_employee_view.first_name,
-            pb2_hr_employee_view.first_name_th
-           FROM pb2_hr_employee_view) v_req_by ON req.req_by::text = v_req_by.employee_code::text
-     LEFT JOIN ( SELECT pb2_main_master.code,
-            pb2_main_master.name AS objective_type_name_th,
-            pb2_main_master.flag2 AS objective_type_name
-           FROM pb2_main_master
-          WHERE pb2_main_master.type::text = 'BRW_TYPE'::text) mm ON req.objective_type::text = mm.code::text
-     LEFT JOIN ( SELECT 'U'::text AS _type,
-            pb2_section_view.id,
-            pb2_section_view.description AS name,
-            pb2_section_view.description_th AS name_th
-           FROM pb2_section_view
-        UNION
-         SELECT 'P'::text AS _type,
-            pb2_project_view.id,
-            pb2_project_view.description AS name,
-            pb2_project_view.description_th AS name_th
-           FROM pb2_project_view) b ON req.budget_cc_type::text = b._type AND req.budget_cc = b.id
-     LEFT JOIN ( SELECT e.master_id,
-            string_agg(e.all_rev::text, ' '::text) AS all_rev
-           FROM ( SELECT pb2_main_workflow_reviewer.master_id,
-                    pb2_main_workflow_reviewer.reviewer_user AS all_rev
-                   FROM pb2_main_workflow_reviewer
-                  WHERE pb2_main_workflow_reviewer.master_id::text ~~ 'AV%'::text
-                UNION
-                 SELECT pb2_main_workflow_next_actor.master_id,
-                    pb2_main_workflow_next_actor.actor_user AS all_rev
-                   FROM pb2_main_workflow_next_actor
-                  WHERE pb2_main_workflow_next_actor.master_id::text ~~ 'AV%'::text) e
-          GROUP BY e.master_id) all_rev ON req.id::text = all_rev.master_id::text;
-
-ALTER TABLE public.pb2_exp_brw_view
-  OWNER TO alfresco;
-
-
-CREATE OR REPLACE VIEW public.pb2_exp_use_view AS 
- SELECT req.id,
-    req.status,
-    req.total,
-    req.objective,
-    req.reason,
-    req.budget_cc,
-    req.budget_cc_type,
-    req.cost_control_id,
-    req.cost_control_type_id,
-    req.cost_control,
-    req.cost_control_from,
-    req.cost_control_to,
-    req.bank,
-    req.bank_type,
-    req.workflow_ins_id,
-    req.updated_time,
-    req.updated_by,
-    req.created_time,
-    req.folder_ref,
-    req.doc_ref,
-        CASE
-            WHEN req.status::text = 'D'::text THEN '1'::character varying
-            WHEN req.status::text = 'W2'::text THEN '2'::character varying
-            WHEN req.status::text = 'W1'::text THEN '3'::character varying
-            WHEN req.status::text = 'S'::text THEN '4'::character varying
-            WHEN req.status::text = 'C1'::text THEN '5'::character varying
-            WHEN req.status::text = 'C2'::text THEN '6'::character varying
-            WHEN req.status::text = 'X1'::text THEN '7'::character varying
-            WHEN req.status::text = 'X2'::text THEN '8'::character varying
-            ELSE req.status
-        END AS order_field,
-    b.name AS budget_cc_name,
-    b.name_th AS budget_cc_name_th,
-    req.wf_by,
-    req.wf_by_th,
-    req.wf_by_time,
-    req.wf_status,
-    req.wf_status_th,
-    req.task_id,
-    COALESCE(v_created_by.first_name, req.created_by) AS created_by,
-    COALESCE(v_created_by.first_name_th, req.created_by::text) AS created_by_th,
-    COALESCE(v_req_by.first_name, req.req_by) AS req_by,
-    COALESCE(v_req_by.first_name_th, req.req_by::text) AS req_by_th,
-    mm.pay_type_name,
-    mm.pay_type_name_th,
-    all_rev.all_rev,
-    req.created_by AS created_by_code,
-    req.req_by AS req_by_code
-   FROM ( SELECT pb2_exp_use.id,
-            pb2_exp_use.status,
-            pb2_exp_use.total,
-            pb2_exp_use.objective,
-            pb2_exp_use.reason,
-            pb2_exp_use.budget_cc,
-            pb2_exp_use.budget_cc_type,
-            pb2_exp_use.cost_control_id,
-            pb2_exp_use.cost_control_type_id,
-            pb2_exp_use.cost_control,
-            pb2_exp_use.cost_control_from,
-            pb2_exp_use.cost_control_to,
-            pb2_exp_use.bank,
-            pb2_exp_use.bank_type,
-            pb2_exp_use.workflow_ins_id,
-            pb2_exp_use.updated_time,
-            pb2_exp_use.updated_by,
-            pb2_exp_use.created_time,
-            pb2_exp_use.folder_ref,
-            pb2_exp_use.doc_ref,
-            NULL::character varying AS wf_by,
-            NULL::text AS wf_by_th,
-            NULL::timestamp with time zone AS wf_by_time,
-            NULL::character varying AS wf_status,
-            NULL::character varying AS wf_status_th,
-            NULL::character varying AS task_id,
-            pb2_exp_use.created_by,
-            pb2_exp_use.req_by,
-            pb2_exp_use.pay_type
-           FROM pb2_exp_use
-          WHERE pb2_exp_use.status::text = 'D'::text
-        UNION
-         SELECT exp.id,
-            exp.status,
-            exp.total,
-            exp.objective,
-            exp.reason,
-            exp.budget_cc,
-            exp.budget_cc_type,
-            exp.cost_control_id,
-            exp.cost_control_type_id,
-            exp.cost_control,
-            exp.cost_control_from,
-            exp.cost_control_to,
-            exp.bank,
-            exp.bank_type,
-            exp.workflow_ins_id,
-            exp.updated_time,
-            exp.updated_by,
-            exp.created_time,
-            exp.folder_ref,
-            exp.doc_ref,
-            w.by,
-            w.by_th,
-            w.by_time,
-            w.status AS wf_status,
-            w.status_th AS wf_status_th,
-            w.task_id,
-            exp.created_by,
-            exp.req_by,
-            exp.pay_type
-           FROM pb2_exp_use exp
-             LEFT JOIN ( SELECT w_1.master_id,
-                    w_1.workflow_ins_id,
-                    w_1.status,
-                    w_1.status_th,
-                    e.first_name AS by,
-                    e.first_name_th AS by_th,
-                    w_1.by_time,
-                    w_1.task_id
-                   FROM pb2_main_workflow w_1,
-                    pb2_hr_employee_view e
-                  WHERE w_1.type::text = 'EXP_USE'::text AND w_1.by::text = e.employee_code::text) w ON exp.id::text = w.master_id::text
-          WHERE exp.status::text <> 'D'::text) req
-     LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
-            pb2_hr_employee_view.first_name,
-            pb2_hr_employee_view.first_name_th
-           FROM pb2_hr_employee_view) v_created_by ON req.created_by::text = v_created_by.employee_code::text
-     LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
-            pb2_hr_employee_view.first_name,
-            pb2_hr_employee_view.first_name_th
-           FROM pb2_hr_employee_view) v_req_by ON req.req_by::text = v_req_by.employee_code::text
-     LEFT JOIN ( SELECT pb2_main_master.code,
-            pb2_main_master.name AS pay_type_name_th,
-            pb2_main_master.flag2 AS pay_type_name
-           FROM pb2_main_master
-          WHERE pb2_main_master.type::text = 'EXP_TYPE'::text) mm ON req.pay_type::text = mm.code::text
-     LEFT JOIN ( SELECT 'U'::text AS _type,
-            pb2_section_view.id,
-            pb2_section_view.description AS name,
-            pb2_section_view.description_th AS name_th
-           FROM pb2_section_view
-        UNION
-         SELECT 'P'::text AS _type,
-            pb2_project_view.id,
-            pb2_project_view.description AS name,
-            pb2_project_view.description_th AS name_th
-           FROM pb2_project_view) b ON req.budget_cc_type::text = b._type AND req.budget_cc = b.id
-     LEFT JOIN ( SELECT e.master_id,
-            string_agg(e.all_rev::text, ' '::text) AS all_rev
-           FROM ( SELECT pb2_main_workflow_reviewer.master_id,
-                    pb2_main_workflow_reviewer.reviewer_user AS all_rev
-                   FROM pb2_main_workflow_reviewer
-                  WHERE pb2_main_workflow_reviewer.master_id::text ~~ 'EX%'::text
-                UNION
-                 SELECT pb2_main_workflow_next_actor.master_id,
-                    pb2_main_workflow_next_actor.actor_user AS all_rev
-                   FROM pb2_main_workflow_next_actor
-                  WHERE pb2_main_workflow_next_actor.master_id::text ~~ 'EX%'::text) e
-          GROUP BY e.master_id) all_rev ON req.id::text = all_rev.master_id::text;
-
-ALTER TABLE public.pb2_exp_use_view
-  OWNER TO alfresco;
-
 
 CREATE OR REPLACE VIEW public.pb2_pcm_ord_view AS 
  SELECT ord.id,
@@ -754,7 +646,8 @@ CREATE OR REPLACE VIEW public.pb2_pcm_req_view AS
         END AS order_field,
     all_rev.all_rev,
     req.created_by AS created_by_code,
-    req.req_by AS req_by_code
+    req.req_by AS req_by_code,
+    req.requested_time
    FROM ( SELECT pb2_pcm_req.id,
             pb2_pcm_req.status,
             pb2_pcm_req.total,
@@ -786,7 +679,8 @@ CREATE OR REPLACE VIEW public.pb2_pcm_req_view AS
             pb2_pcm_req.req_by,
             pb2_pcm_req.updated_time,
             pb2_pcm_req.created_time,
-            pb2_pcm_req.updated_by
+            pb2_pcm_req.updated_by,
+            pb2_pcm_req.requested_time
            FROM pb2_pcm_req
           WHERE pb2_pcm_req.status::text = 'D'::text
         UNION
@@ -821,7 +715,8 @@ CREATE OR REPLACE VIEW public.pb2_pcm_req_view AS
             pr.req_by,
             pr.updated_time,
             pr.created_time,
-            pr.updated_by
+            pr.updated_by,
+            pr.requested_time
            FROM pb2_pcm_req pr
              LEFT JOIN ( SELECT w_1.master_id,
                     w_1.workflow_ins_id,
@@ -874,3 +769,124 @@ CREATE OR REPLACE VIEW public.pb2_pcm_req_view AS
 
 ALTER TABLE public.pb2_pcm_req_view
   OWNER TO alfresco;
+  
+CREATE OR REPLACE VIEW public.pb2_pr_method_committee_view AS 
+ SELECT c.id,
+    1 AS seq,
+    c.name AS title,
+    1 AS amount_min,
+    r.method_id
+   FROM pb2_ext_prweb_purchase_method_rel r,
+    pb2_ext_purchase_committee_type c
+  WHERE r.committee_type_id = c.id;
+
+ALTER TABLE public.pb2_pr_method_committee_view
+  OWNER TO alfresco;
+
+  CREATE OR REPLACE VIEW public.pb2_pr_method_view AS 
+ SELECT p.id,
+    t.name AS obj,
+    m.name AS method,
+    pr.name AS cond1,
+    c.name AS cond2,
+    d.name AS doc_type,
+    p.price_range_id,
+    p.condition_id,
+    p.doctype_id,
+    p.method_id,
+    pr.price_from,
+    pr.price_to
+   FROM pb2_ext_prweb_purchase_method p
+     LEFT JOIN pb2_ext_purchase_type t ON p.type_id = t.id
+     LEFT JOIN pb2_ext_purchase_method m ON p.method_id = m.id
+     LEFT JOIN pb2_ext_purchase_price_range pr ON p.price_range_id = pr.id
+     LEFT JOIN pb2_ext_purchase_condition c ON p.condition_id = c.id
+     LEFT JOIN pb2_ext_wkf_config_doctype d ON p.doctype_id = d.id
+  ORDER BY t.name, m.name;
+
+ALTER TABLE public.pb2_pr_method_view
+  OWNER TO alfresco;
+  
+CREATE OR REPLACE VIEW public.pb2_project_view AS 
+ SELECT p.id,
+    p.name,
+    p.code,
+    COALESCE(irp.value, p.name::text) AS name_th,
+    o.name AS org_name,
+    COALESCE(iro.value, o.name::text) AS org_name_th,
+    o.name_short AS org_name_short,
+    COALESCE(iro_short.value, o.name_short::text) AS org_name_short_th,
+    e.employee_code AS pm_code,
+    (((t.name::text || ' '::text) || e.first_name::text) || ' '::text) || e.last_name::text AS pm_name,
+    (((COALESCE(irt.value, t.name::text) || ' '::text) || COALESCE(irf.value, e.first_name::text)) || ' '::text) || COALESCE(irl.value, e.last_name::text) AS pm_name_th,
+    concat('[', btrim(p.code::text), '] ', p.name) AS description,
+    concat('[', btrim(p.code::text), '] ', COALESCE(irp.value, p.name::text)) AS description_th
+   FROM pb2_ext_res_project p
+     LEFT JOIN pb2_ext_res_org o ON p.org_id = o.id
+     LEFT JOIN pb2_ext_res_project_member m ON m.project_id = p.id AND m.project_position::text = 'manager'::text
+     LEFT JOIN pb2_ext_hr_employee e ON m.employee_id = e.id
+     LEFT JOIN pb2_ext_res_partner_title t ON e.title_id = t.id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'res.project,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irp ON p.id = irp.res_id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'res.org,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) iro ON p.org_id = iro.res_id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'res.org,name_short'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) iro_short ON p.org_id = iro_short.res_id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'res.partner.title,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irt ON e.title_id = irt.res_id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'hr.employee,first_name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irf ON e.id = irf.res_id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'hr.employee,last_name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irl ON e.id = irl.res_id
+  WHERE p.active = true AND e.employee_code::text <> ''::text;
+
+ALTER TABLE public.pb2_project_view
+  OWNER TO alfresco;
+
+CREATE OR REPLACE VIEW public.pb2_section_view AS 
+ SELECT s.id,
+    concat('[', btrim(s.code::text), '] ', s.name) AS description,
+    concat('[', btrim(s.code::text), '] ', COALESCE(irs.value, s.name::text)) AS description_th,
+    o.name,
+    COALESCE(iro.value, o.name::text) AS name_th,
+    o.name_short,
+    COALESCE(iro_short.value, o.name_short::text) AS name_short_th,
+    concat('[', btrim(c.code::text), '] ', c.name) AS costcenter,
+    concat('[', btrim(c.code::text), '] ', COALESCE(irc.value, c.name::text)) AS costcenter_th
+   FROM pb2_ext_res_section s
+     LEFT JOIN pb2_ext_res_org o ON s.org_id = o.id
+     LEFT JOIN pb2_ext_res_costcenter c ON s.costcenter_id = c.id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'res.section,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irs ON s.id = irs.res_id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'res.org,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) iro ON s.org_id = iro.res_id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'res.org,name_short'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) iro_short ON s.org_id = iro_short.res_id
+     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
+            pb2_ext_ir_translation.value
+           FROM pb2_ext_ir_translation
+          WHERE pb2_ext_ir_translation.name::text = 'res.costcenter,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) irc ON s.costcenter_id = irc.res_id
+  WHERE s.active = true;
+
+ALTER TABLE public.pb2_section_view
+  OWNER TO alfresco;
+  
+

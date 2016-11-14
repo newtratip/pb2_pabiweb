@@ -484,7 +484,8 @@ public class PcmWebScript {
 		model.setVatId(Integer.parseInt(vatId));
 		model.setTotal(Double.parseDouble(total));
 		model.setTotalCnv(Double.parseDouble(totalCnv));
-		model.setStatus(status);	
+		model.setStatus(status);
+		model.setRequestedTime(CommonDateTimeUtil.now());
 		
 		if (model.getId() == null || (status!=null && status.equals(PcmReqConstant.ST_DRAFT))) {
 			model.setStatus(PcmReqConstant.ST_WAITING);

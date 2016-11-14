@@ -15,13 +15,13 @@ Ext.define('PBExp.controller.item.Form', {
         selector: 'expBrwItemDtlDlg [itemId=formDetail]'
 	},{
     	ref:'grid',
-		selector:'expBrwInfoTab grid[itemId=itemGrid]'
+		selector:'expBrwItemTab grid[itemId=itemGrid]'
     },{
-        ref: 'txtTotal',     
-        selector:'expBrwInfoTab field[name=total]'
+        ref: 'hidTotal',     
+        selector:'expBrwItemTab field[name=total]'
     },{
-        ref: 'lblTotal',     
-        selector:'expBrwInfoTab label[name=total]'
+        ref: 'lblNetAmt',     
+        selector:'expBrwItemTab label[name=netAmt]'
     },{
         ref: 'hidId',     
         selector:'expBrwItemDtlDlg field[name=id]'
@@ -58,14 +58,14 @@ Ext.define('PBExp.controller.item.Form', {
 				selectCond1 : me.selectCond1,
 				cond1Load : me.cond1Load
 			},
-			'expBrwInfoTab [action=addItem]': {
+			'expBrwItemTab [action=addItem]': {
 				click : me.add
 			},
-			'expBrwInfoTab grid[itemId=itemGrid]':{
+			'expBrwItemTab grid[itemId=itemGrid]':{
 				edit:me.edit,
 				del:me.del
 			},
-			'expBrwInfoTab': {
+			'expBrwItemTab': {
 				itemStoreLoad:me.calSummary
 			}
 		});
@@ -189,8 +189,8 @@ Ext.define('PBExp.controller.item.Form', {
 			total += rec.data.amount;
 		});
 		
-		me.getLblTotal().setText(Ext.util.Format.number(total, DEFAULT_MONEY_FORMAT));
-		me.getTxtTotal().setValue(total);
+		me.getLblNetAmt().setText(Ext.util.Format.number(total, DEFAULT_MONEY_FORMAT));
+		me.getHidTotal().setValue(total);
 	},
 	
 	selectActivityGroup:function(cmb, rec) {
@@ -245,6 +245,5 @@ Ext.define('PBExp.controller.item.Form', {
 		
 		cmbCond1.setDisabled(recs.length<=0);
 	}
-	
 	
 });

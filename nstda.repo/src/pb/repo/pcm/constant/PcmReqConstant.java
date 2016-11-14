@@ -67,6 +67,8 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String TFN_WF_STATUS = "WF_STATUS";
 	public static final String TFN_WF_BY_TIME = "WF_BY_TIME";
 	
+	public static final String TFN_REQUESTED_TIME = "REQUESTED_TIME";
+	
     /*
      * JSON Field Name
      */
@@ -144,6 +146,9 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_TEL_NO = "tel_no";
 
 	public static final String JFN_FILE_NAME = "file_name";
+	
+	public static final String JFN_REQUESTED_TIME = "requested_time";
+	public static final String JFN_REQUESTED_TIME_SHOW = "requested_time_show";
 	
 	/*
 	 * Status

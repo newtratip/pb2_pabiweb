@@ -25,33 +25,35 @@ SET default_with_oids = false;
 -- TOC entry 387 (class 1259 OID 164114)
 -- Name: pb2_exp_brw; Type: TABLE; Schema: public; Owner: alfresco
 --
-
-CREATE TABLE pb2_exp_brw (
-    id character varying(50) NOT NULL,
-    total double precision,
-    folder_ref character varying(255),
-    doc_ref character varying(255),
-    workflow_ins_id character varying(50),
-    waiting_level integer,
-    status character varying(2),
-    req_by character varying(20),
-    created_time timestamp with time zone DEFAULT statement_timestamp(),
-    created_by character varying(20),
-    updated_time timestamp with time zone DEFAULT statement_timestamp(),
-    updated_by character varying(20),
-    objective_type character varying,
-    objective character varying(1000),
-    reason character varying(1000),
-    budget_cc_type character varying(1),
-    budget_cc integer,
-    cost_control_type_id integer,
-    cost_control_id integer,
-    bank_type character varying,
-    date_back timestamp with time zone,
-    bank integer,
-    fund_id integer
+CREATE TABLE public.pb2_exp_brw
+(
+  id character varying(50) NOT NULL,
+  total double precision,
+  folder_ref character varying(255),
+  doc_ref character varying(255),
+  workflow_ins_id character varying(50),
+  waiting_level integer,
+  status character varying(2),
+  req_by character varying(20),
+  created_time timestamp with time zone DEFAULT statement_timestamp(),
+  created_by character varying(20),
+  updated_time timestamp with time zone DEFAULT statement_timestamp(),
+  updated_by character varying(20),
+  objective_type character varying,
+  objective character varying(1000),
+  reason character varying(1000),
+  budget_cc_type character varying(1),
+  budget_cc integer,
+  cost_control_type_id integer,
+  cost_control_id integer,
+  bank_type character varying,
+  date_back timestamp with time zone,
+  bank integer,
+  fund_id integer,
+  note character varying,
+  av_remark character varying,
+  requested_time timestamp with time zone
 );
-
 
 ALTER TABLE pb2_exp_brw OWNER TO alfresco;
 
@@ -219,38 +221,39 @@ ALTER TABLE pb2_main_workflow_reviewer OWNER TO alfresco;
 -- TOC entry 389 (class 1259 OID 164140)
 -- Name: pb2_exp_use; Type: TABLE; Schema: public; Owner: alfresco
 --
-
-CREATE TABLE pb2_exp_use (
-    id character varying(50) NOT NULL,
-    total double precision,
-    folder_ref character varying(255),
-    doc_ref character varying(255),
-    workflow_ins_id character varying(50),
-    waiting_level integer,
-    status character varying(2),
-    req_by character varying(20),
-    created_time timestamp with time zone DEFAULT statement_timestamp(),
-    created_by character varying(20),
-    updated_time timestamp with time zone DEFAULT statement_timestamp(),
-    updated_by character varying(20),
-    objective character varying(1000),
-    budget_cc_type character varying(1),
-    budget_cc integer,
-    cost_control_type_id integer,
-    cost_control_id integer,
-    cost_control character varying,
-    cost_control_from timestamp with time zone,
-    cost_control_to timestamp with time zone,
-    bank_type character varying,
-    bank integer,
-    pay_type character varying,
-    pay_dtl1 character varying,
-    pay_dtl2 character varying,
-    pay_dtl3 character varying,
-    fund_id integer,
-    reason character varying
+CREATE TABLE public.pb2_exp_use
+(
+  id character varying(50) NOT NULL,
+  total double precision,
+  folder_ref character varying(255),
+  doc_ref character varying(255),
+  workflow_ins_id character varying(50),
+  waiting_level integer,
+  status character varying(2),
+  req_by character varying(20),
+  created_time timestamp with time zone DEFAULT statement_timestamp(),
+  created_by character varying(20),
+  updated_time timestamp with time zone DEFAULT statement_timestamp(),
+  updated_by character varying(20),
+  objective character varying(1000),
+  budget_cc_type character varying(1),
+  budget_cc integer,
+  cost_control_type_id integer,
+  cost_control_id integer,
+  cost_control character varying,
+  cost_control_from timestamp with time zone,
+  cost_control_to timestamp with time zone,
+  bank_type character varying,
+  bank integer,
+  pay_type character varying,
+  pay_dtl1 character varying,
+  pay_dtl2 character varying,
+  pay_dtl3 character varying,
+  fund_id integer,
+  reason character varying,
+  note character varying,
+  requested_time timestamp with time zone
 );
-
 
 ALTER TABLE pb2_exp_use OWNER TO alfresco;
 
@@ -576,53 +579,53 @@ ALTER TABLE pb2_pcm_ord OWNER TO alfresco;
 -- TOC entry 370 (class 1259 OID 72639)
 -- Name: pb2_pcm_req; Type: TABLE; Schema: public; Owner: alfresco
 --
-
-CREATE TABLE pb2_pcm_req (
-    id character varying(50) NOT NULL,
-    total double precision,
-    folder_ref character varying(255),
-    doc_ref character varying(255),
-    workflow_ins_id character varying(50),
-    waiting_level integer,
-    status character varying(2),
-    req_by character varying(20),
-    created_time timestamp with time zone DEFAULT statement_timestamp(),
-    created_by character varying(20),
-    updated_time timestamp with time zone DEFAULT statement_timestamp(),
-    updated_by character varying(20),
-    objective_type character varying(10),
-    objective character varying(1000),
-    reason character varying(1000),
-    currency character varying(10),
-    currency_rate real,
-    prototype character varying(30),
-    location character varying(1000),
-    across_budget double precision,
-    ref_id character varying(50),
-    method_cond2_rule character varying(255),
-    method_cond2 character varying(255),
-    method_cond2_dtl character varying(1000),
-    vat real,
-    is_stock character varying(1),
-    is_prototype character varying(1),
-    is_across_budget character varying(1),
-    is_ref_id character varying(1),
-    vat_id integer,
-    prototype_contract_no character varying(50),
-    budget_cc_type character varying(1),
-    budget_cc integer,
-    pcm_section_id integer,
-    req_section_id integer,
-    stock_section_id integer,
-    cost_control_type_id integer,
-    cost_control_id integer,
-    prweb_method_id bigint,
-    ref_doc_ref character varying,
-    contract_date timestamp with time zone,
-    total_cnv double precision,
-    fund_id integer
+CREATE TABLE public.pb2_pcm_req
+(
+  id character varying(50) NOT NULL,
+  total double precision, -- Total
+  folder_ref character varying(255), -- Folder Node Ref.
+  doc_ref character varying(255), -- Document Node Ref.
+  workflow_ins_id character varying(50), -- Workflow Instance ID
+  waiting_level integer, -- Workflow Waiting Level
+  status character varying(2), -- PR Status
+  req_by character varying(20), -- Requeted by
+  created_time timestamp with time zone DEFAULT statement_timestamp(), -- Created on
+  created_by character varying(20), -- Created by
+  updated_time timestamp with time zone DEFAULT statement_timestamp(), -- Last Updated on
+  updated_by character varying(20), -- Last Updated by
+  objective_type character varying(10), -- Objective Type
+  objective character varying(1000), -- Objective
+  reason character varying(1000), -- Reason
+  currency character varying(10), -- Currency Unit
+  currency_rate real, -- Currency Rate
+  prototype character varying(30), -- Prototype
+  location character varying(1000), -- Delivery Address
+  across_budget double precision, -- Across Budget
+  ref_id character varying(50), -- Reference ID
+  method_cond2_rule character varying(255), -- Purchase Method Condition Rule
+  method_cond2 character varying(255), -- Purchase Method Condition
+  method_cond2_dtl character varying(1000), -- Purchase Method Condition Detail
+  vat real, -- Vat
+  is_stock character varying(1),
+  is_prototype character varying(1),
+  is_across_budget character varying(1),
+  is_ref_id character varying(1),
+  vat_id integer, -- VAT ID
+  prototype_contract_no character varying(50), -- Prototype Contract No.
+  budget_cc_type character varying(1), -- Type of budget (Unit/Project)
+  budget_cc integer, -- Budget Section ID
+  pcm_section_id integer, -- Procuement Section ID
+  req_section_id integer, -- Requester Section ID
+  stock_section_id integer, -- Stock Section ID
+  cost_control_type_id integer, -- Cost Control Type
+  cost_control_id integer, -- Cost Control
+  prweb_method_id bigint,
+  ref_doc_ref character varying,
+  contract_date timestamp with time zone,
+  total_cnv double precision,
+  fund_id integer,
+  requested_time timestamp with time zone
 );
-
 
 ALTER TABLE pb2_pcm_req OWNER TO alfresco;
 
@@ -1356,6 +1359,7 @@ ALTER TABLE ONLY pb2_pcm_req_dtl ALTER COLUMN id SET DEFAULT nextval('pb2_pcm_re
 --
 
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (233, 'A', 'SYSTEM', 'System Config', true, 'กำหนดค่า', '', NULL, NULL, NULL, '2015-05-03 17:50:14.6244+07', NULL, '2015-05-03 17:50:14.6244+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (506, 'PTT', 'PTT1', 'ต้นแบบโครงการ (วิจัย)', true, '', '', '', '', '', '2016-04-04 13:59:11.691689+07', 'admin', '2016-04-04 13:59:11.691689+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (110, 'SYSTEM', 'PCM_REQ_CRITERIA_1', 'Pcm Req Criteria 1', true, 'Purchase Type', 'objective_type,200,200', 'main/master?orderBy=flag1', 'type=''PC''', '', '2015-05-20 10:35:54.838422+07', 'admin', '2015-05-20 10:35:54.838422+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (111, 'SYSTEM', 'PCM_REQ_CRITERIA_2', 'Pcm Req Criteria 2', true, 'Status', 'status', 'main/master?orderBy=flag1', 'type=''PR_ST''', '', '2015-05-20 10:35:54.838422+07', 'admin', '2015-05-20 10:35:54.838422+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (499, 'A', 'MP', 'แบบฟอร์มราคากลาง', true, '', '', '', '', '', '2016-04-02 18:40:43.806146+07', 'admin', '2016-04-02 18:40:43.806146+07', 'admin');
@@ -1371,6 +1375,7 @@ INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (533, 'A', 'PD_ST', 'PD Workflow Status', true, 'สถานะ Workflow PD', '', '', '', '', '2016-05-05 16:47:38.031627+07', 'admin', '2016-05-05 16:47:38.031627+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (213, 'A', 'PR_ST', 'PR Workflow Status', true, 'สถานะ Workflow PR', '', '', '', '', '2015-03-30 09:17:50.759+07', NULL, '2015-03-30 09:17:50.759+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (531, 'SYSTEM', 'PCM_ORD_CRITERIA_1', 'Pcm Order Criteria 1', true, 'Method', 'doc_type,500,500', 'main/master?orderBy=flag1', 'type=''PD''', '', '2016-05-05 15:38:29.529432+07', 'admin', '2016-05-05 15:38:29.529432+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (507, 'PTT', 'PTT2', 'ต้นแบบส่งมอบ', true, '', '', '', '', '', '2016-04-04 13:59:25.448892+07', 'admin', '2016-04-04 13:59:25.448892+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (545, 'SYSTEM', 'EXP_BRW_RPT_TAB', 'Expense Borrow Report Tab', true, '0', '', '', '', '', '2016-05-28 14:03:24.156682+07', 'admin', '2016-05-28 14:03:24.156682+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (100, 'SYSTEM', 'PCM_REQ_SITE_ID', 'Pcm Req Site ID', true, 'pcm', '', '', '', '', '2016-03-01 18:21:46.282169+07', 'admin', '2016-03-01 18:21:46.282169+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (102, 'SYSTEM', 'PCM_REQ_ID_FORMAT', 'Pcm Req ID Format', true, 'PR${fiscal_year?["yy"]}${running_no?["000000"]}', '', '', '', '', '2016-03-01 17:52:55.201313+07', 'admin', '2016-03-01 17:52:55.201313+07', 'admin');
@@ -1385,27 +1390,25 @@ INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (513, 'MP', 'MP5', 'การจ้างออกแบบ', true, 'workspace://SpacesStore/2d5addb6-a45f-4d68-bd42-a4a5aefb4622', '', '', '', '', '2016-04-05 08:14:34.15099+07', 'admin', '2016-04-05 08:14:34.15099+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (514, 'MP', 'MP6', 'การจ้างงานวิจัยหรือเงินสนับสนุนให้ทุนการวิจัย', true, 'workspace://SpacesStore/c30a371e-fe6a-4c76-a674-4cc074b0dc54', '', '', '', '', '2016-04-05 08:14:49.938248+07', 'admin', '2016-04-05 08:14:49.938248+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (150, 'SYSTEM', 'PCM_REQ_SEARCH_GRID_ORDER_BY', 'Pcm Req Search Grid Order by', true, 'ORDER_FIELD, updated_time DESC', '', '', '', '', '2016-01-07 12:24:43.579596+07', 'admin', '2016-01-07 12:24:43.579596+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (506, 'PTT', 'PTT1', 'ต้นแบบโครงการ (วิจัย)', true, '1', 'ต้นแบบโครงการ (วิจัย)', '', '', '', '2016-04-04 13:59:11.691689+07', 'admin', '2016-04-04 13:59:11.691689+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (595, 'SYSTEM', 'EXP_USE_GRID_FIELD_8', 'Expense Use Grid Field 8', true, 'requestTime', 'requested_time_show,120', '', '', '', '2016-06-07 15:42:50.411647+07', 'admin', '2016-06-07 15:42:50.411647+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (220, 'SYSTEM', 'PCM_ORD_GRID_FIELD_2', 'Pcm Order Grid Field 2', true, 'org', 'org_name', '', '', '', '2016-03-14 13:24:41.634559+07', 'admin', '2016-03-14 13:24:41.634559+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (546, 'SYSTEM', 'EXP_BRW_GRID_FIELD_1', 'Expense Borrow Grid Field 1', true, 'avNo', 'id,100,0', '', '', '', '2016-05-29 13:43:11.271047+07', 'admin', '2016-05-29 13:43:11.271047+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (532, 'SYSTEM', 'PCM_ORD_CRITERIA_2', 'Pcm Order Criteria 2', true, 'สถานะ', 'status', 'main/master?orderBy=flag1', 'type=''PD_ST''', '', '2016-05-05 16:45:36.718636+07', 'admin', '2016-05-05 16:45:36.718636+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (120, 'SYSTEM', 'PCM_REQ_GRID_FIELD_1', 'Pcm Request Grid Field 1', true, 'prNo', 'id,100,,0', '', '', '', '2016-03-24 13:49:37.508309+07', 'admin', '2016-03-24 13:49:37.508309+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (121, 'SYSTEM', 'PCM_REQ_GRID_FIELD_2', 'Pcm Request Grid Field 2', true, 'prType', 'objective_type_name,60,center', '', '', '', '2016-03-24 13:51:30.20756+07', 'admin', '2016-03-24 13:51:30.20756+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (223, 'SYSTEM', 'PCM_ORD_GRID_FIELD_4', 'Pcm Order Grid Field 4', true, 'objective', 'objective', '', '', '', '2016-03-14 13:26:11.68346+07', 'admin', '2016-03-14 13:26:11.68346+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (540, 'SYSTEM', 'PCM_REQ_GRID_FIELD_8', 'Pcm Request Grid Field 8', true, 'preparer', 'created_by,80', '', '', '', '2016-05-08 16:38:51.070593+07', 'admin', '2016-05-08 16:38:51.070593+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (541, 'SYSTEM', 'PCM_ORD_GRID_FIELD_1', 'Pcm Order Grid Field 1', true, 'pdNo', 'id,150', '', '', '', '2016-05-10 10:42:23.863062+07', 'admin', '2016-05-10 10:42:23.863062+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (542, 'SYSTEM', 'PCM_ORD_GRID_FIELD_7', 'Pcm Order Grid Field 7', true, 'requestTime', 'created_time_show,130', '', '', '', '2016-05-10 10:44:31.582372+07', 'admin', '2016-05-10 10:44:31.582372+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (541, 'SYSTEM', 'PCM_ORD_GRID_FIELD_1', 'Pcm Order Grid Field 1', true, 'pdNo', 'id,150', '', '', '', '2016-05-10 10:42:23.863062+07', 'admin', '2016-05-10 10:42:23.863062+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (532, 'SYSTEM', 'PCM_ORD_CRITERIA_2', 'Pcm Order Criteria 2', true, 'Status', 'status', 'main/master?orderBy=flag1', 'type=''PD_ST''', '', '2016-05-05 16:45:36.718636+07', 'admin', '2016-05-05 16:45:36.718636+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (225, 'SYSTEM', 'PCM_ORD_GRID_FIELD_6', 'Pcm Order Grid Field 6', true, 'preparer', 'created_by', '', '', '', '2016-03-14 13:28:16.89383+07', 'admin', '2016-03-14 13:28:16.89383+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (546, 'SYSTEM', 'EXP_BRW_GRID_FIELD_1', 'Expense Borrow Grid Field 1', true, 'avNo', 'id,100,0', '', '', '', '2016-05-29 13:43:11.271047+07', 'admin', '2016-05-29 13:43:11.271047+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (590, 'SYSTEM', 'EXP_USE_GRID_FIELD_3', 'Expense Use Grid Field 3', true, 'budget', 'budget_cc_name,250', '', '', '', '2016-06-07 15:39:16.454573+07', 'admin', '2016-06-07 15:39:16.454573+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (595, 'SYSTEM', 'EXP_USE_GRID_FIELD_8', 'Expense Use Grid Field 8', true, 'requestTime', 'created_time_show,120', '', '', '', '2016-06-07 15:42:50.411647+07', 'admin', '2016-06-07 15:42:50.411647+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (508, 'A', 'PR_RSN', 'PR Reason', true, '', '', '', '', '', '2016-04-04 15:08:56.891023+07', 'admin', '2016-04-04 15:08:56.891023+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (203, 'PR_ST', 'D', 'Draft', true, '1', 'Draft', '', '', '', '2015-03-26 10:54:24.7+07', NULL, '2015-03-26 10:54:24.7+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (204, 'PR_ST', 'W1', 'รอการอนุมัติ', true, '3', 'Wait for Approval', '', '', '', '2015-03-26 10:54:42.32+07', NULL, '2015-03-26 10:54:42.32+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (205, 'PR_ST', 'C1', 'รอพัสดุรับงาน', true, '5', 'Wait for Acceptance', '', '', '', '2015-03-26 10:55:15.436+07', NULL, '2015-03-26 10:55:15.436+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (206, 'PR_ST', 'C2', 'พัสดุรับงาน', true, '6', 'Accepted', '', '', '', '2015-03-26 10:55:24.561+07', NULL, '2015-03-26 10:55:24.561+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (503, 'PR_ST', 'X1', 'ยกเลิกโดย ผู้ขอ', true, '7', 'Cancelled by Requester', '', '', '', '2016-04-02 21:10:44.023056+07', 'admin', '2016-04-02 21:10:44.023056+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (534, 'PD_ST', 'D', 'Draft', true, '1', 'Draft', '', '', '', '2016-05-05 16:50:04.098353+07', 'admin', '2016-05-05 16:50:04.098353+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (205, 'PR_ST', 'C1', 'รอพัสดุรับงาน', true, '5', 'Wait for Acceptance', '', '', '', '2015-03-26 10:55:15.436+07', NULL, '2015-03-26 10:55:15.436+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (535, 'PD_ST', 'W1', 'รอการอนุมัติ', true, '3', 'Wait for Approval', '', '', '', '2016-05-05 16:50:27.380874+07', 'admin', '2016-05-05 16:50:27.380874+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (539, 'PD_ST', 'X1', 'ยกเลิกโดย พัสดุ', true, '6', 'Cancelled By Procurement', '', '', '', '2016-05-05 16:52:28.490405+07', 'admin', '2016-05-05 16:52:28.490405+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (225, 'SYSTEM', 'PCM_ORD_GRID_FIELD_6', 'Pcm Order Grid Field 6', true, 'preparer', 'created_by,80', '', '', '', '2016-03-14 13:28:16.89383+07', 'admin', '2016-03-14 13:28:16.89383+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (507, 'PTT', 'PTT2', 'ต้นแบบส่งมอบ', true, '2', 'ต้นแบบส่งมอบ', '', '', '', '2016-04-04 13:59:25.448892+07', 'admin', '2016-04-04 13:59:25.448892+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (540, 'SYSTEM', 'PCM_REQ_GRID_FIELD_9', 'Pcm Request Grid Field 9', true, 'requestTime', 'requested_time_show,120', '', '', '', '2016-05-08 16:38:51.070593+07', 'admin', '2016-05-08 16:38:51.070593+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (151, 'SYSTEM', 'PCM_REQ_MSG_MISSING_NEXT_APP', 'Pcm Req Message Missing Next Approver', true, 'Next Approver', '', '', '', '', '2016-02-12 16:58:36.218211+07', 'admin', '2016-02-12 16:58:36.218211+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (152, 'SYSTEM', 'PCM_REQ_WF_FAIL_COND_1', 'Pcm Req Fail Condition 1', true, '2,field3=''IC''|field9!=''true'',Temporary Fix', '', '', '', '', '2016-02-15 13:05:22.242698+07', 'admin', '2016-02-15 13:05:22.242698+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (492, 'A', 'PU', 'หน่วยงานจัดซื้อจัดจ้าง', true, '', '', '', '', '', '2016-04-02 18:30:42.678997+07', 'admin', '2016-04-02 18:30:42.678997+07', 'admin');
@@ -1416,18 +1419,11 @@ INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (494, 'TR', 'TR2', 'อบรม 2', true, '', '', '', '', '', '2016-04-02 18:35:06.077229+07', 'admin', '2016-04-02 18:35:06.077229+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (495, 'TR', 'TR3', 'อบรม 3', true, '', '', '', '', '', '2016-04-02 18:35:17.156982+07', 'admin', '2016-04-02 18:35:17.156982+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (454, 'FUND', 'C', 'Cost Center', true, '', '', '', '', '', '2016-02-26 19:19:51.48891+07', 'admin', '2016-02-26 19:19:51.48891+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (451, 'BA', '105014', '105014', true, '', '', '', '', '', '2016-02-26 19:19:03.012544+07', 'admin', '2016-02-26 19:19:03.012544+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (455, 'FUND', 'P', 'Project', true, '', '', '', '', '', '2016-02-26 19:20:48.172425+07', 'admin', '2016-02-26 19:20:48.172425+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (436, 'A', 'PC', 'Purchasing Type', true, 'PC', '', '', '', '', '2016-02-24 08:59:52.801248+07', 'admin', '2016-02-24 08:59:52.801248+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (452, 'BA', '105015', '105015', true, '', '', '', '', '', '2016-02-26 19:19:16.885364+07', 'admin', '2016-02-26 19:19:16.885364+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (453, 'BA', '105046', '105046', true, '', '', '', '', '', '2016-02-26 19:19:28.815388+07', 'admin', '2016-02-26 19:19:28.815388+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (556, 'A', 'BRW_TYPE', 'รายการยืมเงิน', true, '', '', '', '', '', '2016-05-30 11:43:06.286876+07', 'admin', '2016-05-30 11:43:06.286876+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (441, 'A', 'CUR', 'Currency', true, 'CUR', '', '', '', '', '2016-02-26 18:51:50.294962+07', 'admin', '2016-02-26 18:51:50.294962+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (442, 'CUR', 'THB', 'Thai Baht', true, '', '', '', '', '', '2016-02-26 18:52:15.503968+07', 'admin', '2016-02-26 18:52:15.503968+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (443, 'CUR', 'USD', 'U.S. Dollar', true, '', '', '', '', '', '2016-02-26 18:52:56.294799+07', 'admin', '2016-02-26 18:52:56.294799+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (444, 'A', 'STOCK', 'คลังจัดเก็บพัสดุ', true, '', '', '', '', '', '2016-02-26 19:16:36.851021+07', 'admin', '2016-02-26 19:16:36.851021+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (445, 'A', 'FUND', 'ศูนย์เงินทุน', true, '', '', '', '', '', '2016-02-26 19:16:57.893776+07', 'admin', '2016-02-26 19:16:57.893776+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (446, 'A', 'BA', 'หน่วยงาน', true, '', '', '', '', '', '2016-02-26 19:17:17.179928+07', 'admin', '2016-02-26 19:17:17.179928+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (448, 'STOCK', 'ST2', 'Biotec', true, '', '', '', '', '', '2016-02-26 19:17:57.239506+07', 'admin', '2016-02-26 19:17:57.239506+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (449, 'STOCK', 'ST3', 'Mtec', true, '', '', '', '', '', '2016-02-26 19:18:10.768522+07', 'admin', '2016-02-26 19:18:10.768522+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (450, 'STOCK', 'ST4', 'Nectec', true, '', '', '', '', '', '2016-02-26 19:18:31.676963+07', 'admin', '2016-02-26 19:18:31.676963+07', 'admin');
@@ -1443,23 +1439,26 @@ INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (456, 'A', 'PD', 'วิธีการจัดหา', true, '', '', '', '', '', '2016-02-27 11:34:37.423435+07', 'admin', '2016-02-27 11:34:37.423435+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (502, 'MP', 'MP3', 'การจ้างที่ปรึกษา', true, 'workspace://SpacesStore/a77fb4e1-1aca-47ab-a917-3e55416d5fdb', '', '', '', '', '2016-04-02 20:19:09.133286+07', 'admin', '2016-04-02 20:19:09.133286+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (515, 'MP', 'MP7', 'การจัดซื้อจัดจ้างที่มิใช่งานก่อสร้าง', true, 'workspace://SpacesStore/b2aa3d55-d09d-45a2-b6dd-e04bb21b8277', '', '', '', '', '2016-04-05 08:15:06.247067+07', 'admin', '2016-04-05 08:15:06.247067+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (224, 'SYSTEM', 'PCM_ORD_GRID_FIELD_5', 'Pcm Order Grid Field 5', true, 'total', 'total,,right', 'number', '', '', '2016-03-14 13:27:20.729331+07', 'admin', '2016-03-14 13:27:20.729331+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (207, 'SYSTEM', 'PCM_ORD_WF_DESC_FORMAT', 'Pcm Order Workflow Description Format', true, '${id} » ${objective}', '', '', '', '', '2016-03-19 18:22:57.191277+07', 'admin', '2016-03-19 18:22:57.191277+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (123, 'SYSTEM', 'PCM_REQ_GRID_FIELD_4', 'Pcm Request Grid Field 4', true, 'objective', 'objective,,,1', '', '', '', '2016-03-24 13:54:40.186708+07', 'admin', '2016-03-24 13:54:40.186708+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (124, 'SYSTEM', 'PCM_REQ_GRID_FIELD_5', 'Pcm Request Grid Field 5', true, 'amount', 'total,100,right', 'number', '', '', '2016-03-24 13:55:21.457562+07', 'admin', '2016-03-24 13:55:21.457562+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (562, 'SYSTEM', 'EXP_USE_PATH_FORMAT', 'Expense Use Path Format', true, 'EX/${fiscal_year[yyyy]}/${id}', '${objective_type}/${fiscal_year[yyyy]}/${id}', '', '', '', '2016-06-05 18:19:49.560886+07', 'admin', '2016-06-05 18:19:49.560886+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (207, 'SYSTEM', 'PCM_ORD_WF_DESC_FORMAT', 'Pcm Order Workflow Description Format', true, '${id} » ${objective}', '${id} » ${doc_type} » ${objective}', '', '', '', '2016-03-19 18:22:57.191277+07', 'admin', '2016-03-19 18:22:57.191277+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (124, 'SYSTEM', 'PCM_REQ_GRID_FIELD_5', 'Pcm Request Grid Field 5', true, 'amount', 'total,90,right', 'number', '', '', '2016-03-24 13:55:21.457562+07', 'admin', '2016-03-24 13:55:21.457562+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (224, 'SYSTEM', 'PCM_ORD_GRID_FIELD_5', 'Pcm Order Grid Field 5', true, 'total', 'total,,right', 'number', '', '', '2016-03-14 13:27:20.729331+07', 'admin', '2016-03-14 13:27:20.729331+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (566, 'SYSTEM', 'EXP_BRW_GRID_FIELD_3', 'Expense Borrow Grid Field 3', true, 'budget', 'budget_cc_name,250', '', '', '', '2016-06-07 09:30:00.139489+07', 'admin', '2016-06-07 09:30:00.139489+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (441, 'A', 'WF_ACT', 'Workflow Action', true, '', '', '', '', '', '2016-02-26 18:51:50.294962+07', 'admin', '2016-02-26 18:51:50.294962+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (446, 'A', 'WF_TASK', 'Workflow Task', true, '', '', '', '', '', '2016-02-26 19:17:17.179928+07', 'admin', '2016-02-26 19:17:17.179928+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (437, 'PC', 'ซื้อ', 'ซื้อ', true, '1', 'Buy', '', '', '', '2016-02-24 09:00:49.350937+07', 'admin', '2016-02-24 09:00:49.350937+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (438, 'PC', 'จ้าง', 'จ้าง', true, '2', 'Hire', '', '', '', '2016-02-24 09:01:07.075668+07', 'admin', '2016-02-24 09:01:07.075668+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (440, 'PC', 'เช่า', 'เช่า', true, '3', 'Rent', '', '', '', '2016-02-26 13:26:52.271699+07', 'admin', '2016-02-26 13:26:52.271699+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (536, 'PD_ST', 'W2', 'ไม่อนุมัติ', true, '2', 'Rejected', '', '', '', '2016-05-05 16:50:49.434759+07', 'admin', '2016-05-05 16:50:49.434759+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (504, 'PR_ST', 'X2', 'ยกเลิกโดย พัสดุ', true, '8', 'Cancelled by Procurement', '', '', '', '2016-04-02 21:11:04.270543+07', 'admin', '2016-04-02 21:11:04.270543+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (458, 'PD', 'PD2', 'วิธีสอบราคา', true, '2', 'วิธีสอบราคา - ราคาเกิน 300,000 บาท แต่ไม่เกิน 2,000,000 บาท', '', '', '', '2016-02-27 11:45:32.303578+07', 'admin', '2016-02-27 11:45:32.303578+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (460, 'PD', 'PD5', 'วิธีพิเศษ', true, '4', 'วิธีพิเศษ - ราคาเกิน 300,000 บาท และต้องเป็นกรณีตามข้อบังคับ กวทช.ว่าด้วยการพัสดุ พ.ศ. 2543 ข้อ 22 หรือ 23', '', '', '', '2016-02-27 11:46:59.200559+07', 'admin', '2016-02-27 11:46:59.200559+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (549, 'SYSTEM', 'EXP_USE_GRID_FIELD_1', 'Expense Use Grid Field 1', true, 'exNo', 'id,100,0', '', '', '', '2016-05-29 15:05:32.188785+07', 'admin', '2016-05-29 15:05:32.188785+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (536, 'PD_ST', 'W2', 'ไม่อนุมัติ', true, '2', 'Rejected', '', '', '', '2016-05-05 16:50:49.434759+07', 'admin', '2016-05-05 16:50:49.434759+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (574, 'AV_ST', 'D', 'Draft', true, '1', 'Draft', '', '', '', '2016-06-07 12:29:28.341165+07', 'admin', '2016-06-07 12:29:28.341165+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (584, 'AP_ST', 'W1', 'รอการอนุมัติ', true, '3', 'Wait for Approval', '', '', '', '2016-06-07 13:01:56.423916+07', 'admin', '2016-06-07 13:01:56.423916+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (125, 'SYSTEM', 'PCM_REQ_GRID_FIELD_6', 'Pcm Request Grid Field 6', true, 'currency', 'currency,50', '', '', '', '2016-03-24 14:19:15.250307+07', 'admin', '2016-03-24 14:19:15.250307+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (125, 'SYSTEM', 'PCM_REQ_GRID_FIELD_7', 'Pcm Request Grid Field 7', true, 'requester', 'req_by,100', '', '', '', '2016-03-24 14:19:15.250307+07', 'admin', '2016-03-24 14:19:15.250307+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (457, 'PD', 'PD1', 'วิธีตกลงราคา', true, '1', 'วิธีตกลงราคา - ราคาไม่เกิน 300,000 บาท', '', '', '', '2016-02-27 11:35:24.518942+07', 'admin', '2016-02-27 11:35:24.518942+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (557, 'BRW_TYPE', 'buy_product', 'ยืมเพื่อซื้อวัสดุ/สินค้า', true, '1', 'For material/product', '', '', '', '2016-05-30 11:44:42.137594+07', 'admin', '2016-05-30 11:44:42.137594+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (517, 'PU', '34', 'พัสดุ - ศช.', true, NULL, NULL, NULL, NULL, NULL, '2016-04-19 10:24:57.603079+07', NULL, '2016-04-19 10:24:57.603079+07', NULL);
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (518, 'PU', '35', 'พัสดุ - ศว.', true, NULL, NULL, NULL, NULL, NULL, '2016-04-19 10:24:57.603079+07', NULL, '2016-04-19 10:24:57.603079+07', NULL);
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (519, 'PU', '36', 'พัสดุ - ศอ.', true, NULL, NULL, NULL, NULL, NULL, '2016-04-19 10:24:57.603079+07', NULL, '2016-04-19 10:24:57.603079+07', NULL);
@@ -1473,25 +1472,26 @@ INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (561, 'SYSTEM', 'EXP_BRW_PATH_FORMAT', 'Expense Borrow Path Format', true, 'AV/${fiscal_year[yyyy]}/${id}', '${objective_type}/${fiscal_year[yyyy]}/${id}', '', '', '', '2016-06-05 18:18:21.164077+07', 'admin', '2016-06-05 18:18:21.164077+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (597, 'SYSTEM', 'EXP_USE_CRITERIA_2', 'Expense Borrow Criteria 2', true, 'Status', 'status', 'main/master?orderBy=flag1', 'type=''AP_ST''', '', '2016-06-08 12:33:13.251551+07', 'admin', '2016-06-08 12:33:13.251551+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (598, 'A', 'EXP_TYPE', 'วิธีเบิกจ่าย/หักล้างค่าใช้จ่าย (เงินยืม)', true, '', '', '', '', '', '2016-06-09 14:07:33.066737+07', 'admin', '2016-06-09 14:07:33.066737+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (527, 'PR_ST', 'W2', 'ไม่อนุมัติ', true, '2', 'Rejected', '', '', '', '2016-04-20 17:01:33.729903+07', 'admin', '2016-04-20 17:01:33.729903+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (594, 'SYSTEM', 'EXP_USE_GRID_FIELD_7', 'Expense Use Grid Field 7', true, 'preparer', 'created_by,90', '', '', '', '2016-06-07 15:41:49.633299+07', 'admin', '2016-06-07 15:41:49.633299+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (570, 'SYSTEM', 'EXP_BRW_GRID_FIELD_7', 'Expense Borrow Grid Field 7', true, 'preparer', 'created_by,90', '', '', '', '2016-06-07 09:34:04.355433+07', 'admin', '2016-06-07 09:34:04.355433+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (571, 'SYSTEM', 'EXP_BRW_GRID_FIELD_8', 'Expense Borrow Grid Field 8', true, 'requestTime', 'created_time_show,90', '', '', '', '2016-06-07 09:34:38.318858+07', 'admin', '2016-06-07 09:34:38.318858+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (550, 'SYSTEM', 'EXP_USE_GRID_FIELD_2', 'Expense Use Grid Field 2', true, 'exType', 'pay_type_name,100', '', '', '', '2016-05-29 15:06:05.686669+07', 'admin', '2016-05-29 15:06:05.686669+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (565, 'SYSTEM', 'EXP_BRW_GRID_FIELD_2', 'Expense Borrow Grid Field 2', true, 'avType', 'objective_type_name,140,center', '', '', '', '2016-06-07 09:29:03.768615+07', 'admin', '2016-06-07 09:29:03.768615+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (568, 'SYSTEM', 'EXP_BRW_GRID_FIELD_5', 'Expense Borrow Grid Field 5', true, 'amount', 'total,100,right', 'number', '', '', '2016-06-07 09:31:28.792279+07', 'admin', '2016-06-07 09:31:28.792279+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (4, 'SYSTEM', 'PCM_ODOO_URL', 'PCM Odoo URL', true, 'http://10.226.202.133:8069', '', 'http://xx103.253.145.215:8069', '', '', '2016-05-02 17:15:32.465576+07', 'admin', '2016-05-02 17:15:32.465576+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (560, 'SYSTEM', 'EXP_USE_ID_FORMAT', 'Expense Use ID Format', true, 'EX${fiscal_year?["yy"]}${running_no?["000000"]}', '', '', '', '', '2016-06-05 18:14:56.843335+07', 'admin', '2016-06-05 18:14:56.843335+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (459, 'PD', 'PD4', 'วิธีประกวดราคา', true, '3', 'วิธีประกวดราคา - ราคาตั้งแต่ 2,000,000 บาท ขึ้นไป', '', '', '', '2016-02-27 11:46:02.052579+07', 'admin', '2016-02-27 11:46:02.052579+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (599, 'EXP_TYPE', '0', 'พนักงาน', true, '', 'Employee', '', '', '', '2016-06-09 14:14:01.524964+07', 'admin', '2016-06-09 14:14:01.524964+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (122, 'SYSTEM', 'PCM_REQ_GRID_FIELD_3', 'Pcm Request Grid Field 3', true, 'budget', 'budget_cc_name,250', '', '', '', '2016-03-24 13:53:11.602934+07', 'admin', '2016-03-24 13:53:11.602934+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (560, 'SYSTEM', 'EXP_USE_ID_FORMAT', 'Expense Use ID Format', true, 'EX${fiscal_year?["yy"]}${running_no?["000000"]}', '', '', '', '', '2016-06-05 18:14:56.843335+07', 'admin', '2016-06-05 18:14:56.843335+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (565, 'SYSTEM', 'EXP_BRW_GRID_FIELD_2', 'Expense Borrow Grid Field 2', true, 'avType', 'objective_type_name,140,center', '', '', '', '2016-06-07 09:29:03.768615+07', 'admin', '2016-06-07 09:29:03.768615+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (567, 'SYSTEM', 'EXP_BRW_GRID_FIELD_4', 'Expense Borrow Grid Field 4', true, 'objective', 'objective,230,,1', '', '', '', '2016-06-07 09:30:39.838721+07', 'admin', '2016-06-07 09:30:39.838721+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (568, 'SYSTEM', 'EXP_BRW_GRID_FIELD_5', 'Expense Borrow Grid Field 5', true, 'amount', 'total,100,right', 'number', '', '', '2016-06-07 09:31:28.792279+07', 'admin', '2016-06-07 09:31:28.792279+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (569, 'SYSTEM', 'EXP_BRW_GRID_FIELD_6', 'Expense Borrow Grid Field 6', true, 'requester', 'req_by,90', '', '', '', '2016-06-07 09:32:09.456639+07', 'admin', '2016-06-07 09:32:09.456639+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (570, 'SYSTEM', 'EXP_BRW_GRID_FIELD_7', 'Expense Borrow Grid Field 7', true, 'preparer', 'created_by,90', '', '', '', '2016-06-07 09:34:04.355433+07', 'admin', '2016-06-07 09:34:04.355433+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (5, 'SYSTEM', 'PCM_ODOO_DB', 'Pcm Odoo DB', true, 'PABI2_v8', '', '', '', '', '2016-05-02 17:15:56.649536+07', 'admin', '2016-05-02 17:15:56.649536+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (591, 'SYSTEM', 'EXP_USE_GRID_FIELD_4', 'Expense Use Grid Field 4', true, 'objective', 'objective,230,,1', '', '', '', '2016-06-07 15:39:39.188775+07', 'admin', '2016-06-07 15:39:39.188775+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (592, 'SYSTEM', 'EXP_USE_GRID_FIELD_5', 'Expense Use Grid Field 5', true, 'amount', 'total,100,right', 'number', '', '', '2016-06-07 15:40:04.575948+07', 'admin', '2016-06-07 15:40:04.575948+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (593, 'SYSTEM', 'EXP_USE_GRID_FIELD_6', 'Expense Use Grid Field 6', true, 'requester', 'req_by,90', '', '', '', '2016-06-07 15:41:24.056436+07', 'admin', '2016-06-07 15:41:24.056436+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (594, 'SYSTEM', 'EXP_USE_GRID_FIELD_7', 'Expense Use Grid Field 7', true, 'preparer', 'created_by,90', '', '', '', '2016-06-07 15:41:49.633299+07', 'admin', '2016-06-07 15:41:49.633299+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (528, 'PR_ST', 'S', 'ขอคำปรึกษา', true, '4', 'Consulting', '', '', '', '2016-04-20 17:01:57.563096+07', 'admin', '2016-04-20 17:01:57.563096+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (462, 'PD', 'PD3', 'วิธีประกวดราคาด้วยวิธีการอิเล็กทรอนิกส์', true, '6', 'วิธีประกวดราคาด้วยวิธีการอิเล็กทรอนิกส์ - ราคาตั้งแต่ 2,000,000 บาท ขึ้นไป', '', '', '', '2016-02-27 11:48:29.768209+07', 'admin', '2016-02-27 11:48:29.768209+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (599, 'EXP_TYPE', '0', 'พนักงาน', true, '', 'Employee', '', '', '', '2016-06-09 14:14:01.524964+07', 'admin', '2016-06-09 14:14:01.524964+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (537, 'PD_ST', 'S', 'ขอคำปรึกษา', true, '4', 'Consulting', '', '', '', '2016-05-05 16:51:13.740745+07', 'admin', '2016-05-05 16:51:13.740745+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (571, 'SYSTEM', 'EXP_BRW_GRID_FIELD_8', 'Expense Borrow Grid Field 8', true, 'requestTime', 'requested_time_show,90', '', '', '', '2016-06-07 09:34:38.318858+07', 'admin', '2016-06-07 09:34:38.318858+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (538, 'PD_ST', 'C1', 'ออก PO', true, '5', 'PO Created', '', '', '', '2016-05-05 16:51:53.574348+07', 'admin', '2016-05-05 16:51:53.574348+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (527, 'PR_ST', 'W2', 'ไม่อนุมัติ', true, '2', 'Rejected', '', '', '', '2016-04-20 17:01:33.729903+07', 'admin', '2016-04-20 17:01:33.729903+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (537, 'PD_ST', 'S', 'ขอคำปรึกษา', true, '4', 'Consulting', '', '', '', '2016-05-05 16:51:13.740745+07', 'admin', '2016-05-05 16:51:13.740745+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (550, 'SYSTEM', 'EXP_USE_GRID_FIELD_2', 'Expense Use Grid Field 2', true, 'exType', 'pay_type_name,100', '', '', '', '2016-05-29 15:06:05.686669+07', 'admin', '2016-05-29 15:06:05.686669+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (558, 'BRW_TYPE', 'attend_seminar', 'ยืมเพื่อเดินทางไปปฎิบัติงาน', true, '2', 'For Trip', '', '', '', '2016-05-30 11:45:36.125395+07', 'admin', '2016-05-30 11:45:36.125395+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (575, 'AV_ST', 'W1', 'รอการอนุมัติ', true, '3', 'Wait for Approval', '', '', '', '2016-06-07 12:31:44.937149+07', 'admin', '2016-06-07 12:31:44.937149+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (576, 'AV_ST', 'W2', 'ไม่อนุมัติ', true, '2', 'Rejected', '', '', '', '2016-06-07 12:32:48.156929+07', 'admin', '2016-06-07 12:32:48.156929+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (577, 'AV_ST', 'C1', 'รอการเงินรับงาน', true, '5', 'Wait for Acceptance', '', '', '', '2016-06-07 12:33:24.767754+07', 'admin', '2016-06-07 12:33:24.767754+07', 'admin');
@@ -1503,46 +1503,52 @@ INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (583, 'AP_ST', 'W2', 'ไม่อนุมัติ', true, '2', 'Rejected', '', '', '', '2016-06-07 13:01:41.116981+07', 'admin', '2016-06-07 13:01:41.116981+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (585, 'AP_ST', 'S', 'ขอคำปรึกษา', true, '4', 'Consulting', '', '', '', '2016-06-07 13:02:13.403795+07', 'admin', '2016-06-07 13:02:13.403795+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (586, 'AP_ST', 'C1', 'รอการเงินรับงาน', true, '5', 'Wait for Acceptance', '', '', '', '2016-06-07 13:02:26.855063+07', 'admin', '2016-06-07 13:02:26.855063+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (587, 'AP_ST', 'C2', 'การเงินรับงาน', true, 'ุ6', ' Accepted', '', '', '', '2016-06-07 13:02:57.587382+07', 'admin', '2016-06-07 13:02:57.587382+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (587, 'AP_ST', 'C2', 'การเงินรับงาน', true, 'ุ6', 'Accepted', '', '', '', '2016-06-07 13:02:57.587382+07', 'admin', '2016-06-07 13:02:57.587382+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (588, 'AP_ST', 'X1', 'ยกเลิกโดย ผู้ขอ', true, '7', 'Cancelled By Requester', '', '', '', '2016-06-07 13:03:13.20436+07', 'admin', '2016-06-07 13:03:13.20436+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (589, 'AP_ST', 'X2', 'ยกเลิกโดย การเงิน', false, '8', 'Cancelled By Accounting', '', '', '', '2016-06-07 13:03:30.647152+07', 'admin', '2016-06-07 13:03:30.647152+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (126, 'SYSTEM', 'PCM_REQ_GRID_FIELD_8', 'Pcm Request Grid Field 8', true, 'preparer', 'created_by,100', '', '', '', '2016-04-20 12:51:24.060687+07', 'admin', '2016-04-20 12:51:24.060687+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (600, 'EXP_TYPE', '1', 'บุคคล/หน่วยงาน ภายนอก', true, '', 'Outsider', '', '', '', '2016-06-09 14:14:16.659867+07', 'admin', '2016-06-09 14:14:16.659867+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (602, 'EXP_TYPE', '2', 'เคลียร์เงินยืมพนักงาน', true, '', 'Clear Advance', '', '', '', '2016-06-09 14:14:43.275419+07', 'admin', '2016-06-09 14:14:43.275419+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (558, 'BRW_TYPE', 'attend_seminar', 'ยืมเพื่อเดินทางสัมมนา', true, '2', 'For seminar', '', '', '', '2016-05-30 11:45:36.125395+07', 'admin', '2016-05-30 11:45:36.125395+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (600, 'EXP_TYPE', '1', 'หน่วยงาน/บุคคล ภายนอก', true, '', 'Outsider', '', '', '', '2016-06-09 14:14:16.659867+07', 'admin', '2016-06-09 14:14:16.659867+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (5, 'SYSTEM', 'PCM_ODOO_DB', 'PCM Odoo DB', true, 'PABI2_v7', '', '', '', '', '2016-05-02 17:15:56.649536+07', 'admin', '2016-05-02 17:15:56.649536+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (603, 'EXP_TYPE', '3', 'Internal Charge', true, '', 'Internal Charge', '', '', '', '2016-06-09 14:14:52.385884+07', 'admin', '2016-06-09 14:14:52.385884+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (459, 'PD', 'PD4', 'วิธีประกวดราคา', true, '3', 'วิธีประกวดราคา - ราคาตั้งแต่ 2,000,000 บาท ขึ้นไป', '', '', '', '2016-02-27 11:46:02.052579+07', 'admin', '2016-02-27 11:46:02.052579+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (596, 'SYSTEM', 'EXP_USE_CRITERIA_1', 'Expense Use Criteria 1', true, 'Method', 'pay_type', 'main/master?orderBy=flag1', 'type=''EXP_TYPE''', '', '2016-06-08 12:30:51.601959+07', 'admin', '2016-06-08 12:30:51.601959+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (617, 'SYSTEM', 'EXP_BRW_WF_DESC_FORMAT', 'Exp Brw Workflow Description Format', true, '${id} » ${objective}', '', '', '', '', '2016-08-22 17:27:43.293418+07', 'admin', '2016-08-22 17:27:43.293418+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (618, 'SYSTEM', 'EXP_USE_WF_DESC_FORMAT', 'Exp Use Workflow Description Format', true, '${id} » ${objective}', '', '', '', '', '2016-08-22 17:28:05.5658+07', 'admin', '2016-08-22 17:28:05.5658+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (460, 'PD', 'PD5', 'วิธีพิเศษ', true, '4', 'วิธีพิเศษ - ราคาเกิน 300,000 บาท และต้องเป็นกรณีตามข้อบังคับ กวทช.ว่าด้วยการพัสดุ พ.ศ. 2543 ข้อ 22 หรือ 23', '', '', '', '2016-02-27 11:46:59.200559+07', 'admin', '2016-02-27 11:46:59.200559+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (616, 'SYSTEM', 'PCM_REQ_REF_PR_PERCENT', 'Pcm Req Ref PR Percent', true, '3000', '', '', '', '', '2016-08-22 13:20:48.603283+07', 'admin', '2016-08-22 13:20:48.603283+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (604, 'SYSTEM', 'MAIN_INF_PD_UPDATE_STATUS', 'Main Interface PD Update Status', true, '1', '', '', '', '', '2016-07-05 08:06:25.960855+07', 'admin', '2016-07-05 08:06:25.960855+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (605, 'SYSTEM', 'PCM_REQ_CMT_CHECK_PARAMS', 'Pcm Req Committee Check Parameters', true, '50000,1,3', '', '', '', '', '2016-07-05 08:07:36.704622+07', 'admin', '2016-07-05 08:07:36.704622+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (123, 'SYSTEM', 'PCM_REQ_GRID_FIELD_4', 'Pcm Request Grid Field 4', true, 'objective', 'objective,230,,1', '', '', '', '2016-03-24 13:54:40.186708+07', 'admin', '2016-03-24 13:54:40.186708+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (567, 'SYSTEM', 'EXP_BRW_GRID_FIELD_4', 'Expense Borrow Grid Field 4', true, 'objective', 'objective,230,,1', '', '', '', '2016-06-07 09:30:39.838721+07', 'admin', '2016-06-07 09:30:39.838721+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (591, 'SYSTEM', 'EXP_USE_GRID_FIELD_4', 'Expense Use Grid Field 4', true, 'objective', 'objective,230,,1', '', '', '', '2016-06-07 15:39:39.188775+07', 'admin', '2016-06-07 15:39:39.188775+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (609, 'SYSTEM', 'PCM_ORD_SIGN_FONT_SIZE', 'Pcm Ord Signature Font Size', true, '14', '', '', '', '', '2016-07-20 17:51:22.47041+07', 'admin', '2016-07-20 17:51:22.47041+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (126, 'SYSTEM', 'PCM_REQ_GRID_FIELD_7', 'Pcm Request Grid Field 7', true, 'requester', 'req_by,80', '', '', '', '2016-04-20 12:51:24.060687+07', 'admin', '2016-04-20 12:51:24.060687+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (621, 'SYSTEM', 'PCM_REQ_GRID_FIELD_9', 'Pcm Request Grid Field 9', true, 'requestTime', 'created_time_show,120', '', '', '', '2016-08-25 15:52:37.117476+07', 'admin', '2016-08-25 15:52:37.117476+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (608, 'SYSTEM', 'PCM_ORD_SIGN_POS', 'Pcm Ord Signature Position', true, '460,105', '', '', '', '', '2016-07-20 17:50:49.933557+07', 'admin', '2016-07-20 17:50:49.933557+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (610, 'SYSTEM', 'PCM_ORD_SIGN_DATE_OFFSET', 'Pcm Ord Signature Date Offset', true, '30,-35', '', '', '', '', '2016-07-20 17:51:53.513402+07', 'admin', '2016-07-20 17:51:53.513402+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (622, 'PR_RSN', 'ยังไม่เคยจัดซื้อจัดจ้างมาก่อน', 'ยังไม่เคยจัดซื้อจัดจ้างมาก่อน', true, '4', 'New', '', '', '', '2016-07-30 12:26:51.71099+07', 'admin', '2016-07-30 12:26:51.71099+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (605, 'SYSTEM', 'PCM_REQ_CMT_CHECK_PARAMS', 'Pcm Req Committee Check Parameters', true, '50000,1,3', '', '', '', '', '2016-07-04 16:30:17.632599+07', 'admin', '2016-07-04 16:30:17.632599+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (4, 'SYSTEM', 'PCM_ODOO_URL', 'Pcm Odoo URL', true, 'http://10.226.202.133:8069', '', 'http://xx103.253.145.215:8069', '', '', '2016-05-02 17:15:32.465576+07', 'admin', '2016-05-02 17:15:32.465576+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (623, 'PR_RSN', 'อื่นๆ', 'อื่นๆ', true, '5', 'Other', '', '', '', '2016-07-30 12:27:05.289808+07', 'admin', '2016-07-30 12:27:05.289808+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (503, 'PR_ST', 'X1', 'ยกเลิกโดย ผู้ขอ', true, '7', 'Cancelled by Requester', '', '', '', '2016-04-02 21:10:44.023056+07', 'admin', '2016-04-02 21:10:44.023056+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (604, 'SYSTEM', 'MAIN_INF_PD_UPDATE_STATUS', 'Main Interface PD Update Status', true, '0', '', '', '', '', '2016-06-30 09:50:51.320466+07', 'admin', '2016-06-30 09:50:51.320466+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (120, 'SYSTEM', 'PCM_REQ_GRID_FIELD_1', 'Pcm Request Grid Field 1', true, 'prNo', 'id,100,,0', '', '', '', '2016-03-24 13:49:37.508309+07', 'admin', '2016-03-24 13:49:37.508309+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (609, 'SYSTEM', 'PCM_ORD_SIGN_FONT_SIZE', 'Pcm Ord Signature Font Size', true, '14', '', '', '', '', '2016-07-20 15:45:18.11566+07', 'admin', '2016-07-20 15:45:18.11566+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (624, 'SYSTEM', 'PCM_REQ_REF_PR_PERCENT', 'Pcm Req Ref PR Percent', true, '100', '', '', '', '', '2016-08-22 10:09:14.114262+07', 'admin', '2016-08-22 10:09:14.114262+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (589, 'AP_ST', 'X2', 'ยกเลิกโดย การเงิน', true, '8', 'Cancelled By Accounting', '', '', '', '2016-06-07 13:03:30.647152+07', 'admin', '2016-06-07 13:03:30.647152+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (625, 'SYSTEM', 'EXP_BRW_WF_DESC_FORMAT', 'Exp Brw Workflow Description Format', true, '${id} » ${objective}', '', '', '', '', '2016-08-22 15:52:40.410364+07', 'admin', '2016-08-22 15:52:40.410364+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (626, 'SYSTEM', 'EXP_USE_WF_DESC_FORMAT', 'Exp Use Workflow Description Format', true, '${id} » ${objective}', '', '', '', '', '2016-08-22 15:53:27.258784+07', 'admin', '2016-08-22 15:53:27.258784+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (627, 'SYSTEM', 'PCM_REQ_GRID_FIELD_6', 'Pcm Request Grid Field 6', true, 'currency', 'currency,50', '', '', '', '2016-08-25 12:20:19.810381+07', 'admin', '2016-08-25 12:20:19.810381+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (610, 'SYSTEM', 'PCM_ORD_SIGN_DATE_OFFSET', 'Pcm Ord Signature Date Offset', true, '30,-35', '', '', '', '', '2016-07-20 15:46:01.294857+07', 'admin', '2016-07-20 15:46:01.294857+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (608, 'SYSTEM', 'PCM_ORD_SIGN_POS', 'Pcm Ord Signature Position', true, '460,105', '', '', '', '', '2016-07-20 15:44:52.461351+07', 'admin', '2016-07-20 15:44:52.461351+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (611, 'WF_ACT', 'request', 'Request', true, 'ขออนุมัติ', '', '', '', '', '2016-07-29 10:58:25.914013+07', 'admin', '2016-07-29 10:58:25.914013+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (612, 'WF_ACT', 'approve', 'Approve', true, 'อนุมัติ', '', '', '', '', '2016-07-29 10:58:44.862572+07', 'admin', '2016-07-29 10:58:44.862572+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (613, 'WF_ACT', 'reject', 'Reject', true, 'ไม่อนุมัติ', '', '', '', '', '2016-07-29 10:59:01.303585+07', 'admin', '2016-07-29 10:59:01.303585+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (614, 'WF_ACT', 'cancel', 'Cancel', true, 'ยกเลิก', '', '', '', '', '2016-07-29 10:59:16.263725+07', 'admin', '2016-07-29 10:59:16.263725+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (615, 'WF_TASK', 'requester', 'Requester', true, 'ผู้ขอ', '', '', '', '', '2016-07-29 11:06:57.841666+07', 'admin', '2016-07-29 11:06:57.841666+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (616, 'WF_TASK', 'preparer', 'Preparer', true, 'ผู้บันทึก', '', '', '', '', '2016-07-29 11:07:22.363223+07', 'admin', '2016-07-29 11:07:22.363223+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (617, 'WF_TASK', 'approver', 'Approver #', true, 'ผู้อนุมัติขั้นที่ ', '', '', '', '', '2016-07-29 11:07:52.449075+07', 'admin', '2016-07-29 11:07:52.449075+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (618, 'WF_TASK', 'resubmit', 'Resubmit', true, 'ผู้บันทึก ทบทวนอีกครั้ง', '', '', '', '', '2016-07-29 11:08:26.710922+07', 'admin', '2016-07-29 11:08:26.710922+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (606, 'SYSTEM', 'EXP_ODOO_URL', 'Exp Odoo URL', true, 'http://10.226.202.133:8069', '', '', '', '', '2016-07-06 16:41:19.982249+07', 'admin', '2016-07-06 16:41:19.982249+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (619, 'PR_RSN', 'ใกล้หมด', 'ใกล้หมด', true, '1', 'Run out', '', '', '', '2016-07-30 12:26:05.615245+07', 'admin', '2016-07-30 12:26:05.615245+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (620, 'PR_RSN', 'ชำรุด', 'ชำรุด', true, '2', 'Broken', '', '', '', '2016-07-30 12:26:19.911442+07', 'admin', '2016-07-30 12:26:19.911442+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (621, 'PR_RSN', 'เสื่อมสภาพ', 'เสื่อมสภาพ', true, '3', 'Degenerate', '', '', '', '2016-07-30 12:26:33.07466+07', 'admin', '2016-07-30 12:26:33.07466+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (628, 'SYSTEM', 'MAIN_INF_AV_CREATE_AV', 'Main Interface Create AV', true, '1', '', '', '', '', '2016-09-06 08:34:46.328059+07', 'admin', '2016-09-06 08:34:46.328059+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (632, 'SYSTEM', 'PCM_ORD_TOP_GROUP', 'Pcm Order Top Group', true, 'purchase', '', '', '', '', '2016-10-01 10:09:23.527146+07', 'admin', '2016-10-01 10:09:23.527146+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (633, 'SYSTEM', 'EXP_BRW_TOP_GROUP', 'Exp Borrow Top Group', true, 'account_finance', '', '', '', '', '2016-10-01 10:09:44.160178+07', 'admin', '2016-10-01 10:09:44.160178+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (634, 'SYSTEM', 'EXP_USE_TOP_GROUP', 'Exp Use Top Group', true, 'account_finance', '', '', '', '', '2016-10-01 10:10:02.733435+07', 'admin', '2016-10-01 10:10:02.733435+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (631, 'SYSTEM', 'PCM_REQ_TOP_GROUP', 'Pcm Request Top Group', true, '', '', '', '', '', '2016-10-01 10:08:55.882145+07', 'admin', '2016-10-01 10:08:55.882145+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (603, 'EXP_TYPE', '3', 'Internal Charge', true, '', 'Internal Charge', '', '', '', '2016-06-09 14:14:52.385884+07', 'admin', '2016-06-09 14:14:52.385884+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (635, 'EXP_TYPE', '4', 'เงินสดย่อย', true, '', 'Petty Cash', '', '', '', '2016-10-20 10:44:08.804989+07', 'admin', '2016-10-20 10:44:08.804989+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (557, 'BRW_TYPE', 'buy_product', 'ยืมเพื่อปฎิบัติงาน', true, '1', 'For Operation', '', '', '', '2016-05-30 11:44:42.137594+07', 'admin', '2016-05-30 11:44:42.137594+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (637, 'SYSTEM', 'PCM_ORD_GRID_FIELD_3', 'Pcm Order Grid Field 3', true, 'method', 'method_name', '', '', '', '2016-10-24 13:19:03.882738+07', 'admin', '2016-10-24 13:19:03.882738+07', 'admin');
 INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (461, 'PD', 'PD6', 'วิธีกรณีพิเศษ', true, '5', 'วิธีกรณีพิเศษ - การซื้อหรือการจ้างจากส่วนราชการ รัฐวิสาหกิจ หรือองค์การของรัฐ', '', '', '', '2016-02-27 11:47:54.568948+07', 'admin', '2016-02-27 11:47:54.568948+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (611, 'PR_RSN', 'ใกล้หมด', 'ใกล้หมด', true, '1', 'Run out', '', '', '', '2016-08-01 17:32:02.950683+07', 'admin', '2016-08-01 17:32:02.950683+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (612, 'PR_RSN', 'ชำรุด', 'ชำรุด', true, '2', 'Broken', '', '', '', '2016-08-01 17:32:27.89752+07', 'admin', '2016-08-01 17:32:27.89752+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (613, 'PR_RSN', 'เสื่อมสภาพ', 'เสื่อมสภาพ', true, '3', 'Degenerate', '', '', '', '2016-08-01 17:32:51.646717+07', 'admin', '2016-08-01 17:32:51.646717+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (614, 'PR_RSN', 'ยังไม่เคยจัดซื้อจัดจ้างมาก่อน', 'ยังไม่เคยจัดซื้อจัดจ้างมาก่อน', true, '4', 'New', '', '', '', '2016-08-01 17:33:41.149733+07', 'admin', '2016-08-01 17:33:41.149733+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (615, 'PR_RSN', 'อื่นๆ', 'อื่นๆ', true, '5', 'Other', '', '', '', '2016-08-01 17:34:05.971325+07', 'admin', '2016-08-01 17:34:05.971325+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (535, 'PD_ST', 'W1', 'รอการอนุมัติ', true, '3', 'Wait for Approval', '', '', '', '2016-05-05 16:50:27.380874+07', 'admin', '2016-05-05 16:50:27.380874+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (629, 'SYSTEM', 'PCM_ORD_GRID_FIELD_3', 'Pcm Order Grid Field 3', true, 'method', 'method_name', '', '', '', '2016-10-24 14:56:33.495806+07', 'admin', '2016-10-24 14:56:33.495806+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (606, 'SYSTEM', 'EXP_ODOO_URL', 'EXP Odoo URL', true, 'http://10.226.202.133:8069', '', '', '', '', '2016-07-06 21:48:08.100591+07', 'admin', '2016-07-06 21:48:08.100591+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (622, 'SYSTEM', 'MAIN_INF_AV_CREATE_AV', 'Main Interface Create AV', true, '1', '', '', '', '', '2016-09-06 08:36:39.761775+07', 'admin', '2016-09-06 08:36:39.761775+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (607, 'SYSTEM', 'EXP_ODOO_DB', 'EXP Odoo DB', true, 'PABI2_v7', '', '', '', '', '2016-07-06 21:48:33.644482+07', 'admin', '2016-07-06 21:48:33.644482+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (121, 'SYSTEM', 'PCM_REQ_GRID_FIELD_2', 'Pcm Request Grid Field 2', true, 'prType', 'objective_type_name,60,center', '', '', '', '2016-03-24 13:51:30.20756+07', 'admin', '2016-03-24 13:51:30.20756+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (627, 'SYSTEM', 'EXP_BRW_TOP_GROUP', 'Exp Borrow Top Group', true, 'account_finance', '', '', '', '', '2016-10-01 10:14:30.874065+07', 'admin', '2016-10-01 10:14:30.874065+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (628, 'SYSTEM', 'EXP_USE_TOP_GROUP', 'Exp Use Top Group', true, 'account_finance', '', '', '', '', '2016-10-01 10:14:51.752246+07', 'admin', '2016-10-01 10:14:51.752246+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (626, 'SYSTEM', 'PCM_ORD_TOP_GROUP', 'Pcm Order Top Group', true, '', '', '', '', '', '2016-10-01 10:14:12.758887+07', 'admin', '2016-10-01 10:14:12.758887+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (625, 'SYSTEM', 'PCM_REQ_TOP_GROUP', 'Pcm Request Top Group', true, '', '', '', '', '', '2016-10-01 10:13:53.545355+07', 'admin', '2016-10-01 10:13:53.545355+07', 'admin');
-INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (630, 'EXP_TYPE', '4', 'เงินสดย่อย', false, '', 'Petty Cash', '', '', '', '2016-10-25 16:45:11.341791+07', 'admin', '2016-10-25 16:45:11.341791+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (462, 'PD', 'PD3', 'วิธีประกวดราคาด้วยวิธีการอิเล็กทรอนิกส์', true, '6', 'วิธีประกวดราคาด้วยวิธีการอิเล็กทรอนิกส์ - ราคาตั้งแต่ 2,000,000 บาท ขึ้นไป', '', '', '', '2016-02-27 11:48:29.768209+07', 'admin', '2016-02-27 11:48:29.768209+07', 'admin');
+INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag3, flag4, flag5, created_time, created_by, updated_time, updated_by) VALUES (607, 'SYSTEM', 'EXP_ODOO_DB', 'Exp Odoo DB', true, 'PABI2_v8', '', '', '', '', '2016-07-06 16:41:56.715876+07', 'admin', '2016-07-06 16:41:56.715876+07', 'admin');
 
 
 --
@@ -1551,7 +1557,7 @@ INSERT INTO pb2_main_master (id, type, code, name, is_active, flag1, flag2, flag
 -- Name: pb2_main_master_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
 --
 
-SELECT pg_catalog.setval('pb2_main_master_id_seq', 630, true);
+SELECT pg_catalog.setval('pb2_main_master_id_seq', 637, true);
 
 
 
