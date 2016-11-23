@@ -330,6 +330,10 @@ public class InterfaceService {
 	        String supText = null;
 	        String avId = null;
 	        String avClear = "False";
+	        String iSecId = null;
+	        String iPrjId = null;
+	        String iActId = "";
+	        
 	        if (payType.equals("0")) {
 	        	payTo = "employee";
 	        	avId = "";
@@ -350,9 +354,17 @@ public class InterfaceService {
 	        }
 	        else
 	        if (payType.equals("3")) {
-	        	payTo = "internal_charge";
+	        	payTo = "internal";
 	        	avId = "";
 	        	supText = "";
+	        	if (data.get("pay_dtl2").equals(MainBudgetSrcConstant.TYPE_UNIT)) {
+	        		iSecId = (String)data.get("pay_dtl1");
+	        		iPrjId = "";
+	        	} else {
+	        		iSecId = "";
+	        		iPrjId = (String)data.get("pay_dtl1");
+	        	}
+	        	iActId = (String)data.get("pay_dtl3");
 	        }
 	        
 	        map.put("receive_method", payType.equals("0") || payType.equals("2") ? receiveMethodForInf((String)data.get("bank_type")) : "");
@@ -361,6 +373,9 @@ public class InterfaceService {
 	        map.put("supplier_text", supText);
 	        map.put("is_advance_clearing", avClear);
 	        map.put("advance_expense_number", avId);
+	        map.put("internal_section_id.id", iSecId);
+	        map.put("internal_project_id.id", iPrjId);
+	        map.put("activity_id.id", iActId);
 	        
 	        for(String key : map.keySet()) {
 	        	log.info(" - "+key+":"+map.get(key));

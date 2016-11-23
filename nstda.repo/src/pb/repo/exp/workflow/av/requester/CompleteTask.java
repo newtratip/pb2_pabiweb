@@ -136,16 +136,23 @@ public class CompleteTask implements TaskListener {
 					else
 					if (action.equalsIgnoreCase(MainWorkflowConstant.TA_RESUBMIT)) {
 						model.setStatus(ExpBrwConstant.ST_WAITING);
-						model.setWaitingLevel(1);
 						
-						MainWorkflowReviewerModel paramModel = new MainWorkflowReviewerModel();
-						paramModel.setMasterId(id.toString());
-						paramModel.setLevel(model.getWaitingLevel());
-						MainWorkflowReviewerModel reviewerModel = mainWorkflowService.getReviewer(paramModel);
-						if (reviewerModel != null) {
-							executionEntity.setVariable(WF_PREFIX+"nextReviewers", MainUserGroupUtil.codes2logins(reviewerModel.getReviewerUser()));
-						} else {
-							executionEntity.setVariable(WF_PREFIX+"nextReviewers", "");
+						if (!model.getCreatedBy().equals(model.getReqBy())) {
+							model.setWaitingLevel(0);
+							executionEntity.setVariable(WF_PREFIX+"nextReviewers", model.getReqBy());
+						}
+						else {
+							model.setWaitingLevel(1);
+							
+							MainWorkflowReviewerModel paramModel = new MainWorkflowReviewerModel();
+							paramModel.setMasterId(id.toString());
+							paramModel.setLevel(model.getWaitingLevel());
+							MainWorkflowReviewerModel reviewerModel = mainWorkflowService.getReviewer(paramModel);
+							if (reviewerModel != null) {
+								executionEntity.setVariable(WF_PREFIX+"nextReviewers", MainUserGroupUtil.codes2logins(reviewerModel.getReviewerUser()));
+							} else {
+								executionEntity.setVariable(WF_PREFIX+"nextReviewers", "");
+							}
 						}
 					}
 					

@@ -18,6 +18,7 @@ import pb.repo.admin.dao.MainAccountActivityGroupDAO;
 import pb.repo.admin.dao.MainAccountFiscalYearDAO;
 import pb.repo.admin.dao.MainAccountTaxDAO;
 import pb.repo.admin.dao.MainBankMasterDAO;
+import pb.repo.admin.dao.MainBossDAO;
 import pb.repo.admin.dao.MainCompleteNotificationDAO;
 import pb.repo.admin.dao.MainCostCenterDAO;
 import pb.repo.admin.dao.MainCostControlDAO;
@@ -215,6 +216,7 @@ public class DbConnectionFactory {
         config.addMapper(MainPurchaseConditionDAO.class);
         config.addMapper(MainModuleDAO.class);
         config.addMapper(MainFundDAO.class);
+        config.addMapper(MainBossDAO.class);
 		if (!config.hasMapper(MainProjectDAO.class)) {
 			config.addMapper(MainProjectDAO.class);
 		}

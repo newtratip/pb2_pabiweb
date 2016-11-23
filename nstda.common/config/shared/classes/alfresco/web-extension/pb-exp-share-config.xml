@@ -164,6 +164,122 @@
 		</forms>
 	</config>
 	
+	<config evaluator="task-type" condition="expbrwwf:accepterAcceptTask">
+	<forms>
+		 <form>
+			<field-visibility>
+				<show id="expbrwwf:id"/>
+				<show id="expbrwwf:objectiveType"/>
+				<show id="expbrwwf:objective"/>
+				<show id="expbrwwf:budgetCc"/>
+				<show id="expbrwwf:total"/>
+				
+				<show id="expbrwwf:document"/>
+				<show id="expbrwwf:attachDocument"/>
+				
+				<show id="bpm:comment" />
+				<show id="expbrwwf:acceptOutcome" />
+				<show id="expbrwwf:folderRef"/>
+				
+				<show id="expbrwwf:lang"/>
+				
+				<show id="expbrwwf:accept"/>
+			</field-visibility>
+			
+			<appearance>
+				<set id="docInfo" appearance="panel" label-id="workflow.exp.set.docInfo"/>		
+				<set id="pnlDocument" appearance="panel" parent="docInfo" label-id="workflow.exp.set.document.av" />
+				<set id="pnlAttachment" appearance="panel" parent="docInfo" label-id="workflow.exp.set.attachment" />	
+				<set id="pnlComment" appearance="panel" parent = "docInfo"  label-id="workflow.exp.set.comment" />
+				<set id="response" appearance="title" label-id="workflow.exp.set.response" />
+				 
+				<field id="expbrwwf:id" set="docInfo">
+					<control template="/org/alfresco/components/form/controls/hidden.ftl">
+					</control>
+				</field>
+				
+				<field id="expbrwwf:lang" set="docInfo">
+					<control template="/pb/components/form/controls/lang.ftl">
+					</control>
+				</field>
+				 
+				<field id="expbrwwf:objectiveType" set="docInfo">
+					<control template="/pb/components/form/controls/info.ftl">
+					 	<control-param name="style">width:40%</control-param> 
+					 	<control-param name="dsUrl">pb/srcUrl/main/masterValue?t=BRW_TYPE&amp;c=</control-param> 
+					</control> 
+				</field>
+				
+				<field id="expbrwwf:objective"  set="docInfo">
+					<control template="/org/alfresco/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param> 
+				  </control>
+				</field>				
+				
+				<field id="expbrwwf:budgetCc"  set="docInfo">
+				  <control template="/pb/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="dsUrl">pb/admin/main/sectionProject/get?v=</control-param> 
+				  </control>
+				</field>
+								
+				<field id="expbrwwf:total"  set="docInfo">
+					<control template="/org/alfresco/components/form/controls/info.ftl">
+					 <control-param name="style">width: 99%</control-param> 
+				  </control>
+				</field>
+								
+				<field id="expbrwwf:document" set="pnlDocument">
+					<control template="/pb/components/form/controls/workflow/packageitems.ftl">
+						<control-param name="style">width:100%</control-param>
+						<control-param name="removeAction">false</control-param>  
+						<control-param name="showLabel">false</control-param>
+						<control-param name="moreAction">false</control-param>  
+					</control>
+				</field>
+				
+				<field id="expbrwwf:attachDocument" set="pnlAttachment">
+					<control template="/pb/components/form/controls/workflow/packageitems.ftl">
+						<control-param name="style">width:100%</control-param>
+						<control-param name="buttons">ue</control-param>
+						<control-param name="removeAction">false</control-param>  
+						<control-param name="showLabel">false</control-param>
+						<control-param name="moreAction">false</control-param>  
+					</control>
+				</field> 
+				
+				<field id="expbrwwf:id" set="pnlComment">
+					<control template="/pb/components/form/controls/commentgrid.ftl">
+						<control-param name="cols">time,user,task,action,comment</control-param>
+						<control-param name="showLabel">false</control-param>
+						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
+					</control>
+				</field>
+				
+				<field id="bpm:comment" set="pnlComment">
+					<control template="/org/alfresco/components/form/controls/textarea.ftl">
+					 <control-param name="style">width: 99%</control-param>
+					 <control-param name="rows">5</control-param>
+				  </control>
+				</field>
+				
+				<field id="expbrwwf:accept" set="pnlComment">
+                  <control template="/org/alfresco/components/form/controls/checkbox.ftl" />
+                </field>
+                
+				<field id="expbrwwf:acceptOutcome" label-id="workflow.field.outcome" set="response">
+                  <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
+                </field>
+                
+                <field id="expbrwwf:folderRef">
+					<control template="/org/alfresco/components/form/controls/hidden.ftl"/>
+				</field>				
+				
+			</appearance>
+		 </form>
+		</forms>
+	</config>
+	
 	<config evaluator="task-type" condition="expbrwwf:reviewerReviewTask">
 	<forms>
 		 <form>
@@ -463,7 +579,7 @@
 			
 			<appearance>
 			    <set id="docInfo" appearance="e-panel" label-id="workflow.exp.set.docInfo" />		
-				<set id="pnlDocument" appearance="panel" parent="docInfo" label-id="workflow.exp.set.document.ap" />
+				<set id="pnlDocument" appearance="panel" parent="docInfo" label-id="workflow.exp.set.document.ex" />
 				<set id="pnlAttachment" appearance="panel" parent="docInfo" label-id="workflow.exp.set.attachment" />	
 				<set id="pnlComment" appearance="panel" parent="docInfo"  label-id="workflow.exp.set.comment" />
 				<!-- set id="pnlConsult" appearance="panel" label-id="workflow.exp.set.consult" /-->
@@ -586,7 +702,7 @@
 			
 			<appearance>
 				<set id="docInfo" appearance="panel" label-id="workflow.exp.set.docInfo"/>		
-				<set id="pnlDocument" appearance="panel" parent="docInfo" label-id="workflow.exp.set.document.ap" />
+				<set id="pnlDocument" appearance="panel" parent="docInfo" label-id="workflow.exp.set.document.ex" />
 				<set id="pnlAttachment" appearance="panel" parent="docInfo" label-id="workflow.exp.set.attachment" />	
 				<set id="pnlComment" appearance="panel" parent = "docInfo"  label-id="workflow.exp.set.comment" />
 				<set id="pnlConsult" appearance="panel" label-id="workflow.exp.set.consult" />
@@ -705,7 +821,7 @@
 			
 			<appearance>
 				<set id="docInfo" appearance="panel" label-id="workflow.exp.set.docInfo"/>		
-				<set id="pnlDocument" appearance="panel" parent="docInfo" label-id="workflow.exp.set.document.ap" />
+				<set id="pnlDocument" appearance="panel" parent="docInfo" label-id="workflow.exp.set.document.ex" />
 				<set id="pnlAttachment" appearance="panel" parent="docInfo" label-id="workflow.exp.set.attachment" />	
 				<set id="pnlComment" appearance="panel" parent = "docInfo"  label-id="workflow.exp.set.comment" />
 				<set id="response" appearance="title" label-id="workflow.exp.set.response" />

@@ -8,6 +8,7 @@ public class MainWorkflowConstant {
     /*
      * Task Name
      */
+    public static final String TN_ACCEPTER = "Accepter";
     public static final String TN_REQUESTER = "Requester";
     public static final String TN_PREPARER = "Preparer";
     public static final String TN_SUPERVISOR = "Supervisor";
@@ -22,6 +23,7 @@ public class MainWorkflowConstant {
     
 	public static final Map<String, String> WF_TASK_NAMES = new HashMap<String, String>();
     static {
+    	WF_TASK_NAMES.put(TN_ACCEPTER, "Requester");
     	WF_TASK_NAMES.put(TN_REQUESTER, "Requester");
     	WF_TASK_NAMES.put(TN_PREPARER, "Preparer");
     	WF_TASK_NAMES.put(TN_SUPERVISOR, "Supervisor");
@@ -38,6 +40,7 @@ public class MainWorkflowConstant {
     
 	public static final Map<String, String> WF_TASK_NAMES_TH = new HashMap<String, String>();
     static {
+    	WF_TASK_NAMES_TH.put(TN_ACCEPTER, "ผู้ขอ");
     	WF_TASK_NAMES_TH.put(TN_REQUESTER, "ผู้ขอ");
     	WF_TASK_NAMES_TH.put(TN_PREPARER, "ผู้บันทึก");
     	WF_TASK_NAMES_TH.put(TN_SUPERVISOR, "ผู้ตรวจสอบ");
@@ -57,6 +60,7 @@ public class MainWorkflowConstant {
     public static final String TO_REVIEW = "reviewOutcome";
     public static final String TO_RESUBMIT = "reSubmitOutcome";
     public static final String TO_CONSULT = "consultOutcome";
+    public static final String TO_ACCEPT = "acceptOutcome";
     
     
     /*

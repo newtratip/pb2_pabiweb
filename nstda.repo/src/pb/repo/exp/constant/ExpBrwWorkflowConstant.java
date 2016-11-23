@@ -44,5 +44,8 @@ public class ExpBrwWorkflowConstant extends MainWorkflowConstant {
     public static final QName PROP_REASON = QName.createQName(MODEL_URI, "reason");
     public static final QName PROP_BUDGET_CC = QName.createQName(MODEL_URI, "budgetCc");
     public static final QName PROP_TOTAL = QName.createQName(MODEL_URI, "total");
+
+    public static final QName PROP_ACCEPTER = QName.createQName(MODEL_URI, "accepter");
+    public static final QName PROP_ACCEPT = QName.createQName(MODEL_URI, "accept");
     
 }

@@ -211,11 +211,15 @@ public class MainSrcUrlService {
     	
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 		
-    	if (lang!=null && lang.startsWith("th")) {
-	    	map.put("data",model.getName());
-    	} else {
-    		map.put("data",model.getFlag2());
-    	}
+		if (model==null) {
+			map.put("data", code);
+		} else {
+	    	if (lang!=null && lang.startsWith("th")) {
+	    		map.put("data",model.getName());
+	    	} else {
+	    		map.put("data",model.getFlag2());
+	    	}
+		}
         
         return map;
 	}

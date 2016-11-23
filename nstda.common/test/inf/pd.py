@@ -19,16 +19,16 @@ att2 = b64str('PR_2015011901.pdf')
 
 arg = {
 	'action':'1',
-	'pdNo':'PD17000020',
-	'sectionId':'59',
+	'pdNo':'PD17000022',
+	'sectionId':'475',
 	'prNo':'PR17000001,PR17000002',
-	'docType':'PD4',
+	'docType':'PD2',
 	'objective':u'Test Comment Interface ทดสอบ',
 	'total':'2675000.00',
-	'reqBy':'002648',
-	'appBy':'001509',
+	'reqBy':'003556',
+	'appBy':'002840',
 	'doc':{'name':'PD17000020.pdf','content':doc},
-	'attachments':[{'name':'A.pdf','url':'a959e4e5-f551-43ed-8275-8f75356df95c'},{'name':'B.pdf','content':att2}],
+	'attachments':[{'name':'A.pdf','content':att1},{'name':'B.pdf','content':att2}],
 	'comment':'Request Request',
 }
 result = alfresco.ord.action(arg);

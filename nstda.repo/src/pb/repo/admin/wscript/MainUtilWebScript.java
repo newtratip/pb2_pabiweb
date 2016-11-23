@@ -1,6 +1,8 @@
 package pb.repo.admin.wscript;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthenticationService;
@@ -9,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.extensions.webscripts.connector.User;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
@@ -21,6 +24,8 @@ import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminMsgService;
 import pb.repo.admin.service.AlfrescoService;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.AuthenticationType;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
@@ -190,4 +195,5 @@ public class MainUtilWebScript {
 		}
 		
 	}
+	
 }

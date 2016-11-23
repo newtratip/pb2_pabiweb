@@ -40,6 +40,7 @@ public class ExpUseModel extends SubModuleModel {
 	
 	String ichargeName;
 	String ichargeTypeName;
+	String ichargeActivity;
 	
 	Double total;
 	
@@ -237,6 +238,12 @@ public class ExpUseModel extends SubModuleModel {
 	}
 	public void setIchargeTypeName(String ichargeTypeName) {
 		this.ichargeTypeName = ichargeTypeName;
+	}
+	public String getIchargeActivity() {
+		return ichargeActivity;
+	}
+	public void setIchargeActivity(String ichargeActivity) {
+		this.ichargeActivity = ichargeActivity;
 	}
 	public List<ExpUseDtlModel> getDtlList() {
 		return dtlList;

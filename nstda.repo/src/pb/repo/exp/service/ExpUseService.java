@@ -80,7 +80,7 @@ import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
-import pb.repo.admin.dao.MainWkfCmdBossLevelApprovalDAO;
+import pb.repo.admin.dao.MainBossDAO;
 import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
@@ -758,6 +758,9 @@ public class ExpUseService implements SubModuleService {
 		
 		map.put("supName", model.getPayType().equals("1") ? model.getPayDtl1() : "");
 		map.put("avCode", model.getPayType().equals("2") ? model.getPayDtl1() : "");
+		
+		map.put("icharge", model.getPayType().equals("3") ? model.getIchargeTypeName() + " " + model.getIchargeName() : "");
+		map.put("activity", model.getPayType().equals("3") ? model.getIchargeActivity() : "");
 		
 		map.put("pay1", RptUtil.radio(model.getPayType().equals("0")));
 		map.put("pay2", RptUtil.radio(model.getPayType().equals("1")));
@@ -1883,6 +1886,7 @@ public class ExpUseService implements SubModuleService {
 		map.put("U", model.getCreatedBy());
 		map.put("G", "");
 		map.put("IRA", false);
+		map.put("C", "0");
 		
 		list.add(0, map);
 		
@@ -1894,6 +1898,7 @@ public class ExpUseService implements SubModuleService {
 		map.put("U", model.getReqBy());
 		map.put("G", "");
 		map.put("IRA", false);
+		map.put("C", "0");
 		
 		list.add(0, map);
 		
@@ -2012,9 +2017,7 @@ public class ExpUseService implements SubModuleService {
         	model.setBank(oModel.getBank());
         	
         	model.setPayType(oModel.getPayType());
-        	if (!oModel.getPayType().equals("3")) { // clear employee AV
-        		model.setPayDtl1(oModel.getPayDtl1());
-        	}
+       		model.setPayDtl1(oModel.getPayDtl1());
         	model.setPayDtl2(oModel.getPayDtl2());
         	model.setPayDtl3(oModel.getPayDtl3());
         	
@@ -2299,7 +2302,7 @@ public class ExpUseService implements SubModuleService {
 		
         SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
-        	MainWkfCmdBossLevelApprovalDAO dao = session.getMapper(MainWkfCmdBossLevelApprovalDAO.class);
+        	MainBossDAO dao = session.getMapper(MainBossDAO.class);
         	
         	Map<String, Object> params = new HashMap<String, Object>();
         	params.put("docType", docType);
@@ -2317,7 +2320,7 @@ public class ExpUseService implements SubModuleService {
         		}
         	}
         	
-        	List<Map<String, Object>> bossList = dao.listBoss(params);
+        	List<Map<String, Object>> bossList = dao.list(params);
         	log.info("  bossList"+bossList);
         	
         	if (model.getBudgetCcType().equals(ExpUseConstant.BCCT_UNIT)) {
@@ -2799,6 +2802,13 @@ public class ExpUseService implements SubModuleService {
 	@Override
 	public QName getPropDescEn() {
 		return ExpUseWorkflowConstant.PROP_DESCRIPTION;
+	}
+
+	@Override
+	public void setFirstTaskAssignee(Map<QName, Serializable> parameters,
+			SubModuleModel model) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

@@ -2,7 +2,8 @@ CREATE FOREIGN TABLE public.pb2_ext_account_activity
    (id integer NOT NULL,
     name character varying ,
     active boolean ,
-    search_keywords character varying )
+    search_keywords character varying ,
+    budget_method character varying )
    SERVER foreign_server
    OPTIONS (table_name 'account_activity');
 ALTER FOREIGN TABLE public.pb2_ext_account_activity
@@ -14,7 +15,8 @@ CREATE FOREIGN TABLE public.pb2_ext_account_activity_group
     parent_right integer ,
     parent_id integer ,
     name character varying ,
-    active boolean )
+    active boolean ,
+    budget_method character varying )
    SERVER foreign_server
    OPTIONS (table_name 'account_activity_group');
 ALTER FOREIGN TABLE public.pb2_ext_account_activity_group
@@ -452,7 +454,8 @@ ALTER FOREIGN TABLE public.pb2_ext_wkf_cmd_boss_level_approval
 CREATE FOREIGN TABLE public.pb2_ext_wkf_cmd_boss_special_level
    (id integer NOT NULL,
     employee_id integer ,
-    special_level integer )
+    special_level integer ,
+    section_id integer )
    SERVER foreign_server
    OPTIONS (table_name 'wkf_cmd_boss_special_level');
 ALTER FOREIGN TABLE public.pb2_ext_wkf_cmd_boss_special_level

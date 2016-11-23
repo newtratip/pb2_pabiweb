@@ -9,7 +9,7 @@ public class MainWorkflowUtil {
 	
 	private static Logger log = Logger.getLogger(MainWorkflowUtil.class);
 	
-	public static JSONObject createAssigneeGridModel(int id, String assignee, String user, String group, Boolean isRqAp)  throws Exception {
+	public static JSONObject createAssigneeGridModel(int id, String assignee, String user, String group, Boolean isRqAp, String color)  throws Exception {
 		JSONObject jsObj = new JSONObject();
 		
 		jsObj.put("id", id);
@@ -19,6 +19,8 @@ public class MainWorkflowUtil {
 		user = (MainUtil.trimComma(user)!=null ? MainUtil.trimComma(user) : "");
 		
 		jsObj.put("user", ((isRqAp!=null && isRqAp) ? "[Requester]"+(!user.equals("") ? "," : "") : "") + user);
+		
+		jsObj.put("color", color);
 		
 		return jsObj;
 	}

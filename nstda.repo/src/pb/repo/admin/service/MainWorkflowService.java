@@ -195,6 +195,10 @@ public class MainWorkflowService {
 	        	log.error("ERR:No Reviewer Level 1 of "+model.getId());
 	        }
 	        
+	        model.setWaitingLevel(1);
+	        moduleService.setFirstTaskAssignee(parameters, model);
+	        log.info("waitingLevel:"+model.getWaitingLevel());
+	        
 	        log.info("Doc Ref : " + model.getDocRef());
 	        List<NodeRef> docList = new ArrayList<NodeRef>();
 	        docList.add(new NodeRef(model.getDocRef()));
@@ -218,7 +222,6 @@ public class MainWorkflowService {
 	        WorkflowTask startTask = workflowService.getStartTask(instanceId);
 	        
 	        model.setWorkflowInsId(instanceId);
-	        model.setWaitingLevel(1);
 	    	moduleService.update(model);
 	        
 	        Long wfKey = Long.valueOf(this.getKey());
@@ -382,7 +385,7 @@ public class MainWorkflowService {
     	    }, AuthenticationUtil.getAdminUserName());    		
     }
     
-    private void setReviewer(Map<QName, Serializable> parameters, final SubModuleModel model, final NodeRef folderNodeRef, String docType) throws Exception {
+    public void setReviewer(Map<QName, Serializable> parameters, final SubModuleModel model, final NodeRef folderNodeRef, String docType) throws Exception {
     	
     	Map<String, String> bossMap = moduleService.getBossMap(docType, model);
 
@@ -852,7 +855,7 @@ public class MainWorkflowService {
 		int index = 0;
 		List<Map<String, Object>> list = moduleService.listWorkflowPath(id, lang);
 		for (Map<String, Object> map : list) {
-			jsArr.put(MainWorkflowUtil.createAssigneeGridModel(index++, (String)map.get("LEVEL"), (String)map.get("U") , (String)map.get("G"), (Boolean)map.get("IRA")));
+			jsArr.put(MainWorkflowUtil.createAssigneeGridModel(index++, (String)map.get("LEVEL"), (String)map.get("U") , (String)map.get("G"), (Boolean)map.get("IRA"), (String)map.get("C")));
 		}
 
 		return jsArr;

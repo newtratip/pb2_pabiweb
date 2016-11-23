@@ -3,7 +3,7 @@ package pb.repo.admin.constant;
 public class AdminConstant {
 	public static final StringBuffer CHANGE_LOG = new StringBuffer();
 	
-	public static final String VERSION = "1.0.88";
+	public static final String VERSION = "1.0.92";
 	
     static {
 //		CHANGE_LOG.append("  - Interface : Use user_id to call service\n");
@@ -12,7 +12,21 @@ public class AdminConstant {
 //		CHANGE_LOG.append("  - Workflow History : Action and task : Multiple Languages\n");
 //		CHANGE_LOG.append("  - PR Form : Additional PR : Get Old Committee as default\n");
 //		CHANGE_LOG.append("  - AV : Add Field reason\n");
-    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (11/11/2016)\n");
+    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (22/11/2016)\n");
+		CHANGE_LOG.append("  - PR : Move File Tab to the Last position\n");
+		CHANGE_LOG.append("  - PD : Workflow History : Blue font Reviewer\n");
+		CHANGE_LOG.append("  - EX : Internal Charge\n");
+    	CHANGE_LOG.append("\nV.1.0.91 --- (18/11/2016)\n");
+		CHANGE_LOG.append("  - UI : Check Session\n");
+    	CHANGE_LOG.append("\nV.1.0.90 --- (17/11/2016)\n");
+		CHANGE_LOG.append("  - Cost Center : Change Label\n");
+		CHANGE_LOG.append("  - PD : Resubmit : Recalculate Reviewer\n");
+		CHANGE_LOG.append("  - AV Item : Change warning message\n");
+		CHANGE_LOG.append("  - Workflow History : Reviewer is blue\n");
+    	CHANGE_LOG.append("\nV.1.0.89 --- (14/11/2016)\n");
+		CHANGE_LOG.append("  - AV Workflow Form : Add Real Requester in Approval Matrix\n");
+		CHANGE_LOG.append("  - Approval Matrix : Special Level\n");
+    	CHANGE_LOG.append("\nV.1.0.88 --- (11/11/2016)\n");
 		CHANGE_LOG.append("  - EX,AV : Change field names : av_reason->av_remark,reamrk->note\n");
     	CHANGE_LOG.append("\nV.1.0.87 --- (10/11/2016)\n");
 		CHANGE_LOG.append("  - EX Pdf : Label mixed up\n");

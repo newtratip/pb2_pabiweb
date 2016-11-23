@@ -27,6 +27,18 @@
 	    ORDER BY ${orderBy}
     </select>
     
+    <select id="listIcharge" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
+        SELECT * FROM
+	    pb2_activity_view
+	    WHERE budget_method='revenue'
+	    <if test="terms != null">
+			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
+	    		concat(name,' ',name_th,' ',search_keywords) ILIKE '%'||#{item}||'%'
+	   		</foreach>
+   		</if>  
+	    ORDER BY ${orderBy}
+    </select>
+    
     <select id="get" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
         select * from pb2_ext_account_activity
         where id=#{id}

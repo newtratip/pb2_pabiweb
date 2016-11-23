@@ -169,7 +169,7 @@ Ext.define('PBExp.controller.Form', {
 					msg += "<br/>";
 				}
 				
-				msg += i+".รายละเอียดเงินยืม";
+				msg += i+".รายละเอียดเบิกจ่าย";
 				i++;
 			}
 		}
@@ -348,74 +348,80 @@ Ext.define('PBExp.controller.Form', {
 	},
 	
 	saveDraft:function() {
+	
 		var me = this;
 		
-		var msg = me.validForm(true);
-		if (msg) {
-			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
-			return;
-		}
-	
-		var grid = me.getMainGrid();
-		
-		var myMask = new Ext.LoadMask({
-			target:me.getMain(), 
-			msg:"Please wait..."
-		});
-		
-		myMask.show();
-		
-		var params;
-		try {
-			params = me.prepareParams();
-  		} catch (err) {
-  			console.error(err);
-  			myMask.hide();
-  			return;
-  		}
-		
-		Ext.Ajax.request({
-		    url:me.URL+"/save",
-		    method: "POST",
-		    params: params,
-		    success: function(response){
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
 			
-			  	var json = Ext.decode(response.responseText);
-				  
-			   	if (json.success) {
-			   		var id = json.data.id;
-			   		me.getHidId().setValue(id);
-			   		me.getHidStatus().setValue(json.data.status);
-			   		me.getMainForm().setTitle(PB.Label.m.edit+' : <font color="red">'+id+"</font>");
-			   		
-			   		var fileStore = me.getUploadGrid().getStore(); 
-					fileStore.getProxy().api.read = ALF_CONTEXT + "/exp/file/list";
-					fileStore.getProxy().extraParams = {
-					    id:id
-					}
-					fileStore.load();
-			   		
-			   		me.refreshGrid();
-			   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_EXP, {msg:'ID:'+id, scope:me});
-			   	} else {
-			   		PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_EXP);
-			   	}
-			   	 
-		   	 	myMask.hide();
+			var msg = me.validForm(true);
+			if (msg) {
+				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_EXP, {msg:msg});
+				return;
+			}
 		
-		    },
-		    failure: function(response, opts){
-		    	try {
-		    		var json = Ext.decode(response.responseText);
-			    	PB.Dlg.error('ERR_'+me.MSG_KEY+" ("+json.message+")", MODULE_EXP);
-		    	}
-		    	catch (err) {
-			    	alert(response.responseText);
-		    	}
-			    myMask.hide();
-		    },
-		    headers: getAlfHeader()
+			var grid = me.getMainGrid();
+			
+			var myMask = new Ext.LoadMask({
+				target:me.getMain(), 
+				msg:"Please wait..."
+			});
+			
+			myMask.show();
+			
+			var params;
+			try {
+				params = me.prepareParams();
+	  		} catch (err) {
+	  			console.error(err);
+	  			myMask.hide();
+	  			return;
+	  		}
+			
+			Ext.Ajax.request({
+			    url:me.URL+"/save",
+			    method: "POST",
+			    params: params,
+			    success: function(response){
+				
+				  	var json = Ext.decode(response.responseText);
+					  
+				   	if (json.success) {
+				   		var id = json.data.id;
+				   		me.getHidId().setValue(id);
+				   		me.getHidStatus().setValue(json.data.status);
+				   		me.getMainForm().setTitle(PB.Label.m.edit+' : <font color="red">'+id+"</font>");
+				   		
+				   		var fileStore = me.getUploadGrid().getStore(); 
+						fileStore.getProxy().api.read = ALF_CONTEXT + "/exp/file/list";
+						fileStore.getProxy().extraParams = {
+						    id:id
+						}
+						fileStore.load();
+				   		
+				   		me.refreshGrid();
+				   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_EXP, {msg:'ID:'+id, scope:me});
+				   	} else {
+				   		PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_EXP);
+				   	}
+				   	 
+			   	 	myMask.hide();
+			
+			    },
+			    failure: function(response, opts){
+			    	try {
+			    		var json = Ext.decode(response.responseText);
+				    	PB.Dlg.error('ERR_'+me.MSG_KEY+" ("+json.message+")", MODULE_EXP);
+			    	}
+			    	catch (err) {
+				    	alert(response.responseText);
+			    	}
+				    myMask.hide();
+			    },
+			    headers: getAlfHeader()
+			});
+			
 		});
+		
 	},
 	
 	getHSaveFieldValue:function(saveField, req) {
@@ -610,59 +616,63 @@ Ext.define('PBExp.controller.Form', {
 		
 		var me = this;
 		
-		var msg = me.validForm(false);
-		if (msg) {
-			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_EXP, {msg:msg});
-			return;
-		}
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
 		
-		var grid = me.getMainGrid();
-		
-		var myMask = new Ext.LoadMask({
-			target:me.getMain(), 
-			msg:"Please wait..."
-		});
-		
-		myMask.show();
-		
-		var params;
-		
-		try {
-			params = me.prepareParams();
-  		} catch (err) {
-  			console.log(err);
-  			myMask.hide();
-  			return;
-  		}
+			var msg = me.validForm(false);
+			if (msg) {
+				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_EXP, {msg:msg});
+				return;
+			}
 			
-		Ext.Ajax.request({
-		    url:me.URL+"/preview",
-		    method: "POST",
-		    params: params,
-		    success: function(response){
-		  	  
-			  	var json = Ext.decode(response.responseText);
-				  
-			   	if (json.success) {
-					window.open(me.URL+"/preview?id="+json.data[0].id,"_blank");
-			   	} else {
-			   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_EXP);
-			   	}
-			   	 
-		   	 	myMask.hide();
+			var grid = me.getMainGrid();
+			
+			var myMask = new Ext.LoadMask({
+				target:me.getMain(), 
+				msg:"Please wait..."
+			});
+			
+			myMask.show();
+			
+			var params;
+			
+			try {
+				params = me.prepareParams();
+	  		} catch (err) {
+	  			console.log(err);
+	  			myMask.hide();
+	  			return;
+	  		}
+				
+			Ext.Ajax.request({
+			    url:me.URL+"/preview",
+			    method: "POST",
+			    params: params,
+			    success: function(response){
+			  	  
+				  	var json = Ext.decode(response.responseText);
+					  
+				   	if (json.success) {
+						window.open(me.URL+"/preview?id="+json.data[0].id,"_blank");
+				   	} else {
+				   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_EXP);
+				   	}
+				   	 
+			   	 	myMask.hide();
+			
+			    },
+			    failure: function(response, opts){
+			    	try {
+			    		var json = Ext.decode(response.responseText);
+				    	PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY+" ("+json.message+")", MODULE_EXP);
+			    	}
+			    	catch (err) {
+				    	alert(response.responseText);
+			    	}
+				    myMask.hide();
+			    },
+			    headers: getAlfHeader()
+			});
 		
-		    },
-		    failure: function(response, opts){
-		    	try {
-		    		var json = Ext.decode(response.responseText);
-			    	PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY+" ("+json.message+")", MODULE_EXP);
-		    	}
-		    	catch (err) {
-			    	alert(response.responseText);
-		    	}
-			    myMask.hide();
-		    },
-		    headers: getAlfHeader()
 		});
 	
 	},

@@ -231,6 +231,7 @@ public class CommonConstant {
      * EXT
      */
     public static final String EXT_ADMIN_USER = "admin";
-    public static final String EXT_ADMIN_PASSWORD = "admin";
+//    public static final String EXT_ADMIN_PASSWORD = "admin";
+    public static final String EXT_ADMIN_PASSWORD = "pabi2";
     
 }

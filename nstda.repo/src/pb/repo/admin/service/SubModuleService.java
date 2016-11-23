@@ -53,4 +53,6 @@ public interface SubModuleService {
 	public Map<String, String> getBossMap(String docType, SubModuleModel model) throws Exception;
 	
 	public Boolean addPermissionToAttached();
+	
+	public void setFirstTaskAssignee(Map<QName, Serializable> parameters, SubModuleModel model);
 }

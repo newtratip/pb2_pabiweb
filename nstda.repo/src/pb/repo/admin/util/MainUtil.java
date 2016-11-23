@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.alfresco.service.cmr.security.AuthenticationService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,6 +88,13 @@ public class MainUtil {
 		}
 		
 		return excString.toString();
+	}
+	
+	public static Boolean validSession(AuthenticationService authService) {
+		String user = authService.getCurrentUserName();
+		Boolean result = (user==null) ? false : user.equals("guest") ? false : true;
+		
+		return result;
 	}
 
 }

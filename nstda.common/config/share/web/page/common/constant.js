@@ -31,4 +31,6 @@ var MAIN_ID="mainClient"
 ,MODULE_PCM="pcm"
 ,MODULE_EXP="exp"
 ,READ_ONLY='background-color:#ddd;background-image:none'
+,INVALID_SES="Invalid Session! Please login again."
+,INVALID_SES_TH="Invalid Session! กรุณา login อีกครั้ง"
 ;

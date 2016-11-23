@@ -89,7 +89,8 @@ Ext.define('PB.view.common.SearchBudgetSrcDlg', {
 								}
 							}
 						},
-						afterBoxLabelTextTpl: ' <img src="../res/page/img/icon/question.png" class="info_image" data-qtip="ครุภัณฑ์ประจำปีที่ผ่านการพิจารณาอนุมัติจากคณะกรรมการพิจารณากลั่นกรองครุภัณฑ์วิทยาศาสตร์"></img>'
+						afterBoxLabelTextTpl: ' <img src="../res/page/img/icon/question.png" class="info_image" data-qtip="ครุภัณฑ์ประจำปีที่ผ่านการพิจารณาอนุมัติจากคณะกรรมการพิจารณากลั่นกรองครุภัณฑ์วิทยาศาสตร์"></img>',
+						hidden:me.onlySectProj
 					},{
 						xtype:'radio',
 						name:'type',
@@ -103,7 +104,8 @@ Ext.define('PB.view.common.SearchBudgetSrcDlg', {
 									me.fireEvent("selectRadio",rad, "C");
 								}
 							}
-						}
+						},
+						hidden:me.onlySectProj
 					}]
 		        },{
 		        	xtype:'container',

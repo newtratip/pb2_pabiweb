@@ -136,7 +136,7 @@ public class PcmOrdInvocationHandler
     			
     			String comment = (String)params.get("comment");
     			
-    			pcmOrdService.continueRequesterTask(wfModel.getExecutionId(), MainWorkflowConstant.TA_RESUBMIT, model, comment);
+    			pcmOrdService.continueRequesterTask(wfModel.getExecutionId(), MainWorkflowConstant.TA_RESUBMIT, model, comment, (String)params.get("docType"));
     			
 	    		Map<String, Object> docMap = new HashMap<String, Object>();
 	    		docMap.put("name", srcDocMap.get("name"));
@@ -164,7 +164,7 @@ public class PcmOrdInvocationHandler
     			
     			String comment = (String)params.get("comment");
 
-    			pcmOrdService.continueRequesterTask(wfModel.getExecutionId(), MainWorkflowConstant.TA_CANCEL, model, comment);
+    			pcmOrdService.continueRequesterTask(wfModel.getExecutionId(), MainWorkflowConstant.TA_CANCEL, model, comment,(String)params.get("docType"));
     			
     			result.put("success",true);
     			result.put("message","Success");

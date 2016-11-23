@@ -193,29 +193,34 @@ Ext.define('PBPcm.controller.Main', {
 	
 	search:function() {
 		var me = this;
-		var store = me.getMainGrid().getStore();
 		
-		var params = {
-			s : me.getTxtSearch().getValue(),
-			lang : getLang()
-		}
-		
-		var fields = {};
-		
-		var tbar = me.getMainGrid().getDockedComponent(1);
-		for(var i=0; i<10; i++) {
-			var c = tbar.down("[itemId=cri"+i+"]");
-			if (c) {
-				var d = c.bgData;
-				fields[d.field] = c.getValue();
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+
+			var store = me.getMainGrid().getStore();
+			
+			var params = {
+				s : me.getTxtSearch().getValue(),
+				lang : getLang()
 			}
-		}
+			
+			var fields = {};
+			
+			var tbar = me.getMainGrid().getDockedComponent(1);
+			for(var i=0; i<10; i++) {
+				var c = tbar.down("[itemId=cri"+i+"]");
+				if (c) {
+					var d = c.bgData;
+					fields[d.field] = c.getValue();
+				}
+			}
+			
+			params.fields = Ext.JSON.encode(fields);
+			
+			store.getProxy().extraParams = params;
+			store.currentPage = 1;
+			store.load();
 		
-		params.fields = Ext.JSON.encode(fields);
-		
-		store.getProxy().extraParams = params;
-		store.currentPage = 1;
-		store.load();
+		});
 	},
 	
 	activateForm:function() {
@@ -239,7 +244,7 @@ Ext.define('PBPcm.controller.Main', {
 		      url:me.MSG_URL+"/list",
 		      method: "GET",
 		      params: {
-		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ITEM,TAB_TITLE_FILE,TAB_TITLE_CMT",
+		    	  keys : "TAB_TITLE_USER,TAB_TITLE_INFO,TAB_TITLE_ITEM,TAB_TITLE_CMT,TAB_TITLE_FILE",
 		    	  lang:getLang()
 		      },
 		      success: function(response){
@@ -251,8 +256,8 @@ Ext.define('PBPcm.controller.Main', {
 		    	
 		    	form.add({ xtype:'pcmReqInfoTab', title:data[1].message, rec:rec });
     			form.add({ xtype:'pcmReqItemTab', title:data[2].message, rec:rec });
-    			form.add({ xtype:'pcmReqFileTab', title:data[3].message, rec:rec });
-    			form.add({ xtype:'pcmReqCmtTab', title:data[4].message, rec:rec });
+    			form.add({ xtype:'pcmReqCmtTab', title:data[3].message, rec:rec });
+    			form.add({ xtype:'pcmReqFileTab', title:data[4].message, rec:rec });
     			
     			Ext.defer(function() {
 				   validForm(me.getMainForm());
@@ -841,113 +846,119 @@ Ext.define('PBPcm.controller.Main', {
 	add:function() {
 		var me = this;
 		
-		if (me.getMainForm()) {
-			this.getMainForm().destroy();
-		}
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
 		
-		delete me.data; // Form Add Mode
-
-		Ext.Ajax.request({
-		      url:me.URL+"/userDtl",
-		      method: "GET",
-		      params:{
-				lang:getLang()
-			  },
-		      success: function(response){
-		    	  
-		    	var json = Ext.decode(response.responseText);
-		    	
-		    	var data = json.data[0];
-		    	data.created_time = new Date();
-		    	
-				me.createForm(PBPcm.Label.m.create, data);
-				
-				me.activateForm();
-				
-				me.getHidId().setValue(null);
-				me.getHidStatus().setValue(null);
-				
-		      },
-		      failure: function(response, opts){
-		          alert("failed");
-		      },
-		      headers: getAlfHeader()
-		});		
-
-	},
-	
-	edit: function(rec) {
-		var me = this;
-
-		if (!ID) {
 			if (me.getMainForm()) {
-				me.activateForm();
-				return;
+				me.getMainForm().destroy();
 			}
+			
+			delete me.data; // Form Add Mode
 	
-			me.getMainGrid().getView().getSelectionModel().select(rec);
-		}
-		
-		Ext.Ajax.request({
-		      url:me.URL+"/get",
-		      method: "GET",
-		      params: {
-		    	  id : rec.get("id"),
-		    	  lang:getLang()
-		      },
-		      success: function(response){
-		    	  
-		    	var json = Ext.decode(response.responseText);
-		    	
-		    	me.data = json.data[0]; // Form Edit Mode
-		    	me.data.items = json.items;
-		    	
-		    	Ext.Ajax.request({
+			Ext.Ajax.request({
 			      url:me.URL+"/userDtl",
 			      method: "GET",
 			      params:{
-		    		 r:me.data.req_by,
-		    	     c:me.data.created_by,
-		    	     lang:getLang()
-		    	  },
+					lang:getLang()
+				  },
 			      success: function(response){
 			    	  
 			    	var json = Ext.decode(response.responseText);
 			    	
 			    	var data = json.data[0];
+			    	data.created_time = new Date();
 			    	
-			    	Ext.merge(me.data, data);
-			    	
-					me.createForm(PBPcm.Label.m.edit+' : <font color="red">'+rec.get("id")+"</font>", me.data);
-					if (ID) {
-						var form = me.getMainForm(); 
-						form.down("button[action=send]").hide();
-						form.down("button[action=saveDraft]").hide();
-						form.down("button[action=cancel]").hide();
-						form.down("button[action=finish]").show();
-						form.down("button[action=cancelEdit]").show();
-					}
-					else {
-						me.activateForm();
-					}
+					me.createForm(PBPcm.Label.m.create, data);
 					
-					me.getHidId().setValue(rec.get("id"));
-					me.getHidStatus().setValue(rec.get("status"));
+					me.activateForm();
+					
+					me.getHidId().setValue(null);
+					me.getHidStatus().setValue(null);
 					
 			      },
 			      failure: function(response, opts){
 			          alert("failed");
 			      },
 			      headers: getAlfHeader()
-		    	});	
-				
-		      },
-		      failure: function(response, opts){
-		          alert("failed");
-		      },
-		      headers: getAlfHeader()
+			});		
+
 		});
+	},
+	
+	edit: function(rec) {
+		var me = this;
 		
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+
+			if (!ID) {
+				if (me.getMainForm()) {
+					me.activateForm();
+					return;
+				}
+		
+				me.getMainGrid().getView().getSelectionModel().select(rec);
+			}
+			
+			Ext.Ajax.request({
+			      url:me.URL+"/get",
+			      method: "GET",
+			      params: {
+			    	  id : rec.get("id"),
+			    	  lang:getLang()
+			      },
+			      success: function(response){
+			    	  
+			    	var json = Ext.decode(response.responseText);
+			    	
+			    	me.data = json.data[0]; // Form Edit Mode
+			    	me.data.items = json.items;
+			    	
+			    	Ext.Ajax.request({
+				      url:me.URL+"/userDtl",
+				      method: "GET",
+				      params:{
+			    		 r:me.data.req_by,
+			    	     c:me.data.created_by,
+			    	     lang:getLang()
+			    	  },
+				      success: function(response){
+				    	  
+				    	var json = Ext.decode(response.responseText);
+				    	
+				    	var data = json.data[0];
+				    	
+				    	Ext.merge(me.data, data);
+				    	
+						me.createForm(PBPcm.Label.m.edit+' : <font color="red">'+rec.get("id")+"</font>", me.data);
+						if (ID) {
+							var form = me.getMainForm(); 
+							form.down("button[action=send]").hide();
+							form.down("button[action=saveDraft]").hide();
+							form.down("button[action=cancel]").hide();
+							form.down("button[action=finish]").show();
+							form.down("button[action=cancelEdit]").show();
+						}
+						else {
+							me.activateForm();
+						}
+						
+						me.getHidId().setValue(rec.get("id"));
+						me.getHidStatus().setValue(rec.get("status"));
+						
+				      },
+				      failure: function(response, opts){
+				          alert("failed");
+				      },
+				      headers: getAlfHeader()
+			    	});	
+					
+			      },
+			      failure: function(response, opts){
+			          alert("failed");
+			      },
+			      headers: getAlfHeader()
+			});
+		
+		});
 	},
 	
 	isEditMode : function() {
@@ -1177,10 +1188,16 @@ Ext.define('PBPcm.controller.Main', {
 	},
 	
 	gotoFolder : function(r) {
-		var dlg = Ext.create("PB.view.common.FolderDtlDlg",{
-			rec : r
+		var me = this;
+		
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+
+			var dlg = Ext.create("PB.view.common.FolderDtlDlg",{
+				rec : r
+			});
+			dlg.show();
+		
 		});
-		dlg.show();
 	},
 
 	_gotoFolder : function(r){
@@ -1215,66 +1232,83 @@ Ext.define('PBPcm.controller.Main', {
 	},
 	
 	viewDetail : function(r){
-//	    window.open(MAIN_CONTEXT+"/page/document-details?nodeRef="+r.get("doc_ref"),"_new");
-	    window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/"+nodeRef2Url(r.get("doc_ref"))+"/"+r.get("file_name"),"_new");
+		var me = this;
+		
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+
+	//	    window.open(MAIN_CONTEXT+"/page/document-details?nodeRef="+r.get("doc_ref"),"_new");
+		    window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/"+nodeRef2Url(r.get("doc_ref"))+"/"+r.get("file_name"),"_new");
+	    
+		});
 	},
 	
 	viewHistory : function(r){
-		var dlg = Ext.create("PBPcm.view.workflow.DtlDlg");
-		var id = r.get("id");
-
-		// Current Task
-		Ext.Ajax.request({
-		      url:ALF_CONTEXT+'/pcm/wf/task/list',
-		      method: "GET",
-		      params: {
-		    	  id : id,
-		    	  lang:getLang()
-		      },
-		      success: function(response) {
-				  var data = Ext.decode(response.responseText).data[0];
-				  var curTask;
-				  if (data) {
-					  curTask = data.type+(data.assignedTo ? " : " : "")+data.assignedTo;
-				  } else {
-					  curTask = "-";
-				  }
-				  dlg.items.items[0].items.items[0].items.items[0].setText('<font color="blue">'+curTask+'</font>',false);
-				  
-			  },
-		      failure: function(response, opts){
-		          alert("failed");
-		      },
-		      headers: getAlfHeader()
+		var me = this;
+		
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+	
+			var dlg = Ext.create("PBPcm.view.workflow.DtlDlg");
+			var id = r.get("id");
+	
+			// Current Task
+			Ext.Ajax.request({
+			      url:ALF_CONTEXT+'/pcm/wf/task/list',
+			      method: "GET",
+			      params: {
+			    	  id : id,
+			    	  lang:getLang()
+			      },
+			      success: function(response) {
+					  var data = Ext.decode(response.responseText).data[0];
+					  var curTask;
+					  if (data) {
+						  curTask = data.type+(data.assignedTo ? " : " : "")+data.assignedTo;
+					  } else {
+						  curTask = "-";
+					  }
+					  dlg.items.items[0].items.items[0].items.items[0].setText('<font color="blue">'+curTask+'</font>',false);
+					  
+				  },
+			      failure: function(response, opts){
+			          alert("failed");
+			      },
+			      headers: getAlfHeader()
+			});
+			
+			
+			// Path
+			var store = dlg.items.items[0].items.items[1].getStore(); 
+			store.getProxy().extraParams = {
+				id : id,
+				lang : getLang()
+			}
+			store.load();
+			
+			// History
+			store = dlg.items.items[1].getStore();
+			store.getProxy().extraParams = {
+			   	id : id,
+			   	lang : getLang()
+			};
+			store.load();
+			
+			// Show
+			dlg.show();
+		
 		});
-		
-		
-		// Path
-		var store = dlg.items.items[0].items.items[1].getStore(); 
-		store.getProxy().extraParams = {
-			id : id,
-			lang : getLang()
-		}
-		store.load();
-		
-		// History
-		store = dlg.items.items[1].getStore();
-		store.getProxy().extraParams = {
-		   	id : id,
-		   	lang : getLang()
-		};
-		store.load();
-		
-		// Show
-		dlg.show();
 	},
 
 	del : function(r) {
+		var me = this;
 		
-		this.getMainGrid().getView().getSelectionModel().select(r);
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
 		
-		this.selectedRec = r;
-		PB.Dlg.confirm('CONFIRM_'+this.MSG_KEY,this,'doDel', MODULE_PCM);
+			me.getMainGrid().getView().getSelectionModel().select(r);
+			
+			me.selectedRec = r;
+			PB.Dlg.confirm('CONFIRM_'+me.MSG_KEY, me,'doDel', MODULE_PCM);
+		
+		});
 	},
 	
 	doDel : function(){
@@ -1311,11 +1345,16 @@ Ext.define('PBPcm.controller.Main', {
 	},
 
 	copy : function(r) {
+		var me = this;
 		
-		this.getMainGrid().getView().getSelectionModel().select(r);
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+
+			me.getMainGrid().getView().getSelectionModel().select(r);
+			
+			me.selectedRec = r;
+			PB.Dlg.confirm('CONFIRM_'+me.COPY_MSG_KEY,me,'doCopy', MODULE_PCM);
 		
-		this.selectedRec = r;
-		PB.Dlg.confirm('CONFIRM_'+this.COPY_MSG_KEY,this,'doCopy', MODULE_PCM);
+		});
 	},
 	
 	doCopy : function(){

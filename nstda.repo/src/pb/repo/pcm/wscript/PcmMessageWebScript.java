@@ -6,15 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import org.alfresco.service.cmr.security.AuthenticationService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.util.CommonUtil;
+import pb.repo.admin.util.MainUtil;
 import pb.repo.pcm.util.PcmReqUtil;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
@@ -30,6 +33,9 @@ public class PcmMessageWebScript {
 	
 	private static final String URI_PREFIX = CommonConstant.GLOBAL_URI_PREFIX + "/pcm/message";
 	
+	@Autowired
+	AuthenticationService authService;
+
   /**
    * Handles the "get" request. Note the use of Spring MVC-style annotations to map the Web Script URI configuration
    * and request handling objects.
@@ -42,17 +48,23 @@ public class PcmMessageWebScript {
   public void handleGet(@RequestParam final String key,
 		  				@RequestParam(required=false) String lang, 
 		  				final WebScriptResponse response) throws IOException, JSONException {
+	  
+	  String json = null;
+	  
 	  log.info(key+":"+lang);
+	  if (MainUtil.validSession(authService)) {
 	  
-	  lang = CommonUtil.getValidLang(lang);
-	  
-	  String msg = PcmReqUtil.getMessage(key, new Locale(lang));
-	  
-	  if (StringUtils.isEmpty(msg)) {
-		  msg = CommonUtil.getInvalidKeyMsg(key);
+		  lang = CommonUtil.getValidLang(lang);
+		  
+		  String msg = PcmReqUtil.getMessage(key, new Locale(lang));
+		  
+		  if (StringUtils.isEmpty(msg)) {
+			  msg = CommonUtil.getInvalidKeyMsg(key);
+		  }
+		  json = CommonUtil.jsonMessage(msg);
+	  } else {
+		  json = CommonUtil.jsonFail("");
 	  }
-	  
-	  String json = CommonUtil.jsonMessage(msg);
 	  
 	  CommonUtil.responseWrite(response, json);
   }

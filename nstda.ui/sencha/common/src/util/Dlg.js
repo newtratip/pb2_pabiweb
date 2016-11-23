@@ -1,7 +1,8 @@
 Ext.define('PB.Dlg', {
 	statics: {
 		confirm:function(key,f,fn,module,n_fn){
-			
+			var me = this;
+		
 			Ext.Ajax.request({
 		        url:ALF_CONTEXT+"/"+module+"/message/get",
 		        method: "GET",
@@ -11,30 +12,41 @@ Ext.define('PB.Dlg', {
 		        },
 		        success: function(response){
 		        	
-		        	Ext.MessageBox.buttonText = {ok: 'OK', yes: 'Yes', no: 'No', cancel: 'Cancel'};
-		        	
 		        	var json = Ext.decode(response.responseText);
-		        	Ext.MessageBox.confirm(json.data[0].code, json.data[0].message , function(btn){
 		        	
-		        		if(btn=="yes"){
-		        			f[fn](null);
-		        		}else{
-		        			
-		        			if(n_fn!=null && n_fn!=undefined){
-		        				f[n_fn](null);
-		        			}
-		        			
-		        		}
-		        	});
+		        	if (json.success) {
+		        	
+			        	Ext.MessageBox.buttonText = {ok: 'OK', yes: 'Yes', no: 'No', cancel: 'Cancel'};
+			        	
+			        	Ext.MessageBox.confirm(json.data[0].code, json.data[0].message , function(btn){
+			        	
+			        		if(btn=="yes"){
+			        			f[fn](null);
+			        		}else{
+			        			
+			        			if(n_fn!=null && n_fn!=undefined){
+			        				f[n_fn](null);
+			        			}
+			        			
+			        		}
+			        	});
+		        	
+		        	} else {
+		        		alertInvalidSession();
+		        	}
 		        	
 		        },
 		        failure: function(response, opts){
-		            //console.log("failed");
+		        	alertInvalidSession();
 		        },
-		        headers: getAlfHeader()
-		    });        	
-		
+		        headers: getAlfHeader(),
+		        async:false
+		    });
 			
+		},
+		
+		doConfirm:function(key,f,fn,module,n_fn) {
+
 		},
 		
 		/*
@@ -45,6 +57,9 @@ Ext.define('PB.Dlg', {
 		 *  - fn : callback function
 		 */
 		show:function(key,module,opts) {
+			 
+			var me = this;
+		
 	
 			if (!opts.icon) {
 				icon = Ext.MessageBox.INFO;
@@ -61,43 +76,48 @@ Ext.define('PB.Dlg', {
 		        	
 		        	var json = Ext.decode(response.responseText);
 		        	
-		        	var msg = json.data[0].message.trim();
-		        	if (opts.msg) {
-		        		if (msg && msg!="") {
-		        			msg += "<br/><br/>" ;
+		        	if (json.success) {
+			        	var msg = json.data[0].message.trim();
+			        	if (opts.msg) {
+			        		if (msg && msg!="") {
+			        			msg += "<br/><br/>" ;
+			        		}
+			        		
+			        		msg += opts.msg;
+			        		
+			        	}
+			        	
+		        		if (opts.val) {
+		        			msg = Ext.String.format(msg, opts.val[0],opts.val[1],opts.val[2]);
 		        		}
-		        		
-		        		msg += opts.msg;
-		        		
-		        	}
-		        	
-	        		if (opts.val) {
-	        			msg = Ext.String.format(msg, opts.val[0],opts.val[1],opts.val[2]);
-	        		}
-		        	
-		        	if (opts.buttonText) {
-		        		Ext.MessageBox.buttonText = opts.buttonText;
+			        	
+			        	if (opts.buttonText) {
+			        		Ext.MessageBox.buttonText = opts.buttonText;
+			        	} else {
+			        		Ext.MessageBox.buttonText = {ok: 'OK', yes: 'Yes', no: 'No', cancel: 'Cancel'};
+			        	}
+			        	
+			        	Ext.MessageBox.show({
+			        		title:json.data[0].code, 
+			        		msg:msg,
+			        		icon: opts.icon,
+			        		buttons:(opts.buttons ? opts.buttons : Ext.MessageBox.OK),
+			        		modal:opts.modal,
+			        		fn:opts.fn,
+			        		scope:opts.scope,
+			        		animateTarget:opts.animateTarget 
+			        	});
 		        	} else {
-		        		Ext.MessageBox.buttonText = {ok: 'OK', yes: 'Yes', no: 'No', cancel: 'Cancel'};
+		        		alertInvalidSession();
 		        	}
-		        	
-		        	Ext.MessageBox.show({
-		        		title:json.data[0].code, 
-		        		msg:msg,
-		        		icon: opts.icon,
-		        		buttons:(opts.buttons ? opts.buttons : Ext.MessageBox.OK),
-		        		modal:opts.modal,
-		        		fn:opts.fn,
-		        		scope:opts.scope,
-		        		animateTarget:opts.animateTarget 
-		        	});
 		        },
 		        failure: function(response, opts){
-		            //console.log("failed");
-		        },
+		        	alertInvalidSession();
+				},
 		        headers: getAlfHeader(),
 		        async:false
-		    });  
+		    });
+
 		},
 		
 		info:function(key,module, opts) {
@@ -207,6 +227,6 @@ Ext.define('PB.Dlg', {
 		    });   
 			
 		}
-
+		
 	}
 });

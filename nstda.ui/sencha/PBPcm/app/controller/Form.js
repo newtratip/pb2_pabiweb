@@ -432,19 +432,24 @@ Ext.define('PBPcm.controller.Form', {
 	
 	send:function() {
 		var me = this;
-//		var form = me.getMainForm();
 		
-		var msg = me.validForm(false);
-		if (!msg) {
-			if (me.validFormRefId()) {
-				if (me.validForm2('doSend')) {
-					PB.Dlg.confirm('CONFIRM_'+this.SEND_MSG_KEY,this,'doSend', MODULE_PCM);
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+
+	//		var form = me.getMainForm();
+			
+			var msg = me.validForm(false);
+			if (!msg) {
+				if (me.validFormRefId()) {
+					if (me.validForm2('doSend')) {
+						PB.Dlg.confirm('CONFIRM_'+me.SEND_MSG_KEY, me,'doSend', MODULE_PCM);
+					}
 				}
+			} else {
+				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_PCM, {msg:msg});
+				return;
 			}
-		} else {
-			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
-			return;
-		}
+		
+		});
 	},
 	
 	doSend: function(){
@@ -615,72 +620,77 @@ Ext.define('PBPcm.controller.Form', {
 	saveDraft:function() {
 		var me = this;
 		
-		var msg = me.validForm(true);
-		if (msg) {
-			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
-			return;
-		}
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
 		
-		var grid = me.getMainGrid();
-		
-		var myMask = new Ext.LoadMask({
-			target:me.getMain(), 
-			msg:"Please wait..."
-		});
-		
-		myMask.show();
-		
-		var params;
-		try {
-			params = me.prepareParams();
-  		} catch (err) {
-  			console.error(err);
-  			myMask.hide();
-  			return;
-  		}
-		
-		Ext.Ajax.request({
-		    url:me.URL+"/save",
-		    method: "POST",
-		    params: params,
-		    success: function(response){
+			var msg = me.validForm(true);
+			if (msg) {
+				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_PCM, {msg:msg});
+				return;
+			}
 			
-			  	var json = Ext.decode(response.responseText);
-				  
-			   	if (json.success) {
-			   		var id = json.data.id;
-			   		me.getHidId().setValue(id);
-			   		me.getHidStatus().setValue(json.data.status);
-			   		me.getMainForm().setTitle(PBPcm.Label.m.edit+' : <font color="red">'+id+"</font>");
-			   		
-			   		var fileStore = me.getUploadGrid().getStore(); 
-					fileStore.getProxy().api.read = ALF_CONTEXT + "/pcm/file/list";
-					fileStore.getProxy().extraParams = {
-					    id:id
-					}
-					fileStore.load();
-			   		
-			   		me.refreshGrid();
-			   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_PCM, {msg:'ID:'+id, scope:me});
-			   	} else {
-			   		PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
-			   	}
-			   	 
-		   	 	myMask.hide();
+			var grid = me.getMainGrid();
+			
+			var myMask = new Ext.LoadMask({
+				target:me.getMain(), 
+				msg:"Please wait..."
+			});
+			
+			myMask.show();
+			
+			var params;
+			try {
+				params = me.prepareParams();
+	  		} catch (err) {
+	  			console.error(err);
+	  			myMask.hide();
+	  			return;
+	  		}
+			
+			Ext.Ajax.request({
+			    url:me.URL+"/save",
+			    method: "POST",
+			    params: params,
+			    success: function(response){
+				
+				  	var json = Ext.decode(response.responseText);
+					  
+				   	if (json.success) {
+				   		var id = json.data.id;
+				   		me.getHidId().setValue(id);
+				   		me.getHidStatus().setValue(json.data.status);
+				   		me.getMainForm().setTitle(PBPcm.Label.m.edit+' : <font color="red">'+id+"</font>");
+				   		
+				   		var fileStore = me.getUploadGrid().getStore(); 
+						fileStore.getProxy().api.read = ALF_CONTEXT + "/pcm/file/list";
+						fileStore.getProxy().extraParams = {
+						    id:id
+						}
+						fileStore.load();
+				   		
+				   		me.refreshGrid();
+				   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_PCM, {msg:'ID:'+id, scope:me});
+				   	} else {
+				   		PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
+				   	}
+				   	 
+			   	 	myMask.hide();
+			
+			    },
+			    failure: function(response, opts){
+			    	try {
+			    		var json = Ext.decode(response.responseText);
+				    	PB.Dlg.error('ERR_'+me.MSG_KEY+" ("+json.message+")", MODULE_PCM);
+			    	}
+			    	catch (err) {
+				    	alert(response.responseText);
+			    	}
+				    myMask.hide();
+			    },
+			    headers: getAlfHeader()
+			});
 		
-		    },
-		    failure: function(response, opts){
-		    	try {
-		    		var json = Ext.decode(response.responseText);
-			    	PB.Dlg.error('ERR_'+me.MSG_KEY+" ("+json.message+")", MODULE_PCM);
-		    	}
-		    	catch (err) {
-			    	alert(response.responseText);
-		    	}
-			    myMask.hide();
-		    },
-		    headers: getAlfHeader()
 		});
+		
 	},
 	
 	getHSaveFieldValue:function(saveField, req) {
@@ -982,61 +992,64 @@ Ext.define('PBPcm.controller.Form', {
 		
 		var me = this;
 		
-		var msg = me.validForm(false);
-		if (msg) {
-			PB.Dlg.warn('INVALID_INPUT_'+this.MSG_KEY, MODULE_PCM, {msg:msg});
-			return;
-		}
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
 		
-		var grid = me.getMainGrid();
-		
-		var myMask = new Ext.LoadMask({
-			target:me.getMain(), 
-			msg:"Please wait..."
-		});
-		
-		myMask.show();
-		
-		var params;
-		
-		try {
-			params = me.prepareParams();
-  		} catch (err) {
-  			console.log(err);
-  			myMask.hide();
-  			return;
-  		}
+			var msg = me.validForm(false);
+			if (msg) {
+				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_PCM, {msg:msg});
+				return;
+			}
 			
-		Ext.Ajax.request({
-		    url:me.URL+"/preview",
-		    method: "POST",
-		    params: params,
-		    success: function(response){
-		  	  
-			  	var json = Ext.decode(response.responseText);
-				  
-			   	if (json.success) {
-					window.open(me.URL+"/preview?id="+json.data[0].id,"_blank");
-			   	} else {
-			   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_PCM);
-			   	}
-			   	 
-		   	 	myMask.hide();
-		
-		    },
-		    failure: function(response, opts){
-		    	try {
-		    		var json = Ext.decode(response.responseText);
-			    	PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY+" ("+json.message+")", MODULE_PCM);
-		    	}
-		    	catch (err) {
-			    	alert(response.responseText);
-		    	}
-			    myMask.hide();
-		    },
-		    headers: getAlfHeader()
-		});
+			var grid = me.getMainGrid();
+			
+			var myMask = new Ext.LoadMask({
+				target:me.getMain(), 
+				msg:"Please wait..."
+			});
+			
+			myMask.show();
+			
+			var params;
+			
+			try {
+				params = me.prepareParams();
+	  		} catch (err) {
+	  			console.log(err);
+	  			myMask.hide();
+	  			return;
+	  		}
+				
+			Ext.Ajax.request({
+			    url:me.URL+"/preview",
+			    method: "POST",
+			    params: params,
+			    success: function(response){
+			  	  
+				  	var json = Ext.decode(response.responseText);
+					  
+				   	if (json.success) {
+						window.open(me.URL+"/preview?id="+json.data[0].id,"_blank");
+				   	} else {
+				   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_PCM);
+				   	}
+				   	 
+			   	 	myMask.hide();
+			
+			    },
+			    failure: function(response, opts){
+			    	try {
+			    		var json = Ext.decode(response.responseText);
+				    	PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY+" ("+json.message+")", MODULE_PCM);
+			    	}
+			    	catch (err) {
+				    	alert(response.responseText);
+			    	}
+				    myMask.hide();
+			    },
+			    headers: getAlfHeader()
+			});
 	
+		});
 	},
 	
 	notStock:function() {
@@ -1219,19 +1232,23 @@ Ext.define('PBPcm.controller.Form', {
 	searchPR:function(sender) {
 		var me = this;
 		
-		if (me.getCmbObjectiveType().getValue()) {
-			var store = sender.up("window").down("grid").getStore();
-			
-			store.getProxy().extraParams = {
-				s:sender.up("container").down("field[itemId=searchTerm]").getValue(),
-				fields:"{objective_type:'"+me.getCmbObjectiveType().getValue()+"'}",
-				lang:getLang()
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+		
+			if (me.getCmbObjectiveType().getValue()) {
+				var store = sender.up("window").down("grid").getStore();
+				
+				store.getProxy().extraParams = {
+					s:sender.up("container").down("field[itemId=searchTerm]").getValue(),
+					fields:"{objective_type:'"+me.getCmbObjectiveType().getValue()+"'}",
+					lang:getLang()
+				}
+				
+				store.load();
+			} else {
+				PB.Dlg.warn('ERR_NOT_CHOOSE_OBJECTIVE_TYPE', MODULE_PCM);
 			}
-			
-			store.load();
-		} else {
-			PB.Dlg.warn('ERR_NOT_CHOOSE_OBJECTIVE_TYPE', MODULE_PCM);
-		}
+		
+		});
 	},
 	
 	confirmPR:function(sender) {
@@ -1254,7 +1271,13 @@ Ext.define('PBPcm.controller.Form', {
 	},
 	
 	viewPRDetail:function(r) {
-		window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/"+nodeRef2Url(r.get("doc_ref")),"_new");
+		var me = this;
+		
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+
+			window.open(Alfresco.constants.PROXY_URI_RELATIVE+"api/node/content/"+nodeRef2Url(r.get("doc_ref")),"_new");
+		
+		});
 	},
 	
 	selectReason:function(cmb, newV, oldV) {
@@ -1269,29 +1292,33 @@ Ext.define('PBPcm.controller.Form', {
 	showBudget:function() {
 		var me = this;
 		
-		Ext.Ajax.request({
-		    url:ALF_CONTEXT+"/admin/main/totalPreBudget",
-		    method: "GET",
-		    params: {budgetCc:me.getHidBudgetCc().getValue(), budgetCcType:me.getHidBudgetCcType().getValue()},
-		    async:false,
-		    success: function(response){
-			
-				var json = Ext.decode(response.responseText);
+		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+		
+			Ext.Ajax.request({
+			    url:ALF_CONTEXT+"/admin/main/totalPreBudget",
+			    method: "GET",
+			    params: {budgetCc:me.getHidBudgetCc().getValue(), budgetCcType:me.getHidBudgetCcType().getValue()},
+			    async:false,
+			    success: function(response){
 				
-				var tab = me.getInfoTab();
-				var rec = {
-						name : tab.down("field[name=budgetCcTypeName]").getValue()+" "+tab.down("field[name=budgetCcName]").getValue(),
-						balance : json.data.balance,
-						preAppBudget : json.data.pre,
-						expBalance : json.data.ebalance
-				}
-			
-				Ext.create("PB.view.common.CheckBudgetDlg",{
-					title:'งบประมาณ',
-					rec:rec
-				}).show();
-		    }
-		});		
+					var json = Ext.decode(response.responseText);
+					
+					var tab = me.getInfoTab();
+					var rec = {
+							name : tab.down("field[name=budgetCcTypeName]").getValue()+" "+tab.down("field[name=budgetCcName]").getValue(),
+							balance : json.data.balance,
+							preAppBudget : json.data.pre,
+							expBalance : json.data.ebalance
+					}
+				
+					Ext.create("PB.view.common.CheckBudgetDlg",{
+						title:'งบประมาณ',
+						rec:rec
+					}).show();
+			    }
+			});
+		
+		});
 	},
 	
 	changeRate:function() {

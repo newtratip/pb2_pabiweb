@@ -6,15 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import org.alfresco.service.cmr.security.AuthenticationService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.util.CommonUtil;
+import pb.repo.admin.util.MainUtil;
 import pb.repo.exp.util.ExpBrwUtil;
 import pb.repo.exp.util.ExpUseUtil;
 
@@ -31,6 +34,10 @@ public class ExpMessageWebScript {
 	
 	private static final String URI_PREFIX = CommonConstant.GLOBAL_URI_PREFIX + "/exp/message";
 	
+	@Autowired
+	AuthenticationService authService;
+
+	
   /**
    * Handles the "get" request. Note the use of Spring MVC-style annotations to map the Web Script URI configuration
    * and request handling objects.
@@ -44,17 +51,22 @@ public class ExpMessageWebScript {
 		  				@RequestParam(required=false) String lang
 		  				, final WebScriptResponse response) throws IOException, JSONException {
 
+	  String json = null;
+	  
 	  log.info(key+":"+lang);
+	  if (MainUtil.validSession(authService)) {
 	  
-	  lang = CommonUtil.getValidLang(lang);
+		  lang = CommonUtil.getValidLang(lang);
 	
-	  String msg = ExpBrwUtil.getMessage(key, new Locale(lang));
-	  
-	  if (StringUtils.isEmpty(msg)) {
-		  msg = CommonUtil.getInvalidKeyMsg(key);
+		  String msg = ExpBrwUtil.getMessage(key, new Locale(lang));
+		  
+		  if (StringUtils.isEmpty(msg)) {
+			  msg = CommonUtil.getInvalidKeyMsg(key);
+		  }
+		  json = CommonUtil.jsonMessage(msg);
+	  } else {
+		  json = CommonUtil.jsonFail("");
 	  }
-	  
-	  String json = CommonUtil.jsonMessage(msg);
 	  
 	  CommonUtil.responseWrite(response, json);
   }

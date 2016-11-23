@@ -35,6 +35,16 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 		}
 		avStore.load();
 		
+		var astore = Ext.create('PB.store.common.ComboBoxStore',{
+			autoLoad:false,
+			sorters: [{
+		         property: 'name',
+		         direction: 'ASC'
+		    }]
+		});
+		astore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/listIcharge';
+		astore.load({params:{query:getLang()+' '}});
+		
 		var lbw = 160;
 		var ptw = 180;
 		
@@ -59,6 +69,7 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 			pd3.icharge_name = me.rec.icharge_name;
 			pd3.icharge_type = me.rec.pay_dtl2;
 			pd3.icharge_type_name = me.rec.icharge_type_name;
+			pd3.icharge_act_id = parseInt(me.rec.pay_dtl3);
 		}
 		
 		Ext.applyIf(me, {
@@ -416,6 +427,37 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						value:replaceIfNull(pd3.icharge_name, ''),
 						readOnly:true,
 						fieldStyle:READ_ONLY
+					},{
+						xtype:'combo',
+						name:'ichargeActId',
+						fieldLabel:mandatoryLabel(PBExpUse.Label.i.act),
+				    	displayField:'name',
+				    	valueField:'id',
+				        emptyText : PB.Label.m.select,
+				        store: astore,
+//				        queryMode: 'local',
+				        typeAhead:true,
+				        multiSelect:false,
+				        forceSelection:true,
+				        listWidth:300,
+				        width:300,
+//				        anchor:"-10",
+						labelWidth:70,
+						margin: '5 0 0 10',
+						allowBlank:false,
+				        listConfig : {
+						    getInnerTpl: function () {
+								return '<div>{name}</div>';
+						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
+						    }
+						},
+				        listeners:{
+							beforequery : function(qe) {
+								qe.query = getLang()+" "+qe.query;
+							}
+						},
+						value:replaceIfNull(pd3.icharge_act_id,null),
+						disabled:true
 					}]
 				},{
 					xtype:'radio',

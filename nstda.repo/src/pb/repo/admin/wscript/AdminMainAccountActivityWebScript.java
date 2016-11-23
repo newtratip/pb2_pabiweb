@@ -78,4 +78,50 @@ public class AdminMainAccountActivityWebScript {
     
   }
   
+  /**
+   * Handles the "list" request. Note the use of Spring MVC-style annotations to map the Web Script URI configuration
+   * and request handling objects.
+   * 
+   * @param t : type
+   * @param s : searchTerm
+   * @param response
+   * @throws Exception
+   */
+  @Uri(URI_PREFIX+"/listIcharge")
+  public void handleListIcharge(@RequestParam(required=true) String query,
+		  				final WebScriptResponse response)  throws Exception {
+    
+		String json = null;
+		
+		try {
+    		Map<String, Object> params = new HashMap<String, Object>();
+    		
+        	if (query!=null) {
+        		int pos = query.indexOf(" ");
+        		String lang = query.substring(0,  pos);
+        		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
+        		params.put("lang",  lang);
+        		params.put("orderBy", "name"+lang);
+        		
+        		String[] terms = query.substring(pos+1).split(" ");
+        	
+        		params.put("terms", terms);
+        	}
+    		
+			List<Map<String, Object>> list = activityService.listIcharge(params);
+			
+			json = CommonUtil.jsonSuccess(list);
+			
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+			
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+    
+  }
+  
+  
 }

@@ -62,6 +62,38 @@ public class AdminAccountActivityService {
         return list;
 	}
 	
+	public List<Map<String, Object>> listIcharge(Map<String, Object> params) {
+		
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+            MainAccountActivityDAO dao = session.getMapper(MainAccountActivityDAO.class);
+            
+    		List<Map<String, Object>> tmpList = dao.listIcharge(params);
+    		
+    		String name = MainAccountActivityConstant.TFN_NAME+params.get("lang");
+    		
+    		for(Map<String,Object> tmpMap : tmpList) {
+    			Map<String, Object> map = new HashMap<String, Object>();
+	    		map.put(JsonConstant.COMBOBOX_ID, (Integer)tmpMap.get(MainAccountActivityConstant.TFN_ID));
+	    		map.put(JsonConstant.COMBOBOX_NAME, (String)tmpMap.get(name.toUpperCase()));
+
+	    		tmpMap = CommonUtil.removeThElement(tmpMap);
+	    		map.put(JsonConstant.COMBOBOX_DATA, tmpMap);
+	    		
+	    		list.add(map);
+    		}    		
+            
+        } catch (Exception ex) {
+        	log.error(ex);
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}
+	
 	public Map<String, Object> get(Integer id) {
 		
 		Map<String, Object> map = null;

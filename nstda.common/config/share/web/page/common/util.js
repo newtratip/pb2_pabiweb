@@ -161,3 +161,8 @@ function cvtDateValue(v) {
 		return null;
 	}
 }
+function alertInvalidSession() {
+	var lang = getLang();
+	var msg = lang.indexOf("th") >= 0 ? INVALID_SES_TH : INVALID_SES;
+	Ext.MessageBox.alert("ERROR", msg);
+}

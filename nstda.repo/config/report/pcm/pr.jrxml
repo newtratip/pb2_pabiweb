@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-10-18T10:23:47 -->
+<!-- 2016-11-17T11:29:52 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PR" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e2aa35d9-8812-4e0d-9672-faccfe6da8b6">
 	<property name="ireport.zoom" value="0.75"/>
 	<property name="ireport.x" value="0"/>
@@ -296,7 +296,7 @@
 				<textElement textAlignment="Left">
 					<font fontName="TH SarabunPSK" size="14" isBold="true" pdfFontName="THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
 				</textElement>
-				<text><![CDATA[ต้นทุนงาน]]></text>
+				<text><![CDATA[ใบงาน]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="237" y="253" width="108" height="33" uuid="94eb80e8-ca72-4305-b59b-f1fc09482eac">

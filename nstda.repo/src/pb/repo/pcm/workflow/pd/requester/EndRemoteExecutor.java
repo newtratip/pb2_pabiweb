@@ -11,6 +11,7 @@ import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TemplateService;
 import org.alfresco.service.cmr.security.AuthenticationService;
@@ -134,6 +135,10 @@ public class EndRemoteExecutor implements ExecutionListener {
 					else 
 					if (finalAction.equals(MainWorkflowConstant.TA_RESUBMIT)) {
 						log.info("RESUBMIT");
+						String docType = (String)execution.getVariable("docType");
+						
+						mainWorkflowService.setReviewer(null, model, new NodeRef(model.getFolderRef()), docType);
+						
 						model.setStatus(PcmOrdConstant.ST_WAITING);
 						model.setWaitingLevel(1);
 						

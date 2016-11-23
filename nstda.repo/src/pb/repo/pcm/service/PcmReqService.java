@@ -76,7 +76,7 @@ import pb.repo.admin.constant.MainHrEmployeeConstant;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
-import pb.repo.admin.dao.MainWkfCmdBossLevelApprovalDAO;
+import pb.repo.admin.dao.MainBossDAO;
 import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
@@ -1840,6 +1840,7 @@ public class PcmReqService implements SubModuleService {
 		map.put("U", model.getCreatedBy());
 		map.put("G", "");
 		map.put("IRA", false);
+		map.put("C", "0");
 		
 		list.add(0, map);
 		
@@ -1851,6 +1852,7 @@ public class PcmReqService implements SubModuleService {
 		map.put("U", model.getReqBy());
 		map.put("G", "");
 		map.put("IRA", false);
+		map.put("C", "0");
 		
 		list.add(0, map);
 		
@@ -2392,7 +2394,7 @@ public class PcmReqService implements SubModuleService {
 		
         SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
-        	MainWkfCmdBossLevelApprovalDAO dao = session.getMapper(MainWkfCmdBossLevelApprovalDAO.class);
+        	MainBossDAO dao = session.getMapper(MainBossDAO.class);
         	
         	Map<String, Object> params = new HashMap<String, Object>();
         	params.put("docType", docType);
@@ -2410,7 +2412,7 @@ public class PcmReqService implements SubModuleService {
         		}
         	}
         	
-        	List<Map<String, Object>> bossList = dao.listBoss(params);
+        	List<Map<String, Object>> bossList = dao.list(params);
         	log.info("  bossList"+bossList);
         	
         	if (model.getBudgetCcType().equals(PcmReqConstant.BCCT_UNIT)) {
@@ -2875,6 +2877,13 @@ public class PcmReqService implements SubModuleService {
 	@Override
 	public QName getPropDescEn() {
 		return PcmReqWorkflowConstant.PROP_DESCRIPTION;
+	}
+
+	@Override
+	public void setFirstTaskAssignee(Map<QName, Serializable> parameters,
+			SubModuleModel model) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

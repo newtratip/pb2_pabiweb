@@ -59,7 +59,7 @@ import pb.common.util.NodeUtil;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
-import pb.repo.admin.dao.MainWkfCmdBossLevelApprovalDAO;
+import pb.repo.admin.dao.MainBossDAO;
 import pb.repo.admin.dao.MainWorkflowDAO;
 import pb.repo.admin.dao.MainWorkflowHistoryDAO;
 import pb.repo.admin.dao.MainWorkflowNextActorDAO;
@@ -700,6 +700,7 @@ public class PcmOrdService implements SubModuleService {
 		map.put("U", model.getAppBy());
 		map.put("G", "");
 		map.put("IRA", false);
+		map.put("C", "0");
 		
 		list.add(0, map);
 		
@@ -708,6 +709,7 @@ public class PcmOrdService implements SubModuleService {
 		map.put("U", model.getCreatedBy());
 		map.put("G", "");
 		map.put("IRA", false);
+		map.put("C", "0");
 		
 		list.add(0, map);
 		
@@ -927,13 +929,13 @@ public class PcmOrdService implements SubModuleService {
 		
         SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
-        	MainWkfCmdBossLevelApprovalDAO dao = session.getMapper(MainWkfCmdBossLevelApprovalDAO.class);
+        	MainBossDAO dao = session.getMapper(MainBossDAO.class);
         	
         	Map<String, Object> params = new HashMap<String, Object>();
         	params.put("docType", docType);
        		params.put("sectionId", model.getSectionId());
         	
-        	List<Map<String, Object>> bossList = dao.listBoss(params);
+        	List<Map<String, Object>> bossList = dao.list(params);
         	log.info("  bossList"+bossList);
         	if (bossList==null || bossList.size()==0) {
         		throw new NotFoundApprovalMatrixException();
@@ -1030,6 +1032,7 @@ public class PcmOrdService implements SubModuleService {
     					break;
     				}
     			}
+    			i++;
     		}
     	}
     	
@@ -1080,10 +1083,10 @@ public class PcmOrdService implements SubModuleService {
 			prevEntry = e;
 		}
 		
-		if (prevEntry != null) {
-			map.put((String)prevEntry.getKey(), (String)prevEntry.getValue());
-		}
-		
+//		if (prevEntry != null) {
+//			map.put((String)prevEntry.getKey(), (String)prevEntry.getValue());
+//		}
+//		
         log.info("  map="+map);
 
         return map;
@@ -1126,13 +1129,14 @@ public class PcmOrdService implements SubModuleService {
 	}	
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void continueRequesterTask(final String exeId, String action, PcmOrdModel model, String comment) {
+	public void continueRequesterTask(final String exeId, String action, PcmOrdModel model, String comment, String docType) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		map.put(PcmOrdWorkflowConstant.MODEL_PREFIX+"reSubmitOutcome", action);
 		map.put(PcmOrdWorkflowConstant.MODEL_PREFIX+"workflowStatus", action);
 		map.put("reqBy", model.getUpdatedBy());
 		map.put("comment", comment);
+		map.put("docType", docType);
 		
         List<NodeRef> docList = new ArrayList<NodeRef>();
         docList.add(new NodeRef(model.getDocRef()));
@@ -1197,5 +1201,10 @@ public class PcmOrdService implements SubModuleService {
 	@Override
 	public QName getPropDescEn() {
 		return PcmOrdWorkflowConstant.PROP_DESCRIPTION;
+	}
+
+	@Override
+	public void setFirstTaskAssignee(Map<QName, Serializable> parameters,
+			SubModuleModel model) {
 	}
 }

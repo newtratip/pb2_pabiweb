@@ -467,6 +467,9 @@
 	            else if(type.indexOf("Consultant") > -1){
 	            	type = isThai ? "ที่ปรึกษา" : "Consultant";
 	            }
+	            else if(type.indexOf("Accepter") > -1){
+	            	type = isThai ? "ผู้ขอ" : "Accepter";
+	            }
             }
             
             if (status) {

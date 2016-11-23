@@ -38,6 +38,15 @@
 			</mandatory-aspects>
 		</type>
 
+		<type name="expbrwwf:accepterAcceptTask">
+			<parent>bpm:activitiOutcomeTask</parent>
+			<mandatory-aspects>
+				<aspect>expbrwwf:commonAspect</aspect>
+				<aspect>expbrwwf:specialAspect</aspect>
+				<aspect>expbrwwf:acceptAspect</aspect>
+			</mandatory-aspects>
+		</type>
+		
 		<type name="expbrwwf:reviewerReviewTask">
 			<parent>bpm:activitiOutcomeTask</parent>
 			<mandatory-aspects>
@@ -92,6 +101,12 @@
 					<type>d:text</type>
 				</property>
 				<property name="expbrwwf:description">
+					<type>d:text</type>
+				</property>
+				<property name="expbrwwf:accepter">
+					<type>d:text</type>
+				</property>
+				<property name="expbrwwf:accept">
 					<type>d:text</type>
 				</property>
 			</properties>
@@ -188,6 +203,26 @@
 								<list>
 									<value>Resubmit</value>
 									<value>Cancel</value>
+								</list>
+							</parameter>
+						</constraint>
+					</constraints>
+				</property>
+			</properties>
+		</aspect>
+		
+		<aspect name="expbrwwf:acceptAspect">
+			<title>EXP WorkFlow Accept Task Properties</title>
+			<properties>
+				<property name="expbrwwf:acceptOutcome">
+					<type>d:text</type>
+					<default>Approve</default>
+					<constraints>
+						<constraint name="expbrwwf:acceptOutcomeOptions" type="LIST">
+							<parameter name="allowedValues">
+								<list>
+									<value>Approve</value>
+									<value>Reject</value>
 								</list>
 							</parameter>
 						</constraint>

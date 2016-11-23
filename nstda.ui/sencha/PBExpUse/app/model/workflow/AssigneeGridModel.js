@@ -4,5 +4,6 @@ Ext.define('PBExpUse.model.workflow.AssigneeGridModel', {
     		 , {name : 'assignee'}
     		 , {name : 'user'}
     		 , {name : 'current'}
+    		 , {name : 'color'}
     ]
 });
