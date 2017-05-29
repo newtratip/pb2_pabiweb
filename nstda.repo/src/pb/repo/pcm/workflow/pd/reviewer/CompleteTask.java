@@ -21,7 +21,6 @@ import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
@@ -40,8 +39,8 @@ import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.model.PcmOrdModel;
 import pb.repo.pcm.service.InterfaceService;
 import pb.repo.pcm.service.PcmOrdService;
-import pb.repo.pcm.service.PcmOrdWorkflowService;
 import pb.repo.pcm.service.PcmOrdSignatureService;
+import pb.repo.pcm.service.PcmOrdWorkflowService;
 
 @Component("pb.pcm.workflow.pd.reviewer.CompleteTask")
 public class CompleteTask implements TaskListener {
@@ -226,7 +225,7 @@ public class CompleteTask implements TaskListener {
 						executionEntity.setVariable(WF_PREFIX+"taskHistory", finalTaskHistory);
 	
 						log.info("  status : "+model.getStatus()+", waitingLevel:"+model.getWaitingLevel());
-						pcmOrdService.updateStatus(model);
+//						pcmOrdService.updateStatus(model);
 						
 						executionEntity.setVariable(WF_PREFIX+"workflowStatus", action);
 											
@@ -239,10 +238,13 @@ public class CompleteTask implements TaskListener {
 						
 						action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, MainWorkflowConstant.TN_REVIEWER, taskComment, finalAction, task,  model.getId(), level, model.getStatus());
 						
+						pcmOrdService.update(model);
+						mainWorkflowService.updateWorkflow(model, task);
+						
 						if (finalAction.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE) && level.equals(lastLevel)) {
 							signatureService.addSignature(task, curUser, lastLevel);
 						}
-					
+						
 					return null;
 				}
 			}, AuthenticationUtil.getAdminUserName()); // runAs()
@@ -250,7 +252,6 @@ public class CompleteTask implements TaskListener {
 		}
 		catch (Exception ex) {
 			log.error("",ex);
-			ex.printStackTrace();
 			throw ex;
 		}
 	}

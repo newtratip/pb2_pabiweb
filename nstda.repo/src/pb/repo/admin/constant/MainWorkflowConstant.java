@@ -27,7 +27,7 @@ public class MainWorkflowConstant {
     	WF_TASK_NAMES.put(TN_REQUESTER, "Requester");
     	WF_TASK_NAMES.put(TN_PREPARER, "Preparer");
     	WF_TASK_NAMES.put(TN_SUPERVISOR, "Supervisor");
-    	WF_TASK_NAMES.put(TN_REVIEWER, "Reviewer");
+    	WF_TASK_NAMES.put(TN_REVIEWER, "Approver");
     	WF_TASK_NAMES.put(TN_PREPARER_RESUBMIT, "Preparer Resubmit");
     	WF_TASK_NAMES.put(TN_CONSULTANT, "Consultant");
     	

@@ -1,10 +1,12 @@
 package pb.repo.exp.workflow.av.consultant;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.alfresco.repo.forms.FormException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
@@ -21,11 +23,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pb.common.constant.CommonConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
+import pb.repo.admin.util.MainUtil;
 import pb.repo.admin.util.MainWorkflowUtil;
 import pb.repo.exp.constant.ExpBrwConstant;
 import pb.repo.exp.constant.ExpBrwWorkflowConstant;
@@ -94,19 +98,20 @@ public class CompleteTask implements TaskListener {
 	
 	public void notify(final DelegateTask task)  {
 		
-		log.info("<- pr.consultant.CompleteTask ->");
+		log.info("<- av.consultant.CompleteTask ->");
 		
-		AuthenticationUtil.runAs(new RunAsWork<String>() {
-			public String doWork() throws Exception
-			{
-				log.info("  task.getTaskDefinitionKey():" + task.getTaskDefinitionKey());
-				log.info("  task.id="+task.getId());
-				log.info("  task.Description="+task.getDescription());
-				log.info("  task.EventName="+task.getEventName());
-				log.info("  task.Name="+task.getName());
-				log.info("  task.Owner="+task.getOwner());
-				
-				try {
+		try {
+		
+			AuthenticationUtil.runAs(new RunAsWork<String>() {
+				public String doWork() throws Exception
+				{
+					log.info("  task.getTaskDefinitionKey():" + task.getTaskDefinitionKey());
+					log.info("  task.id="+task.getId());
+					log.info("  task.Description="+task.getDescription());
+					log.info("  task.EventName="+task.getEventName());
+					log.info("  task.Name="+task.getName());
+					log.info("  task.Owner="+task.getOwner());
+					
 					Object id = ObjectUtils.defaultIfNull(task.getVariable(WF_PREFIX+"id"), "");
 					log.info("  id :: " + id.toString());
 					ExpBrwModel model = expBrwService.get(id.toString(), null);
@@ -127,6 +132,14 @@ public class CompleteTask implements TaskListener {
 					
 					String finalAction = action;
 					if (action.equalsIgnoreCase(MainWorkflowConstant.TA_COMMENT)) {
+						Object comment = task.getVariable("bpm_comment");
+						if (comment==null || comment.toString().trim().equals("")) {
+//							String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_COMMENT_NO_COMMENT", I18NUtil.getLocale());
+							String lang = (String)task.getVariable(WF_PREFIX+"lang");
+							String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_COMMENT_NO_COMMENT", new Locale(lang));
+							throw new FormException(CommonConstant.FORM_ERR+errMsg);
+						}
+						
 						Object counselee = task.getVariable(WF_PREFIX+"counselee");
 						log.info("::::counselee:::::"+counselee);
 						
@@ -150,9 +163,9 @@ public class CompleteTask implements TaskListener {
 					String finalTaskHistory = MainWorkflowUtil.appendTaskKey(taskHistory, taskKey, level);
 					executionEntity.setVariable(WF_PREFIX+"taskHistory", finalTaskHistory);
 					log.info("  taskHistory:" + finalTaskHistory);
-
+	
 					log.info("  status : "+model.getStatus()+", waitingLevel:"+model.getWaitingLevel());
-					expBrwService.updateStatus(model);
+//					expBrwService.updateStatus(model);
 										
 					// Comment History
 					String taskComment = "";
@@ -162,15 +175,20 @@ public class CompleteTask implements TaskListener {
 					}
 					
 					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, MainWorkflowConstant.TN_CONSULTANT, taskComment, finalAction, task,  model.getId(), level, model.getStatus());
-
+	
+					expBrwService.update(model);
+					mainWorkflowService.updateWorkflow(model, task);
+					
+					return null;
 				}
-				catch (Exception ex) {
-					log.error(ex);
-				}
-				
-				return null;
-			}
-		}, AuthenticationUtil.getAdminUserName()); // runAs()
+			}, AuthenticationUtil.getAdminUserName()); // runAs()
+			
+		}
+		catch (Exception ex) {
+			log.error("",ex);
+			throw ex;
+		}
+		
 	}
 	
 }

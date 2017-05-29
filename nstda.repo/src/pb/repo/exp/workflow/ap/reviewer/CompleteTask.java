@@ -1,5 +1,7 @@
 package pb.repo.exp.workflow.ap.reviewer;
 
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
@@ -25,10 +27,13 @@ import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
+import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainWorkflowReviewerModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
+import pb.repo.admin.service.AdminModuleService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.util.MainUserGroupUtil;
@@ -104,11 +109,14 @@ public class CompleteTask implements TaskListener {
 	@Autowired
 	InterfaceService interfaceService;
 	
+	@Autowired
+	AdminModuleService moduleService;
+	
 	private static final String WF_PREFIX = ExpUseWorkflowConstant.MODEL_PREFIX;
 	
 	public void notify(final DelegateTask task) {
 		
-		log.info("<- pr.reviewer.CompleteTask ->");
+		log.info("<- ex.reviewer.CompleteTask ->");
 		
 		try {
 			
@@ -145,7 +153,9 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_REJECT)) {
 							Object comment = task.getVariable("bpm_comment");
 							if (comment==null || comment.toString().trim().equals("")) {
-								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", new Locale(lang));
+//								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
 								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
@@ -154,6 +164,24 @@ public class CompleteTask implements TaskListener {
 						}
 						else
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE)) {
+							MainMasterModel chkBudgetModel = adminMasterService.getSystemConfig(MainMasterConstant.SCC_MAIN_INF_CHECK_BUDGET);
+							Boolean checkBudget = chkBudgetModel.getFlag1().equals(CommonConstant.V_ENABLE);
+
+							if (checkBudget) {
+								Map<String, Object> budget = moduleService.getTotalPreBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getFundId(), null, model.getId());
+								Boolean budgetOk = Double.parseDouble(((String)budget.get("balance")).replaceAll(",", "")) >= model.getTotal();
+								if (!budgetOk) {
+									String lang = (String)task.getVariable(WF_PREFIX+"lang");
+									throw new FormException(CommonConstant.FORM_ERR+MainUtil.getMessageWithOutCode("ERR_WF_BUDGET_NOT_ENOUGH", new Locale(lang)));
+								}
+								
+//								Map<String, Object> chkResult = interfaceService.checkBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getTotal(), model.getCreatedBy());
+//								
+//								if (!(Boolean)chkResult.get("budget_ok")) {
+//									throw new FormException(CommonConstant.FORM_ERR+chkResult.get("message"));
+//								}
+							}
+							
 							if (lastLevel.equals(level)) {
 								
 								String createResult = interfaceService.createEX(model);
@@ -231,7 +259,6 @@ public class CompleteTask implements TaskListener {
 		}
 		catch (Exception ex) {
 			log.error("",ex);
-			ex.printStackTrace();
 			throw ex;
 		}
 	}

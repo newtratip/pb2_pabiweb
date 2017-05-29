@@ -31,6 +31,7 @@ public class AdminCostControlWebScript {
 	@Uri(URI_PREFIX+"/list")
 	public void handleList(@RequestParam String t,
 						   @RequestParam(required=false) String s,
+						   @RequestParam(required=false) Integer sid,
 						   @RequestParam(required=false) String lang,
 			 final WebScriptResponse response)  throws Exception {
 		
@@ -39,7 +40,7 @@ public class AdminCostControlWebScript {
 		try {
 			List<Map<String, Object>> list = null;
 			
-			list = costControlService.list(Integer.parseInt(t),s,lang);
+			list = costControlService.list(Integer.parseInt(t),s,sid,lang);
 			
 			json = CommonUtil.jsonSuccess(list);
 		} catch (Exception ex) {

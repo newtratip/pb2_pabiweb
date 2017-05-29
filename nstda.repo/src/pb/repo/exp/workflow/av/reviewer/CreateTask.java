@@ -54,7 +54,7 @@ public class CreateTask implements TaskListener {
 		ExecutionEntity executionEntity = ((ExecutionEntity)task.getExecution()).getProcessInstance();
 	
 		String taskKey = task.getTaskDefinitionKey();
-		log.info("<- pr.reviewer.CreateTask -> Name:"+task.getName()+", ID:"+taskKey);
+		log.info("<- av.reviewer.CreateTask -> Name:"+task.getName()+", ID:"+taskKey);
 		String curUser = authenticationService.getCurrentUserName();
 		task.setVariable(WF_PREFIX+"currentTaskKey", taskKey);
 		executionEntity.setVariable(WF_PREFIX+"currentTaskKey", taskKey);

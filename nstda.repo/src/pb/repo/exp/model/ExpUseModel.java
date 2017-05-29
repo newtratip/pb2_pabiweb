@@ -8,6 +8,7 @@ import pb.repo.admin.model.SubModuleModel;
 public class ExpUseModel extends SubModuleModel {
 	
 	String reqBy;
+	String reqByName;
 	
 	String objective;
 	String reason;
@@ -52,6 +53,8 @@ public class ExpUseModel extends SubModuleModel {
 	String wfStatus;
 	
 	Timestamp requestedTime;
+	
+	Integer emotion;
 	
 	List<ExpUseAttendeeModel> attendeeList;
 	List<ExpUseDtlModel> dtlList;
@@ -280,6 +283,18 @@ public class ExpUseModel extends SubModuleModel {
 	}
 	public void setRequestedTime(Timestamp requestedTime) {
 		this.requestedTime = requestedTime;
+	}
+	public Integer getEmotion() {
+		return emotion;
+	}
+	public void setEmotion(Integer emotion) {
+		this.emotion = emotion;
+	}
+	public String getReqByName() {
+		return reqByName;
+	}
+	public void setReqByName(String reqByName) {
+		this.reqByName = reqByName;
 	}
 	
 }

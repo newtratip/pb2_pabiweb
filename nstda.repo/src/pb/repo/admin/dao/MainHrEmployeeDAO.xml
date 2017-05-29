@@ -67,7 +67,7 @@
 		WHERE 1=1
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-	    			concat(org_name_short, ' ', org_name_short_th, ' ', employee_code, ' ', first_name, ' ', last_name, ' ', position, ' ', position_th, ' ', utype, ' ', first_name_th, ' ', last_name_th, ' ', utype_th,' ',title,' ', title_th) ILIKE '%'||#{item}||'%'
+	    			concat(org_name_short, ' ', org_name_short_th, ' ', employee_code, ' ', first_name, ' ', last_name, ' ', position, ' ', position_th, ' ', utype, ' ', first_name_th, ' ', last_name_th, ' ', utype_th) ILIKE '%'||#{item}||'%'
 	   		</foreach>
 		</if>  		
 		order by org_name_short${lang}, utype${lang}, employee_code, first_name${lang}, last_name${lang}, position${lang}
@@ -198,4 +198,16 @@
 		where employee_code=#{code}    
 	</select>    
 	
+	<select id="listInSet" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
+		select employee_code code,first_name,ir.value first_name_th
+		from pb2_ext_hr_employee e left join
+		(select res_id,value FROM pb2_ext_ir_translation where name = 'hr.employee,first_name' and type = 'model' AND lang = 'th_TH') ir on e.id = ir.res_id
+		<if test="codes != null">
+			<foreach item="code" index="index" collection="codes" open="WHERE employee_code in (" separator="," close=")">
+				#{code}
+	   		</foreach>
+   		</if>  
+		 
+	</select>	
+	    
 </mapper>

@@ -33,4 +33,6 @@ var MAIN_ID="mainClient"
 ,READ_ONLY='background-color:#ddd;background-image:none'
 ,INVALID_SES="Invalid Session! Please login again."
 ,INVALID_SES_TH="Invalid Session! กรุณา login อีกครั้ง"
+,CHAIRMAN="ประธานกรรมการ"
+,COMMITTEE="กรรมการ"
 ;

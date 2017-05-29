@@ -39,7 +39,8 @@ Ext.define('PBPcm.view.MainFormItemTab', {
 		}
 		
 		columns.push(
-				{ text: PBPcm.Label.t.actGrp,  dataIndex: 'actGrp', flex:0.75},
+				{ text: PBPcm.Label.t.actGrp,  dataIndex: 'actGrpName', flex:0.75},
+				{ text: PBPcm.Label.t.act,  dataIndex: 'actName', flex:0.75},
 				{ text: PBPcm.Label.t.name,  dataIndex: 'description', flex:1},
 				{ text: PBPcm.Label.t.qty,  dataIndex: 'quantity', width:80, align:'right', xtype: 'numbercolumn', format:'0,000'},
 				{ text: PBPcm.Label.t.uom,  dataIndex: 'unit', width:110, align:'center'},

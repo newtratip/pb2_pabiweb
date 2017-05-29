@@ -109,7 +109,7 @@ public class ExpFileWebScript {
 		throw ex;
 		
 	} finally {
-		CommonUtil.responseWrite(response, json);
+		CommonUtil.responseWriteHtml(response, json);
 	}
     
   }

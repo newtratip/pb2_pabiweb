@@ -53,7 +53,8 @@ Ext.define('PBPcm.view.committee.cond2Tab', {
 		    	labelWidth:160,
 		    	anchor:"-10 -35",
 		    	margin:'5 0 0 10',
-		    	value:replaceIfNull(rec.method_cond2_dtl, null)
+		    	value:replaceIfNull(rec.method_cond2_dtl, null),
+		    	maxLength:255
 		    }]
 		});		
 		

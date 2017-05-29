@@ -125,7 +125,7 @@ public class InterfaceService {
 	        map.put("assigned_to",model.getUpdatedBy());
 	        map.put("date_approve",CommonDateTimeUtil.convertToOdooFieldDate(new Timestamp(Calendar.getInstance().getTimeInMillis())));
 	        map.put("total_budget_value",data.get("total"));
-	        map.put("purchase_prototype_id.id",data.get("is_prototype").equals("1") ? "1" : "2");
+	        map.put("prototype_type",data.get("prototype_type"));
 	        map.put("purchase_type_id.id", data.get("method_type"));
 	        map.put("purchase_method_id.id",data.get("method_id"));
 	        map.put("purchase_unit_id.id",data.get("pcm_section_id"));
@@ -160,7 +160,8 @@ public class InterfaceService {
 	        for(Map<String, Object> dtl:list) {
 		        Map<String, Object> line = new HashMap<String, Object>();
 		        line.put("product_id.id","");
-		        line.put("activity_group_id.id",dtl.get("act_grp_id")); 
+		        line.put("activity_rpt_id.id",dtl.get("act_id"));
+		        line.put("activity_group_id.id",dtl.get("act_grp_id"));
 		        line.put("name",dtl.get("description")); 
 		        line.put("product_qty",dtl.get("quantity")); 
 		        line.put("price_unit",dtl.get("price")); ////////
@@ -226,6 +227,7 @@ public class InterfaceService {
 		        att.put("name", file.getName()); 
 		        att.put("description", file.getDesc()!=null ? file.getDesc() : ""); 
 		        att.put("file_url",NodeUtil.trimNodeRef(file.getNodeRef().toString()));
+		        att.put("attach_by", file.getBy());
 		        attachment.add(att);
 		        
 		        for(String key : att.keySet()) {

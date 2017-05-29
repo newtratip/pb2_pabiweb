@@ -84,7 +84,7 @@ Ext.define('PBExp.view.MainFormAttendeeTab', {
 	        	},
 	        	{ text: PB.Label.m.seq,  xtype: 'rownumberer', width:65},
 				{ text: PB.Label.m.fullname,  dataIndex: 'name', flex:1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
-				{ text: PB.Label.m.section,  dataIndex: 'utype', flex:1},
+				{ text: PB.Label.m.sectionNonemp,  dataIndex: 'utype', flex:1},
 				{ text: PB.Label.m.pos,  dataIndex: 'position', flex:1}
 		);
 		

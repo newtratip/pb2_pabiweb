@@ -23,7 +23,12 @@
    		</if>  
 	    <if test="actGrpId == null">
 	    	AND 1=0
+   		</if>
+   		AND internal_charge IS 
+	    <if test="icharge == null">
+	    	NOT
    		</if>  
+	    TRUE
 	    ORDER BY ${orderBy}
     </select>
     
@@ -40,7 +45,7 @@
     </select>
     
     <select id="get" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="int">
-        select * from pb2_ext_account_activity
+        select * from pb2_activity_view
         where id=#{id}
     </select>    
     	

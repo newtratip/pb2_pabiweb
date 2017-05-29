@@ -41,12 +41,18 @@
     </resultMap>
     
     <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
-		select *
+		select *,COUNT(*) OVER() totalRowCount
 		from pb2_exp_brw_view
-		where (created_by_code = #{loginE} or req_by_code = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
+		where
+		<if test="monitorUser != null">
+			((status != 'D') or (status='D' and created_by_code = #{loginE}))
+		</if>
+		<if test="monitorUser == null">
+			(created_by_code = #{loginE} or (req_by_code = #{loginE} and status!='D') or all_rev ilike '%'||#{loginL}||'%' )
+		</if>
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
-				concat(id, ' ', objective_type_name, ' ', objective_type_name_th, ' ',objective,' ',req_by,' ',req_by_th,' ',created_by,' ',requested_by_th,to_char(created_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
+				concat(id, ' ', objective_type_name, ' ', objective_type_name_th, ' ',objective,' ',req_by,' ',req_by_th,' ',created_by,' ',to_char(created_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
 	   		</foreach>
    		</if>  
 		<if test="status != null">
@@ -502,7 +508,7 @@
     </select>
     
     <select id="getFirstApprover" parameterType="string" resultType="org.apache.commons.collections.map.CaseInsensitiveMap">
-		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
+		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time, h.by
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
@@ -510,12 +516,12 @@
 		WHERE w.type='EXP_BRW'
 		AND r.master_id=#{id}
 		AND r.level=1
-		AND h.action='Approve'
+		AND h.action='Approved'
 		LIMIT 1
     </select>
     
     <select id="getLastApprover" parameterType="string" resultType="org.apache.commons.collections.map.CaseInsensitiveMap">
-		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
+		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time, h.by
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
@@ -523,7 +529,7 @@
 		WHERE w.type='EXP_BRW'
 		AND r.master_id=#{id}
 		AND r.level=(select max(level) from pb2_main_workflow_reviewer where master_id=#{id})
-		AND h.action='Approve'
+		AND h.action='Approved'
 		LIMIT 1
     </select>
     

@@ -1,5 +1,6 @@
 package pb.repo.pcm.util;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -31,14 +32,21 @@ public class PcmOrdUtil {
 		jsObj.put(PcmOrdConstant.JFN_ID, model.getId());
 		
 		jsObj.put(PcmOrdConstant.JFN_OBJECTIVE, model.getObjective());
+		
 		jsObj.put(PcmOrdConstant.JFN_APP_BY, model.getAppBy());
+		jsObj.put(PcmOrdConstant.JFN_REQ_BY_NAME, model.getReqByName());
+		
 		jsObj.put(PcmOrdConstant.JFN_PR_ID, model.getPrId());
 		jsObj.put(PcmOrdConstant.JFN_SECTION_ID, model.getSectionId());
 		jsObj.put(PcmOrdConstant.JFN_DOC_TYPE, model.getDocType());
+		jsObj.put(PcmOrdConstant.JFN_METHOD, model.getMethod());
 		
 		jsObj.put(PcmOrdConstant.JFN_ORG_NAME, model.getOrgName());
 		
 		jsObj.put(PcmOrdConstant.JFN_TOTAL, String.valueOf(model.getTotal()));
+		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
+		jsObj.put(PcmOrdConstant.JFN_TOTAL_SHOW, df.format(model.getTotal()!=null ? model.getTotal() : 0));
+		
 		jsObj.put(PcmOrdConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
 		jsObj.put(PcmOrdConstant.JFN_DOC_REF, model.getDocRef());
 		jsObj.put(PcmOrdConstant.JFN_FOLDER_REF, model.getFolderRef());

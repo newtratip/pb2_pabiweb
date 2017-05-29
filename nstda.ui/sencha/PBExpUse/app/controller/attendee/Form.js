@@ -63,7 +63,7 @@ Ext.define('PBExpUse.controller.attendee.Form', {
 			rec.set("lname", items[a].data['lname']);
 			rec.set("utype", items[a].data['utype']);
 			rec.set("position", items[a].data['position']);
-			rec.set("position_id", items[a].data['position_id']);
+			rec.set("positionId", items[a].data['position_id']);
 			
 //			rec.set("dest_type", items[a].data['desttype']);
 //			rec.set("destination", items[a].data['destination']);

@@ -212,6 +212,8 @@ public class MainWorkflowService {
 	        
 	        moduleService.setWorkflowParameters(parameters, model, docList, attachDocList);
 	        
+	        moduleService.prepareModelForWfDesc(model,"th");
+	        
 	        parameters.put(WorkflowModel.PROP_WORKFLOW_DESCRIPTION, moduleService.getWorkflowDescription(model));
 	        parameters.put(moduleService.getPropDescEn(), moduleService.getWorkflowDescriptionEn(model));
 	        
@@ -688,6 +690,8 @@ public class MainWorkflowService {
 	         
 	         params.put(QName.createQName(MODEL_URI , "document"), (Serializable)docList);
 	         
+	         moduleService.prepareModelForWfDesc(model,"th");
+	         
 	         params.put(WorkflowModel.PROP_DESCRIPTION, moduleService.getWorkflowDescription(model));
 	         params.put(moduleService.getPropDescEn(), moduleService.getWorkflowDescriptionEn(model));
 	         
@@ -784,6 +788,7 @@ public class MainWorkflowService {
 //             }
 //         }
          
+	     moduleService.prepareModelForWfDesc(model, "th");
          String desc = moduleService.getWorkflowDescription(model);
          params.put(WorkflowModel.PROP_DESCRIPTION, desc);
          
@@ -1378,9 +1383,9 @@ public class MainWorkflowService {
 		String key = task;
 		Integer level = null;
 		
-		if (task.indexOf(MainWorkflowConstant.TN_REVIEWER)>=0) {
+		if (task.indexOf(MainWorkflowConstant.TN_REVIEWER)>=0 || task.indexOf(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_REVIEWER))>=0) {
 			int pos = task.indexOf(" ");
-			key = task.substring(0, pos);
+			key = MainWorkflowConstant.TN_REVIEWER;
 			level = Integer.parseInt(task.substring(pos+1));
 		}
 		

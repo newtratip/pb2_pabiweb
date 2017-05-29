@@ -68,7 +68,8 @@ Ext.define('PBExp.view.MainFormItemTab', {
 						margin:"5 0 0 10",
 						width:WIDTH-40,
 						allowBlank:true,
-						value:replaceIfNull(me.rec.reason, null)
+						value:replaceIfNull(me.rec.reason, null),
+						maxLength:255
 					},{
 						xtype:'textareafield',
 						name:'note',

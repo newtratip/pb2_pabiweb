@@ -32,7 +32,7 @@ public class ExpUseAttendeeConstant {
 	public static final String JFN_LNAME = "lname";
 	public static final String JFN_UNIT_TYPE = "utype";
 	public static final String JFN_POSITION = "position";
-	public static final String JFN_POSITION_ID = "position_id";
+	public static final String JFN_POSITION_ID = "positionId";
 	public static final String JFN_CREATED_TIME = "createdTime";
 	public static final String JFN_CREATED_BY = "createdBy";
 	public static final String JFN_UPDATED_TIME = "updatedTime";

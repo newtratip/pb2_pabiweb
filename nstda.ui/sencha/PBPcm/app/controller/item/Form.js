@@ -32,8 +32,11 @@ Ext.define('PBPcm.controller.item.Form', {
         ref: 'cmbFiscalYear',
         selector:'pcmItemDtlDlg field[name=fiscalYear]'
     },{
-        ref: 'cmbActGrp',
-        selector:'pcmItemDtlDlg field[name=actGrp]'
+        ref: 'cmbActId',
+        selector:'pcmItemDtlDlg field[name=actId]'
+    },{
+        ref: 'cmbActGrpId',
+        selector:'pcmItemDtlDlg field[name=actGrpId]'
     },{
         ref: 'txtDesc',
         selector:'pcmItemDtlDlg field[name=desc]'
@@ -94,6 +97,10 @@ Ext.define('PBPcm.controller.item.Form', {
 			'pcmItemDtlDlg [action=ok]': {
 				click : me.ok
 			},
+			'pcmItemDtlDlg': {
+				selectActivityGroup : me.selectActivityGroup,
+				selectActivity : me.selectActivity
+			},
 			'pcmReqItemTab grid [action=addItem]': {
 				click : me.add
 			},
@@ -152,8 +159,10 @@ Ext.define('PBPcm.controller.item.Form', {
 			var qty = parseFloat(me.getTxtQty().getValue());
 			var total = prc * qty;
 			
-			rec.set("actGrp",me.getCmbActGrp().getRawValue());
-			rec.set("actGrpId",me.getCmbActGrp().getValue()); 
+			rec.set("actName",me.getCmbActId().getRawValue());
+			rec.set("actId",me.getCmbActId().getValue()); 
+			rec.set("actGrpName",me.getCmbActGrpId().getRawValue());
+			rec.set("actGrpId",me.getCmbActGrpId().getValue()); 
 			rec.set("description",me.getTxtDesc().getValue()); 
 			rec.set("quantity",qty); 
 			rec.set("unit",me.getCmbUnit().getRawValue());
@@ -205,7 +214,8 @@ Ext.define('PBPcm.controller.item.Form', {
 		
 		me.getHidId().setValue(rec.get("id"));
 		me.getCmbFiscalYear().setValue(rec.get("fiscalYear").toString());
-		me.getCmbActGrp().setValue(rec.get("actGrpId"));
+		me.getCmbActId().setValue(rec.get("actId"));
+		me.getCmbActGrpId().setValue(rec.get("actGrpId"));
 		me.getTxtDesc().setValue(rec.get("description"));
 		me.getTxtQty().setValue(rec.get("quantity"));
 		me.getCmbUnit().setValue(rec.get("unitId"));
@@ -338,6 +348,30 @@ Ext.define('PBPcm.controller.item.Form', {
 		}
 		
 		me.calSummary();
+	},
+	
+	selectActivityGroup:function(cmb, rec) {
+		var me = this;
+		
+	//	console.log("id:"+rec[0].data.id);
+	
+		var store = me.getCmbActId().getStore();
+		store.getProxy().extraParams = {
+			actGrpId:rec[0].data.id,
+			query:getLang()+" "
+		}
+		store.load();
+	},
+	
+	selectActivity:function(cmb, rec) {
+//		var me = this;
+//		
+//		store = me.getGridAct().getStore();
+//		store.getProxy().extraParams = {
+//			id:0,
+//			cond:0
+//		}
+//		store.load();		
 	}
 
 });

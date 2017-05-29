@@ -234,7 +234,7 @@ public class PcmOrdSignatureService {
 //				        	while(reviewer!=null&&!reviewer.toString().equalsIgnoreCase("")) {
 //				        		 
 //								String reviewerImgName = reviewer.toString().toLowerCase()+".png";
-//								log.info("Reviewer="+reviewerImgName);
+//								log.info("Approver="+reviewerImgName);
 //								
 //								NodeRef signatureNodeRef = fileFolderService.searchSimple(folderNodeRef, reviewerImgName);
 //								log.info("Signature Image="+signatureNodeRef);

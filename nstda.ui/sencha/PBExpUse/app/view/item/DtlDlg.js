@@ -16,7 +16,9 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		});
 		agstore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/group/list';
 		agstore.getProxy().extraParams = {
-			query:getLang()+' '
+			query:getLang()+' ',
+			emotion:me.emotion,
+			icharge:me.icharge
 		}
 		agstore.load({params:{id:actGrpId}});
 		
@@ -30,7 +32,8 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 		astore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/list';
 		astore.getProxy().extraParams = {
 			query:getLang()+' ',
-			actGrpId:actGrpId
+			actGrpId:actGrpId,
+			icharge:me.icharge
 		}
 		astore.load({params:{actGrpId:actGrpId}});
 		
@@ -103,6 +106,8 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 				        listeners:{
 							beforequery : function(qe) {
 								qe.query = getLang()+" "+qe.query;
+								qe.emotion = me.emotion;
+								qe.icharge = me.icharge;
 							},
 							select : function(combo, rec){
 		    	       		    me.fireEvent("selectActivityGroup",combo, rec);
@@ -148,7 +153,8 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 						labelWidth:lbw,
 						margin: '10 0 0 10',
 						allowBlank:false,
-						value:me.rec ? me.rec.get("activity") : null
+						value:me.rec ? me.rec.get("activity") : null,
+						maxLength:255
 					},{
 						xtype:'combo',
 						name:'condition1',
@@ -192,6 +198,7 @@ Ext.define('PBExpUse.view.item.DtlDlg', {
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
 					    allowBlank:false,
+					    minValue:0,
 						value : me.rec ? me.rec.get("amount") : null
 					}]
 	            },{

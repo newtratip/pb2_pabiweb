@@ -8,8 +8,10 @@ public class PcmReqDtlModel extends BaseDataModel {
 	
 	Long id;
 	String masterId;
+	Integer actId;
+	String actName;
 	Integer actGrpId;
-	String actGrp;
+	String actGrpName;
 	String description;
 	Double quantity;
 	Integer unitId;
@@ -40,7 +42,23 @@ public class PcmReqDtlModel extends BaseDataModel {
 	public void setMasterId(String masterId) {
 		this.masterId = masterId;
 	}
-	
+
+	public Integer getActId() {
+		return actId;
+	}
+
+	public void setActId(Integer actId) {
+		this.actId = actId;
+	}
+
+	public String getActName() {
+		return actName;
+	}
+
+	public void setActName(String actName) {
+		this.actName = actName;
+	}
+
 	public Integer getActGrpId() {
 		return actGrpId;
 	}
@@ -48,13 +66,13 @@ public class PcmReqDtlModel extends BaseDataModel {
 	public void setActGrpId(Integer actGrpId) {
 		this.actGrpId = actGrpId;
 	}
-
-	public String getActGrp() {
-		return actGrp;
+	
+	public String getActGrpName() {
+		return actGrpName;
 	}
 
-	public void setActGrp(String actGrp) {
-		this.actGrp = actGrp;
+	public void setActGrpName(String actGrpName) {
+		this.actGrpName = actGrpName;
 	}
 
 	public String getDescription() {

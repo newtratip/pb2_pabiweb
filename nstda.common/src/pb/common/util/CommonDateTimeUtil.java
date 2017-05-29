@@ -27,8 +27,7 @@ public class CommonDateTimeUtil {
 		}
 		
 		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.SENCHA_DATE_TIME_FORMAT,Locale.US);
-		Date parseDate = dateFormat.parse(str);
-		Timestamp timestamp = new Timestamp(parseDate.getTime());
+		Timestamp timestamp = new Timestamp(dateFormat.parse(str).getTime());
 		
 		return timestamp;
 	}
@@ -142,5 +141,19 @@ public class CommonDateTimeUtil {
 		return dateFormat.format(timestamp);
 	}	
 	
-	
+	/*
+	 * Convert String Format 'yyyy-MM-dd' to Timestamp
+	 */
+	public static Timestamp convertOdooStringToTimestamp(String str) throws ParseException {
+		
+		if (str == null || str.equals("null") || str.equals("")) {
+			return null;
+		}
+		
+		DateFormat dateFormat = new SimpleDateFormat(CommonConstant.ODOO_DATE_FORMAT,Locale.US);
+		Timestamp timestamp = new Timestamp(dateFormat.parse(str).getTime());
+		
+		return timestamp;
+	}
+
 }

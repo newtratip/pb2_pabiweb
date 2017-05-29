@@ -1,7 +1,7 @@
 Ext.define('PBExpUse.store.OldComboStore', {
     extend: 'Ext.data.Store',
     model: 'PBExpUse.model.OldComboModel',
-    autoLoad:true,
+    autoLoad:false,
     pageSize:PAGE_SIZE,
 
     proxy: {

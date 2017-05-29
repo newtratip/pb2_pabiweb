@@ -51,10 +51,11 @@ public class MainMasterConstant {
 	public static final String TYPE_STATUS = "S";
 	public static final String TYPE_WORKFLOW = "W";
 	public static final String TYPE_REPORT = "R";
-	public static final String TYPE_PROTOTYPE = "PTT";
+	public static final String TYPE_PROTOTYPE_TYPE = "PTT";
 	
 	public static final String TYPE_PCM_REQ_PURCHASE_TYPE = "PC";
 	public static final String TYPE_PCM_REQ_REASON = "PR_RSN";
+	public static final String TYPE_PCM_ORD_DOC_TYPE = "PD";
 	public static final String TYPE_EXP_BRW_TYPE = "BRW_TYPE";
 	public static final String TYPE_EXP_EXP_TYPE = "EXP_TYPE";
 
@@ -67,6 +68,8 @@ public class MainMasterConstant {
     public static final String SCC_MAIN_ADMIN_AM       = "MAIN_ADMIN_AM";  // Show Admin Approval Matrix Tab : '0' or '1'
 //    public static final String SCC_MAIN_ODOO_URL       = "MAIN_ODOO_URL";
 //    public static final String SCC_MAIN_ODOO_DB        = "MAIN_ODOO_DB";
+    
+	public static final String SCC_MAIN_MONITOR_USER  = "MAIN_MONITOR_USER";
     
     public static final String SCC_PCM_ODOO_URL       = "PCM_ODOO_URL";
     public static final String SCC_PCM_ODOO_DB        = "PCM_ODOO_DB";

@@ -243,5 +243,29 @@ public class PcmSrcUrlWebScript {
 			CommonUtil.responseWrite(response, json);
 		}
 	}	
+
+	/*
+	 * id = PR id
+	 */
+	@Uri(URI_PREFIX + "/field/total")
+	public void handleFieldTotal(@RequestParam final String id
+								, @RequestParam(required=false) final String lang
+								, final WebScriptResponse response)
+			throws Exception {
+
+		log.info("handleFieldTotal:id:"+id+","+lang);
+		String json = null;
+
+		try {
+			Map<String, Object> map = memoSrcUrlService.getMemoFieldTotal(id,lang);
+			json = CommonUtil.jsonSuccess(map);
+		} catch (Exception ex) {
+			log.error("", ex);
+			json = CommonUtil.jsonFail(ex.toString());
+			throw ex;
+		} finally {
+			CommonUtil.responseWrite(response, json);
+		}
+	}	
 	
 }

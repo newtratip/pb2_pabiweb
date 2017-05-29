@@ -7,6 +7,7 @@ Export-Package: pb.repo.admin;
  pb.repo.admin.util;
  pb.repo.common.mybatis;
  pb.common.constant;
+ pb.common.exception;
  pb.common.model;
  pb.common.map;
  pb.common.util;

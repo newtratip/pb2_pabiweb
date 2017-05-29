@@ -5,18 +5,34 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 	initComponent: function(config) {
 		var me = this;
 		
+		var actGrpId = me.rec ? me.rec.get("actGrpId") : null;
+		
 		var fstore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
 		fstore.getProxy().api.read = ALF_CONTEXT+'/admin/main/fiscalyear/list';
 		fstore.load();		
 		
-		var astore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
-		astore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/group/list';
+		var agstore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
+		agstore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/group/list';
 		if (me.rec) {
-			astore.getProxy().extraParams = {
-				query : getLang()+' '+me.rec.get('actGrp')
+			agstore.getProxy().extraParams = {
+				query : getLang()+' '
 			}
 		}
-		astore.load();		
+		agstore.load();
+		
+		var astore = Ext.create('PB.store.common.ComboBoxStore',{
+			autoLoad:false,
+			sorters: [{
+		         property: 'name',
+		         direction: 'ASC'
+		    }]
+		});
+		astore.getProxy().api.read = ALF_CONTEXT+'/admin/main/activity/list';
+		astore.getProxy().extraParams = {
+			query:getLang()+' ',
+			actGrpId:actGrpId
+		}
+		astore.load({params:{actGrpId:actGrpId}});
 		
 		var store = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
 		store.getProxy().api.read = ALF_CONTEXT+'/admin/main/product/uom/list';
@@ -93,12 +109,12 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					    disabled:!me.acrossBudget
 					},{
 						xtype:'combo',
-						name:'actGrp',
+						name:'actGrpId',
 						fieldLabel:mandatoryLabel(PBPcm.Label.t.actGrp),
 				    	displayField:'name',
 				    	valueField:'id',
 				        emptyText : PB.Label.m.select,
-				        store: astore,
+				        store: agstore,
 //				        queryMode: 'local',
 				        typeAhead:true,
 				        multiSelect:false,
@@ -118,7 +134,7 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 								qe.query = getLang()+" "+qe.query;
 							},
 							select : function(combo, rec){
-		    	       		    me.fireEvent("selectActGrp",combo, rec);
+		    	       		    me.fireEvent("selectActivityGroup",combo, rec);
 		    	       	    },
 							afterrender:function(cmb) {
 								Ext.defer(function(){
@@ -128,6 +144,37 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 						}
 //						,value:me.rec ? me.rec.get("actGrpId") : null
 					},{
+						xtype:'combo',
+						name:'actId',
+						fieldLabel:mandatoryLabel(PBPcm.Label.t.act),
+				    	displayField:'name',
+				    	valueField:'id',
+				        emptyText : PB.Label.m.select,
+				        store: astore,
+		//		        queryMode: 'local',
+				        typeAhead:true,
+				        multiSelect:false,
+				        forceSelection:true,
+				        anchor:"-10",
+						labelWidth:lbw,
+						margin: '10 0 0 10',
+						allowBlank:false,
+				        listConfig : {
+						    getInnerTpl: function () {
+								return '<div>{name}</div>';
+						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
+						    }
+						},
+				        listeners:{
+							beforequery : function(qe) {
+								qe.query = getLang()+" "+qe.query;
+							},
+							select : function(combo, rec){
+		    	       		    me.fireEvent("selectActivity",combo, rec);
+		    	       	    }
+						},
+						value:me.rec ? me.rec.get("actId") : null
+					},{
 					    xtype: 'textfield',
 					    fieldLabel : mandatoryLabel(PBPcm.Label.t.name), 
 					    labelWidth: lbw,
@@ -136,7 +183,8 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					    name : 'desc',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
-					    allowBlank:false
+					    allowBlank:false,
+					    maxLength:255
 					},{
 					    xtype: 'numericfield',
 					    fieldLabel : mandatoryLabel(PBPcm.Label.t.qty), 
@@ -146,7 +194,8 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					    name : 'qty',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
-					    allowBlank:false
+					    allowBlank:false,
+					    minValue:0
 					},{
 						xtype:'combo',
 						name:'unit',
@@ -184,7 +233,9 @@ Ext.define('PBPcm.view.item.DtlDlg', {
 					    name : 'prc',
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
-					    allowBlank:false
+					    allowBlank:false,
+					    maxLength:255,
+					    minValue:0
 					}],
 			        buttons : [{
 			          text: PBPcm.Label.m.save, 

@@ -37,6 +37,9 @@ Ext.define('PBExpUse.controller.Main', {
 	},{
 	    ref: 'btnApprovalMatrix',     
 	    selector: 'expUseMainForm button[action=approvalMatrix]'
+    },{
+        ref: 'btnAdd',
+        selector:'expUseMain [action=add]'
 	}],
 	
 	init:function() {
@@ -249,7 +252,7 @@ Ext.define('PBExpUse.controller.Main', {
 		    	form.add({ xtype:'expUseInfoTab', title:data[1].message, rec:rec });
 				form.add({ xtype:'expUseItemTab', title:data[2].message, rec:rec });
 				form.add({ xtype:'expUseAttendeeTab', title:data[3].message, rec:rec });
-				form.add({ xtype:'expUseFileTab', title:data[4].message, rec:rec });
+				form.add({ xtype:'expUseFileTab', title:data[4].message, rec:rec, editMode:me.isEditMode() });
 				
 				Ext.defer(function() {
 					validForm(me.getMainForm());
@@ -264,44 +267,55 @@ Ext.define('PBExpUse.controller.Main', {
 	
 	},
 	
+	enableAddBtn:function(me) {
+		Ext.defer(function () {
+			me.getBtnAdd().enable();
+	    }, 800);
+	},
+
 	add:function() {
 		var me = this;
 		
-		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
-		
-			if (me.getMainForm()) {
-				me.getMainForm().destroy();
-			}
+		if (!me.getBtnAdd().isDisabled()) {
 			
-			delete me.data; // Form Add Mode
-		
-			Ext.Ajax.request({
-			      url:me.URL+"/userDtl",
-			      method: "GET",
-			      params:{
-						lang:getLang()
-				  },
-			      success: function(response){
-			    	  
-			    	var json = Ext.decode(response.responseText);
-			    	
-			    	var data = json.data[0];
-			    	data.created_time = new Date();
-			    	
-					me.createForm(PB.Label.m.create, data);
-					
-					me.activateForm();
-					
-					me.getHidId().setValue(null);
-					me.getHidStatus().setValue(null);
-			      },
-			      failure: function(response, opts){
-			          alert("failed");
-			      },
-			      headers: getAlfHeader()
+			me.getBtnAdd().disable();
+			
+			PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+			
+				if (me.getMainForm()) {
+					me.getMainForm().destroy();
+				}
+				
+				delete me.data; // Form Add Mode
+			
+				Ext.Ajax.request({
+				      url:me.URL+"/userDtl",
+				      method: "GET",
+				      params:{
+							lang:getLang()
+					  },
+				      success: function(response){
+				    	  
+				    	var json = Ext.decode(response.responseText);
+				    	
+				    	var data = json.data[0];
+				    	data.created_time = new Date();
+				    	
+						me.createForm(PB.Label.m.create, data);
+						
+						me.activateForm();
+						
+						me.getHidId().setValue(null);
+						me.getHidStatus().setValue(null);
+				      },
+				      failure: function(response, opts){
+				          alert("failed");
+				      },
+				      headers: getAlfHeader()
+				});
+			
 			});
-		
-		});
+		}
 	
 	},
 	

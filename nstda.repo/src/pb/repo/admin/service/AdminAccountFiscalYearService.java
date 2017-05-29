@@ -78,4 +78,24 @@ public class AdminAccountFiscalYearService {
         return map;
 	}
 	
+	public Map<String, Object> getCurrent() {
+		
+		Map<String, Object> map = null;
+		
+        SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+            MainAccountFiscalYearDAO dao = session.getMapper(MainAccountFiscalYearDAO.class);
+            
+    		map = dao.getCurrent();
+            
+        } catch (Exception ex) {
+        	log.error(ex);
+        } finally {
+        	session.close();
+        }
+        
+        return map;
+	}
+	
+	
 }

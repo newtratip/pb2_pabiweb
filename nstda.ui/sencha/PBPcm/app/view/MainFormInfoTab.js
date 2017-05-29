@@ -9,7 +9,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 		
 		var reason = me.rec.reason;
 		var reasonOth = null;
-		if (reason && reason.startsWith("อื่นๆ")) {
+		if (reason && reason.indexOf("อื่นๆ")==0) {
 			var pos = reason.indexOf(" ");
 			reasonOth = reason.substring(pos+1);
 			reason = "อื่นๆ";
@@ -49,14 +49,27 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 		}
 		purUnitStore.load();
 		
-		var prototypeStore = Ext.create('PB.store.common.ComboBoxStore');
-		prototypeStore.getProxy().api.read = ALF_CONTEXT+'/srcUrl/main/master?all=false';
-		prototypeStore.getProxy().extraParams = {
+		var prototypeTypeStore = Ext.create('PB.store.common.ComboBoxStore');
+		prototypeTypeStore.getProxy().api.read = ALF_CONTEXT+'/srcUrl/main/master?all=false';
+		prototypeTypeStore.getProxy().extraParams = {
 			p1 : "type='PTT'",
 			orderBy : 'code',
-			all : true
+			all : true,
+			lang : getLang()
 		}
-		prototypeStore.load();
+		prototypeTypeStore.load();
+
+//		var prototypeStore = Ext.create('PB.store.common.ComboBoxStore',{autoLoad:false});
+//		prototypeStore.getProxy().api.read = ALF_CONTEXT+'/admin/main/prototype/list';
+//		prototypeStore.getProxy().extraParams = {
+//			lang : getLang()
+//		}
+//		var pttParams = {};
+//		if (me.rec.budget_cc_type == "P") {
+//			pttParams.t = me.rec.prototype_type;
+//			pttParams.p = me.rec.budget_cc;
+//		}
+//		prototypeStore.load({params:pttParams});
 		
 		var reasonStore = Ext.create('PB.store.common.ComboBoxStore');
 		reasonStore.getProxy().api.read = ALF_CONTEXT+'/srcUrl/main/master?all=false';
@@ -261,7 +274,8 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					allowBlank:false,
 					value:replaceIfNull(reasonOth, null),
 					disabled:replaceIfNull(reason, "") != "อื่นๆ",
-					hideTrigger:true
+					hideTrigger:true,
+					maxLength:255
 				}]
 			},{
 				xtype:'container',
@@ -356,13 +370,13 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					invalidCls:'x-radio-invalid'
 				},{
 					xtype:'combo',
-					name:'prototype',
+					name:'prototypeType',
 					hideLabel:true,
-					fieldLabel:PBPcm.Label.n.ptt,
+					fieldLabel:mandatoryLabel(PBPcm.Label.n.prototypeType),
 			    	displayField:'name',
 			    	valueField:'id',
 			        emptyText : PB.Label.m.select,
-			        store: prototypeStore,
+			        store: prototypeTypeStore,
 			        queryMode: 'local',
 			        editable:false,
 			        multiSelect:false,
@@ -371,23 +385,31 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 					margin:"5 0 0 10",
 					listeners:{
 						change:function(cmd, newV, oldV) {
-							me.fireEvent('selectPrototype', cmd, newV, oldV);
+							me.fireEvent('selectPrototypeType', cmd, newV, oldV);
 						}
 					},
-					value:replaceIfNull(me.rec.prototype, null),
+					value:replaceIfNull(me.rec.prototype_type, null),
 					allowBlank:false,
 					disabled:!(replaceIfNull(me.rec.is_prototype, "0") == "1")
-				},{
-					xtype:'textfield',
-					name:'pttContractNo',
-					fieldLabel:mandatoryLabel(PBPcm.Label.n.contract),
-					errLabel:PBPcm.Label.n.err_contract,
-					labelWidth:105,
-					width:235,
-					margin:"5 0 0 10",
-					disabled:true,
-					value:replaceIfNull(me.rec.prototype_contract_no, null),
-					allowBlank:false
+//				},{
+//					xtype:'combo',
+//					name:'prototypeNo',
+//					fieldLabel:mandatoryLabel(PBPcm.Label.n.prototypeNo),
+//					labelWidth:90,
+//					errLabel:PBPcm.Label.n.err_prototype_no,
+//			    	displayField:'name',
+//			    	valueField:'id',
+//			        emptyText : PB.Label.m.select,
+//			        store: prototypeStore,
+//			        queryMode: 'local',
+//			        editable:false,
+//			        multiSelect:false,
+//			        forceSelection:true,
+//					flex:1,
+//					margin:"5 10 0 10",
+//					value:replaceIfNull(me.rec.prototype_no, null) ? parseInt(me.rec.prototype_no) : null,
+//					allowBlank:false,
+//					disabled:!(replaceIfNull(me.rec.is_prototype, "0") == "1")
 				}]
 			},{
 				xtype:'container',
@@ -493,7 +515,7 @@ Ext.define('PBPcm.view.MainFormInfoTab', {
 				height:60,
 				margin:"5 0 0 10",
 				value:replaceIfNull(me.rec.location, null),
-				maxLength:1000
+				maxLength:255
 			},{
 				xtype:'container',
 				layout:'hbox',

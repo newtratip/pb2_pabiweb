@@ -10,5 +10,4 @@ public class MainBudgetSrcConstant {
 	public static final String TYPE_PROJECT = "P";
 	public static final String TYPE_CONSTRUCTION = "C";
 	public static final String TYPE_ASSET = "A";
-	
 }

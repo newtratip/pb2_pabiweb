@@ -39,7 +39,8 @@ Ext.define('PB.view.common.EditFileDlg', {
 								this.setHeight(22);
 			 	 			}
 			           	},
-			           	value:me.rec.get('desc')
+			           	value:me.rec.get('desc'),
+						maxLength:255
 		        }]
 	        }],
 	        buttons : [{

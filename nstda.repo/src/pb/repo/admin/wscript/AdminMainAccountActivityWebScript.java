@@ -43,6 +43,7 @@ public class AdminMainAccountActivityWebScript {
   @Uri(URI_PREFIX+"/list")
   public void handleList(@RequestParam(required=true) String query,
 		  				 @RequestParam(required=false) String actGrpId,
+		  				 @RequestParam(required=false) String icharge,
 		  				final WebScriptResponse response)  throws Exception {
     
 		String json = null;
@@ -59,8 +60,9 @@ public class AdminMainAccountActivityWebScript {
         		params.put("actGrpId", actGrpId!=null && !actGrpId.equals("") ? Integer.parseInt(actGrpId) : null);
         		
         		String[] terms = query.substring(pos+1).split(" ");
-        	
         		params.put("terms", terms);
+        		
+        		params.put("icharge", icharge!=null && icharge.equals("true") ? "true" : null);
         	}
     		
 			List<Map<String, Object>> list = activityService.list(params);

@@ -1,5 +1,6 @@
 package pb.repo.exp.util;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +33,7 @@ public class ExpBrwUtil {
 		jsObj.put(ExpBrwConstant.JFN_ID, model.getId());
 		
 		jsObj.put(ExpBrwConstant.JFN_REQ_BY, model.getReqBy());
+		jsObj.put(ExpBrwConstant.JFN_REQ_BY_NAME, model.getReqByName());
 		
 		jsObj.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE, model.getObjectiveType());
 		jsObj.put(ExpBrwConstant.JFN_OBJECTIVE_TYPE_NAME, model.getObjectiveTypeName());
@@ -41,7 +43,7 @@ public class ExpBrwUtil {
 		jsObj.put(ExpBrwConstant.JFN_NOTE, model.getNote());
 		
 		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC, model.getBudgetCc());
-		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC_NAME, model.getBudgetCcName());
+		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC_NAME, model.getBudgetCcName()!=null ? model.getBudgetCcName() : "");
 		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC_TYPE, model.getBudgetCcType());
 		jsObj.put(ExpBrwConstant.JFN_BUDGET_CC_TYPE_NAME, model.getBudgetCcTypeName());
 		
@@ -59,6 +61,8 @@ public class ExpBrwUtil {
 		jsObj.put(ExpBrwConstant.JFN_BANK, model.getBank());
 		
 		jsObj.put(ExpBrwConstant.JFN_TOTAL, model.getTotal());
+		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
+		jsObj.put(ExpBrwConstant.JFN_TOTAL_SHOW, df.format(model.getTotal()!=null ? model.getTotal() : 0));
 		jsObj.put(ExpBrwConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
 		jsObj.put(ExpBrwConstant.JFN_DOC_REF, model.getDocRef());
 		jsObj.put(ExpBrwConstant.JFN_FOLDER_REF, model.getFolderRef());

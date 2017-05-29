@@ -428,11 +428,11 @@ function getSiteNavigationWidgets() {
                label: (pages[i].sitePageTitle) ? pages[i].sitePageTitle : pages[i].title,
                pageId: pages[i].pageId,
                targetUrl: targetUrl,
-               selected: ((page.url.url.startsWith(page.url.servletContext + "/" + targetUrl)) || 
-                          (pages[i].pageId == "documentlibrary" && page.url.url.startsWith(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/document-details")) ||
-                          (pages[i].pageId == "wiki-page" && (page.url.url.startsWith(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/wiki"))) ||
-                          (pages[i].pageId == "blog-postlist" && (page.url.url.startsWith(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/blog"))) ||
-                          (pages[i].pageId == "discussions-topiclist" && (page.url.url.startsWith(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/discussions"))))
+               selected: ((page.url.url.indexOf(page.url.servletContext + "/" + targetUrl)==0) || 
+                          (pages[i].pageId == "documentlibrary" && page.url.url.indexOf(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/document-details")==0) ||
+                          (pages[i].pageId == "wiki-page" && (page.url.url.indexOf(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/wiki")==0)) ||
+                          (pages[i].pageId == "blog-postlist" && (page.url.url.indexOf(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/blog")==0)) ||
+                          (pages[i].pageId == "discussions-topiclist" && (page.url.url.indexOf(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/discussions")==0)))
             }
          });
       }
@@ -444,10 +444,10 @@ function getSiteNavigationWidgets() {
             label: msg.get("page.siteMembers.title"),
             targetUrl: "site/" + page.url.templateArgs.site + "/site-members",
             selected: ((page.titleId == "page.siteMembers.title") ||
-                       (page.url.url.startsWith(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/site-groups")) ||
-                       (page.url.url.startsWith(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/invite")) ||
-                       (page.url.url.startsWith(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/add-groups")) ||
-                       (page.url.url.startsWith(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/pending-invites")))
+                       (page.url.url.indexOf(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/site-groups")==0) ||
+                       (page.url.url.indexOf(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/invite")==0) ||
+                       (page.url.url.indexOf(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/add-groups")==0) ||
+                       (page.url.url.indexOf(page.url.servletContext + "/site/" + page.url.templateArgs.site + "/pending-invites")==0))
          }
       });
 
@@ -1025,7 +1025,7 @@ function generateWidgetDef(item, nestingIndex)
       link = substituteTokens(link);
 
       // Remove any leading slashes on the link...
-      if (link.startsWith("/"))
+      if (link.indexOf("/")==0)
       {
          link = link.substring(1);
       }

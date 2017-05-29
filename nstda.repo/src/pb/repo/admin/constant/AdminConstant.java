@@ -3,16 +3,169 @@ package pb.repo.admin.constant;
 public class AdminConstant {
 	public static final StringBuffer CHANGE_LOG = new StringBuffer();
 	
-	public static final String VERSION = "1.0.92";
+	public static final String VERSION = "1.0.127";
 	
     static {
 //		CHANGE_LOG.append("  - Interface : Use user_id to call service\n");
 //		CHANGE_LOG.append("  - Interface : For Odoo : Manage Member in Accounting Group\n");
 //		CHANGE_LOG.append("  - Workflow : Admin Adhoc Task\n");
-//		CHANGE_LOG.append("  - Workflow History : Action and task : Multiple Languages\n");
-//		CHANGE_LOG.append("  - PR Form : Additional PR : Get Old Committee as default\n");
-//		CHANGE_LOG.append("  - AV : Add Field reason\n");
-    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (22/11/2016)\n");
+    	
+    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (29/05/2017)\n");
+    	CHANGE_LOG.append("  - Update Installation files\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.126 --- (26/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Budget Source : Project : Remove name_short in front of project code\n");
+    	CHANGE_LOG.append("  - PR,EX : Check Budget : user balance instead of balance-preapproved\n");
+
+    	CHANGE_LOG.append("\nV.1.0.125 --- (26/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Click add button, open 2 tabs\n");
+
+    	CHANGE_LOG.append("\nV.1.0.124 --- (26/05/2017)\n");
+    	CHANGE_LOG.append("  - AV,EX : Next Actor : XXXXXX\n");
+
+    	CHANGE_LOG.append("\nV.1.0.123 --- (24/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,PD,AV,EX : Warning Dialog show incomplete message\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.122 --- (24/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,PD,AV,EX : Work flow History : Change Query String\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.121 --- (24/05/2017)\n");
+    	CHANGE_LOG.append("  - EX : Pdf : Below data Not Float\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.120 --- (23/05/2017)\n");
+    	CHANGE_LOG.append("  - EX : Interface : Create Internal Charge\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Send Button : Disable after click\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Add Button : Disable after click\n");
+    	CHANGE_LOG.append("  - EX : Old AV : Change Caption : Add Balance field\n");
+    	CHANGE_LOG.append("  - EX : Paging not work\n");
+
+    	CHANGE_LOG.append("\nV.1.0.119 --- (23/05/2017)\n");
+    	CHANGE_LOG.append("  - EX : Save Draft : Files is not String, is Object\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.118 --- (22/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,PD,AV,EX : System Config : MAIN_MONITOR_USER\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Requester : Change Thai Caption\n");
+    	CHANGE_LOG.append("  - PR : Across Budget : Use value from totalCnv\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.117 --- (17/05/2017)\n");
+    	CHANGE_LOG.append("  - My Task : IE : Not Show List\n");
+    	CHANGE_LOG.append("  - My Task : Thai Preparer Caption\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.116 --- (16/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : IE : Upload files\n");
+    	CHANGE_LOG.append("  - EX : Non-Employee Dialog : Change Section Caption to Organization\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : IE : Edit : Tabs Missing\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : IE : Commitee Tab not show\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.115 --- (15/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Workflow Form : Edit Description show fail dialog\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : View Uploaded Document\n");
+    	CHANGE_LOG.append("  - PR : Across Year Budget : Check budget with first item\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.114 --- (12/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Workflow Form : Upload multiple file then Edit Description cause File Missing\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.113 --- (11/05/2017)\n");
+    	CHANGE_LOG.append("  - PR,PD,AV,EX : Workflow Form : Resubmit,Consult : Missing Attached Files\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Create Form : Change Requester Division to Position\n");
+    	CHANGE_LOG.append("  - PR : Form : Currency in item tab not equals which in info tab\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.112 --- (10/05/2017)\n");
+    	CHANGE_LOG.append("  - PR : Workflow Form : Resubmit : Missing Attached Files\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.111 --- (08/05/2017)\n");
+    	CHANGE_LOG.append("  - Login : IE Support\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Item : Forbidded to input negative value\n");
+    	CHANGE_LOG.append("  - AV : Workflow Form : Change Accepter Thai Caption\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.110 --- (03/05/2017)\n");
+    	CHANGE_LOG.append("  - PR : Workflow Form : Total with Currency\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Pdf : Missing Border\n");
+    	CHANGE_LOG.append("  - AV : Workflow Form : Total with Currency\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.109 --- (02/05/2017)\n");
+    	CHANGE_LOG.append("  - PR : Committee : English Caption\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.108 --- (02/05/2017)\n");
+    	CHANGE_LOG.append("  - AV : My Task : Correct Budget Source Project Name\n");
+    	CHANGE_LOG.append("  - EX,AV,PR : Pdf : Adjust\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.107 --- (28/04/2017)\n");
+    	CHANGE_LOG.append("  - PR : Pdf : Adjust\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.106 --- (27/04/2017)\n");
+    	CHANGE_LOG.append("  - PR,EX : Check Budget : Exclude Current ID\n");
+		CHANGE_LOG.append("  - EX : Pdf : Stretch Field\n");
+		
+    	CHANGE_LOG.append("\nV.1.0.105 --- (26/04/2017)\n");
+		CHANGE_LOG.append("  - PR,EX,AV : Cost Control Dialog : Query by Section ID\n");
+		
+    	CHANGE_LOG.append("\nV.1.0.104 --- (25/04/2017)\n");
+		CHANGE_LOG.append("  - PR,EX : Start Workflow : Check Budget\n");
+		CHANGE_LOG.append("  - PR,EX : Workflow Form : Approve Button : Check Budget\n");
+		
+    	CHANGE_LOG.append("\nV.1.0.103 --- (24/04/2017)\n");
+		CHANGE_LOG.append("  - PR : Interface : Send activity_rpt_id.id\n");
+		CHANGE_LOG.append("  - PR,AV,EX : Check Budget Icon\n");
+		
+    	CHANGE_LOG.append("\nV.1.0.102 --- (20/04/2017)\n");
+		CHANGE_LOG.append("  - PR,AV,EX : Pdf : Job Control : Show '-' if no value\n");
+		CHANGE_LOG.append("  - EX : Pdf : Payment Type and Recieve Type : Show only Selected Value\n");
+		
+    	CHANGE_LOG.append("\nV.1.0.101 --- (16/04/2017)\n");
+		CHANGE_LOG.append("  - PR : Add Activity Field\n");
+		CHANGE_LOG.append("  - PR,AV,EX : Requester should not see Preparer's Draft Requests\n");
+		CHANGE_LOG.append("  - AV,EX : Participant Tab : Section -> organization\n");
+		CHANGE_LOG.append("  - Main : Change table name pb2_ext_bank_master -> pb2_ext_res_bank\n");
+		CHANGE_LOG.append("  - PR,PD,AV,EX : Change Folder Detail Columns' Caption\n");
+		CHANGE_LOG.append("  - AV,EX : Workflow Form : Upload attached file and Edit Description\n");
+
+    	CHANGE_LOG.append("\nV.1.0.100 --- (05/01/2017)\n");
+		CHANGE_LOG.append("  - PR,PD,EX : My Task Description Format\n");
+		CHANGE_LOG.append("  - Workflow Form : Date Format\n");
+    	CHANGE_LOG.append("\nV.1.0.99 --- (21/12/2016)\n");
+		CHANGE_LOG.append("  - EX: Edit : Show Other Attendee Section\n");
+		CHANGE_LOG.append("  - EX: Old AV : Show Only Waiting Amount, not show balance\n");
+		CHANGE_LOG.append("  - PR,AV,EX: Budget Src : Show Short Name of Section\n");
+		CHANGE_LOG.append("  - PR,AV,EX: Workflow Form : No Comment Warning Message\n");
+		CHANGE_LOG.append("  - PR,AV,EX: Interface : File : add field attach_by\n");
+		CHANGE_LOG.append("  - EX : Select Old AV : Replace Budget Src\n");
+		
+    	CHANGE_LOG.append("\nV.1.0.98 --- (15/12/2016)\n");
+		CHANGE_LOG.append("  - Search Employee : Remove title field from search condition\n");
+		CHANGE_LOG.append("  - EX : Payment Doc : Show Thai Attendees\n");
+		CHANGE_LOG.append("  - PR Item : Change Label : Withholding Tax to VAT\n");
+		CHANGE_LOG.append("  - AV,EX Interface : Send approver_code\n");
+		CHANGE_LOG.append("  - AV,EX Attendee : Not Get Input from field Section\n");
+		
+    	CHANGE_LOG.append("\nV.1.0.97 --- (09/12/2016)\n");
+		CHANGE_LOG.append("  - Workflow Upload Dialog : Change Label 'Select PD File' to 'Select File'\n");
+		CHANGE_LOG.append("  - Workflow : Change Status Label from verb to noun\n");
+		CHANGE_LOG.append("  - EX : Old AV : Change List Format\n");
+		CHANGE_LOG.append("  - Change Label : 'Reviewer' to 'Approver'\n");
+		CHANGE_LOG.append("  - PR,AV,EX : Save Draft : Not Validate\n");
+		CHANGE_LOG.append("  - AV : My Task : Change Title Format\n");
+		CHANGE_LOG.append("  - PR : Remove Prototype NO. Field\n");
+		CHANGE_LOG.append("  - PR,AV,EX : Check Folder Permission\n");
+		
+    	CHANGE_LOG.append("\nV.1.0.96 --- (08/12/2016)\n");
+		CHANGE_LOG.append("  - PR,AV,EX : Requester Resubmit : Warn if no comment\n");
+		CHANGE_LOG.append("  - AV : Change Confirm Message if Requester=Preparer\n");
+		CHANGE_LOG.append("  - AV : Prevent submit 500,000 baht\n");
+		
+		CHANGE_LOG.append("\nV.1.0.95 --- (06/12/2016)\n");
+		CHANGE_LOG.append("  - PR : Add Prototype List\n");
+		CHANGE_LOG.append("  - PR : Change Field name : prototype -> prototype_type\n");
+		CHANGE_LOG.append("  - PR : Change Field name : prototype_contract_no -> prototype_no\n");
+		CHANGE_LOG.append("  - Main Menu : Swap AV and EX Position\n");
+		CHANGE_LOG.append("  - AV : Change Label Reason to Reason for Advance\n");
+    	CHANGE_LOG.append("\nV.1.0.94 --- (02/12/2016)\n");
+		CHANGE_LOG.append("  - EX : Internal Charge : Remove Activity Field\n");
+		CHANGE_LOG.append("  - EX : Change source of fund or payment type : Show Warning\n");
+    	CHANGE_LOG.append("\nV.1.0.93 --- (23/11/2016)\n");
+		CHANGE_LOG.append("  - EX : Internal Charge Field : 2 Languages\n");
+		CHANGE_LOG.append("  - EX : Emotion Workflow\n");
+    	CHANGE_LOG.append("\nV.1.0.92 --- (22/11/2016)\n");
 		CHANGE_LOG.append("  - PR : Move File Tab to the Last position\n");
 		CHANGE_LOG.append("  - PD : Workflow History : Blue font Reviewer\n");
 		CHANGE_LOG.append("  - EX : Internal Charge\n");

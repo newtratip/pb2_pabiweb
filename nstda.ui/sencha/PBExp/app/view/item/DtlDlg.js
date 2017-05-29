@@ -148,7 +148,8 @@ Ext.define('PBExp.view.item.DtlDlg', {
 						labelWidth:lbw,
 						margin: '10 0 0 10',
 						allowBlank:false,
-						value:me.rec ? me.rec.get("activity") : null
+						value:me.rec ? me.rec.get("activity") : null,
+						maxLength:255
 					},{
 						xtype:'combo',
 						name:'condition1',
@@ -192,6 +193,7 @@ Ext.define('PBExp.view.item.DtlDlg', {
 					    msgTarget: 'side',
 					    margin: '10 0 0 10',
 					    allowBlank:false,
+					    minValue:0,
 						value : me.rec ? me.rec.get("amount") : null
 					}]
 		        },{

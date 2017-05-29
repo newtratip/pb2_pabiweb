@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 import pb.repo.pcm.constant.PcmReqDtlConstant;
 import pb.repo.pcm.model.PcmReqDtlModel;
-import pb.repo.pcm.model.PcmReqModel;
 
 public class PcmReqDtlUtil {
 	
@@ -60,7 +59,9 @@ public class PcmReqDtlUtil {
 				
 				PcmReqDtlModel model = new PcmReqDtlModel();
 				model.setMasterId(masterId);
-				model.setActGrp(jsonObj.getString(PcmReqDtlConstant.JFN_ACT_GRP));
+				model.setActName(jsonObj.getString(PcmReqDtlConstant.JFN_ACT_NAME));
+				model.setActId(jsonObj.getInt(PcmReqDtlConstant.JFN_ACT_ID));
+				model.setActGrpName(jsonObj.getString(PcmReqDtlConstant.JFN_ACT_GRP_NAME));
 				model.setActGrpId(jsonObj.getInt(PcmReqDtlConstant.JFN_ACT_GRP_ID));
 				model.setDescription(jsonObj.getString(PcmReqDtlConstant.JFN_DESCRIPTION));
 				model.setQuantity(Double.parseDouble(jsonObj.getString(PcmReqDtlConstant.JFN_QUANTITY)));

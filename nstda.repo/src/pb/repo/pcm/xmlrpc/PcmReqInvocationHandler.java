@@ -36,6 +36,7 @@ public class PcmReqInvocationHandler
 //    public Map<String, Object> action(String prNo, String type, final String by)
     {
 //    	String comment = null;
+    	log.info("action()");
     	log.info("action("+prNo+","+type+","+comment+","+by+")");
     	
     	Map<String, Object> result = new HashMap<String, Object>();
@@ -95,6 +96,7 @@ public class PcmReqInvocationHandler
     
     public Map<String, Object> history(Map<String, Object> params)
     {
+    	log.info("history()");
     	log.info("params:"+params.toString());
     	
     	Map<String, Object> result = new HashMap<String, Object>();

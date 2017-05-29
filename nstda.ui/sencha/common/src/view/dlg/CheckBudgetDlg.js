@@ -10,7 +10,7 @@ Ext.define('PB.view.common.CheckBudgetDlg', {
 		Ext.applyIf(me, {
 	        renderTo : Ext.getBody(),
 	        modal: true,
-	        width: 550,
+	        width: 700,
 	        height: 200,
 	        resizable: false,
 	        layout:'fit',

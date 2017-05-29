@@ -46,6 +46,9 @@ Ext.define('PBPcm.controller.Main', {
     },{
         ref: 'raPrototypeNo',
         selector: 'pcmReqMainForm field[itemId=isPrototypeNo]'
+    },{
+        ref: 'btnAdd',
+        selector:'pcmReqMain [action=add]'
 	}],
 	
 	init:function() {
@@ -257,7 +260,7 @@ Ext.define('PBPcm.controller.Main', {
 		    	form.add({ xtype:'pcmReqInfoTab', title:data[1].message, rec:rec });
     			form.add({ xtype:'pcmReqItemTab', title:data[2].message, rec:rec });
     			form.add({ xtype:'pcmReqCmtTab', title:data[3].message, rec:rec });
-    			form.add({ xtype:'pcmReqFileTab', title:data[4].message, rec:rec });
+    			form.add({ xtype:'pcmReqFileTab', title:data[4].message, rec:rec, editMode:me.isEditMode() });
     			
     			Ext.defer(function() {
 				   validForm(me.getMainForm());
@@ -843,45 +846,57 @@ Ext.define('PBPcm.controller.Main', {
 		}
 	},
 
+	enableAddBtn:function(me) {
+		Ext.defer(function () {
+			me.getBtnAdd().enable();
+	    }, 800);
+	},
+
 	add:function() {
 		var me = this;
 		
-		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
-		
-			if (me.getMainForm()) {
-				me.getMainForm().destroy();
-			}
-			
-			delete me.data; // Form Add Mode
-	
-			Ext.Ajax.request({
-			      url:me.URL+"/userDtl",
-			      method: "GET",
-			      params:{
-					lang:getLang()
-				  },
-			      success: function(response){
-			    	  
-			    	var json = Ext.decode(response.responseText);
-			    	
-			    	var data = json.data[0];
-			    	data.created_time = new Date();
-			    	
-					me.createForm(PBPcm.Label.m.create, data);
-					
-					me.activateForm();
-					
-					me.getHidId().setValue(null);
-					me.getHidStatus().setValue(null);
-					
-			      },
-			      failure: function(response, opts){
-			          alert("failed");
-			      },
-			      headers: getAlfHeader()
-			});		
+		if (!me.getBtnAdd().isDisabled()) {
 
-		});
+			me.getBtnAdd().disable();
+			
+			PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
+			
+				if (me.getMainForm()) {
+					me.getMainForm().destroy();
+				}
+				
+				delete me.data; // Form Add Mode
+		
+				Ext.Ajax.request({
+				      url:me.URL+"/userDtl",
+				      method: "GET",
+				      params:{
+						lang:getLang()
+					  },
+				      success: function(response){
+				    	  
+				    	var json = Ext.decode(response.responseText);
+				    	
+				    	var data = json.data[0];
+				    	data.created_time = new Date();
+				    	
+						me.createForm(PBPcm.Label.m.create, data);
+						
+						me.activateForm();
+						
+						me.getHidId().setValue(null);
+						me.getHidStatus().setValue(null);
+						
+				      },
+				      failure: function(response, opts){
+				          alert("failed");
+				      },
+				      headers: getAlfHeader()
+				});		
+	
+			});
+		
+		}
 	},
 	
 	edit: function(rec) {

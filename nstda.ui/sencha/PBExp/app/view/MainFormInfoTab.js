@@ -196,7 +196,8 @@ Ext.define('PBExp.view.MainFormInfoTab', {
 					margin:"0 0 0 15",
 					flex:1,
 					allowBlank:false,
-					value:replaceIfNull(me.rec.objective, null)
+					value:replaceIfNull(me.rec.objective, null),
+					maxLength:255
 				},{
 					xtype:'datefield',
 					name:'dateBack',

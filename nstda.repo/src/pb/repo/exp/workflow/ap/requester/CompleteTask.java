@@ -1,10 +1,13 @@
 package pb.repo.exp.workflow.ap.requester;
 
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.alfresco.repo.forms.FormException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.workflow.WorkflowModel;
@@ -22,13 +25,18 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pb.common.constant.CommonConstant;
+import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
+import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainWorkflowReviewerModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
+import pb.repo.admin.service.AdminModuleService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.util.MainUserGroupUtil;
+import pb.repo.admin.util.MainUtil;
 import pb.repo.admin.util.MainWorkflowUtil;
 import pb.repo.exp.constant.ExpUseConstant;
 import pb.repo.exp.constant.ExpUseWorkflowConstant;
@@ -93,23 +101,27 @@ public class CompleteTask implements TaskListener {
 	@Autowired
 	TemplateService templateService;
 	
+	@Autowired
+	AdminModuleService moduleService;
+	
 	private static final String WF_PREFIX = ExpUseWorkflowConstant.MODEL_PREFIX;
 	
 	public void notify(final DelegateTask task)  {
 		
-		log.info("<- pr.requester.CompleteTask ->");
+		log.info("<- ex.requester.CompleteTask ->");
 		
-		AuthenticationUtil.runAs(new RunAsWork<String>() {
-			public String doWork() throws Exception
-			{
-				log.info("  task.getTaskDefinitionKey():" + task.getTaskDefinitionKey());
-				log.info("  task.id="+task.getId());
-				log.info("  task.Description="+task.getDescription());
-				log.info("  task.EventName="+task.getEventName());
-				log.info("  task.Name="+task.getName());
-				log.info("  task.Owner="+task.getOwner());
-				
-				try {
+		try {
+		
+			AuthenticationUtil.runAs(new RunAsWork<String>() {
+				public String doWork() throws Exception
+				{
+					log.info("  task.getTaskDefinitionKey():" + task.getTaskDefinitionKey());
+					log.info("  task.id="+task.getId());
+					log.info("  task.Description="+task.getDescription());
+					log.info("  task.EventName="+task.getEventName());
+					log.info("  task.Name="+task.getName());
+					log.info("  task.Owner="+task.getOwner());
+					
 					Object id = ObjectUtils.defaultIfNull(task.getVariable(WF_PREFIX+"id"), "");
 					log.info("  id :: " + id.toString());
 					ExpUseModel model = expUseService.get(id.toString(), null);
@@ -135,6 +147,26 @@ public class CompleteTask implements TaskListener {
 					}
 					else
 					if (action.equalsIgnoreCase(MainWorkflowConstant.TA_RESUBMIT)) {
+						Object comment = task.getVariable("bpm_comment");
+						if (comment==null || comment.toString().trim().equals("")) {
+							String lang = (String)task.getVariable(WF_PREFIX+"lang");
+							String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_RESUBMIT_NO_COMMENT", new Locale(lang));
+//							String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_RESUBMIT_NO_COMMENT", I18NUtil.getLocale());
+							throw new FormException(CommonConstant.FORM_ERR+errMsg);
+						}
+						
+						MainMasterModel chkBudgetModel = adminMasterService.getSystemConfig(MainMasterConstant.SCC_MAIN_INF_CHECK_BUDGET);
+						Boolean checkBudget = chkBudgetModel.getFlag1().equals(CommonConstant.V_ENABLE);
+
+						if (checkBudget) {
+							Map<String, Object> budget = moduleService.getTotalPreBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getFundId(), null, model.getId());
+							Boolean budgetOk = Double.parseDouble(((String)budget.get("balance")).replaceAll(",", "")) >= model.getTotal();
+							if (!budgetOk) {
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								throw new FormException(CommonConstant.FORM_ERR+MainUtil.getMessageWithOutCode("ERR_WF_BUDGET_NOT_ENOUGH", new Locale(lang)));
+							}
+						}
+						
 						model.setStatus(ExpUseConstant.ST_WAITING);
 						model.setWaitingLevel(1);
 						
@@ -163,6 +195,7 @@ public class CompleteTask implements TaskListener {
 					mainWorkflowService.updateExecutionEntity(executionEntity, task, "document");
 					mainWorkflowService.updateExecutionEntity(executionEntity, task, "attachDocument");
 					
+					expUseService.prepareModelForWfDesc(model, "th");
 					String desc = expUseService.getWorkflowDescription(model);
 					
 					task.getExecution().setVariable("bpm_"+WorkflowModel.PROP_DESCRIPTION.getLocalName(), desc);
@@ -172,9 +205,9 @@ public class CompleteTask implements TaskListener {
 					String taskHistory = (String)executionEntity.getVariable(WF_PREFIX+"taskHistory");
 					String finalTaskHistory = MainWorkflowUtil.appendTaskKey(taskHistory, taskKey, level);
 					executionEntity.setVariable(WF_PREFIX+"taskHistory", finalTaskHistory);
-
+	
 					log.info("  status : "+model.getStatus()+", waitingLevel:"+model.getWaitingLevel());
-					expUseService.updateStatus(model);
+//					expUseService.updateStatus(model);
 					
 					executionEntity.setVariable(WF_PREFIX+"workflowStatus", action);
 										
@@ -186,14 +219,20 @@ public class CompleteTask implements TaskListener {
 					}
 					
 					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, MainWorkflowConstant.TN_PREPARER, taskComment, finalAction, task,  model.getId(), level, model.getStatus());
+					
+					expUseService.update(model);
+					mainWorkflowService.updateWorkflow(model, task);
+					
+					return null;
 				}
-				catch (Exception ex) {
-					log.error(ex);
-				}
-				
-				return null;
-			}
-		}, AuthenticationUtil.getAdminUserName()); // runAs()
+			}, AuthenticationUtil.getAdminUserName()); // runAs()
+		
+		}
+		catch (Exception ex) {
+			log.error("",ex);
+			throw ex;
+		}
+		
 	}
 	
 }

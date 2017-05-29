@@ -5,8 +5,10 @@
     <resultMap id="result" type="pcmReqDtlModel">
         <result property="id" column="id"/>
         <result property="masterId" column="master_id"/>
+        <result property="actId" column="act_id"/>
+        <result property="actName" column="act_name"/>
         <result property="actGrpId" column="act_grp_id"/>
-        <result property="actGrp" column="act_grp"/>
+        <result property="actGrpName" column="act_grp_name"/>
         <result property="description" column="description"/>
         <result property="quantity" column="quantity"/>
         <result property="unit" column="unit"/>
@@ -23,10 +25,15 @@
     <select id="list" resultMap="result" parameterType="map">
     
         SELECT
-		    d.*, u.name unit, ag.name act_grp,COUNT(*) OVER() totalRowCount
+		    d.*,
+		    u.name unit,
+		    a.name act_name,
+		    ag.name act_grp_name,
+		    COUNT(*) OVER() totalRowCount
 		FROM
 		    pb2_pcm_req_dtl d
 		LEFT JOIN pb2_ext_product_uom u on d.unit_id=u.id
+		left join pb2_ext_account_activity a on d.act_id=a.id
 		LEFT JOIN pb2_ext_account_activity_group ag on d.act_grp_id=ag.id
 		WHERE 1=1
 		<if test="masterId != null">
@@ -49,6 +56,7 @@
 		>
 	    INSERT INTO pb2_pcm_req_dtl(
 	    	master_id
+	    	,act_id
 	    	,act_grp_id
 	    	,description
 	    	,quantity
@@ -59,6 +67,7 @@
 	    	,created_by,updated_by
 	    )VALUES( 
     		#{masterId}
+    		,#{actId}
     		,#{actGrpId}
     		,#{description}
     		,#{quantity}
@@ -106,6 +115,7 @@
     
     <select id="listForInf" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
 		select 
+			d.act_id, 
 			d.act_grp_id, 
 			d.description, 
 			d.quantity, 

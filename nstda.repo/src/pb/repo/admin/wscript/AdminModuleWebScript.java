@@ -1,6 +1,5 @@
 package pb.repo.admin.wscript;
 
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
@@ -19,7 +18,6 @@ import pb.repo.admin.service.AdminModuleService;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.AuthenticationType;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 
@@ -138,6 +136,15 @@ public class AdminModuleWebScript {
 //	  	item.put("xtype", "adminMemoDelegateMain");
 //	  	item.put("store", "memo.DelegateGridStore");
 //	  	items.add(item);
+	  	
+	  	item = new JSONObject();
+	  	
+	  	item.put("title", "Utility");
+	  	item.put("title_th", "Utility");
+	  	item.put("xtype", "adminMainUtilMain");
+	  	
+	  	items.add(item);
+	  	
 	  	
 	  	item = new JSONObject();
 	  	

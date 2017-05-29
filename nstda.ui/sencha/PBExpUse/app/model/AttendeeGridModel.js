@@ -7,7 +7,7 @@ Ext.define('PBExpUse.model.AttendeeGridModel', {
     		 , {name : 'lname'}
     		 , {name : 'utype'}
     		 , {name : 'position'}
-    		 , {name : 'position_id'}
+    		 , {name : 'positionId'}
     		 , {name : 'dest_type'}
     		 , {name : 'destination'}
     		 , {name : 'route'}

@@ -50,6 +50,7 @@ public class ExpBrwConstant extends SubModuleConstant {
 	public static final String JFN_ID = "id";
 	
 	public static final String JFN_TOTAL = "total";
+	public static final String JFN_TOTAL_SHOW = "total_show";
 	public static final String JFN_STATUS = "status";
 	public static final String JFN_WF_STATUS = "wfStatus";
 	public static final String JFN_OVER_DUE = "overDue";
@@ -118,8 +119,8 @@ public class ExpBrwConstant extends SubModuleConstant {
 	
     static {
     	DISPLAY_TYPES.put(ST_DRAFT, "Draft");
-    	DISPLAY_TYPES.put(ST_WAITING, "Waiting Reviewer");
-    	DISPLAY_TYPES.put(ST_WAITING_REJECT, "Reviewer Reject");
+    	DISPLAY_TYPES.put(ST_WAITING, "Waiting Approver");
+    	DISPLAY_TYPES.put(ST_WAITING_REJECT, "Approver Reject");
     	DISPLAY_TYPES.put(ST_CLOSED_BY_ACT, "Waiting Accounting");
     	DISPLAY_TYPES.put(ST_CLOSED_BY_FIN, "Finance Accepted");
     	DISPLAY_TYPES.put(ST_PAID_BY_FIN, "Finance Paid");
@@ -133,16 +134,16 @@ public class ExpBrwConstant extends SubModuleConstant {
      */
 	public static final Map<String, String> WF_TASK_ACTIONS = new LinkedHashMap<String, String>();
     static {
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "Start");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "Started");
 		
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "Approve");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "Reject");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "Consult");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "Approved");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "Rejected");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "Consulted");
     	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "Comment");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "Commented");
     	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "Resubmit");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "Cancel");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "Resubmitted");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "Cancelled");
     	
     	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "Finance");
     	

@@ -9,6 +9,7 @@ public class PcmReqDtlConstant {
      */
 	public static final String TFN_ID = "ID";
 	public static final String TFN_MASTER_ID = "MASTER_ID";
+	public static final String TFN_ACT_ID = "ACT_ID";
 	public static final String TFN_ACT_GRP_ID = "ACT_GRP_ID";
 	public static final String TFN_DESCRIPTION = "DESCRIPTION";
 	public static final String TFN_QUANTITY = "QUANTITY";
@@ -24,8 +25,10 @@ public class PcmReqDtlConstant {
      */
 	public static final String JFN_ID = "id";
 	public static final String JFN_MASTER_ID = "masterId";
-	public static final String JFN_ACT_GRP = "actGrp";
+	public static final String JFN_ACT_ID = "actId";
 	public static final String JFN_ACT_GRP_ID = "actGrpId";
+	public static final String JFN_ACT_NAME = "actName";
+	public static final String JFN_ACT_GRP_NAME = "actGrpName";
 	public static final String JFN_DESCRIPTION = "description";
 	public static final String JFN_QUANTITY = "quantity";
 	public static final String JFN_UNIT = "unit";

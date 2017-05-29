@@ -340,6 +340,10 @@ public class PcmOrdService implements SubModuleService {
 		    			fileModel.setName(doc.getQName().getLocalName());
 		    			fileModel.setNodeRef(doc.getChildRef().toString());
 		    			fileModel.setAction("D");
+		    			
+			    		Serializable modifier = nodeService.getProperty(doc.getChildRef(),ContentModel.PROP_MODIFIER);
+			    		fileModel.setBy(modifier.toString());
+		    			
 		    			files.add(fileModel);
 		    		}
 		    	}
@@ -543,6 +547,8 @@ public class PcmOrdService implements SubModuleService {
 				
 				map.put(PcmOrdConstant.JFN_ACTION, PcmOrdUtil.getAction(map));
 				
+    			map.put("totalrowcount", map.get("totalrowcount"));
+				
 				map = CommonUtil.removeThElement(map);
 			}
             
@@ -737,11 +743,19 @@ public class PcmOrdService implements SubModuleService {
          */
         lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
 
+        List<String> codes = new ArrayList<String>();
 		for(Map<String, Object> rec:list) {
-			String empCode = (String)rec.get("U");
-			Map<String, Object> empModel = adminHrEmployeeService.getWithDtl(empCode);
-			if (empModel!=null) {
-				rec.put("U", empCode + " - " + empModel.get("first_name"));
+			codes.add((String)rec.get("U"));
+		}
+		if (codes.size()>0) {
+			List<Map<String, Object>> empList = adminHrEmployeeService.listInSet(codes);
+			for(Map<String, Object> rec:list) {
+				for (Map<String, Object> empModel : empList) {
+					if (empModel.get("code").equals(rec.get("U"))) {
+						rec.put("U", empModel.get("code") + " - " + empModel.get("first_name"+lang));
+						break;
+					}
+				}
 			}
 		}
 		
@@ -1194,6 +1208,11 @@ public class PcmOrdService implements SubModuleService {
 		enModel.setId(model.getId());
 		enModel.setObjective(model.getObjective());
 		enModel.setStatus("");
+		enModel.setCreatedBy(model.getCreatedBy());
+		enModel.setTotal(model.getTotal());
+		enModel.setDocType(model.getDocType());
+		
+		prepareModelForWfDesc(enModel, "");
 		
 		return getWorkflowDescription(enModel);
 	}
@@ -1206,5 +1225,21 @@ public class PcmOrdService implements SubModuleService {
 	@Override
 	public void setFirstTaskAssignee(Map<QName, Serializable> parameters,
 			SubModuleModel model) {
+	}
+
+	@Override
+	public void prepareModelForWfDesc(SubModuleModel smModel, String lang) {
+		PcmOrdModel model = (PcmOrdModel)smModel;
+		
+		Map<String,Object> dtl = adminHrEmployeeService.getWithDtl(model.getCreatedBy());
+		String langSuffix = lang!=null && lang.startsWith("th") ? "_th" : "";
+		String ename = dtl.get("title"+langSuffix) + " " + dtl.get("first_name"+langSuffix) + " " + dtl.get("last_name"+langSuffix);
+		model.setReqByName(ename);
+		
+		if (model.getDocType()!=null) {
+			MainMasterModel method = masterService.getByTypeAndCode(MainMasterConstant.TYPE_PCM_ORD_DOC_TYPE,model.getDocType());
+			model.setMethod((String)method.getName());
+		}
+		
 	}
 }

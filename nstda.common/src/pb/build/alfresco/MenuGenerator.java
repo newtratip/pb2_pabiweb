@@ -218,22 +218,21 @@ public class MenuGenerator {
 		
 		writer.write(	"name: \"alfresco/menus/AlfMenuItem\",");
 		writer.write(	"config:{");
-		writer.write(		"id: \"HEADER_PB_EXP_BRW\",");
-		writer.write(		"label: \"header.menu.pb-exp-brw.label\",");
-		writer.write(		"iconClass: \"alf-pb-exp-icon\",");
-		writer.write(		"targetUrl: \"exp-brw\"");
-		writer.write(	"}");
-		
-		writer.write(				"},{");
-		
-		writer.write(	"name: \"alfresco/menus/AlfMenuItem\",");
-		writer.write(	"config:{");
 		writer.write(		"id: \"HEADER_PB_EXP_USE\",");
 		writer.write(		"label: \"header.menu.pb-exp-use.label\",");
 		writer.write(		"iconClass: \"alf-pb-exp-icon\",");
 		writer.write(		"targetUrl: \"exp-use\"");
 		writer.write(	"}");
 		
+		writer.write(				"},{");
+		
+		writer.write(	"name: \"alfresco/menus/AlfMenuItem\",");
+		writer.write(	"config:{");
+		writer.write(		"id: \"HEADER_PB_EXP_BRW\",");
+		writer.write(		"label: \"header.menu.pb-exp-brw.label\",");
+		writer.write(		"iconClass: \"alf-pb-exp-icon\",");
+		writer.write(		"targetUrl: \"exp-brw\"");
+		writer.write(	"}");
 		
 		writer.write(				"}]");
 		writer.write(			"}");

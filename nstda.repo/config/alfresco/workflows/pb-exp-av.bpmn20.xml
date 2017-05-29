@@ -112,8 +112,7 @@
     <sequenceFlow id="flow127" sourceRef="Accepter" targetRef="acceptGateway"></sequenceFlow>
     <exclusiveGateway id="startGateway" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flowStartAccepter" name="Start Accepter" sourceRef="startGateway" targetRef="Accepter">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${initiator.properties.userName != expbrwwf_accepter}
-]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${initiator.properties.userName != expbrwwf_accepter}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flowStartReviewer" name="Start Reviewer" sourceRef="startGateway" targetRef="Reviewer">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${initiator.properties.userName == expbrwwf_accepter}]]></conditionExpression>
@@ -163,7 +162,7 @@
         <omgdi:waypoint x="71.0" y="21.0"></omgdi:waypoint>
         <omgdi:waypoint x="71.0" y="165.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="13.0" width="100.0" x="320.0" y="27.0"></omgdc:Bounds>
+          <omgdc:Bounds height="13.0" width="45.0" x="320.0" y="27.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow89" id="BPMNEdge_flow89">
@@ -193,7 +192,7 @@
         <omgdi:waypoint x="534.0" y="184.0"></omgdi:waypoint>
         <omgdi:waypoint x="601.0" y="184.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="13.0" width="100.0" x="533.0" y="165.0"></omgdc:Bounds>
+          <omgdc:Bounds height="13.0" width="40.0" x="533.0" y="165.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flowReject" id="BPMNEdge_flowReject">
@@ -230,14 +229,14 @@
         <omgdi:waypoint x="371.0" y="114.0"></omgdi:waypoint>
         <omgdi:waypoint x="371.0" y="157.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="13.0" width="100.0" x="376.0" y="120.0"></omgdc:Bounds>
+          <omgdc:Bounds height="13.0" width="40.0" x="376.0" y="120.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flowAcceptorReject" id="BPMNEdge_flowAcceptorReject">
         <omgdi:waypoint x="391.0" y="94.0"></omgdi:waypoint>
         <omgdi:waypoint x="462.0" y="94.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="13.0" width="100.0" x="394.0" y="74.0"></omgdc:Bounds>
+          <omgdc:Bounds height="13.0" width="30.0" x="394.0" y="74.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow127" id="BPMNEdge_flow127">
@@ -256,7 +255,7 @@
         <omgdi:waypoint x="91.0" y="185.0"></omgdi:waypoint>
         <omgdi:waypoint x="319.0" y="184.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="13.0" width="100.0" x="140.0" y="193.0"></omgdc:Bounds>
+          <omgdc:Bounds height="13.0" width="71.0" x="140.0" y="193.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

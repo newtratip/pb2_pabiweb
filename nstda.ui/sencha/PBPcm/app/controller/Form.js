@@ -65,11 +65,11 @@ Ext.define('PBPcm.controller.Form', {
         ref: 'raPrototypeNo',
         selector: 'pcmReqMainForm field[itemId=isPrototypeNo]'
     },{
-        ref: 'cmbPrototype',
-        selector: 'pcmReqMainForm field[name=prototype]'
-    },{
-        ref: 'txtPttContractNo',
-        selector: 'pcmReqMainForm field[name=pttContractNo]'
+        ref: 'cmbPrototypeType',
+        selector: 'pcmReqMainForm field[name=prototypeType]'
+//    },{
+//        ref: 'cmbPrototypeNo',
+//        selector: 'pcmReqMainForm field[name=prototypeNo]'
     },{
         ref: 'hidCostControlTypeId',
         selector: 'pcmReqMainForm field[name=costControlTypeId]'
@@ -154,6 +154,12 @@ Ext.define('PBPcm.controller.Form', {
 	},{
     	ref:'userTab',
     	selector:'pcmReqUserTab'
+    },{
+        ref: 'btnSend',
+        selector:'pcmReqMainForm [action=send]'
+    },{
+        ref: 'btnAdd',
+        selector:'pcmReqMain [action=add]'
     }],
 
     init:function() {
@@ -195,7 +201,7 @@ Ext.define('PBPcm.controller.Form', {
 				selectPR:me.selectPR,
 				selectReason:me.selectReason,
 				clearCostControl:me.clearCostControl,
-				selectPrototype:me.selectPrototype,
+				selectPrototypeType:me.selectPrototypeType,
 				notStock:me.notStock,
 				selectIsPrototype:me.selectIsPrototype,
 				isAcrossBudget:me.isAcrossBudget,
@@ -232,14 +238,15 @@ Ext.define('PBPcm.controller.Form', {
 		var form = me.getMainForm();
 	
 		var msg = "";
-		var i = 1;
-		if(!validForm(form) || !me.getRaPrototype().getGroupValue()) {
-			var r = me.listInvalidField(form);
-			msg = r.msg;
-			i = r.i;
-		}
-		
+
 		if (!saveDraft) {
+			var i = 1;
+			if(!validForm(form) || !me.getRaPrototype().getGroupValue()) {
+				var r = me.listInvalidField(form);
+				msg = r.msg;
+				i = r.i;
+			}
+		
 			if (me.getItemGrid().getStore().getCount() == 0) {
 				if (msg) {
 					msg += "<br/>";
@@ -433,6 +440,8 @@ Ext.define('PBPcm.controller.Form', {
 	send:function() {
 		var me = this;
 		
+		me.getBtnSend().disable();
+		
 		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
 
 	//		var form = me.getMainForm();
@@ -441,15 +450,32 @@ Ext.define('PBPcm.controller.Form', {
 			if (!msg) {
 				if (me.validFormRefId()) {
 					if (me.validForm2('doSend')) {
-						PB.Dlg.confirm('CONFIRM_'+me.SEND_MSG_KEY, me,'doSend', MODULE_PCM);
+						PB.Dlg.confirm('CONFIRM_'+me.SEND_MSG_KEY, me,'doSend', MODULE_PCM, 'enableSendBtn', me);
+					} else {
+						me.enableSendBtn(me);
 					}
+				} else {
+					me.enableSendBtn(me);
 				}
 			} else {
-				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_PCM, {msg:msg});
+				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_PCM, {msg:msg, scope:me});
+				me.enableSendBtn(me);
 				return;
 			}
 		
 		});
+	},
+	
+	enableSendBtn:function(me) {
+		Ext.defer(function () {
+			me.getBtnSend().enable();
+	    }, 800);
+	},
+	
+	enableAddBtn:function(me) {
+		Ext.defer(function () {
+			me.getBtnAdd().enable();
+	    }, 800);
 	},
 	
 	doSend: function(){
@@ -481,12 +507,15 @@ Ext.define('PBPcm.controller.Form', {
 		    params: params,
 		    success: function(response){
 		  	  
-			  	var json = Ext.decode(response.responseText);
+				me.enableSendBtn(me);
+
+				var json = Ext.decode(response.responseText);
 				  
 			   	if (json.success) {
 			   		PB.Dlg.info('SUCC_'+me.SEND_MSG_KEY, MODULE_PCM, {msg:'ID:'+json.data.id, fn:me.closeForm, scope:me});
+	   				me.enableAddBtn(me);
 			   	} else {
-			   		if (json.data.valid != undefined && !json.data.valid) {
+			   		if (json.data != undefined && json.data.valid != undefined && !json.data.valid) {
 			   			
 			   			var msg;
 			   			
@@ -516,7 +545,7 @@ Ext.define('PBPcm.controller.Form', {
 			   			PB.Dlg.warn(null, MODULE_PCM, {msg:msg});
 			   		}
 			   		else {
-				   		PB.Dlg.error('ERR_'+me.SEND_MSG_KEY, MODULE_PCM);
+				   		PB.Dlg.error('ERR_'+me.SEND_MSG_KEY, MODULE_PCM,{msg:json.message});
 			   		}
 			   	}
 			   	 
@@ -532,6 +561,7 @@ Ext.define('PBPcm.controller.Form', {
 			    	alert(response.responseText);
 		    	}
 			    myMask.hide();
+				me.enableSendBtn(me);
 		    },
 		    headers: getAlfHeader()
 		});
@@ -554,7 +584,8 @@ Ext.define('PBPcm.controller.Form', {
   			
 			objectiveType:me.getCmbObjectiveType().getValue(),
 			objective:me.getTxtObjective().getValue(),
-			reason:reason
+			reason:reason,
+			lang:getLang()
   		};
 		
 		params.currency = me.getCmbCurrency().getValue();
@@ -569,8 +600,8 @@ Ext.define('PBPcm.controller.Form', {
 //		params.stockOu = me.getCmbStockOu().getValue();
 		
 		params.isPrototype = (me.getRaPrototypeYes().getValue() ? "1" : "0");
-		params.prototype = me.getCmbPrototype().getValue();
-		params.pttContractNo = me.getTxtPttContractNo().getValue();
+		params.prototypeType = me.getCmbPrototypeType().getValue();
+//		params.prototypeNo = me.getCmbPrototypeNo().getValue();
 		
 		params.costControlTypeId = me.getHidCostControlTypeId().getValue();
 		params.costControlId = me.getHidCostControlId().getValue();
@@ -611,6 +642,7 @@ Ext.define('PBPcm.controller.Form', {
 	closeForm:function() {
 		this.getMainForm().destroy();
 		this.refreshGrid();
+		this.enableAddBtn(this);
 	},
 	
 	refreshGrid:function() {
@@ -622,11 +654,11 @@ Ext.define('PBPcm.controller.Form', {
 		
 		PB.Util.checkSession(this, me.MSG_URL+"/get", function() {
 		
-			var msg = me.validForm(true);
-			if (msg) {
-				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_PCM, {msg:msg});
-				return;
-			}
+//			var msg = me.validForm(true);
+//			if (msg) {
+//				PB.Dlg.warn('INVALID_INPUT_'+me.MSG_KEY, MODULE_PCM, {msg:msg});
+//				return;
+//			}
 			
 			var grid = me.getMainGrid();
 			
@@ -670,7 +702,7 @@ Ext.define('PBPcm.controller.Form', {
 				   		me.refreshGrid();
 				   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_PCM, {msg:'ID:'+id, scope:me});
 				   	} else {
-				   		PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
+				   		PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM,{msg:json.message});
 				   	}
 				   	 
 			   	 	myMask.hide();
@@ -819,7 +851,7 @@ Ext.define('PBPcm.controller.Form', {
 			   		PB.Dlg.info('SUCC_'+me.MSG_KEY, MODULE_PCM, {msg:'ID:'+json.data.id, fn:me.backToWfForm, scope:me});
 			   		
 			   	} else {
-			   		if (json.data.valid != undefined && !json.data.valid) {
+			   		if (json.data != undefined && json.data.valid != undefined && !json.data.valid) {
 			   			
 						var msg;
 						
@@ -849,7 +881,7 @@ Ext.define('PBPcm.controller.Form', {
 						PB.Dlg.warn(null, MODULE_PCM, {msg:msg});
 					}
 					else {
-						PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM);
+				   		PB.Dlg.error('ERR_'+me.MSG_KEY, MODULE_PCM,{msg:json.message});
 					}
 
 			   	}
@@ -957,7 +989,7 @@ Ext.define('PBPcm.controller.Form', {
 			    	  
 			    		 me.getTxtCurrencyRate().setValue(json.data);
 			    		 
-			 			 me.getLblTotalCnv().setText(PBPcm.Label.t.total+" (x"+ json.data +" THB)");
+			 			 me.getLblTotalCnv().setText(PBPcm.Label.t.total+" (x"+ me.getTxtCurrencyRate().getValue() +" THB)");
 			 			 
 			 			 me.getHidTotalCnv().setValue(me.getHidTotal().getValue() * json.data);
 
@@ -982,10 +1014,22 @@ Ext.define('PBPcm.controller.Form', {
 
 	},
 	
-	selectPrototype:function(cmb, newV, oldV) {
+	selectPrototypeType:function(cmb, newV, oldV) {
 		var me = this;
 		
-		me.getTxtPttContractNo().setDisabled(newV != "PTT2");
+//		if (me.getHidBudgetCcType().getValue() == "P") {
+//		
+//			me.getCmbPrototypeNo().getStore().load({
+//				params:{
+//					p:me.getHidBudgetCc().getValue(),
+//					t:me.getCmbPrototypeType().getValue(),
+//					lang:getLang()
+//				}
+//			});
+//		
+//		} else {
+//			console.log("budget cc type<>P");
+//		}
 	},	
 	
 	preview:function() {
@@ -1030,7 +1074,7 @@ Ext.define('PBPcm.controller.Form', {
 				   	if (json.success) {
 						window.open(me.URL+"/preview?id="+json.data[0].id,"_blank");
 				   	} else {
-				   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_PCM);
+				   		PB.Dlg.error('ERR_'+me.PREVIEW_MSG_KEY, MODULE_PCM,{msg:json.message});
 				   	}
 				   	 
 			   	 	myMask.hide();
@@ -1062,10 +1106,13 @@ Ext.define('PBPcm.controller.Form', {
 		var me = this;
 		
 		if (v) {
-			me.getCmbPrototype().setDisabled(false);
+			me.getCmbPrototypeType().setDisabled(false);
+//			me.getCmbPrototypeNo().setDisabled(false);
 		} else {
-			me.getCmbPrototype().setDisabled(true);
-			me.getCmbPrototype().clearValue();
+			me.getCmbPrototypeType().setDisabled(true);
+			me.getCmbPrototypeType().clearValue();
+//			me.getCmbPrototypeNo().setDisabled(true);
+//			me.getCmbPrototypeNo().clearValue();
 		}
 		me.getRaPrototypeYes().clearInvalid();
 		me.getRaPrototypeNo().clearInvalid();
@@ -1073,6 +1120,7 @@ Ext.define('PBPcm.controller.Form', {
 	
 	selectBudgetCcCallBack:function(ids, type, typeName, fund, fundName) {
 		var tab = this.targetPanel;
+		
 		setValue(tab, 'budgetCc', ids[0]);
 		setValue(tab, 'budgetCcName', ids[1]);
 		setValue(tab, 'budgetCcType', type);
@@ -1133,6 +1181,7 @@ Ext.define('PBPcm.controller.Form', {
 		Ext.create("PB.view.common.SearchCostControlDlg",{
 			title:PB.Label.m.search,
 			targetPanel:this.getInfoTab(),
+			sectionId:this.getInfoTab().down("field[name=budgetCc]").getValue(),
 			callback:this.selectCostControlCallBack
 		}).show();
 	},
@@ -1193,7 +1242,7 @@ Ext.define('PBPcm.controller.Form', {
 		me.filterMethod(me.getCmbObjectiveType().getValue());
 		
 		columns.push(
-				{ text: PBPcm.Label.t.actGrp,  dataIndex: 'actGrp', flex:0.75},
+				{ text: PBPcm.Label.t.actGrp,  dataIndex: 'actGrpName', flex:0.75},
 				{ text: PBPcm.Label.t.name,  dataIndex: 'description', flex:1},
 				{ text: PBPcm.Label.t.qty,  dataIndex: 'quantity', width:80, align:'right', xtype: 'numbercolumn', format:'0,000'},
 				{ text: PBPcm.Label.t.uom,  dataIndex: 'unit', width:110, align:'center'},
@@ -1297,7 +1346,11 @@ Ext.define('PBPcm.controller.Form', {
 			Ext.Ajax.request({
 			    url:ALF_CONTEXT+"/admin/main/totalPreBudget",
 			    method: "GET",
-			    params: {budgetCc:me.getHidBudgetCc().getValue(), budgetCcType:me.getHidBudgetCcType().getValue()},
+			    params: {
+					budgetCc:me.getHidBudgetCc().getValue(), 
+					budgetCcType:me.getHidBudgetCcType().getValue(),
+					fundId:me.getHidFundId().getValue()
+				},
 			    async:false,
 			    success: function(response){
 				
@@ -1305,7 +1358,7 @@ Ext.define('PBPcm.controller.Form', {
 					
 					var tab = me.getInfoTab();
 					var rec = {
-							name : tab.down("field[name=budgetCcTypeName]").getValue()+" "+tab.down("field[name=budgetCcName]").getValue(),
+							name : tab.down("field[name=budgetCcTypeName]").getValue()+" "+tab.down("field[name=budgetCcName]").getValue()+" ("+tab.down("field[name=fundName]").getValue()+")",
 							balance : json.data.balance,
 							preAppBudget : json.data.pre,
 							expBalance : json.data.ebalance

@@ -9,6 +9,8 @@ import org.json.JSONObject;
 
 import pb.repo.exp.constant.ExpUseDtlConstant;
 import pb.repo.exp.model.ExpUseDtlModel;
+import redstone.xmlrpc.XmlRpcArray;
+import redstone.xmlrpc.XmlRpcStruct;
 
 public class ExpUseDtlUtil {
 	
@@ -72,6 +74,32 @@ public class ExpUseDtlUtil {
 				model.setPosition(jsonObj.getString(ExpUseDtlConstant.JFN_POSITION));
 				model.setUom(jsonObj.getString(ExpUseDtlConstant.JFN_UOM));
 				model.setAmount(jsonObj.getDouble(ExpUseDtlConstant.JFN_AMOUNT));
+				model.setSpecialWorkflow(jsonObj.getString(ExpUseDtlConstant.JFN_SPECIAL_WORKFLOW));
+				
+				list.add(model);
+			}
+		}
+		
+		return list;
+	}
+	
+	public static List<ExpUseDtlModel> convertXmlRpcArrayToList(XmlRpcArray array, String masterId) throws Exception {
+		List<ExpUseDtlModel> list = new ArrayList<ExpUseDtlModel>();
+		
+		if (array!=null) {
+			for(Object o : array) {
+				XmlRpcStruct s = (XmlRpcStruct)o;
+				
+				ExpUseDtlModel model = new ExpUseDtlModel();
+				model.setMasterId(masterId);
+				model.setActivity(s.getString(ExpUseDtlConstant.JFN_ACTIVITY));
+				model.setActId(s.getIntegerWrapper(ExpUseDtlConstant.JFN_ACT_ID));
+				model.setActGrpId(s.getIntegerWrapper(ExpUseDtlConstant.JFN_ACT_GRP_ID));
+				model.setCondition1(s.getString(ExpUseDtlConstant.JFN_CONDITION_1));
+				model.setCondition2(s.getString(ExpUseDtlConstant.JFN_CONDITION_2));
+				model.setPosition(s.getString(ExpUseDtlConstant.JFN_POSITION));
+				model.setUom(s.getString(ExpUseDtlConstant.JFN_UOM));
+				model.setAmount(s.getDouble(ExpUseDtlConstant.JFN_AMOUNT));
 				
 				list.add(model);
 			}

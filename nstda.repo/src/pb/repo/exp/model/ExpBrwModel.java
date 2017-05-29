@@ -8,6 +8,7 @@ import pb.repo.admin.model.SubModuleModel;
 public class ExpBrwModel extends SubModuleModel {
 	
 	String reqBy;
+	String reqByName;
 //	Integer reqSectionId;
 	
 	String objectiveType;
@@ -231,6 +232,12 @@ public class ExpBrwModel extends SubModuleModel {
 	}
 	public void setRequestedTime(Timestamp requestedTime) {
 		this.requestedTime = requestedTime;
+	}
+	public String getReqByName() {
+		return reqByName;
+	}
+	public void setReqByName(String reqByName) {
+		this.reqByName = reqByName;
 	}
 	
 }

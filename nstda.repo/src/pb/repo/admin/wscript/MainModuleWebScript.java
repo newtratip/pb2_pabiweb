@@ -1,24 +1,18 @@
 package pb.repo.admin.wscript;
 
 import java.util.Map;
-import java.util.ResourceBundle;
 
+import org.alfresco.service.cmr.security.AuthenticationService;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
 import pb.common.util.CommonUtil;
-import pb.repo.admin.constant.MainMasterConstant;
-import pb.repo.admin.model.MainMasterModel;
-import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminModuleService;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.AuthenticationType;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
@@ -32,6 +26,9 @@ public class MainModuleWebScript {
 	private static final String URI_PREFIX = CommonConstant.GLOBAL_URI_PREFIX + "/admin/main";
 	
 	@Autowired
+	AuthenticationService authService;
+	
+	@Autowired
 	private AdminModuleService moduleService;
 
   /**
@@ -42,8 +39,9 @@ public class MainModuleWebScript {
    * @throws Exception
    */
   @Uri(URI_PREFIX+"/totalPreBudget")
-  public void handleTotalPreBudget(@RequestParam Integer budgetCc,
-								  @RequestParam String budgetCcType,
+  public void handleTotalPreBudget(@RequestParam String budgetCcType,
+								  @RequestParam Integer budgetCc,
+								  @RequestParam Integer fundId,
 								  final WebScriptResponse response)  throws Exception {
 
 	  	JSONObject jobj = new JSONObject();
@@ -51,8 +49,9 @@ public class MainModuleWebScript {
 		try {
 			log.info("budgetCc:"+budgetCc);;
 			log.info("budgetCcType:"+budgetCcType);
+			log.info("fundId:"+fundId);
 			
-		  	Map<String, Object> map = moduleService.getTotalPreBudget(budgetCc, budgetCcType);
+		  	Map<String, Object> map = moduleService.getTotalPreBudget(budgetCcType, budgetCc, fundId, null, null);
 		  	
 		  	jobj.put("data", map);
 			

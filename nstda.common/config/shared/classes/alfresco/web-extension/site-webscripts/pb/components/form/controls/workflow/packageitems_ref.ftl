@@ -254,7 +254,7 @@
 		  <div class="browse-wrapper">
 			 <div class="center">
 				<div id="${el}-flashuploader-div" class="browse"></div>
-				<div class="label">Select PD File to Upload</div>
+				<div class="label">Select File to Upload</div>
 			 </div>
 		  </div>
 		  <div class="tip-wrapper">

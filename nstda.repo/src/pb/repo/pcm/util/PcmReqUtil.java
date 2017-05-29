@@ -1,5 +1,6 @@
 package pb.repo.pcm.util;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +33,7 @@ public class PcmReqUtil {
 		
 		jsObj.put(PcmReqConstant.JFN_REQ_BY, model.getReqBy());
 		jsObj.put(PcmReqConstant.JFN_REQ_SECTION_ID, model.getReqSectionId());
+		jsObj.put(PcmReqConstant.JFN_REQ_BY_NAME, model.getReqByName());
 		
 		jsObj.put(PcmReqConstant.JFN_OBJECTIVE_TYPE, model.getObjectiveType());
 		jsObj.put(PcmReqConstant.JFN_OBJECTIVE, model.getObjective());
@@ -52,8 +54,8 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_STOCK_SECTION_ID, model.getStockSectionId());
 		
 		jsObj.put(PcmReqConstant.JFN_IS_PROTOTYPE, model.getIsPrototype());
-		jsObj.put(PcmReqConstant.JFN_PROTOTYPE, model.getPrototype());
-		jsObj.put(PcmReqConstant.JFN_PROTOTYPE_CONTRACT_NO, model.getPrototypeContractNo());
+		jsObj.put(PcmReqConstant.JFN_PROTOTYPE_TYPE, model.getPrototypeType());
+		jsObj.put(PcmReqConstant.JFN_PROTOTYPE_NO, model.getPrototypeNo());
 		
 		jsObj.put(PcmReqConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
 		jsObj.put(PcmReqConstant.JFN_COST_CONTROL_NAME, model.getCostControlName());
@@ -82,6 +84,8 @@ public class PcmReqUtil {
 		jsObj.put(PcmReqConstant.JFN_FILE_NAME, model.getFileName());
 		
 		jsObj.put(PcmReqConstant.JFN_TOTAL, model.getTotal());
+		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
+		jsObj.put(PcmReqConstant.JFN_TOTAL_SHOW, df.format(model.getTotal()!=null ? model.getTotal() : 0));
 		jsObj.put(PcmReqConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
 		jsObj.put(PcmReqConstant.JFN_DOC_REF, model.getDocRef());
 		jsObj.put(PcmReqConstant.JFN_FOLDER_REF, model.getFolderRef());
@@ -125,7 +129,8 @@ public class PcmReqUtil {
 		
 		map.put(PcmReqConstant.JFN_FUND_ID, model.getFundId());
 		
-		map.put(PcmReqConstant.JFN_PROTOTYPE, model.getPrototype());
+		map.put(PcmReqConstant.JFN_PROTOTYPE_TYPE, model.getPrototypeType());
+		map.put(PcmReqConstant.JFN_PROTOTYPE_NO, model.getPrototypeNo());
 		map.put(PcmReqConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
 		map.put(PcmReqConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
 		

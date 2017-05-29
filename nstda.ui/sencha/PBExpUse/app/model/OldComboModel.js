@@ -3,8 +3,8 @@ Ext.define('PBExpUse.model.OldComboModel', {
     fields : [ {name : 'id'}
     		 , {name : 'name'}
     		 , {name : 'number'}
-    		 , {name : 'waitamt'}
     		 , {name : 'balance'}
+    		 , {name : 'waitamt'}
     		 , {name : 'action'}
     ]
 });

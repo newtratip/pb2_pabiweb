@@ -11,6 +11,7 @@
 <#if field.control.params.ds?exists><#assign cols=field.control.params.cols><#else><#assign cols=''></#if>
 <#if field.control.params.dsUrl?exists><#assign dsUrl=field.control.params.dsUrl><#else><#assign dsUrl=''></#if>
 <#if field.control.params.pbmodule?exists><#assign pbmodule=field.control.params.pbmodule><#else><#assign pbmodule=''></#if>
+<#if field.control.params.dsFieldValue?exists><#assign dsFieldValue=field.control.params.dsFieldValue><#else><#assign dsFieldValue=''></#if>
 
 <div class="form-field">
    <#if form.mode == "view">
@@ -34,20 +35,20 @@
 		      <div class="details form-field" id="${controlId}">
 			  <div class="details-datatable" id="${controlId}-details">
 			  </div>
-			  <input id="${fieldHtmlId}-h" name="${field.name}" type="hidden" value="${fieldValue?html}"/>
+			  <!--input id="${fieldHtmlId}-h" name="${field.name}" type="hidden" value="${fieldValue?html}"/-->
 		      </div>
          </#if></span>
       </div>
    <#else>
       <#if field.control.params.showLabel?? && field.control.params.showLabel == "true">
       	<label for="${fieldHtmlId}">${field.label?html}:<#if field.mandatory><span class="mandatory-indicator">${msg("form.required.fields.marker")}</span></#if></label>
-      </#if>	
+      </#if>
       <#if field.value == ""><!--empty--><#else>
       <span class="viewmode-value">
 		      <div class="details form-field" id="${controlId}">
 			  <div class="details-datatable" id="${controlId}-details">
 			  </div>
-			  <input id="${fieldHtmlId}-h" name="${field.name}" type="hidden" value="${field.value?html}"/>
+			  <!--input id="${fieldHtmlId}-h" name="${field.name}" type="hidden" value="${field.value?html}"/-->
 		      </div>
       </#if></span>
       <@formLib.renderFieldHelp field=field />
@@ -57,8 +58,7 @@
 <script type="text/javascript">
 
 YAHOO.util.Event.onDOMReady(function(){
-
-   new Alfresco.UserDataTable("${controlId}", "${fieldHtmlId}-h", "${dsUrl}", "&lang="+getLang()).setMessages(${messages});
+   new Alfresco.UserDataTable("${controlId}", "${dsFieldValue}", "${dsUrl}", "&lang="+getLang()).setMessages(${messages});
    			/*
    		var divs = document.getElementsByTagName("div");
     	for(var i = 0; i < divs.length; i++){

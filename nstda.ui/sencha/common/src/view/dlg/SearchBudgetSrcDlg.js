@@ -157,7 +157,8 @@ Ext.define('PB.view.common.SearchBudgetSrcDlg', {
 	        	    		return '<input type="radio" name="id" value="'+v+'"/>'; 
 	        	    	 }
 	        	     },
-	        	     { text:PB.Label.m.org, dataIndex: 'type', width: 70 },
+	        	     { text:PB.Label.m.org, dataIndex: 'org', width: 70 },
+	        	     { text:PB.Label.b.sectShort, dataIndex: 'type', width: 85 },
 	        	     { text:PB.Label.b.sectName, dataIndex: 'name', flex:1 }
 	        	],
 	        	store:store

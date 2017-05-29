@@ -19,6 +19,7 @@ import pb.repo.admin.dao.MainAccountFiscalYearDAO;
 import pb.repo.admin.dao.MainAccountTaxDAO;
 import pb.repo.admin.dao.MainBankMasterDAO;
 import pb.repo.admin.dao.MainBossDAO;
+import pb.repo.admin.dao.MainBossEmotionDAO;
 import pb.repo.admin.dao.MainCompleteNotificationDAO;
 import pb.repo.admin.dao.MainCostCenterDAO;
 import pb.repo.admin.dao.MainCostControlDAO;
@@ -38,6 +39,7 @@ import pb.repo.admin.dao.MainPartnerTitleDAO;
 import pb.repo.admin.dao.MainProductUomDAO;
 import pb.repo.admin.dao.MainProjectDAO;
 import pb.repo.admin.dao.MainProjectMemberDAO;
+import pb.repo.admin.dao.MainPrototypeDAO;
 import pb.repo.admin.dao.MainPurchaseConditionDAO;
 import pb.repo.admin.dao.MainPurchasingUnitSectionRelDAO;
 import pb.repo.admin.dao.MainSectionDAO;
@@ -78,6 +80,7 @@ import pb.repo.admin.model.MainPartnerTitleModel;
 import pb.repo.admin.model.MainProductUomModel;
 import pb.repo.admin.model.MainProjectMemberModel;
 import pb.repo.admin.model.MainProjectModel;
+import pb.repo.admin.model.MainPrototypeModel;
 import pb.repo.admin.model.MainPurchasingUnitSectionRelModel;
 import pb.repo.admin.model.MainSectionModel;
 import pb.repo.admin.model.MainWkfCmdApprovalAmountModel;
@@ -177,6 +180,7 @@ public class DbConnectionFactory {
         config.getTypeAliasRegistry().registerAlias("mainCostControlModel", MainCostControlModel.class);
         config.getTypeAliasRegistry().registerAlias("mainCostControlTypeModel", MainCostControlTypeModel.class);
         config.getTypeAliasRegistry().registerAlias("mainFundModel", MainFundModel.class);
+        config.getTypeAliasRegistry().registerAlias("mainPrototypeModel", MainPrototypeModel.class);
         
         config.addMapper(MainMasterDAO.class);
         config.addMapper(MainMsgDAO.class);
@@ -217,6 +221,8 @@ public class DbConnectionFactory {
         config.addMapper(MainModuleDAO.class);
         config.addMapper(MainFundDAO.class);
         config.addMapper(MainBossDAO.class);
+        config.addMapper(MainBossEmotionDAO.class);
+        config.addMapper(MainPrototypeDAO.class);
 		if (!config.hasMapper(MainProjectDAO.class)) {
 			config.addMapper(MainProjectDAO.class);
 		}

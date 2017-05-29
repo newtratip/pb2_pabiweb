@@ -41,8 +41,10 @@ public class AdminMainAccountActivityGroupWebScript {
    * @throws Exception
    */
   @Uri(URI_PREFIX+"/list")
-  public void handleList(@RequestParam(required=true) String query,
+  public void handleList(@RequestParam(required=false) String query,
 		  				 @RequestParam(required=false) String id,
+		  				@RequestParam(required=false) String emotion,
+		  				@RequestParam(required=false) String icharge,
 		  				final WebScriptResponse response)  throws Exception {
     
 		String json = null;
@@ -57,12 +59,22 @@ public class AdminMainAccountActivityGroupWebScript {
         		params.put("lang",  lang);
         		params.put("orderBy", "name"+lang);
         		
+        		if (emotion==null || !emotion.equals("1")) {
+            		params.put("noEmotion", "1");
+        		}
+        		
+        		if (icharge==null || !icharge.equals("true")) {
+            		params.put("noIcharge", "1");
+        		}
+        		
         		String[] terms = query.substring(pos+1).split(" ");
         		params.put("terms", terms);
         		
         		if (id!=null && !id.equals("")) {
             		params.put("id", Integer.parseInt(id));
         		}
+        	} else {
+        		params.put("orderBy", "name");
         	}
     		
 			List<Map<String, Object>> list = activityGroupService.list(params);

@@ -2,6 +2,7 @@ package pb.common.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -316,5 +317,10 @@ public class CommonUtil {
 		}
 		
 		return map;
+	}
+	
+	public static String formatMoney(Double money) {
+		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
+		return df.format(money != null ? money : null);
 	}
 }

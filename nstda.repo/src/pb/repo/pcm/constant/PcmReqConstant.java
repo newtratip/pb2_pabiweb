@@ -38,8 +38,8 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String TFN_STOCK_SECTION_ID = "STOCK_SECTION_ID";
 
 	public static final String TFN_IS_PROTOTYPE = "IS_PROTOTYPE";
-	public static final String TFN_PROTOTYPE = "PROTOTYPE";
-	public static final String TFN_PROTOTYPE_CONTRACT_NO = "PROTOTYPE_CONTRACT_NO";
+	public static final String TFN_PROTOTYPE_TYPE = "PROTOTYPE_TYPE";
+	public static final String TFN_PROTOTYPE_NO = "PROTOTYPE_NO";
 	
 	public static final String TFN_COST_CONTROL_TYPE_ID = "COST_CONTROL_TYPE_ID";
 	public static final String TFN_COST_CONTROL_ID = "COST_CONTROL_ID";
@@ -76,6 +76,7 @@ public class PcmReqConstant extends SubModuleConstant {
 	
 	public static final String JFN_TOTAL = "total";
 	public static final String JFN_TOTAL_CNV = "totalcnv";
+	public static final String JFN_TOTAL_SHOW = "total_show"; 
 	public static final String JFN_STATUS = "status";
 	public static final String JFN_WF_STATUS = "wfStatus";
 	public static final String JFN_OVER_DUE = "overDue";
@@ -110,8 +111,8 @@ public class PcmReqConstant extends SubModuleConstant {
 	public static final String JFN_STOCK_SECTION_ID = "stock_ou";
 
 	public static final String JFN_IS_PROTOTYPE = "is_prototype";
-	public static final String JFN_PROTOTYPE = "prototype";
-	public static final String JFN_PROTOTYPE_CONTRACT_NO = "prototype_contract_no";
+	public static final String JFN_PROTOTYPE_TYPE = "prototype_type";
+	public static final String JFN_PROTOTYPE_NO = "prototype_no";
 	
 	public static final String JFN_COST_CONTROL_TYPE_ID = "cost_control_type_id";
 	public static final String JFN_COST_CONTROL_TYPE_NAME = "cost_control_type_name";
@@ -166,8 +167,8 @@ public class PcmReqConstant extends SubModuleConstant {
 	
     static {
     	DISPLAY_TYPES.put(ST_DRAFT, "Draft");
-    	DISPLAY_TYPES.put(ST_WAITING, "Waiting Reviewer");
-    	DISPLAY_TYPES.put(ST_WAITING_REJECT, "Reviewer Reject");
+    	DISPLAY_TYPES.put(ST_WAITING, "Waiting Approver");
+    	DISPLAY_TYPES.put(ST_WAITING_REJECT, "Approver Reject");
     	DISPLAY_TYPES.put(ST_CLOSED_BY_ACT, "Waiting Procurement");
     	DISPLAY_TYPES.put(ST_CLOSED_BY_PCM, "Procurement Accepted");
     	DISPLAY_TYPES.put(ST_CANCEL_BY_REQ, "Cancel by Requester");
@@ -180,16 +181,16 @@ public class PcmReqConstant extends SubModuleConstant {
      */
 	public static final Map<String, String> WF_TASK_ACTIONS = new LinkedHashMap<String, String>();
     static {
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "Start");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_START, "Started");
 		
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "Approve");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "Reject");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "Consult");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_APPROVE, "Approved");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_REJECT, "Rejected");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CONSULT, "Consulted");
     	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "Comment");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMMENT, "Commented");
     	
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "Resubmit");
-    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "Cancel");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_RESUBMIT, "Resubmitted");
+    	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_CANCEL, "Cancelled");
     	
     	WF_TASK_ACTIONS.put(MainWorkflowConstant.TA_COMPLETE, "Procurement");
     }

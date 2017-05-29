@@ -1,13 +1,22 @@
-﻿CREATE OR REPLACE VIEW public.pb2_activity_group_view AS 
+CREATE OR REPLACE VIEW public.pb2_activity_group_view AS 
  SELECT a.id,
     a.name,
     COALESCE(ir.value, a.name::text) AS name_th,
-    a.budget_method
+    a.budget_method,
+    a.special_workflow_emotion,
+    ic.internal_charge
    FROM pb2_ext_account_activity_group a
      LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
             pb2_ext_ir_translation.value
            FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'account.activity.group,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) ir ON a.id = ir.res_id AND a.active = true;
+          WHERE pb2_ext_ir_translation.name::text = 'account.activity.group,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) ir ON a.id = ir.res_id
+     LEFT JOIN ( SELECT r.activity_group_id,
+            true AS internal_charge
+           FROM pb2_ext_account_activity a_1,
+            pb2_ext_activity_group_activity_rel r
+          WHERE a_1.internal_charge IS TRUE AND a_1.id = r.activity_id
+          GROUP BY r.activity_group_id) ic ON ic.activity_group_id = a.id
+  WHERE a.budget_method::text = 'expense'::text AND a.active = true;
 
 ALTER TABLE public.pb2_activity_group_view
   OWNER TO alfresco;
@@ -17,28 +26,17 @@ CREATE OR REPLACE VIEW public.pb2_activity_view AS
     a.name,
     COALESCE(ir.value, a.name::text) AS name_th,
     r.activity_group_id,
-    a.search_keywordsCREATE OR REPLACE VIEW public.pb2_activity_view AS 
- SELECT a.id,
-    a.name,
-    COALESCE(ir.value, a.name::text) AS name_th,
-    r.activity_group_id,
     a.search_keywords,
-    a.budget_method
+    a.budget_method,
+    a.special_workflow,
+    a.internal_charge
    FROM pb2_ext_account_activity a
-     JOIN pb2_ext_activity_group_activity_rel r ON a.id = r.activity_id AND a.active = true
+     JOIN pb2_ext_activity_group_activity_rel r ON a.id = r.activity_id
      LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
             pb2_ext_ir_translation.value
            FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'account_activity,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) ir ON a.id = ir.res_id;
-
-ALTER TABLE public.pb2_activity_view
-  OWNER TO alfresco;
-   FROM pb2_ext_account_activity a
-     JOIN pb2_ext_activity_group_activity_rel r ON a.id = r.activity_id AND a.active = true
-     LEFT JOIN ( SELECT pb2_ext_ir_translation.res_id,
-            pb2_ext_ir_translation.value
-           FROM pb2_ext_ir_translation
-          WHERE pb2_ext_ir_translation.name::text = 'account_activity,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) ir ON a.id = ir.res_id;
+          WHERE pb2_ext_ir_translation.name::text = 'account_activity,name'::text AND pb2_ext_ir_translation.type::text = 'model'::text AND pb2_ext_ir_translation.lang::text = 'th_TH'::text) ir ON a.id = ir.res_id
+  WHERE a.budget_method::text = 'expense'::text AND a.active = true;
 
 ALTER TABLE public.pb2_activity_view
   OWNER TO alfresco;
@@ -70,11 +68,98 @@ CREATE OR REPLACE VIEW public.pb2_av_outstanding_view AS
                   WHERE exp_1.is_employee_advance = true) adv ON adv.id = exp.id
              LEFT JOIN pb2_ext_hr_employee emp ON exp.employee_id = emp.id
           WHERE exp.is_employee_advance = true) a
-  WHERE (a.amount_advanced - a.cleared_amount::double precision) > 0::double precision
+     LEFT JOIN pb2_exp_brw brw ON a.number::text = brw.id::text
+  WHERE (a.amount_advanced - a.cleared_amount::double precision) > 0::double precision AND brw.id IS NOT NULL
   ORDER BY a.number;
 
 ALTER TABLE public.pb2_av_outstanding_view
   OWNER TO alfresco;
+
+CREATE OR REPLACE VIEW public.pb2_boss_emotion_view AS 
+ SELECT pb2_boss_view.org_id,
+    pb2_boss_view.section_id,
+    pb2_boss_view.employee_id,
+    pb2_boss_view.lvl,
+        CASE
+            WHEN pb2_boss_view.lvl::text = 'L01'::text OR pb2_boss_view.lvl::text = 'L07'::text THEN 0.01::double precision
+            ELSE pb2_boss_view.amount_min
+        END AS amount_min,
+        CASE
+            WHEN pb2_boss_view.lvl::text = 'L01'::text THEN 0.01::double precision
+            ELSE pb2_boss_view.amount_max
+        END AS amount_max,
+    pb2_boss_view.first_name,
+    pb2_boss_view.last_name,
+    pb2_boss_view.doc_type,
+    pb2_boss_view.is_special,
+    pb2_boss_view.employee_code
+   FROM pb2_boss_view
+  WHERE pb2_boss_view.doc_type::text = 'EX'::text;
+
+ALTER TABLE public.pb2_boss_emotion_view
+  OWNER TO alfresco;
+  
+CREATE OR REPLACE VIEW public.pb2_boss_view AS 
+ SELECT a.org_id,
+    a.section_id,
+    a.employee_id,
+    a._level AS lvl,
+    a.amount_min,
+    a.amount_max,
+    a.first_name,
+    a.last_name,
+    a.doc_type,
+    '0'::text AS is_special,
+    a.employee_code
+   FROM ( SELECT b.org_id,
+            b.section_id,
+            b.employee_id,
+            l.name AS _level,
+            a_1.amount_min,
+            a_1.amount_max,
+            h.employee_code,
+            h.first_name,
+            h.last_name,
+            d.name AS doc_type,
+            '0' AS is_special,
+            l.id AS level_id
+           FROM pb2_ext_wkf_cmd_level l,
+            pb2_ext_wkf_cmd_boss_level_approval b,
+            pb2_ext_wkf_cmd_approval_amount a_1,
+            pb2_ext_hr_employee h,
+            pb2_ext_wkf_config_doctype d
+          WHERE l.id = b.level AND a_1.org_id = b.org_id AND a_1.level = b.level AND a_1.doctype_id = d.id AND b.employee_id = h.id AND a_1.amount_min > 0::double precision AND a_1.amount_max > 0::double precision) a
+     LEFT JOIN pb2_ext_wkf_cmd_boss_special_level s ON a.section_id = s.section_id AND s.special_level = a.level_id
+  WHERE s.id IS NULL
+UNION
+ SELECT s.org_id,
+    sl.section_id,
+    sl.employee_id,
+    l.name AS lvl,
+    a.amount_min,
+    a.amount_max,
+    h.first_name,
+    h.last_name,
+    d.name AS doc_type,
+    '1'::text AS is_special,
+    h.employee_code
+   FROM pb2_ext_wkf_cmd_level l,
+    pb2_ext_wkf_cmd_boss_special_level sl,
+    pb2_ext_res_section s,
+    pb2_ext_wkf_cmd_approval_amount a,
+    pb2_ext_hr_employee h,
+    pb2_ext_wkf_config_doctype d
+  WHERE l.id = sl.special_level AND sl.section_id = s.id AND a.org_id = s.org_id AND a.level = sl.special_level AND a.doctype_id = d.id AND sl.employee_id = h.id AND a.amount_min > 0::double precision AND a.amount_max > 0::double precision
+  ORDER BY 5, 6, 10 DESC;
+
+ALTER TABLE public.pb2_boss_view
+  OWNER TO alfresco;
+COMMENT ON VIEW public.pb2_boss_view
+  IS 'select * from
+(สายอนุมัติ ทั้งหมดที่มีการตัดข้อมูลที่มีใน Special Level ( pb2_ext_wkf_cmd_boss_special_level ) ออก)
+union
+(สายอนุมัติ ที่เป็น Special Level ( pb2_ext_wkf_cmd_boss_special_level ))
+';
 
 CREATE OR REPLACE VIEW public.pb2_employee_info_view AS 
  SELECT e.id,
@@ -246,13 +331,13 @@ CREATE OR REPLACE VIEW public.pb2_exp_brw_view AS
                     w_1.workflow_ins_id,
                     w_1.status,
                     w_1.status_th,
-                    e.first_name AS by,
-                    e.first_name_th AS by_th,
+                    COALESCE(e.first_name, w_1.by) AS by,
+                    COALESCE(e.first_name_th, w_1.by::text) AS by_th,
                     w_1.by_time,
                     w_1.task_id
-                   FROM pb2_main_workflow w_1,
-                    pb2_hr_employee_view e
-                  WHERE w_1.type::text = 'EXP_BRW'::text AND w_1.by::text = e.employee_code::text) w ON brw.id::text = w.master_id::text
+                   FROM pb2_main_workflow w_1
+                     LEFT JOIN pb2_hr_employee_view e ON w_1.by::text = e.employee_code::text
+                  WHERE w_1.type::text = 'EXP_BRW'::text) w ON brw.id::text = w.master_id::text
           WHERE brw.status::text <> 'D'::text) req
      LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
             pb2_hr_employee_view.first_name,
@@ -344,7 +429,8 @@ CREATE OR REPLACE VIEW public.pb2_exp_use_view AS
     req.created_by AS created_by_code,
     req.req_by AS req_by_code,
     req.remark,
-    req.requested_time
+    req.requested_time,
+    req.emotion
    FROM ( SELECT pb2_exp_use.id,
             pb2_exp_use.status,
             pb2_exp_use.total,
@@ -375,7 +461,11 @@ CREATE OR REPLACE VIEW public.pb2_exp_use_view AS
             pb2_exp_use.req_by,
             pb2_exp_use.pay_type,
             pb2_exp_use.note AS remark,
-            pb2_exp_use.requested_time
+            pb2_exp_use.requested_time,
+            ( SELECT 1
+                   FROM pb2_ext_wf_emotion_activity_group_section_rel e
+                  WHERE e.section_id = pb2_exp_use.budget_cc
+                 LIMIT 1) AS emotion
            FROM pb2_exp_use
           WHERE pb2_exp_use.status::text = 'D'::text
         UNION
@@ -409,19 +499,23 @@ CREATE OR REPLACE VIEW public.pb2_exp_use_view AS
             exp.req_by,
             exp.pay_type,
             exp.note AS remark,
-            exp.requested_time
+            exp.requested_time,
+            ( SELECT 1
+                   FROM pb2_ext_wf_emotion_activity_group_section_rel ee
+                  WHERE ee.section_id = exp.budget_cc
+                 LIMIT 1) AS emotion
            FROM pb2_exp_use exp
              LEFT JOIN ( SELECT w_1.master_id,
                     w_1.workflow_ins_id,
                     w_1.status,
                     w_1.status_th,
-                    e.first_name AS by,
-                    e.first_name_th AS by_th,
+                    COALESCE(e.first_name, w_1.by) AS by,
+                    COALESCE(e.first_name_th, w_1.by::text) AS by_th,
                     w_1.by_time,
                     w_1.task_id
-                   FROM pb2_main_workflow w_1,
-                    pb2_hr_employee_view e
-                  WHERE w_1.type::text = 'EXP_USE'::text AND w_1.by::text = e.employee_code::text) w ON exp.id::text = w.master_id::text
+                   FROM pb2_main_workflow w_1
+                     LEFT JOIN pb2_hr_employee_view e ON w_1.by::text = e.employee_code::text
+                  WHERE w_1.type::text = 'EXP_USE'::text) w ON exp.id::text = w.master_id::text
           WHERE exp.status::text <> 'D'::text) req
      LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
             pb2_hr_employee_view.first_name,
@@ -462,7 +556,7 @@ CREATE OR REPLACE VIEW public.pb2_exp_use_view AS
 
 ALTER TABLE public.pb2_exp_use_view
   OWNER TO alfresco;
-
+  
 CREATE OR REPLACE VIEW public.pb2_hr_employee_view AS 
  SELECT e.employee_code,
     e.first_name,
@@ -535,7 +629,7 @@ CREATE OR REPLACE VIEW public.pb2_hr_employee_view AS
 
 ALTER TABLE public.pb2_hr_employee_view
   OWNER TO alfresco;
-
+  
 CREATE OR REPLACE VIEW public.pb2_pcm_ord_view AS 
  SELECT ord.id,
     ord.total,
@@ -578,13 +672,13 @@ CREATE OR REPLACE VIEW public.pb2_pcm_ord_view AS
             w_1.workflow_ins_id,
             w_1.status,
             w_1.status_th,
-            e.first_name AS by,
-            e.first_name_th AS by_th,
+            COALESCE(e.first_name, w_1.by) AS by,
+            COALESCE(e.first_name_th, w_1.by::text) AS by_th,
             w_1.by_time,
             w_1.task_id
-           FROM pb2_main_workflow w_1,
-            pb2_hr_employee_view e
-          WHERE w_1.type::text = 'PCM_ORD'::text AND w_1.by::text = e.employee_code::text) w ON ord.id::text = w.master_id::text
+           FROM pb2_main_workflow w_1
+             LEFT JOIN pb2_hr_employee_view e ON w_1.by::text = e.employee_code::text
+          WHERE w_1.type::text = 'PCM_ORD'::text) w ON ord.id::text = w.master_id::text
      LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
             pb2_hr_employee_view.first_name,
             pb2_hr_employee_view.first_name_th
@@ -609,7 +703,7 @@ CREATE OR REPLACE VIEW public.pb2_pcm_ord_view AS
 
 ALTER TABLE public.pb2_pcm_ord_view
   OWNER TO alfresco;
-
+  
 CREATE OR REPLACE VIEW public.pb2_pcm_req_view AS 
  SELECT req.id,
     req.total,
@@ -738,13 +832,13 @@ CREATE OR REPLACE VIEW public.pb2_pcm_req_view AS
                     w_1.workflow_ins_id,
                     w_1.status,
                     w_1.status_th,
-                    e.first_name AS by,
-                    e.first_name_th AS by_th,
+                    COALESCE(e.first_name, w_1.by) AS by,
+                    COALESCE(e.first_name_th, w_1.by::text) AS by_th,
                     w_1.by_time,
                     w_1.task_id
-                   FROM pb2_main_workflow w_1,
-                    pb2_hr_employee_view e
-                  WHERE w_1.type::text = 'PCM_REQ'::text AND w_1.by::text = e.employee_code::text) w ON pr.id::text = w.master_id::text
+                   FROM pb2_main_workflow w_1
+                     LEFT JOIN pb2_hr_employee_view e ON w_1.by::text = e.employee_code::text
+                  WHERE w_1.type::text = 'PCM_REQ'::text) w ON pr.id::text = w.master_id::text
           WHERE pr.status::text <> 'D'::text) req
      LEFT JOIN ( SELECT pb2_hr_employee_view.employee_code,
             pb2_hr_employee_view.first_name,
@@ -798,8 +892,8 @@ CREATE OR REPLACE VIEW public.pb2_pr_method_committee_view AS
 
 ALTER TABLE public.pb2_pr_method_committee_view
   OWNER TO alfresco;
-
-  CREATE OR REPLACE VIEW public.pb2_pr_method_view AS 
+  
+CREATE OR REPLACE VIEW public.pb2_pr_method_view AS 
  SELECT p.id,
     t.name AS obj,
     m.name AS method,
@@ -870,7 +964,7 @@ CREATE OR REPLACE VIEW public.pb2_project_view AS
 
 ALTER TABLE public.pb2_project_view
   OWNER TO alfresco;
-
+  
 CREATE OR REPLACE VIEW public.pb2_section_view AS 
  SELECT s.id,
     concat('[', btrim(s.code::text), '] ', s.name) AS description,
@@ -880,7 +974,8 @@ CREATE OR REPLACE VIEW public.pb2_section_view AS
     o.name_short,
     COALESCE(iro_short.value, o.name_short::text) AS name_short_th,
     concat('[', btrim(c.code::text), '] ', c.name) AS costcenter,
-    concat('[', btrim(c.code::text), '] ', COALESCE(irc.value, c.name::text)) AS costcenter_th
+    concat('[', btrim(c.code::text), '] ', COALESCE(irc.value, c.name::text)) AS costcenter_th,
+    s.name_short AS section_name_short
    FROM pb2_ext_res_section s
      LEFT JOIN pb2_ext_res_org o ON s.org_id = o.id
      LEFT JOIN pb2_ext_res_costcenter c ON s.costcenter_id = c.id
@@ -904,73 +999,3 @@ CREATE OR REPLACE VIEW public.pb2_section_view AS
 
 ALTER TABLE public.pb2_section_view
   OWNER TO alfresco;
-
-
--- View: public.pb2_boss_view
-
-DROP VIEW public.pb2_boss_view;
-
-CREATE OR REPLACE VIEW public.pb2_boss_view AS 
- SELECT a.org_id,
-    a.section_id,
-    a.employee_id,
-    a._level AS lvl,
-    a.amount_min,
-    a.amount_max,
-    a.first_name,
-    a.last_name,
-    a.doc_type,
-    '0'::text AS is_special,
-    a.employee_code
-   FROM ( SELECT b.org_id,
-            b.section_id,
-            b.employee_id,
-            l.name AS _level,
-            a_1.amount_min,
-            a_1.amount_max,
-            h.employee_code,
-            h.first_name,
-            h.last_name,
-            d.name AS doc_type,
-            '0' AS is_special,
-            l.id AS level_id
-           FROM pb2_ext_wkf_cmd_level l,
-            pb2_ext_wkf_cmd_boss_level_approval b,
-            pb2_ext_wkf_cmd_approval_amount a_1,
-            pb2_ext_hr_employee h,
-            pb2_ext_wkf_config_doctype d
-          WHERE l.id = b.level AND a_1.org_id = b.org_id AND a_1.level = b.level AND a_1.doctype_id = d.id AND b.employee_id = h.id) a
-     LEFT JOIN pb2_ext_wkf_cmd_boss_special_level s ON a.section_id = s.section_id AND s.special_level = a.level_id
-  WHERE s.id IS NULL
-UNION
- SELECT s.org_id,
-    sl.section_id,
-    sl.employee_id,
-    l.name AS lvl,
-    a.amount_min,
-    a.amount_max,
-    h.first_name,
-    h.last_name,
-    d.name AS doc_type,
-    '1'::text AS is_special,
-    h.employee_code
-   FROM pb2_ext_wkf_cmd_level l,
-    pb2_ext_wkf_cmd_boss_special_level sl,
-    pb2_ext_res_section s,
-    pb2_ext_wkf_cmd_approval_amount a,
-    pb2_ext_hr_employee h,
-    pb2_ext_wkf_config_doctype d
-  WHERE l.id = sl.special_level AND sl.section_id = s.id AND a.org_id = s.org_id AND a.level = sl.special_level AND a.doctype_id = d.id AND sl.employee_id = h.id
-  ORDER BY 5, 6, 10 DESC;
-
-ALTER TABLE public.pb2_boss_view
-  OWNER TO alfresco;
-COMMENT ON VIEW public.pb2_boss_view
-  IS 'select * from
-(สายอนุมัติ ทั้งหมดที่มีการตัดข้อมูลที่มีใน Special Level ( pb2_ext_wkf_cmd_boss_special_level ) ออก)
-union
-(สายอนุมัติ ที่เป็น Special Level ( pb2_ext_wkf_cmd_boss_special_level ))
-';
-
-  
-

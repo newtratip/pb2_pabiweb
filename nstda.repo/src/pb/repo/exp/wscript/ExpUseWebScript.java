@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.alfresco.service.cmr.security.AuthenticationService;
@@ -19,6 +20,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
+import pb.common.exception.FolderNoPermissionException;
 import pb.common.model.FileModel;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
@@ -29,7 +31,9 @@ import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
+import pb.repo.admin.service.AdminModuleService;
 import pb.repo.admin.service.AdminUserGroupService;
+import pb.repo.admin.util.MainUtil;
 import pb.repo.exp.constant.ExpUseConstant;
 import pb.repo.exp.model.ExpUseAttendeeModel;
 import pb.repo.exp.model.ExpUseDtlModel;
@@ -70,6 +74,9 @@ public class ExpUseWebScript {
 	
 	@Autowired
 	private ExpUseWorkflowService mainWorkflowService;
+	
+	@Autowired
+	private AdminModuleService moduleService;
 	
     @Uri(URI_PREFIX+"/list")
     public void handleList(@RequestParam(required=false) final String s
@@ -129,6 +136,14 @@ public class ExpUseWebScript {
 		params.put("orderBy", "ORDER_FIELD, updated_time DESC");		
 	  
 		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
+		
+		MainMasterModel monitorUserModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_MONITOR_USER);
+		if (monitorUserModel!=null && monitorUserModel.getFlag1()!=null) {
+			String mu = ","+monitorUserModel.getFlag1()+",";
+			if (mu.indexOf(","+curUser+",") >= 0) {
+				params.put("monitorUser", "1");
+			}
+		}
 		
 		/*
 		 * Search
@@ -247,7 +262,7 @@ public class ExpUseWebScript {
 		  
 		  map.put(ExpUseConstant.JFN_REQ_BY_NAME, ename);
 		  map.put(ExpUseConstant.JFN_REQ_TEL_NO, wphone+comma+mphone);
-		  map.put(ExpUseConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"+langSuffix));
+		  map.put(ExpUseConstant.JFN_REQ_BY_DEPT, dtl.get("position"+langSuffix));
 		  
 		  map.put(ExpUseConstant.JFN_REQ_BU, dtl.get("org_desc"+langSuffix));
 		  
@@ -465,7 +480,7 @@ public class ExpUseWebScript {
 			model.setPayDtl2(payDtl2);
 			model.setPayDtl3(payDtl3);
 			
-			model.setTotal(Double.parseDouble(total));
+			model.setTotal(Double.parseDouble(total!=null && !total.equals("") ? total : "0"));
 			model.setStatus(ExpUseConstant.ST_DRAFT);
 			
 			log.info("model="+model);
@@ -476,6 +491,8 @@ public class ExpUseWebScript {
 			jsObj.put("status", model.getStatus());
 			
 			json = CommonUtil.jsonSuccess(jsObj);
+		} catch (FolderNoPermissionException ex) {
+			json = CommonUtil.jsonFail(ex.getMessage());
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -511,6 +528,7 @@ public class ExpUseWebScript {
 			  				,@RequestParam(required=false) final String items
 			  				,@RequestParam(required=false) final String files
 							,@RequestParam(required=false) final String status
+							,@RequestParam(required=false) String lang
 			  				,final WebScriptResponse response) throws Exception {
 		
 		String json = null;
@@ -585,19 +603,46 @@ public class ExpUseWebScript {
 					json = CommonUtil.jsonFail(validateWfPath);
 				}
 				else {
-					model = expUseService.save(model, attendees, items, files, true);
+					MainMasterModel chkBudgetModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_INF_CHECK_BUDGET);
 					
-					mainWorkflowService.setModuleService(expUseService);
-					mainWorkflowService.startWorkflow(model, MainWkfConfigDocTypeConstant.DT_AP);
+					Boolean checkBudget = chkBudgetModel.getFlag1().equals(CommonConstant.V_ENABLE);
+					Boolean budgetOk = false;
+					String budgetResult = null;
+					if (checkBudget) {
+						Map<String, Object> budget = moduleService.getTotalPreBudget(budgetCcType, model.getBudgetCc(), model.getFundId(), null, null);
+						budgetOk = Double.parseDouble(((String)budget.get("balance")).replaceAll(",", "")) >= model.getTotal();
+						if (!budgetOk) {
+							String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_BUDGET_NOT_ENOUGH", new Locale(lang));
+							budgetResult = errMsg;
+						}
+						
+//						Double budgetBalance = interfaceService.getBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getFundId(), model.getCreatedBy());
+//						log.info("Budget Balance:"+budgetBalance);
+//						budgetOk = (Boolean)budgetResult.get("budget_ok");
+					}
 					
-					JSONObject jsObj = new JSONObject();
-					jsObj.put("id", model.getId());
-					jsObj.put("status", model.getStatus());
-					
-					json = CommonUtil.jsonSuccess(jsObj);
+					if (checkBudget && !budgetOk) {
+						JSONObject data = new JSONObject();
+						data.put("valid", false);
+						data.put("msg", budgetResult);
+						json = CommonUtil.jsonFail(data);
+					} else {
+						model = expUseService.save(model, attendees, items, files, true);
+						
+						mainWorkflowService.setModuleService(expUseService);
+						mainWorkflowService.startWorkflow(model, MainWkfConfigDocTypeConstant.DT_EX);
+						
+						JSONObject jsObj = new JSONObject();
+						jsObj.put("id", model.getId());
+						jsObj.put("status", model.getStatus());
+						
+						json = CommonUtil.jsonSuccess(jsObj);
+					}
 				}
 			}
 			
+		} catch (FolderNoPermissionException ex) {
+			json = CommonUtil.jsonFail(ex.getMessage());
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -826,6 +871,8 @@ public class ExpUseWebScript {
 				
 				json = CommonUtil.jsonSuccess(map);
 			}
+		} catch (FolderNoPermissionException ex) {
+			json = CommonUtil.jsonFail(ex.getMessage());
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -846,6 +893,7 @@ public class ExpUseWebScript {
 		  byte[] data = Files.readAllBytes(path);
 			
 		  response.setContentType("application/vnd.ms-excel");
+		  response.addHeader("Content-Disposition", "attachment; filename=paymentDoc.xls");
 		  java.io.OutputStream out = response.getOutputStream();
 		    
 		  out.write(data);
@@ -1058,7 +1106,7 @@ public class ExpUseWebScript {
 					model = expUseService.save(model, attendees, items, files, true);
 					
 					mainWorkflowService.setModuleService(expUseService);
-					mainWorkflowService.updateWorkflow(model, null, null, MainWkfConfigDocTypeConstant.DT_AP);
+					mainWorkflowService.updateWorkflow(model, null, null, MainWkfConfigDocTypeConstant.DT_EX);
 					
 					JSONObject jsObj = new JSONObject();
 					jsObj.put("id", model.getId());
@@ -1068,6 +1116,8 @@ public class ExpUseWebScript {
 				}
 			}
 			
+		} catch (FolderNoPermissionException ex) {
+			json = CommonUtil.jsonFail(ex.getMessage());
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());

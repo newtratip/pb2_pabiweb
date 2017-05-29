@@ -34,6 +34,7 @@ public class ExpBrwInvocationHandler
 	
     public Map<String, Object> action(Map<String, Object> params)
     {
+    	log.info("action()");
     	log.info("params:"+params.toString());
     	
     	Map<String, Object> result = new HashMap<String, Object>();
@@ -104,6 +105,7 @@ public class ExpBrwInvocationHandler
     
     public Map<String, Object> history(Map<String, Object> params)
     {
+    	log.info("history()");
     	log.info("params:"+params.toString());
     	
     	Map<String, Object> result = new HashMap<String, Object>();

@@ -1348,7 +1348,7 @@
          if ($hasEventInterest(this, args))
          {
             this._adjustCurrentValues();
-
+            
             var items = this.selectedItems,
                displayValue = "";
 
@@ -1402,6 +1402,7 @@
                            }
                            displayValue += this.options.objectRenderer.renderItem(item, 16,
                                  "<div>{icon} <a href='" + link + "'>{name}</a></div>");
+                           
                         }
                         else if (this.options.displayMode == "list")
                         {
@@ -1478,6 +1479,10 @@
 	  			  table.addRow(obj.item);
                   this.selectedItems[obj.item.nodeRef] = obj.item;
                   this.singleSelectedItem = obj.item;
+                  
+                  // Doy+ {
+                  //this.options.selectedValue = (this.options.selectedValue ? this.options.selectedValue+"," : "")+obj.item.nodeRef;
+                  // Doy+ }
 
                   if (obj.highlight)
                   {
@@ -1750,7 +1755,7 @@
              var data = args[1].value,
              rowId = args[1].rowId;
 
-             console.log(rowId+","+data.nodeRef);
+//             console.log(rowId+","+data.nodeRef);
              
              //Alfresco.util.PopupManager.curNodeRef = data.nodeRef;
              this.curNodeRef = data.nodeRef;
@@ -1784,20 +1789,17 @@
 	
 //			 }
 
-console.log("pass 1");
     	  	url = appContext + "/proxy/alfresco/pb/main/editDesc";
-    	  	console.log("pass 2");
              
 	        var params = {
 	           n:this.curNodeRef
 	        };
-	        console.log("pass 3");
+	        
 			Ext.Ajax.request({
 			    url:url,
 			    method: "GET",
 			    params: params,
 			    success: function(response){
-				console.log("ajax success");
 
 				  	var json = Ext.decode(response.responseText);
 					  
@@ -1847,20 +1849,26 @@ console.log("pass 1");
       
       editDescFn:function(obj,scope) {
     	  var me = this;
-    	  console.log(obj);
+//    	  console.log(obj);
 //    	  console.log(Alfresco.util.PopupManager.curNodeRef);
-    	  console.log(me.curNodeRef);
+//    	  console.log(me.curNodeRef);
     	  
     	  url = appContext + "/proxy/alfresco/pb/main/editDesc";
     	  
-    	  for(var a in Alfresco.util.PopupManager) {
-    		  console.log(a+":"+Alfresco.util.PopupManager[a]);
-          }
-    	  
-          	   
+//    	  for(var a in Alfresco.util.PopupManager) {
+//    		  console.log(a+":"+Alfresco.util.PopupManager[a]);
+//          }
+
+        var queryDict = {}
+		location.search.substr(1).split("&").forEach(function(item) {
+		    queryDict[item.split("=")[0]] = item.split("=")[1]
+		});
+		
         var params = {
            d:obj,
-           n:me.curNodeRef
+           n:me.curNodeRef,
+           t:queryDict["taskId"],
+           a:me.getAddedItems()
         };
 		Ext.Ajax.request({
 		    url:url,
@@ -1871,7 +1879,7 @@ console.log("pass 1");
 			  	var json = Ext.decode(response.responseText);
 				  
 			   	if (json.success) {
-			   		me._loadSelectedItems();
+			   		me.selectItems(json.data.list);
 			   	} else {
 			   		alert("not success");
 			   	}
@@ -2003,7 +2011,7 @@ console.log("pass 1");
             {
                template = '<h3 class="name">{name}</h3><div class="description">{description}</div>';
             }
-
+            
             elCell.innerHTML = scope.options.objectRenderer.renderItem(oRecord.getData(), 0, template);
          };
       },
@@ -2058,6 +2066,12 @@ console.log("pass 1");
                description =  item.description ? $html(item.description) : scope.msg("label.none"),
                modifiedOn = item.modified ? Alfresco.util.formatDate(Alfresco.util.fromISO8601(item.modified)) : null,
                title = $html(item.name);
+               
+//               console.log("=======");
+//               for(var a in item) {
+//            	   console.log(a+":"+item[a]);
+//               }
+               
             if (scope.options.showLinkToTarget && scope.options.targetLinkTemplate !== null)
             {
                var link;

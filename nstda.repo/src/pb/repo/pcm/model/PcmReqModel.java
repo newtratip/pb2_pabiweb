@@ -9,6 +9,7 @@ public class PcmReqModel extends SubModuleModel {
 	
 	String reqBy;
 	Integer reqSectionId;
+	String reqByName;
 	
 	String objectiveType;
 	String objective;
@@ -28,8 +29,8 @@ public class PcmReqModel extends SubModuleModel {
 	Integer stockSectionId;
 	
 	String isPrototype;
-	String prototype;
-	String prototypeContractNo;
+	String prototypeType;
+	String prototypeNo;
 	
 	Integer costControlTypeId;
 	String costControlTypeName;
@@ -189,17 +190,17 @@ public class PcmReqModel extends SubModuleModel {
 	public void setFundName(String fundName) {
 		this.fundName = fundName;
 	}
-	public String getPrototype() {
-		return prototype;
+	public String getPrototypeType() {
+		return prototypeType;
 	}
-	public void setPrototype(String prototype) {
-		this.prototype = prototype;
+	public void setPrototypeType(String prototypeType) {
+		this.prototypeType = prototypeType;
 	}
-	public String getPrototypeContractNo() {
-		return prototypeContractNo;
+	public String getPrototypeNo() {
+		return prototypeNo;
 	}
-	public void setPrototypeContractNo(String prototypeContractNo) {
-		this.prototypeContractNo = prototypeContractNo;
+	public void setPrototypeNo(String prototypeNo) {
+		this.prototypeNo = prototypeNo;
 	}
 	public String getLocation() {
 		return location;
@@ -362,6 +363,12 @@ public class PcmReqModel extends SubModuleModel {
 	}
 	public void setCmtList(List<PcmReqCmtHdrModel> cmtList) {
 		this.cmtList = cmtList;
+	}
+	public String getReqByName() {
+		return reqByName;
+	}
+	public void setReqByName(String reqByName) {
+		this.reqByName = reqByName;
 	}
 	
 }

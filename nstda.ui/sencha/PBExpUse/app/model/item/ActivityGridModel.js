@@ -8,6 +8,7 @@ Ext.define('PBExpUse.model.item.ActivityGridModel', {
     		 , {name : 'position'}
     		 , {name : 'uom'}
     		 , {name : 'amount'}
+    		 , {name : 'special_workflow'}
     		 , {name : 'action'}
     ]
 });

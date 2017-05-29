@@ -65,7 +65,6 @@
           // Variables DataTable
           // columns
           var me = this;
-          
 			var variablesColumnDefs = [
 			     {
 			         key:"time", label: this.msg("form.control.details.column.timeColumnHeader"), sortable:true,resizeable:true,
@@ -116,7 +115,7 @@
 			     }
 			   ];          
           
-          var dsFieldValue = Dom.get(this.currentValueHtmlId).value;
+          var dsFieldValue = Dom.get(this.currentValueHtmlId) ? Dom.get(this.currentValueHtmlId).value : document.getElementsByName(this.currentValueHtmlId)[0].value;
           var url = Alfresco.constants.PROXY_URI_RELATIVE + this.dsUrl + dsFieldValue + this.dsSuffix;
 		  var myCallback = {
 			  success: function(o) {

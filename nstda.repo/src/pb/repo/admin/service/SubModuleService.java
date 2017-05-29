@@ -55,4 +55,6 @@ public interface SubModuleService {
 	public Boolean addPermissionToAttached();
 	
 	public void setFirstTaskAssignee(Map<QName, Serializable> parameters, SubModuleModel model);
+	
+	public void prepareModelForWfDesc(SubModuleModel model, String lang);
 }

@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.security.AuthenticationService;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import pb.repo.admin.dao.MainModuleDAO;
@@ -25,8 +26,12 @@ public class AdminModuleService {
 	
 	@Autowired
 	AuthenticationService authService;
+	
+	@Autowired
+	@Qualifier("mainInterfaceService")
+	InterfaceService interfaceService;
 
-	public Map<String, Object> getTotalPreBudget(Integer budgetCc, String budgetCcType) {
+	public Map<String, Object> getTotalPreBudget(String budgetCcType, Integer budgetCc, Integer fundId, String prId, String exId) {
 		
 		Map<String, Object> map = null;
 		
@@ -38,6 +43,9 @@ public class AdminModuleService {
             
             params.put("budgetCc", budgetCc);
             params.put("budgetCcType", budgetCcType);
+            params.put("fundId", fundId);
+            params.put("prId", prId);
+            params.put("exId", exId);
             
     		map = dao.getTotalPreBudget(params);
     		
@@ -47,7 +55,8 @@ public class AdminModuleService {
     		}
     		DecimalFormat df = new DecimalFormat("#,##0.00");
     		
-    		Double balance = 1000000.0;
+    		Double balance = interfaceService.getBudget(budgetCcType, budgetCc, fundId);
+    		
     		map.put("ebalance", df.format(balance-(Double)map.get("pre")));
     		map.put("balance", df.format(balance));
     		map.put("pre", df.format(map.get("pre")));

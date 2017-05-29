@@ -20,8 +20,8 @@
         <result property="isStock" column="is_stock"/>
         <result property="stockSectionId" column="stock_section_id"/>
         <result property="isPrototype" column="is_prototype"/>
-        <result property="prototype" column="prototype"/>
-        <result property="prototypeContractNo" column="prototype_contract_no"/>
+        <result property="prototypeType" column="prototype_type"/>
+        <result property="prototypeNo" column="prototype_no"/>
         <result property="contractDate" column="contract_date"/>
         <result property="costControlTypeId" column="cost_control_type_id"/>
         <result property="costControlTypeName" column="cost_control_type_name"/>
@@ -59,9 +59,15 @@
     </resultMap>
     
     <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
-		select *
+		select *,COUNT(*) OVER() totalRowCount
 		from pb2_pcm_req_view
-		where (created_by_code = #{loginE} or req_by_code = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
+		where 
+		<if test="monitorUser != null">
+			((status != 'D') or (status='D' and created_by_code = #{loginE}))
+		</if>
+		<if test="monitorUser == null">
+			(created_by_code = #{loginE} or (req_by_code = #{loginE} and status!='D') or all_rev ilike '%'||#{loginL}||'%' )
+		</if>
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
 				concat(id, ' ', objective_type_name, ' ', objective_type_name_th, ' ',objective,' ',currency,' ',req_by,' ',req_by_th,' ',created_by,' ',created_by_th,to_char(requested_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
@@ -305,7 +311,7 @@
 	    	,budget_cc,budget_cc_type
 	    	,fund_id
 	    	,is_stock,stock_section_id
-	    	,is_prototype,prototype,prototype_contract_no
+	    	,is_prototype,prototype_type,prototype_no
 	    	,cost_control_id,cost_control_type_id
 	    	,pcm_section_id,location
 	    	,is_across_budget,across_budget
@@ -326,7 +332,7 @@
 	    	,#{budgetCc},#{budgetCcType}
 	    	,#{fundId}
 	    	,#{isStock},#{stockSectionId}
-	    	,#{isPrototype},#{prototype},#{prototypeContractNo}
+	    	,#{isPrototype},#{prototypeType},#{prototypeNo}
 	    	,#{costControlId},#{costControlTypeId}
 	    	,#{pcmSectionId},#{location}
 	    	,#{isAcrossBudget},#{acrossBudget}
@@ -381,8 +387,8 @@
 	    ,is_stock =#{isStock}
 	    ,stock_section_id =#{stockSectionId}
 	    ,is_prototype =#{isPrototype}
-	    ,prototype =#{prototype}
-	    ,prototype_contract_no =#{prototypeContractNo}
+	    ,prototype_type =#{prototypeType}
+	    ,prototype_no =#{prototypeNo}
 	    ,cost_control_type_id =#{costControlTypeId}
 	    ,cost_control_id =#{costControlId}
 	    ,pcm_section_id =#{pcmSectionId}
@@ -410,7 +416,7 @@
      WHERE id=#{id}
     </update>
     
-    <select id="get" parameterType="string" resultMap="result">
+    <select id="get" parameterType="map" resultMap="result">
         SELECT
 		    *, CASE WHEN #{lang}='' THEN b.name ELSE b.name_th END budget_cc_name,
 		    c.name cost_control_name, ct.name cost_control_type_name, f.name fund_name,
@@ -498,7 +504,8 @@
 			a.actor_user rp_id,
 			<!-- case when (r.is_across_budget = '1') then across_budget else 0 end total, -->
 			case when (r.is_across_budget = '1') then r.total_cnv else 0 end total,
-			r.prototype, 
+			r.prototype_type, 
+			r.prototype_no, 
 			pm.type_id method_type,
 			r.stock_section_id,
 			r.pcm_section_id,
@@ -542,7 +549,7 @@
 		WHERE w.type='PCM_REQ'
 		AND r.master_id=#{id}
 		AND r.level=1
-		AND h.action='Approve'
+		AND h.action='Approved'
 		LIMIT 1
     </select>
     
@@ -555,7 +562,7 @@
 		WHERE w.type='PCM_REQ'
 		AND r.master_id=#{id}
 		AND r.level=(select max(level) from pb2_main_workflow_reviewer where master_id=#{id})
-		AND h.action='Approve'
+		AND h.action='Approved'
 		LIMIT 1
     </select>
     

@@ -21,6 +21,14 @@
 	    <if test="id != null">
 	    	AND id=#{id}
    		</if>
+	    <if test="noEmotion != null">
+	    	AND special_workflow_emotion is not true
+   		</if>
+   		AND internal_charge IS 
+	    <if test="noIcharge != null">
+	    	NOT
+   		</if>
+   		TRUE
 	   ORDER BY ${orderBy}
     </select>
     

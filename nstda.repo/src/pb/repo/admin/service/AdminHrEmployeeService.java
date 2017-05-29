@@ -67,6 +67,29 @@ public class AdminHrEmployeeService {
         
         return map;
 	}
+	
+	public List<Map<String, Object>> listInSet(List<String> codes) {
+		
+		List<Map<String, Object>> list = null;
+		
+		SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
+        try {
+        	MainHrEmployeeDAO dao = session.getMapper(MainHrEmployeeDAO.class);
+        	
+        	Map<String, Object> params = new HashMap<String, Object>();
+
+        	if (codes!=null && codes.size()>0) {
+        		params.put("codes", codes);
+        	}
+        	
+    		list = dao.listInSet(params);
+            
+        } finally {
+        	session.close();
+        }
+        
+        return list;
+	}
 
 	public List<Map<String, Object>> list(String type, String code, String searchTerm) {
 		

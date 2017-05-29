@@ -15,6 +15,7 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.apache.log4j.Logger;
 
 import pb.common.constant.AlfrescoConstant;
+import pb.common.exception.FolderNoPermissionException;
 
 public class FolderUtil {
 
@@ -53,79 +54,95 @@ public class FolderUtil {
 		return nodeRef;
 	}
 	
-	public NodeRef createFolderStructure(List<Object> paths, String site) throws Exception{
+	public NodeRef createFolderStructure(List<Object> paths, String site) throws Exception {
 		
-		NodeRef documentLibary = getSiteDocLib(site);
+		NodeRef f = null;
 		
-		//NodeRef documentLibary = new NodeRef("workspace://SpacesStore/d564bfd4-ba77-4023-b686-44338b136a18");
-		log.info("documentLibary :: " +documentLibary.toString());
-		log.info("paths :: " +paths.toString());
-		NodeRef f = documentLibary;
-		for(Object path : paths){
+		try {
+			NodeRef documentLibary = getSiteDocLib(site);
 			
-			if (path instanceof Map) {
+			//NodeRef documentLibary = new NodeRef("workspace://SpacesStore/d564bfd4-ba77-4023-b686-44338b136a18");
+			log.info("documentLibary :: " +documentLibary.toString());
+			log.info("paths :: " +paths.toString());
+			f = documentLibary;
+			
+			for(Object path : paths){
 				
-				Map<String, Object> pathMap = (Map<String, Object>)path;
-				
-				NodeRef search = fileFolderService.searchSimple(f, (String)pathMap.get("name"));
-				
-				if(search == null){
-				
-					FileInfo folder = fileFolderService.create(f, (String)pathMap.get("name"), ContentModel.TYPE_FOLDER);
-					f = folder.getNodeRef();
+				if (path instanceof Map) {
 					
-					String description = (String)pathMap.get("desc");
-					if (description != null) {
-						nodeService.setProperty(f, ContentModel.PROP_DESCRIPTION, description);
-					}
+					Map<String, Object> pathMap = (Map<String, Object>)path;
 					
-				}else{
+					NodeRef search = fileFolderService.searchSimple(f, (String)pathMap.get("name"));
 					
-					f = search;
-					
-				}
-			}
-			else
-			if(path instanceof String){
-				NodeRef search = fileFolderService.searchSimple(f, (String)path);
-				
-				if(search == null){
-				
-					FileInfo folder = fileFolderService.create(f, (String)path, ContentModel.TYPE_FOLDER);
-					f = folder.getNodeRef();
-					
-				}else{
-					
-					f = search;
-					
-				}
-			}else if(path instanceof ArrayList<?>){
-				
-				FileInfo folder = null;
-				NodeRef firstPath = null;
-				int i = 0;
-				for(Object subFolder : (ArrayList<?>)path){
-					
-					NodeRef search = fileFolderService.searchSimple(f, subFolder.toString());
 					if(search == null){
-						
-						folder = fileFolderService.create(f, subFolder.toString(), ContentModel.TYPE_FOLDER);
-					   
-					}
-					if(i==0 && search!=null){
-						firstPath = search;
-					}else if(i==0 && search==null){
-						firstPath = folder.getNodeRef();
-					}				
 					
-					i++;
+						FileInfo folder = fileFolderService.create(f, (String)pathMap.get("name"), ContentModel.TYPE_FOLDER);
+						f = folder.getNodeRef();
+						
+						String description = (String)pathMap.get("desc");
+						if (description != null) {
+							nodeService.setProperty(f, ContentModel.PROP_DESCRIPTION, description);
+						}
+						
+					}else{
+						
+						f = search;
+						
+					}
 				}
-				f = firstPath;
+				else
+				if(path instanceof String){
+					NodeRef search = fileFolderService.searchSimple(f, (String)path);
+					
+					if(search == null){
+					
+						FileInfo folder = fileFolderService.create(f, (String)path, ContentModel.TYPE_FOLDER);
+						f = folder.getNodeRef();
+						
+					}else{
+						
+						f = search;
+						
+					}
+				}else if(path instanceof ArrayList<?>){
+					
+					FileInfo folder = null;
+					NodeRef firstPath = null;
+					int i = 0;
+					for(Object subFolder : (ArrayList<?>)path){
+						
+						NodeRef search = fileFolderService.searchSimple(f, subFolder.toString());
+						if(search == null){
+							
+							folder = fileFolderService.create(f, subFolder.toString(), ContentModel.TYPE_FOLDER);
+						   
+						}
+						if(i==0 && search!=null){
+							firstPath = search;
+						}else if(i==0 && search==null){
+							firstPath = folder.getNodeRef();
+						}				
+						
+						i++;
+					}
+					f = firstPath;
+					
+				}
+				
 				
 			}
-			
-			
+		
+		} catch (Exception ex) {
+			String msg = "Not Found documentLibrary folder in site";
+			if (ex.getMessage().startsWith(msg)) {
+				String siteName = ex.getMessage().substring(msg.length()); 
+				FolderNoPermissionException e = new FolderNoPermissionException("Please check Permission for the user");
+				throw e;
+			} else {
+				throw ex;
+			}
 		}
+		
 		return f;
 	}
 	

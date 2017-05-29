@@ -36,12 +36,14 @@ Ext.define('PBAdmin.Application', {
         'PBAdmin.view.Main',
         'PBAdmin.view.main.settings.Main',
         'PBAdmin.view.main.testSystem.Main',
+        'PBAdmin.view.main.util.Main',
         
         'PBAdmin.controller.Main',
         'PBAdmin.controller.common.User',
         'PBAdmin.controller.main.Settings',
         'PBAdmin.controller.main.SettingsForm',
         'PBAdmin.controller.main.TestSystem',
+        'PBAdmin.controller.main.Util',
 
         'PBAdmin.store.main.SettingsGridStore',
         'PBAdmin.store.main.AuthMasterTypeCmbStore',
@@ -58,7 +60,8 @@ Ext.define('PBAdmin.Application', {
         'main.Settings',
         'main.SettingsForm',
         'main.Group',
-        'main.TestSystem'
+        'main.TestSystem',
+        'main.Util'
     ],
 
     stores: [

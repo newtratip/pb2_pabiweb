@@ -153,6 +153,7 @@ public class EndRemoteExecutor implements ExecutionListener {
 						}
 					}
 					
+					pcmOrdService.prepareModelForWfDesc(model, "th");
 					String desc = pcmOrdService.getWorkflowDescription(model);
 					
 					execution.setVariable("bpm_"+WorkflowModel.PROP_DESCRIPTION.getLocalName(), desc);

@@ -86,6 +86,7 @@ Import-Package: com.github.dynamicextensionsalfresco.actions.annotations
  ,pb.repo.admin.util
  ,pb.repo.common.mybatis
  ,pb.common.constant
+ ,pb.common.exception
  ,pb.common.model
  ,pb.common.util
  ,pb.common.wscript

@@ -1,5 +1,6 @@
 package pb.repo.exp.workflow.av.accepter;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
@@ -21,7 +22,6 @@ import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
@@ -110,7 +110,7 @@ public class CompleteTask implements TaskListener {
 	
 	public void notify(final DelegateTask task) {
 		
-		log.info("<- pr.accepter.CompleteTask ->");
+		log.info("<- av.accepter.CompleteTask ->");
 		
 		try {
 			
@@ -147,7 +147,9 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_REJECT)) {
 							Object comment = task.getVariable("bpm_comment");
 							if (comment==null || comment.toString().trim().equals("")) {
-								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", new Locale(lang));
+//								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
 								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
@@ -157,12 +159,12 @@ public class CompleteTask implements TaskListener {
 						else
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_APPROVE)) {
 							
-							Object accept = task.getVariable(WF_PREFIX+"accept");
-							log.info("accept="+accept);
-							if (accept==null || !accept.toString().trim().equals("true")) {
-								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_APPROVE_NOT_ACCEPT", I18NUtil.getLocale());
-								throw new FormException(CommonConstant.FORM_ERR+errMsg);
-							}
+//							Object accept = task.getVariable(WF_PREFIX+"accept");
+//							log.info("accept="+accept);
+//							if (accept==null || !accept.toString().trim().equals("true")) {
+//								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_APPROVE_NOT_ACCEPT", I18NUtil.getLocale());
+//								throw new FormException(CommonConstant.FORM_ERR+errMsg);
+//							}
 							
 							MainMasterModel cfgModel = adminMasterService.getSystemConfig(MainMasterConstant.SCC_MAIN_INF_AV_CREATE_AV);
 							if (cfgModel!=null && cfgModel.getFlag1().equals(CommonConstant.V_ENABLE)) {
@@ -233,7 +235,6 @@ public class CompleteTask implements TaskListener {
 		}
 		catch (Exception ex) {
 			log.error("",ex);
-			ex.printStackTrace();
 			throw ex;
 		}
 	}

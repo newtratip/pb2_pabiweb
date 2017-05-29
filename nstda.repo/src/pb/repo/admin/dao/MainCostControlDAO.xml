@@ -28,6 +28,15 @@
 		<if test="terms != null">
 			AND cost_control_type_id=#{type}
    		</if>
+		<if test="sectionId != null">
+		and (c.public = true or
+		c.org_id = #{orgId} or
+		c.sector_id = #{sectorId} or
+		c.subsector_id = #{subsectorId} or
+		c.division_id = #{divisionId} or
+		c.section_id = #{sectionId}
+		)
+		</if>
 		ORDER BY ${orderBy}
 	</select>
 	

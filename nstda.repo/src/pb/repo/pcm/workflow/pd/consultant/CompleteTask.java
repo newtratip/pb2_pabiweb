@@ -105,17 +105,18 @@ public class CompleteTask implements TaskListener {
 		
 		log.info("<- pd.consultant.CompleteTask ->");
 		
-		AuthenticationUtil.runAs(new RunAsWork<String>() {
-			public String doWork() throws Exception
-			{
-				log.info("  task.getTaskDefinitionKey():" + task.getTaskDefinitionKey());
-				log.info("  task.id="+task.getId());
-				log.info("  task.Description="+task.getDescription());
-				log.info("  task.EventName="+task.getEventName());
-				log.info("  task.Name="+task.getName());
-				log.info("  task.Owner="+task.getOwner());
-				
-				try {
+		try {
+		
+			AuthenticationUtil.runAs(new RunAsWork<String>() {
+				public String doWork() throws Exception
+				{
+					log.info("  task.getTaskDefinitionKey():" + task.getTaskDefinitionKey());
+					log.info("  task.id="+task.getId());
+					log.info("  task.Description="+task.getDescription());
+					log.info("  task.EventName="+task.getEventName());
+					log.info("  task.Name="+task.getName());
+					log.info("  task.Owner="+task.getOwner());
+					
 					Object id = ObjectUtils.defaultIfNull(task.getVariable(WF_PREFIX+"id"), "");
 					log.info("  id :: " + id.toString());
 					PcmOrdModel model = pcmOrdService.get(id.toString(), null);
@@ -168,7 +169,7 @@ public class CompleteTask implements TaskListener {
 					log.info("  taskHistory:" + finalTaskHistory);
 
 					log.info("  status : "+model.getStatus()+", waitingLevel:"+model.getWaitingLevel());
-					pcmOrdService.updateStatus(model);
+//					pcmOrdService.updateStatus(model);
 										
 					// Comment History
 					String taskComment = "";
@@ -178,14 +179,19 @@ public class CompleteTask implements TaskListener {
 					}
 					
 					action = mainWorkflowService.saveWorkflowHistory(executionEntity, curUser, MainWorkflowConstant.TN_CONSULTANT, taskComment, finalAction, task,  model.getId(), level, model.getStatus());
-				}
-				catch (Exception ex) {
-					log.error(ex);
-				}
 				
-				return null;
-			}
-		}, AuthenticationUtil.getAdminUserName()); // runAs()
-	}
+					pcmOrdService.update(model);
+					mainWorkflowService.updateWorkflow(model, task);
+					
+					return null;
+				}
+			}, AuthenticationUtil.getAdminUserName()); // runAs()
+		
+		}
+		catch (Exception ex) {
+			log.error("",ex);
+			throw ex;
+		}
 	
+	}
 }

@@ -26,9 +26,15 @@
     </resultMap>
     
     <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
-		select *
+		select *,COUNT(*) OVER() totalRowCount
 		from pb2_pcm_ord_view
-		where (created_by_code = #{loginE} or app_by = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
+		where
+		<if test="monitorUser != null">
+			((status != 'D') or (status='D' and created_by_code = #{loginE}))
+		</if>
+		<if test="monitorUser == null">
+			(created_by_code = #{loginE} or app_by = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
+		</if>
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
 				concat(id, ' ', org_name, ' ', org_name_th, ' ', method_name, ' ',objective,' ',created_by,' ',created_by_th,' ',created_by_th,to_char(created_time,'dd/mm/yyyy')) ILIKE '%'||#{item}||'%'

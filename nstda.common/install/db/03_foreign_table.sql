@@ -3,7 +3,9 @@ CREATE FOREIGN TABLE public.pb2_ext_account_activity
     name character varying ,
     active boolean ,
     search_keywords character varying ,
-    budget_method character varying )
+    budget_method character varying ,
+    special_workflow character varying ,
+    internal_charge boolean )
    SERVER foreign_server
    OPTIONS (table_name 'account_activity');
 ALTER FOREIGN TABLE public.pb2_ext_account_activity
@@ -16,12 +18,13 @@ CREATE FOREIGN TABLE public.pb2_ext_account_activity_group
     parent_id integer ,
     name character varying ,
     active boolean ,
-    budget_method character varying )
+    budget_method character varying ,
+    special_workflow_emotion boolean )
    SERVER foreign_server
    OPTIONS (table_name 'account_activity_group');
 ALTER FOREIGN TABLE public.pb2_ext_account_activity_group
   OWNER TO alfresco;
-
+  
 CREATE FOREIGN TABLE public.pb2_ext_account_fiscalyear
    (id integer ,
     name character varying ,
@@ -30,7 +33,7 @@ CREATE FOREIGN TABLE public.pb2_ext_account_fiscalyear
    OPTIONS (table_name 'account_fiscalyear');
 ALTER FOREIGN TABLE public.pb2_ext_account_fiscalyear
   OWNER TO alfresco;
-
+  
 CREATE FOREIGN TABLE public.pb2_ext_account_tax
    (id integer NOT NULL,
     tax_code_id integer ,
@@ -45,7 +48,7 @@ CREATE FOREIGN TABLE public.pb2_ext_account_tax
    OPTIONS (table_name 'account_tax');
 ALTER FOREIGN TABLE public.pb2_ext_account_tax
   OWNER TO alfresco;
-
+  
 CREATE FOREIGN TABLE public.pb2_ext_activity_group_activity_rel
    (activity_group_id integer ,
     activity_id integer )
@@ -54,23 +57,19 @@ CREATE FOREIGN TABLE public.pb2_ext_activity_group_activity_rel
 ALTER FOREIGN TABLE public.pb2_ext_activity_group_activity_rel
   OWNER TO alfresco;
 
-CREATE FOREIGN TABLE public.pb2_ext_bank_master
-   (id integer NOT NULL,
-    code character varying ,
-    name character varying ,
-    abbrev character varying ,
-    active boolean )
-   SERVER foreign_server
-   OPTIONS (table_name 'res_bank_master');
-ALTER FOREIGN TABLE public.pb2_ext_bank_master
-  OWNER TO alfresco;
-
 CREATE FOREIGN TABLE public.pb2_ext_cost_control
    (id integer ,
     cost_control_type_id integer ,
     description text ,
     name character varying ,
-    active boolean )
+    active boolean ,
+    sector_id integer ,
+    subsector_id integer ,
+    division_id integer ,
+    section_id integer ,
+    org_id integer ,
+    owner_level character varying ,
+    public boolean )
    SERVER foreign_server
    OPTIONS (table_name 'cost_control');
 ALTER FOREIGN TABLE public.pb2_ext_cost_control
@@ -285,11 +284,21 @@ CREATE FOREIGN TABLE public.pb2_ext_purchasingunit_section_rel
 ALTER FOREIGN TABLE public.pb2_ext_purchasingunit_section_rel
   OWNER TO alfresco;
 
-CREATE FOREIGN TABLE public.pb2_ext_res_costcenter
+CREATE FOREIGN TABLE public.pb2_ext_res_bank
    (id integer NOT NULL,
     code character varying ,
     name character varying ,
-    active boolean )
+    active boolean ,
+    abbrev character varying )
+   SERVER foreign_server
+   OPTIONS (table_name 'res_bank');
+ALTER FOREIGN TABLE public.pb2_ext_res_bank
+  OWNER TO alfresco;
+
+CREATE FOREIGN TABLE public.pb2_ext_res_costcenter
+   (id integer NOT NULL,
+    code character varying ,
+    name character varying )
    SERVER foreign_server
    OPTIONS (table_name 'res_costcenter');
 ALTER FOREIGN TABLE public.pb2_ext_res_costcenter
@@ -360,7 +369,7 @@ ALTER FOREIGN TABLE public.pb2_ext_res_groups_users_rel
 
 CREATE FOREIGN TABLE public.pb2_ext_res_org
    (id integer NOT NULL,
-    code text ,
+    code character varying ,
     name character varying ,
     operating_unit_id integer ,
     name_short character varying ,
@@ -402,6 +411,17 @@ CREATE FOREIGN TABLE public.pb2_ext_res_project_member
 ALTER FOREIGN TABLE public.pb2_ext_res_project_member
   OWNER TO alfresco;
 
+CREATE FOREIGN TABLE public.pb2_ext_res_project_prototype
+   (id integer NOT NULL,
+    code character varying ,
+    name character varying ,
+    prototype_type character varying ,
+    project_id integer )
+   SERVER foreign_server
+   OPTIONS (table_name 'res_project_prototype');
+ALTER FOREIGN TABLE public.pb2_ext_res_project_prototype
+  OWNER TO alfresco;
+
 CREATE FOREIGN TABLE public.pb2_ext_res_section
    (id integer NOT NULL,
     code character varying ,
@@ -410,7 +430,9 @@ CREATE FOREIGN TABLE public.pb2_ext_res_section
     sector_id integer ,
     org_id integer ,
     costcenter_id integer ,
-    active boolean )
+    active boolean ,
+    name_short character varying ,
+    subsector_id integer )
    SERVER foreign_server
    OPTIONS (table_name 'res_section');
 ALTER FOREIGN TABLE public.pb2_ext_res_section
@@ -426,6 +448,14 @@ CREATE FOREIGN TABLE public.pb2_ext_res_users
    SERVER foreign_server
    OPTIONS (table_name 'res_users');
 ALTER FOREIGN TABLE public.pb2_ext_res_users
+  OWNER TO alfresco;
+
+CREATE FOREIGN TABLE public.pb2_ext_wf_emotion_activity_group_section_rel
+   (section_id integer ,
+    activity_group_id integer )
+   SERVER foreign_server
+   OPTIONS (table_name 'wf_emotion_activity_group_section_rel');
+ALTER FOREIGN TABLE public.pb2_ext_wf_emotion_activity_group_section_rel
   OWNER TO alfresco;
 
 CREATE FOREIGN TABLE public.pb2_ext_wkf_cmd_approval_amount

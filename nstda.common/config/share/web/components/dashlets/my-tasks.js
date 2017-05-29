@@ -439,7 +439,7 @@
             
             var v = YAHOO.util.Cookie.get("alf_share_locale");
             v = v ? v : "en";
-            var isThai = v.startsWith("th");
+            var isThai = v.indexOf("th")==0;
             
             if (!isThai) {
             	message = data.properties["pcmreqwf_description"];
@@ -455,20 +455,20 @@
             }
             
             if (type) {
-	            if(type.indexOf("Requester") > -1){
-	            	type = isThai ? "ผู้บันทึก" : "Requester";
+	            if(type.indexOf("Preparer") > -1){
+	            	type = isThai ? "ผู้บันทึก" : "Preparer";
 	            }
-	            else if(type.indexOf("Reviewer") > -1){
-	            	var p = type.indexOf("Reviewer");
+	            else if(type.indexOf("Requester") > -1){
+	            	type = isThai ? "ผู้ขอ" : "Requester";
+	            }
+	            else if(type.indexOf("Approver") > -1){
+	            	var p = type.indexOf("Approver");
 	            	var suf = type.substring(p+8);
-	            	type = isThai ? "ผู้อนุมัติขั้นที่" : "Reviewer";
+	            	type = isThai ? "ผู้อนุมัติขั้นที่" : "Approver";
 	            	type += suf;
 	            }
 	            else if(type.indexOf("Consultant") > -1){
 	            	type = isThai ? "ที่ปรึกษา" : "Consultant";
-	            }
-	            else if(type.indexOf("Accepter") > -1){
-	            	type = isThai ? "ผู้ขอ" : "Accepter";
 	            }
             }
             

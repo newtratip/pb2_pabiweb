@@ -181,9 +181,9 @@ public class PcmMessageWebScript {
 	  lbl.put("constr", PcmReqUtil.getMessage(prefix+"construction", locale));
 	  lbl.put("isPtt", PcmReqUtil.getMessage(prefix+"isPrototype", locale));
 	  lbl.put("err_isPtt", PcmReqUtil.getMessage(prefix+"err.isPrototype", locale));
-	  lbl.put("ptt", PcmReqUtil.getMessage(prefix+"prototype", locale));
-	  lbl.put("contract", PcmReqUtil.getMessage(prefix+"contract", locale));
-	  lbl.put("err_contract", PcmReqUtil.getMessage(prefix+"err.contract", locale));
+	  lbl.put("prototypeType", PcmReqUtil.getMessage(prefix+"prototypeType", locale));
+	  lbl.put("prototypeNo", PcmReqUtil.getMessage(prefix+"prototypeNo", locale));
+	  lbl.put("err_prototypeNo", PcmReqUtil.getMessage(prefix+"err.prototypeNo", locale));
 	  lbl.put("contractDate", PcmReqUtil.getMessage(prefix+"contractDate", locale));
 	  lbl.put("cc", PcmReqUtil.getMessage(prefix+"costControl", locale));
 	  lbl.put("loc", PcmReqUtil.getMessage(prefix+"location", locale));
@@ -202,6 +202,7 @@ public class PcmMessageWebScript {
 	  lbl = new JSONObject();
 	  prefix = "pr.form.tab.item.";
 	  lbl.put("lbw", PcmReqUtil.getMessage(prefix+"lbw", locale));
+	  lbl.put("act", PcmReqUtil.getMessage(prefix+"act", locale));
 	  lbl.put("actGrp", PcmReqUtil.getMessage(prefix+"actGrp", locale));
 	  lbl.put("name", PcmReqUtil.getMessage(prefix+"name", locale));
 	  lbl.put("qty", PcmReqUtil.getMessage(prefix+"qty", locale));

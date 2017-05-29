@@ -9,6 +9,7 @@ import static org.apache.ibatis.jdbc.SelectBuilder.SQL;
 import static org.apache.ibatis.jdbc.SelectBuilder.WHERE;
 
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,16 +21,21 @@ import org.apache.ibatis.builder.xml.dynamic.DynamicSqlSource;
 import org.apache.ibatis.builder.xml.dynamic.TextSqlNode;
 import org.apache.ibatis.jdbc.SqlRunner;
 import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import pb.common.constant.CommonConstant;
+import pb.common.util.CommonUtil;
 import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.common.mybatis.DbConnectionFactory;
 import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.constant.PcmReqDtlConstant;
+import pb.repo.pcm.dao.PcmReqDAO;
+import pb.repo.pcm.model.PcmReqModel;
+import pb.repo.pcm.util.PcmUtil;
 
 @Service
 public class PcmSrcUrlService {
@@ -503,5 +509,33 @@ public class PcmSrcUrlService {
         }
         
         return map;
+	}
+	
+	public Map<String, Object> getMemoFieldTotal(String id, String lang) throws Exception {
+		
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		List<PcmReqModel> list = null;
+		
+		SqlSession session = PcmUtil.openSession(dataSource);
+        try {
+        	Map<String, Object> params = new HashMap<String,Object>();
+        	params.put("id", id);
+        	params.put("lang", lang);
+        	
+            PcmReqDAO dao = session.getMapper(PcmReqDAO.class);
+    		PcmReqModel model = dao.get(params);
+    		
+    		
+            
+    		map.put("data", CommonUtil.formatMoney(model.getTotal())+" "+model.getCurrency());
+        } catch (Exception ex) {
+			log.error("", ex);
+        	throw ex;
+        } finally {
+        	session.close();
+        }
+        
+        return map;
 	}	
+	
 }

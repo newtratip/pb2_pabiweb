@@ -9,7 +9,7 @@ Ext.define('PBPcm.view.MainFormCmtTab', {
 
     layout:'fit',
     autoScroll:true,
-
+    
 	initComponent: function(config) {
 		var me = this;
 

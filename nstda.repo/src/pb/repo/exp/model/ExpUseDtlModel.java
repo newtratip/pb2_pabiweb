@@ -18,6 +18,7 @@ public class ExpUseDtlModel extends BaseDataModel {
 	String position;
 	String uom;
 	Double amount;
+	String specialWorkflow;
 	
 	Timestamp createdTime;
 	String createdBy;
@@ -120,6 +121,14 @@ public class ExpUseDtlModel extends BaseDataModel {
 
 	public void setAmount(Double amount) {
 		this.amount = amount;
+	}
+	
+	public String getSpecialWorkflow() {
+		return specialWorkflow;
+	}
+
+	public void setSpecialWorkflow(String specialWorkflow) {
+		this.specialWorkflow = specialWorkflow;
 	}
 
 	public Timestamp getCreatedTime() {

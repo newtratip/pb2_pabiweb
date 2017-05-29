@@ -73,7 +73,7 @@ public class CreateTask implements TaskListener {
 			task.setVariable("bpm_status", mainWorkflowService.getWorkflowStatus(WF_PREFIX, executionEntity, taskKey, level));
 			task.setVariable("bpm_reassignable", Boolean.FALSE);
 			
-			task.setName(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_REQUESTER));
+			task.setName(MainWorkflowConstant.WF_TASK_NAMES.get(MainWorkflowConstant.TN_PREPARER));
 			
 			/*
 			 * Update DB

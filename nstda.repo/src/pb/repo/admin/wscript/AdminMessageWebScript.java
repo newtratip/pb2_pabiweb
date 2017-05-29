@@ -92,7 +92,7 @@ public class AdminMessageWebScript {
    * @throws IOException
    */
   @Uri(URI_PREFIX+"/lbl")
-  public void handleReq(@RequestParam(required=false) String lang,
+  public void handleLbl(@RequestParam(required=false) String lang,
 		  				final WebScriptResponse response) throws IOException, JSONException {
 //	  String json = "{a:\"ทดสอบ 2\"}";
 	  
@@ -123,6 +123,7 @@ public class AdminMessageWebScript {
 	  lbl.put("doc", MainUtil.getMessage(prefix+"document", locale));
 	  lbl.put("org", MainUtil.getMessage(prefix+"org", locale));
 	  lbl.put("section", MainUtil.getMessage(prefix+"section", locale));
+	  lbl.put("sectionNonemp", MainUtil.getMessage(prefix+"section.nonemp", locale));
 	  lbl.put("project", MainUtil.getMessage(prefix+"project", locale));
 	  lbl.put("emp", MainUtil.getMessage(prefix+"employee", locale));
 	  lbl.put("ecode", MainUtil.getMessage(prefix+"employeeCode", locale));
@@ -163,6 +164,7 @@ public class AdminMessageWebScript {
 	  lbl.put("name", MainUtil.getMessage(prefix+"name", locale));
 	  lbl.put("invAsset", MainUtil.getMessage(prefix+"invAsset", locale));
 	  lbl.put("constr", MainUtil.getMessage(prefix+"construction", locale));
+	  lbl.put("sectShort", MainUtil.getMessage(prefix+"sectionShort", locale));
 	  lbl.put("sectName", MainUtil.getMessage(prefix+"sectionName", locale));
 	  lbl.put("projName", MainUtil.getMessage(prefix+"projectName", locale));
 	  lbl.put("pm", MainUtil.getMessage(prefix+"pm", locale));

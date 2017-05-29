@@ -34,7 +34,7 @@ Ext.define('PB.view.common.upload.Grid', {
 		            }]
 			     },
 			     {text: PB.Label.u.number, xtype: 'rownumberer', width:60},
-			     {text: PB.Label.u.name, dataIndex: 'name', flex: 0.5},
+			     {text: PB.Label.u.name, dataIndex: 'name', flex: 0.5, renderer:me.fileNameRenderer},
 			     {text: PB.Label.u.desc, dataIndex: 'desc', flex: 1}
 			    ],
 			    tbar:[{
@@ -89,6 +89,17 @@ Ext.define('PB.view.common.upload.Grid', {
 		});		
 				
         this.callParent(arguments);
+	},
+	
+	fileNameRenderer:function(v, m, r) {
+		var me = this;
+		var val = v;
+		
+		if(me.editMode) {
+			val = '<a href="'+MAIN_CONTEXT+"/page/document-details?nodeRef="+r.get("nodeRef")+'" target="_new">'+v+'</a>';
+		}
+
+		return val;
 	}
 
 });		

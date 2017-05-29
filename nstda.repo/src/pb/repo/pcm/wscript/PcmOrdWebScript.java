@@ -127,6 +127,14 @@ public class PcmOrdWebScript {
 		
 		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
 	  
+		MainMasterModel monitorUserModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_MONITOR_USER);
+		if (monitorUserModel!=null && monitorUserModel.getFlag1()!=null) {
+			String mu = ","+monitorUserModel.getFlag1()+",";
+			if (mu.indexOf(","+curUser+",") >= 0) {
+				params.put("monitorUser", "1");
+			}
+		}
+		
 		/*
 		 * Search
 		 */

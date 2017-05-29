@@ -16,8 +16,8 @@
        SELECT 		*
 	   FROM 		pb2_ext_account_tax
 	   WHERE type_tax_use='purchase'
-	   and is_wht is false
-	   and is_undue_tax is false
+	   and is_wht is not true
+	   and is_undue_tax is not true
 	   and type = 'percent'
 	   and amount>0
 	   and active is true

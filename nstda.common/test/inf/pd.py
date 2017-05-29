@@ -19,7 +19,7 @@ att2 = b64str('PR_2015011901.pdf')
 
 arg = {
 	'action':'1',
-	'pdNo':'PD17000022',
+	'pdNo':'PD17000056',
 	'sectionId':'475',
 	'prNo':'PR17000001,PR17000002',
 	'docType':'PD2',

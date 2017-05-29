@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.alfresco.service.cmr.security.AuthenticationService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,9 @@ public class InterfaceService {
 	
 	@Autowired
 	AdminUserService userService;
+	
+	@Autowired
+	AuthenticationService authService;
 	
 	private List<Object> getInitArgs(Map<String, Object> cfg) {
 		List<Object> args = new ArrayList();
@@ -129,6 +133,11 @@ public class InterfaceService {
 	        map.put("reason_bypass_procure", data.get("reason")!=null ? data.get("reason") : "");
 	        map.put("note", data.get("note")!=null ? data.get("note") : "");
 	        map.put("remark", data.get("av_remark")!=null ? data.get("av_remark") : "");
+	        
+//			Map<String, Object> lastAppMap = expBrwService.getLastApprover(model.getId());
+	        map.put("approver_code", authService.getCurrentUserName());
+//			map.put("approver_time", lastAppMap != null ? CommonDateTimeUtil.convertToGridDateTime((Timestamp)lastAppMap.get("time")) : "");
+	        
 	        
 	        for(String key : map.keySet()) {
 	        	log.info(" - "+key+":"+map.get(key));
@@ -241,6 +250,7 @@ public class InterfaceService {
 		        att.put("name", file.getName()); 
 		        att.put("description", file.getDesc()!=null ? file.getDesc() : ""); 
 		        att.put("url",NodeUtil.trimNodeRef(file.getNodeRef().toString()));
+		        att.put("attach_by", file.getBy());
 		        attachment.add(att);
 		        
 		        for(String key : att.keySet()) {
@@ -325,13 +335,17 @@ public class InterfaceService {
 	        map.put("reason_bypass_procure", data.get("reason")!=null ? data.get("reason") : "");
 	        map.put("remark", "");
 	        
+//			Map<String, Object> lastAppMap = expUseService.getLastApprover(model.getId());
+	        map.put("approver_code", authService.getCurrentUserName());
+//			map.put("approver_time", lastAppMap != null ? CommonDateTimeUtil.convertToGridDateTime((Timestamp)lastAppMap.get("time")) : "");
+	        
 	        String payType = (String)data.get("pay_type");
 	        String payTo = null;
 	        String supText = null;
 	        String avId = null;
 	        String avClear = "False";
-	        String iSecId = null;
-	        String iPrjId = null;
+	        String iSecId = "";
+	        String iPrjId = "";
 	        String iActId = "";
 	        
 	        if (payType.equals("0")) {
@@ -359,12 +373,10 @@ public class InterfaceService {
 	        	supText = "";
 	        	if (data.get("pay_dtl2").equals(MainBudgetSrcConstant.TYPE_UNIT)) {
 	        		iSecId = (String)data.get("pay_dtl1");
-	        		iPrjId = "";
 	        	} else {
-	        		iSecId = "";
 	        		iPrjId = (String)data.get("pay_dtl1");
 	        	}
-	        	iActId = (String)data.get("pay_dtl3");
+	        	//iActId = (String)data.get("pay_dtl3");
 	        }
 	        
 	        map.put("receive_method", payType.equals("0") || payType.equals("2") ? receiveMethodForInf((String)data.get("bank_type")) : "");
@@ -375,7 +387,7 @@ public class InterfaceService {
 	        map.put("advance_expense_number", avId);
 	        map.put("internal_section_id.id", iSecId);
 	        map.put("internal_project_id.id", iPrjId);
-	        map.put("activity_id.id", iActId);
+//	        map.put("activity_id.id", iActId);
 	        
 	        for(String key : map.keySet()) {
 	        	log.info(" - "+key+":"+map.get(key));
@@ -495,6 +507,7 @@ public class InterfaceService {
 		        att.put("name", file.getName()); 
 		        att.put("description", file.getDesc()!=null ? file.getDesc() : ""); 
 		        att.put("url",NodeUtil.trimNodeRef(file.getNodeRef().toString()));
+		        att.put("attach_by", file.getBy());
 		        attachment.add(att);
 		        
 		        for(String key : att.keySet()) {

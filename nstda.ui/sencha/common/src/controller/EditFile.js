@@ -4,6 +4,9 @@ Ext.define('PB.controller.common.EditFile', {
     refs:[{
     	ref:'dlg',
     	selector:'editFileDlg'
+    },{
+    	ref:'form',
+    	selector:'editFileDlg form'
     }],
     
     init:function() {
@@ -27,11 +30,21 @@ Ext.define('PB.controller.common.EditFile', {
 	ok:function(btn, rec, grid) {
 		var me = this;
 		
-		rec.set('desc', me.getDesc(btn).getValue());
-		rec.commit();
+		var form = me.getForm();		
+
+		if(validForm(form)) {
 		
-		me.getDlg().callback(grid,rec);
-		me.getDlg().close();
+			rec.set('desc', me.getDesc(btn).getValue());
+			rec.commit();
+			
+			me.getDlg().callback(grid,rec);
+			me.getDlg().close();
+		
+		}
+	},
+	
+	validForm:function() {
+		
 	}
 
 });

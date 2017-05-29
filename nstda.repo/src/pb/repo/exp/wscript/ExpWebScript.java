@@ -19,6 +19,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
+import pb.common.exception.FolderNoPermissionException;
 import pb.common.model.FileModel;
 import pb.common.util.CommonDateTimeUtil;
 import pb.common.util.CommonUtil;
@@ -29,17 +30,19 @@ import pb.repo.admin.constant.MainWkfConfigDocTypeConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
+import pb.repo.admin.service.AdminModuleService;
+import pb.repo.admin.service.AdminSectionProjectService;
 import pb.repo.admin.service.AdminUserGroupService;
 import pb.repo.exp.constant.ExpBrwConstant;
+import pb.repo.exp.model.ExpBrwAttendeeModel;
 import pb.repo.exp.model.ExpBrwDtlModel;
 import pb.repo.exp.model.ExpBrwModel;
-import pb.repo.exp.model.ExpBrwAttendeeModel;
 import pb.repo.exp.service.ExpBrwService;
 import pb.repo.exp.service.ExpBrwWorkflowService;
 import pb.repo.exp.service.InterfaceService;
+import pb.repo.exp.util.ExpBrwAttendeeUtil;
 import pb.repo.exp.util.ExpBrwDtlUtil;
 import pb.repo.exp.util.ExpBrwUtil;
-import pb.repo.exp.util.ExpBrwAttendeeUtil;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
@@ -74,6 +77,12 @@ public class ExpWebScript {
 	
 	@Autowired
 	private ExpBrwWorkflowService mainWorkflowService;
+	
+	@Autowired
+	private AdminSectionProjectService sectionProjectService;
+	
+	@Autowired
+	private AdminModuleService moduleService;
 	
     @Uri(URI_PREFIX+"/brw/list")
     public void handleList(@RequestParam(required=false) final String s
@@ -134,6 +143,14 @@ public class ExpWebScript {
 		
 		params.put("lang", lang!=null && lang.startsWith("th") ? "_th" : "");
 	  
+		MainMasterModel monitorUserModel = masterService.getSystemConfig(MainMasterConstant.SCC_MAIN_MONITOR_USER);
+		if (monitorUserModel!=null && monitorUserModel.getFlag1()!=null) {
+			String mu = ","+monitorUserModel.getFlag1()+",";
+			if (mu.indexOf(","+curUser+",") >= 0) {
+				params.put("monitorUser", "1");
+			}
+		}
+		
 		/*
 		 * Search
 		 */
@@ -286,14 +303,14 @@ public class ExpWebScript {
 		  
 		  map.put(ExpBrwConstant.JFN_REQ_BY_NAME, ename);
 		  map.put(ExpBrwConstant.JFN_REQ_TEL_NO, wphone+comma+mphone);
-		  map.put(ExpBrwConstant.JFN_REQ_BY_DEPT, dtl.get("div_name"+langSuffix));
+		  map.put(ExpBrwConstant.JFN_REQ_BY_DEPT, dtl.get("position"+langSuffix));
 		  
 		  map.put(ExpBrwConstant.JFN_REQ_BU, dtl.get("org_desc"+langSuffix));
 		  
 		  map.put(ExpBrwConstant.JFN_REQ_SECTION_ID, dtl.get("section_id"));
 		  map.put(ExpBrwConstant.JFN_REQ_SECTION_NAME, dtl.get("section_desc"+langSuffix));
 		  
-		  
+		  map.put(ExpBrwConstant.JFN_CREATED_BY, authService.getCurrentUserName());
 		  String createdUser = (c!=null) ? c : authService.getCurrentUserName();
 		  if (!createdUser.equals(reqUser)) {
 			  dtl = adminHrEmployeeService.getWithDtl(createdUser);
@@ -420,7 +437,7 @@ public class ExpWebScript {
 			if (bank != null && !bank.equals("")) {
 				model.setBank(Integer.parseInt(bank));
 			}
-			model.setTotal(Double.parseDouble(total));
+			model.setTotal(Double.parseDouble(total!=null && !total.equals("") ? total : "0"));
 			model.setStatus(ExpBrwConstant.ST_DRAFT);
 			
 			log.info("model="+model);
@@ -431,6 +448,8 @@ public class ExpWebScript {
 			jsObj.put("status", model.getStatus());
 			
 			json = CommonUtil.jsonSuccess(jsObj);
+		} catch (FolderNoPermissionException ex) {
+			json = CommonUtil.jsonFail(ex.getMessage());
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -462,6 +481,7 @@ public class ExpWebScript {
 			  				,@RequestParam(required=false) final String attendees
 			  				,@RequestParam(required=false) final String files
 							,@RequestParam(required=false) final String status
+							,@RequestParam(required=false) String lang
 			  				,final WebScriptResponse response) throws Exception {
 		
 		String json = null;
@@ -478,6 +498,7 @@ public class ExpWebScript {
 			}
 			
 			model.setReqBy(reqBy);
+			
 			model.setObjectiveType(objectiveType);
 			model.setObjective(objective);
 			model.setAvRemark(avRemark);
@@ -487,6 +508,7 @@ public class ExpWebScript {
 			if (budgetCc != null && !budgetCc.equals("")) {
 				model.setBudgetCc(Integer.parseInt(budgetCc));
 			}
+			
 			model.setBudgetCcType(budgetCcType);
 			if (fundId != null && !fundId.equals("")) {
 				model.setFundId(Integer.parseInt(fundId));
@@ -539,6 +561,8 @@ public class ExpWebScript {
 //			String createResult = interfaceService.createAV(model);
 //			log.info("createAVResult="+createResult);
 			
+		} catch (FolderNoPermissionException ex) {
+			json = CommonUtil.jsonFail(ex.getMessage());
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -561,7 +585,9 @@ public class ExpWebScript {
 		  ExpBrwModel model = expBrwService.get(id, lang);
 
 		  List<ExpBrwModel> list = new ArrayList<ExpBrwModel>();
-		  list.add(model);
+		  if (model!=null) {
+			  list.add(model);
+		  }
 
 //		  List<ExpBrwDtlModel> dtlList = expBrwService.listDtlByMasterIdAndType(id, ExpBrwDtlConstant.T_EMPLOYEE);  
 
@@ -731,14 +757,10 @@ public class ExpWebScript {
 			model.setTotal(Double.parseDouble(total));
 			model.setStatus(status);
 			
-			log.info("model="+model);
-			
 			if (model.getId() == null || (status!=null && status.equals(ExpBrwConstant.ST_DRAFT))) {
 				model.setStatus(ExpBrwConstant.ST_WAITING);
 				model.setWaitingLevel(1);
 			}
-			
-			log.info("model="+model);
 			
 			JSONObject validateResult = expBrwService.validateAssignee(model);
 			if (!(Boolean)validateResult.get("valid")) {
@@ -755,6 +777,8 @@ public class ExpWebScript {
 				
 				json = CommonUtil.jsonSuccess(map);
 			}
+		} catch (FolderNoPermissionException ex) {
+			json = CommonUtil.jsonFail(ex.getMessage());
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());
@@ -884,6 +908,8 @@ public class ExpWebScript {
 //			String createResult = interfaceService.createAV(model);
 //			log.info("createAVResult="+createResult);
 			
+		} catch (FolderNoPermissionException ex) {
+			json = CommonUtil.jsonFail(ex.getMessage());
 		} catch (Exception ex) {
 			log.error("", ex);
 			json = CommonUtil.jsonFail(ex.toString());

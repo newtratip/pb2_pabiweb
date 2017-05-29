@@ -1,6 +1,6 @@
 Ext.define('PB.Dlg', {
 	statics: {
-		confirm:function(key,f,fn,module,n_fn){
+		confirm:function(key,f,fn,module,n_fn,sc){
 			var me = this;
 		
 			Ext.Ajax.request({
@@ -21,11 +21,11 @@ Ext.define('PB.Dlg', {
 			        	Ext.MessageBox.confirm(json.data[0].code, json.data[0].message , function(btn){
 			        	
 			        		if(btn=="yes"){
-			        			f[fn](null);
+			        			f[fn](sc);
 			        		}else{
 			        			
 			        			if(n_fn!=null && n_fn!=undefined){
-			        				f[n_fn](null);
+			        				f[n_fn](sc);
 			        			}
 			        			
 			        		}
@@ -97,7 +97,7 @@ Ext.define('PB.Dlg', {
 			        		Ext.MessageBox.buttonText = {ok: 'OK', yes: 'Yes', no: 'No', cancel: 'Cancel'};
 			        	}
 			        	
-			        	Ext.MessageBox.show({
+			        	var config = {
 			        		title:json.data[0].code, 
 			        		msg:msg,
 			        		icon: opts.icon,
@@ -105,8 +105,17 @@ Ext.define('PB.Dlg', {
 			        		modal:opts.modal,
 			        		fn:opts.fn,
 			        		scope:opts.scope,
-			        		animateTarget:opts.animateTarget 
-			        	});
+			        		animateTarget:opts.animateTarget
+			        	}			        	
+			        	
+			        	if (opts.scope && msg.indexOf("<br/>")) {
+			        		config.width = Ext.util.TextMetrics.measure(
+			        						  opts.scope.getMain().getEl().dom,
+			        						msg).width+140;
+			        	}
+//			        	console.log("width:"+(config.width-120));
+
+			        	Ext.MessageBox.show(config);
 		        	} else {
 		        		alertInvalidSession();
 		        	}

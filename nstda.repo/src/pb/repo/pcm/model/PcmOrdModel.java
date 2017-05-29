@@ -8,7 +8,9 @@ public class PcmOrdModel extends SubModuleModel {
 	Integer sectionId;
 	String prId;
 	String docType;
+	String method;
 	String appBy;
+	String reqByName;
 	
 	Double total;
 	
@@ -83,6 +85,18 @@ public class PcmOrdModel extends SubModuleModel {
 	}
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
+	}
+	public String getReqByName() {
+		return reqByName;
+	}
+	public void setReqByName(String reqByName) {
+		this.reqByName = reqByName;
+	}
+	public String getMethod() {
+		return method;
+	}
+	public void setMethod(String method) {
+		this.method = method;
 	}
 	
 }

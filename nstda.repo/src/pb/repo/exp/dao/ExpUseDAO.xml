@@ -31,6 +31,7 @@
         <result property="ichargeName" column="icharge_name"/>
         <result property="ichargeTypeName" column="icharge_type_name"/>
         <result property="ichargeActivity" column="icharge_activity"/>
+        <result property="emotion" column="emotion"/>
         <result property="workflowInsId" column="workflow_ins_id"/>
         <result property="docRef" column="doc_ref"/>
         <result property="folderRef" column="folder_ref"/>
@@ -48,10 +49,15 @@
     </resultMap>
     
     <select id="list" resultType="org.apache.commons.collections.map.CaseInsensitiveMap" parameterType="map">
-		select *
+		select *,COUNT(*) OVER() totalRowCount
 		from pb2_exp_use_view
 		where 
-		(created_by_code = #{loginE} or req_by_code = #{loginE} or all_rev ilike '%'||#{loginL}||'%' )
+		<if test="monitorUser != null">
+			((status != 'D') or (status='D' and created_by_code = #{loginE}))
+		</if>
+		<if test="monitorUser == null">
+			(created_by_code = #{loginE} or (req_by_code = #{loginE} and status!='D') or all_rev ilike '%'||#{loginL}||'%' )
+		</if>
 		<if test="terms != null">
 			<foreach item="item" index="index" collection="terms" open="AND (" separator=" AND " close=")">
 				concat(id,' ',objective, ' ',created_by, ' ',created_by_th, ' ',req_by, ' ',req_by_th, ' ',pay_type_name, ' ',pay_type_name_th,' ', to_char(requested_time, 'dd/mm/yyyy'), ' ', budget_cc_name, ' ', budget_cc_name_th) ILIKE '%'||#{item}||'%'
@@ -61,6 +67,8 @@
 			AND status=#{status}
 		</if>
 		ORDER BY ${orderBy}
+		LIMIT #{limit}
+		OFFSET #{start}
     </select>
     
     <select id="llist" resultMap="result" parameterType="map">
@@ -331,6 +339,7 @@
 	    	,doc_ref,folder_ref
 	    	,waiting_level,status
 	    	,created_by,updated_by
+	    	,requested_time
 	    ) VALUES (
 	    	#{id}
 	    	,#{reqBy}
@@ -347,6 +356,7 @@
     		,#{docRef},#{folderRef}
     		,#{waitingLevel},#{status}
     		,#{createdBy},#{updatedBy}
+    		,#{requestedTime}
     	)
 		
 	</insert>
@@ -413,13 +423,17 @@
             	WHEN budget_cc_type='P' THEN CASE WHEN #{lang}='' THEN 'Project' ELSE 'โครงการ' END
             	ELSE budget_cc_type
        		END budget_cc_type_name,
-       		ic.name icharge_name,
+       		CASE WHEN #{lang}='' THEN ic.name ELSE ic.name_th END  icharge_name,
        		CASE 
-  				WHEN budget_cc_type='U' THEN 'หน่วยงาน'
-            	WHEN budget_cc_type='P' THEN 'โครงการ'
-            	ELSE budget_cc_type
+  				WHEN pay_dtl2='U' THEN CASE WHEN #{lang}='' THEN 'Organization' ELSE 'หน่วยงาน' END
+            	WHEN pay_dtl2='P' THEN CASE WHEN #{lang}='' THEN 'Project' ELSE 'โครงการ' END
+            	ELSE pay_dtl2
        		END icharge_type_name,
-       		CASE WHEN #{lang}='' THEN a.name ELSE a.name_th END icharge_activity
+       		CASE WHEN #{lang}='' THEN a.name ELSE a.name_th END icharge_activity,
+       		( SELECT 1
+                   FROM pb2_ext_wf_emotion_activity_group_section_rel e
+                  WHERE e.section_id = r.budget_cc
+                 LIMIT 1) AS emotion
 		FROM
 		    pb2_exp_use r
 		LEFT JOIN
@@ -445,11 +459,23 @@
 		
 		LEFT JOIN
 		(
-		select 'U' _type,id,name
-		from pb2_ext_res_section
+		select 'U' _type,id,concat('[',trim(code),'] ',name) "name", concat('[',trim(code),'] ',name_th) name_th
+		from (select code,id,name,
+				coalesce((select value
+					from pb2_ext_ir_translation
+					where name = 'res.section,name'
+					and type = 'model' and lang='th_TH'
+					and res_id = sec.id), name) as name_th
+				from pb2_ext_res_section sec) s
 		union
-		select 'P' _type,id,name
-		from pb2_ext_res_project
+		select 'P' _type,id,concat('[',trim(code),'] ',name) "name", concat('[',trim(code),'] ',name_th) name_th
+			from (select p.id,p.name, p.code,
+			coalesce((select value
+				from pb2_ext_ir_translation
+				where name = 'res.project,name'
+				and type = 'model' and lang='th_TH'
+				and res_id = p.id), p.name) as name_th
+				FROM pb2_ext_res_project p) pro
 		) ic on (r.pay_dtl2 = ic._type and REGEXP_REPLACE(COALESCE(r.pay_dtl1, '0'), '[^0-9]*' ,'0')::integer = ic.id)
 		
 		LEFT JOIN pb2_ext_res_fund f on (r.fund_id = f.id)
@@ -532,7 +558,7 @@
     </select>
     
     <select id="getFirstApprover" parameterType="string" resultType="org.apache.commons.collections.map.CaseInsensitiveMap">
-		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
+		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time, h.by
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
@@ -540,12 +566,12 @@
 		WHERE w.type='EXP_USE'
 		AND r.master_id=#{id}
 		AND r.level=1
-		AND h.action='Approve'
+		AND h.action='Approved'
 		LIMIT 1
     </select>
     
     <select id="getLastApprover" parameterType="string" resultType="org.apache.commons.collections.map.CaseInsensitiveMap">
-		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time
+		SELECT e.title_th||' '||e.first_name_th||' '||e.last_name_th approver, h.time, h.by
 		FROM pb2_main_workflow_reviewer r
 		LEFT JOIN pb2_main_workflow w on w.master_id=r.master_id
 		LEFT JOIN pb2_main_workflow_history h ON w.id=h.master_id and r.reviewer_user=h.by
@@ -553,7 +579,7 @@
 		WHERE w.type='EXP_USE'
 		AND r.master_id=#{id}
 		AND r.level=(select max(level) from pb2_main_workflow_reviewer where master_id=#{id})
-		AND h.action='Approve'
+		AND h.action='Approved'
 		LIMIT 1
     </select>
     

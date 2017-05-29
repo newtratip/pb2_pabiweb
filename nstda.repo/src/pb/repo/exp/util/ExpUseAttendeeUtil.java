@@ -10,6 +10,8 @@ import org.json.JSONObject;
 
 import pb.repo.exp.constant.ExpUseAttendeeConstant;
 import pb.repo.exp.model.ExpUseAttendeeModel;
+import redstone.xmlrpc.XmlRpcArray;
+import redstone.xmlrpc.XmlRpcStruct;
 
 public class ExpUseAttendeeUtil {
 	
@@ -72,6 +74,34 @@ public class ExpUseAttendeeUtil {
 				model.setUnitType(jsonObj.getString(ExpUseAttendeeConstant.JFN_UNIT_TYPE));
 				model.setPosition(jsonObj.getString(ExpUseAttendeeConstant.JFN_POSITION));
 				String posId = jsonObj.getString(ExpUseAttendeeConstant.JFN_POSITION_ID);
+				if (posId!=null && !posId.equals("")) {
+					model.setPositionId(Integer.parseInt(posId));
+				}
+				
+				list.add(model);
+			}
+		}
+		
+		return list;
+	}
+	
+	public static List<ExpUseAttendeeModel> convertXmlRpcArrayToList(XmlRpcArray array, String masterId) throws Exception {
+		List<ExpUseAttendeeModel> list = new ArrayList<ExpUseAttendeeModel>();
+		
+		if (array!=null) {
+			for(Object o : array) {
+				XmlRpcStruct s = (XmlRpcStruct)o;
+				
+				ExpUseAttendeeModel model = new ExpUseAttendeeModel();
+				model.setMasterId(masterId);
+				model.setType(s.getString(ExpUseAttendeeConstant.JFN_TYPE));
+				model.setCode(s.getString(ExpUseAttendeeConstant.JFN_CODE));
+				model.setTitle(s.getString(ExpUseAttendeeConstant.JFN_TITLE));
+				model.setFname(s.getString(ExpUseAttendeeConstant.JFN_FNAME));
+				model.setLname(s.getString(ExpUseAttendeeConstant.JFN_LNAME));
+				model.setUnitType(s.getString(ExpUseAttendeeConstant.JFN_UNIT_TYPE));
+				model.setPosition(s.getString(ExpUseAttendeeConstant.JFN_POSITION));
+				String posId = s.getString(ExpUseAttendeeConstant.JFN_POSITION_ID);
 				if (posId!=null && !posId.equals("")) {
 					model.setPositionId(Integer.parseInt(posId));
 				}

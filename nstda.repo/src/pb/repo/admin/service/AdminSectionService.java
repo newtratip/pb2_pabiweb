@@ -60,7 +60,7 @@ public class AdminSectionService {
         try {
         	MainSectionDAO dao = session.getMapper(MainSectionDAO.class);
             
-            map = dao.get(id);
+            map = dao.getFromView(id);
             
         } catch (Exception ex) {
         	log.error(ex);

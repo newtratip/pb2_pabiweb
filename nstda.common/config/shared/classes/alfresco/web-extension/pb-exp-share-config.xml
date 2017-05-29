@@ -54,6 +54,7 @@
 				<show id="expbrwwf:document"/>
 				<show id="expbrwwf:attachDocument"/>
 				
+				<show id="expbrwwf:description"/>
 				<show id="bpm:comment" />
 				<show id="expbrwwf:reSubmitOutcome" />
 				<show id="expbrwwf:folderRef"/>
@@ -128,12 +129,13 @@
 					</control>
 				</field> 
 				
-				<field id="expbrwwf:id" set="pnlComment">
+				<field id="expbrwwf:description" set="pnlComment">
 					<control template="/pb/components/form/controls/commentgrid.ftl">
 						<control-param name="cols">time,user,task,action,comment</control-param>
 						<control-param name="showLabel">false</control-param>
 						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
 						<control-param name="pbmodule">exp-brw</control-param>
+						<control-param name="dsFieldValue">prop_expbrwwf_id</control-param>
 					</control>
 				</field>
 				
@@ -177,6 +179,7 @@
 				<show id="expbrwwf:document"/>
 				<show id="expbrwwf:attachDocument"/>
 				
+				<show id="expbrwwf:description"/>
 				<show id="bpm:comment" />
 				<show id="expbrwwf:acceptOutcome" />
 				<show id="expbrwwf:folderRef"/>
@@ -248,11 +251,13 @@
 					</control>
 				</field> 
 				
-				<field id="expbrwwf:id" set="pnlComment">
+				<field id="expbrwwf:description" set="pnlComment">
 					<control template="/pb/components/form/controls/commentgrid.ftl">
 						<control-param name="cols">time,user,task,action,comment</control-param>
 						<control-param name="showLabel">false</control-param>
 						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
+						<control-param name="pbmodule">exp-brw</control-param>
+						<control-param name="dsFieldValue">prop_expbrwwf_id</control-param>
 					</control>
 				</field>
 				
@@ -260,11 +265,13 @@
 					<control template="/org/alfresco/components/form/controls/textarea.ftl">
 					 <control-param name="style">width: 99%</control-param>
 					 <control-param name="rows">5</control-param>
-				  </control>
+				    </control>
 				</field>
 				
 				<field id="expbrwwf:accept" set="pnlComment">
-                  <control template="/org/alfresco/components/form/controls/checkbox.ftl" />
+                  <control template="/pb/components/form/controls/label.ftl">
+				  	<control-param name="style">color:red</control-param>
+				  </control>
                 </field>
                 
 				<field id="expbrwwf:acceptOutcome" label-id="workflow.field.outcome" set="response">
@@ -293,6 +300,7 @@
 				<show id="expbrwwf:document"/>
 				<show id="expbrwwf:attachDocument"/>
 				
+				<show id="expbrwwf:description"/>
 				<show id="bpm:comment" />
 				<show id="expbrwwf:reviewOutcome" />
 				<show id="expbrwwf:folderRef"/>
@@ -366,11 +374,13 @@
 					</control>
 				</field> 
 				
-				<field id="expbrwwf:id" set="pnlComment">
+				<field id="expbrwwf:description" set="pnlComment">
 					<control template="/pb/components/form/controls/commentgrid.ftl">
 						<control-param name="cols">time,user,task,action,comment</control-param>
 						<control-param name="showLabel">false</control-param>
 						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
+						<control-param name="pbmodule">exp-brw</control-param>
+						<control-param name="dsFieldValue">prop_expbrwwf_id</control-param>
 					</control>
 				</field>
 				
@@ -414,6 +424,7 @@
 				<show id="expbrwwf:document"/>
 				<show id="expbrwwf:attachDocument"/>
 				
+				<show id="expbrwwf:description"/>
 				<show id="bpm:comment" />
 				<show id="expbrwwf:consultOutcome" />
 				<show id="expbrwwf:folderRef"/>
@@ -484,11 +495,13 @@
 					</control>
 				</field> 
 				
-				<field id="expbrwwf:id" set="pnlComment">
+				<field id="expbrwwf:description" set="pnlComment">
 					<control template="/pb/components/form/controls/commentgrid.ftl">
 						<control-param name="cols">time,user,task,action,comment</control-param>
 						<control-param name="showLabel">false</control-param>
 						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
+						<control-param name="pbmodule">exp-brw</control-param>
+						<control-param name="dsFieldValue">prop_expbrwwf_id</control-param>
 					</control>
 				</field>
 				
@@ -567,6 +580,7 @@
 				<show id="expusewf:document"/>
 				<show id="expusewf:attachDocument"/>
 				
+				<show id="expusewf:description"/>
 				<show id="bpm:comment" />
 				<show id="expusewf:reSubmitOutcome" />
 				<show id="expusewf:folderRef"/>
@@ -641,12 +655,13 @@
 					</control>
 				</field> 
 				
-				<field id="expusewf:id" set="pnlComment">
+				<field id="expusewf:description" set="pnlComment">
 					<control template="/pb/components/form/controls/commentgrid.ftl">
 						<control-param name="cols">time,user,task,action,comment</control-param>
 						<control-param name="showLabel">false</control-param>
 						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
 						<control-param name="pbmodule">exp-use</control-param>
+						<control-param name="dsFieldValue">prop_expusewf_id</control-param>
 					</control>
 				</field>
 				
@@ -690,6 +705,7 @@
 				<show id="expusewf:document"/>
 				<show id="expusewf:attachDocument"/>
 				
+				<show id="expusewf:description"/>
 				<show id="bpm:comment" />
 				<show id="expusewf:reviewOutcome" />
 				<show id="expusewf:folderRef"/>
@@ -763,11 +779,13 @@
 					</control>
 				</field> 
 				
-				<field id="expusewf:id" set="pnlComment">
+				<field id="expusewf:description" set="pnlComment">
 					<control template="/pb/components/form/controls/commentgrid.ftl">
 						<control-param name="cols">time,user,task,action,comment</control-param>
 						<control-param name="showLabel">false</control-param>
 						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
+						<control-param name="pbmodule">exp-use</control-param>
+						<control-param name="dsFieldValue">prop_expusewf_id</control-param>
 					</control>
 				</field>
 				
@@ -811,6 +829,7 @@
 				<show id="expusewf:document"/>
 				<show id="expusewf:attachDocument"/>
 				
+				<show id="expusewf:description"/>
 				<show id="bpm:comment" />
 				<show id="expusewf:consultOutcome" />
 				<show id="expusewf:folderRef"/>
@@ -881,11 +900,13 @@
 					</control>
 				</field> 
 				
-				<field id="expusewf:id" set="pnlComment">
+				<field id="expusewf:description" set="pnlComment">
 					<control template="/pb/components/form/controls/commentgrid.ftl">
 						<control-param name="cols">time,user,task,action,comment</control-param>
 						<control-param name="showLabel">false</control-param>
 						<control-param name="dsUrl">pb/pcm/wf/dtl/list?id=</control-param>
+						<control-param name="pbmodule">exp-use</control-param>
+						<control-param name="dsFieldValue">prop_expusewf_id</control-param>
 					</control>
 				</field>
 				

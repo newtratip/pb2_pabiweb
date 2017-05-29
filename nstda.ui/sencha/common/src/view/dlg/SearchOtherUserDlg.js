@@ -45,7 +45,8 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 						},100);
 					}
 				},
-			    value:me.rec ? replaceIfNull(me.rec.get("title"), null) : null 
+			    value:me.rec ? replaceIfNull(me.rec.get("title"), null) : null,
+				maxLength:255
 			},{
 			    xtype: 'textfield',
 			    fieldLabel : mandatoryLabel(PB.Label.m.fname), 
@@ -56,7 +57,8 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 			    msgTarget: 'side',
 			    margin: '10 0 0 10',
 			    allowBlank:false,
-			    value:me.rec ? replaceIfNull(me.rec.get("fname"), null) : null 
+			    value:me.rec ? replaceIfNull(me.rec.get("fname"), null) : null,
+				maxLength:255
 			},{
 			    xtype: 'textfield',
 			    fieldLabel : mandatoryLabel(PB.Label.m.lname), 
@@ -67,14 +69,15 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 			    msgTarget: 'side',
 			    margin: '10 0 0 10',
 			    allowBlank:false,
-			    value:me.rec ? replaceIfNull(me.rec.get("lname"), null) : null 
+			    value:me.rec ? replaceIfNull(me.rec.get("lname"), null) : null,
+				maxLength:255
 			}]
 		}]
 		
 		if (me.needPosition) {
 			items[0].items.push({
 			    xtype: 'textfield',
-			    fieldLabel : mandatoryLabel(PB.Label.m.section), 
+			    fieldLabel : mandatoryLabel(PB.Label.m.sectionNonemp), 
 			    labelWidth: lbw,
 			    anchor:"-10",
 			    hideTrigger:true,
@@ -82,7 +85,8 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 			    msgTarget: 'side',
 			    margin: '10 0 0 10',
 			    allowBlank:false,
-			    value:me.rec ? replaceIfNull(me.rec.get("utype"), null) : null
+			    value:me.rec ? replaceIfNull(me.rec.get("utype"), null) : null,
+				maxLength:255
 			});
 			
 			items[0].items.push({
@@ -95,7 +99,8 @@ Ext.define('PB.view.common.SearchOtherUserDlg', {
 			    msgTarget: 'side',
 			    margin: '10 0 0 10',
 			    allowBlank:false,
-			    value:me.rec ? replaceIfNull(me.rec.get("position"), null) : null
+			    value:me.rec ? replaceIfNull(me.rec.get("position"), null) : null,
+				maxLength:255
 			});
 		}
 		

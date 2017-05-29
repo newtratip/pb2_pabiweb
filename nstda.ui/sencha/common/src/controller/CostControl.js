@@ -34,15 +34,20 @@ Ext.define('PB.controller.common.CostControl', {
 		return sender.up("window").down("field[name=type]");
 	},
 	
+	getSectionId:function(sender) {
+		return sender.up("window").sectionId;
+	},
+	
     search : function(sender) {
 		var me = this;
 	
     	var store = me.getGrid(sender).getStore();
     	
     	store.getProxy().extraParams = {
-    			s:me.getSearchTerm(sender).getValue(),
-    			t:me.getType(sender).getValue(),
-    			lang:getLang()
+			s:me.getSearchTerm(sender).getValue(),
+			t:me.getType(sender).getValue(),
+			sid:me.getSectionId(sender),
+			lang:getLang()
     	}
     	
     	store.load();

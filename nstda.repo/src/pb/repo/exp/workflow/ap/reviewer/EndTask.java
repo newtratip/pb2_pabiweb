@@ -53,7 +53,7 @@ public class EndTask implements ExecutionListener {
 	@Override
 	public void notify(DelegateExecution execution) throws Exception {
 		
-		log.info("<- ap.reviewer.EndTask ->");
+		log.info("<- ex.reviewer.EndTask ->");
 //		String curUser = authenticationService.getCurrentUserName();
 		try {
 		

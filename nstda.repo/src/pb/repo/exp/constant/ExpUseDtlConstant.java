@@ -17,6 +17,7 @@ public class ExpUseDtlConstant {
 	public static final String TFN_POSITION = "POSITION";
 	public static final String TFN_UOM = "UOM";
 	public static final String TFN_AMOUNT = "AMOUNT";
+	public static final String TFN_SPECIAL_WORKFLOW = "SPECIAL_WORKFLOW";
 	
 	
     /*
@@ -32,6 +33,7 @@ public class ExpUseDtlConstant {
 	public static final String JFN_CONDITION_1 = "condition1";
 	public static final String JFN_CONDITION_2 = "condition2";
 	public static final String JFN_POSITION = "position";
+	public static final String JFN_SPECIAL_WORKFLOW = "specialWorkflow";
 	public static final String JFN_UOM = "uom";
 	public static final String JFN_AMOUNT = "amount";
 	public static final String JFN_CREATED_TIME = "createdTime";

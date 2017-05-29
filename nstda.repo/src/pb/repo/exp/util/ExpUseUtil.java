@@ -1,5 +1,6 @@
 package pb.repo.exp.util;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +32,7 @@ public class ExpUseUtil {
 		jsObj.put(ExpUseConstant.JFN_ID, model.getId());
 		
 		jsObj.put(ExpUseConstant.JFN_REQ_BY, model.getReqBy());
+		jsObj.put(ExpUseConstant.JFN_REQ_BY_NAME, model.getReqByName());
 		
 		jsObj.put(ExpUseConstant.JFN_OBJECTIVE, model.getObjective());
 		jsObj.put(ExpUseConstant.JFN_REASON, model.getReason());
@@ -64,7 +66,11 @@ public class ExpUseUtil {
 		jsObj.put(ExpUseConstant.JFN_ICHARGE_TYPE_NAME, model.getIchargeTypeName());
 		jsObj.put(ExpUseConstant.JFN_ICHARGE_NAME, model.getIchargeName());
 		
+		jsObj.put(ExpUseConstant.JFN_EMOTION, model.getEmotion()!=null && model.getEmotion()==1 ? "1" : "");
+		
 		jsObj.put(ExpUseConstant.JFN_TOTAL, model.getTotal());
+		DecimalFormat df = new DecimalFormat(CommonConstant.MONEY_FORMAT);
+		jsObj.put(ExpUseConstant.JFN_TOTAL_SHOW, df.format(model.getTotal()!=null ? model.getTotal() : 0));
 		jsObj.put(ExpUseConstant.JFN_WORKFLOW_INS_ID, model.getWorkflowInsId());
 		jsObj.put(ExpUseConstant.JFN_DOC_REF, model.getDocRef());
 		jsObj.put(ExpUseConstant.JFN_FOLDER_REF, model.getFolderRef());
@@ -104,6 +110,8 @@ public class ExpUseUtil {
 		
 		map.put(ExpUseConstant.JFN_COST_CONTROL_ID, model.getCostControlId());
 		map.put(ExpUseConstant.JFN_COST_CONTROL_TYPE_ID, model.getCostControlTypeId());
+		
+		map.put(ExpUseConstant.JFN_EMOTION, model.getEmotion());
 		
 		map.put(ExpUseConstant.JFN_BANK_TYPE, model.getBankType());
 		map.put(ExpUseConstant.JFN_BANK, model.getBank());

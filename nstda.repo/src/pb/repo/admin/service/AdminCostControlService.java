@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.sql.DataSource;
 
@@ -12,8 +13,11 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pb.repo.admin.constant.MainSectionConstant;
 import pb.repo.admin.dao.MainCostControlDAO;
 import pb.repo.admin.dao.MainCostControlTypeDAO;
+import pb.repo.admin.dao.MainSectionDAO;
+import pb.repo.admin.model.MainSectionModel;
 import pb.repo.common.mybatis.DbConnectionFactory;
 
 @Service
@@ -24,14 +28,17 @@ public class AdminCostControlService {
 	@Autowired
 	DataSource dataSource;
 
-	public List<Map<String, Object>> list(Integer type,String searchTerm,String lang) {
+	public List<Map<String, Object>> list(Integer type,String searchTerm,Integer sectionId, String lang) {
 		
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		
         SqlSession session = DbConnectionFactory.getSqlSessionFactory(dataSource).openSession();
         try {
         	MainCostControlDAO dao = session.getMapper(MainCostControlDAO.class);
+        	MainSectionDAO sectionDao = session.getMapper(MainSectionDAO.class);
             
+        	Map<String, Object> section = sectionDao.get(sectionId);
+        	
         	Map<String, Object> params = new HashMap<String, Object>();
         	params.put("type", type);
         	if (searchTerm!=null) {
@@ -39,6 +46,12 @@ public class AdminCostControlService {
         	
         		params.put("terms", terms);
         	}
+        	
+        	params.put("orgId", section.get(MainSectionConstant.TFN_ORG_ID));
+        	params.put("sectorId", section.get(MainSectionConstant.TFN_SECTOR_ID));
+        	params.put("subsectorId", section.get(MainSectionConstant.TFN_SUBSECTOR_ID));
+        	params.put("divisionId", section.get(MainSectionConstant.TFN_DIVISION_ID));
+        	params.put("sectionId", sectionId);
         	
         	lang = (lang!=null && lang.startsWith("th") ? "_th" : "");
         	String name = "name"+lang;
@@ -81,9 +94,7 @@ public class AdminCostControlService {
         	String name = "name"+lang;
         	
         	params.put("orderBy", name);
-        	log.info("pass 1");
     		List<Map<String, Object>> tmpList = dao.list(params);
-        	log.info("pass 2 "+tmpList.size());
     		
         	for(Map<String, Object> tmpMap : tmpList) {
         		Map<String, Object> map = new HashMap<String, Object>();

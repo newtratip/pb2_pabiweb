@@ -81,7 +81,6 @@ Ext.define('PBPcm.controller.committee.Form', {
 	DEL_MSG_KEY : 'DELETE_PCM_REQ_CMT',
     URL : ALF_CONTEXT+'/pcm/req/cmt',
     MSG_URL : ALF_CONTEXT+'/pcm/message',
-    
 
 //    ok:function() {
 //		var me = this;
@@ -138,13 +137,13 @@ Ext.define('PBPcm.controller.committee.Form', {
 	addEmployee:function(btn) {
 		var me = this;
 //		me.grid = me.getCmtTab().getActiveTab();
-		me.createEmployeeDlg(PB.Label.m.add + (getLang().startsWith("th") ? "" : " ") + PB.Label.m.emp).show();
+		me.createEmployeeDlg(PB.Label.m.add + (getLang().indexOf("th")==0 ? "" : " ") + PB.Label.m.emp).show();
 	},
 
 	addNonEmployee:function(btn) {
 		var me = this;
 //		me.grid = me.getCmtTab().getActiveTab();
-		me.createNonEmployeeDlg(PB.Label.m.add + (getLang().startsWith("th") ? "" : " ") + PB.Label.m.nonemp).show();
+		me.createNonEmployeeDlg(PB.Label.m.add + (getLang().indexOf("th")==0 ? "" : " ") + PB.Label.m.nonemp).show();
 	},
 	
 //	createDlg:function(title) {
@@ -209,9 +208,6 @@ Ext.define('PBPcm.controller.committee.Form', {
 	
 	dlgEmployeeUserCallBack:function(items) {
 		var me = this;
-		
-		var CHAIRMAN = "ประธานกรรมการ";
-		var COMMITTEE = "กรรมการ";
 		
 		var grid = this.targetPanel;
 		
@@ -321,9 +317,6 @@ Ext.define('PBPcm.controller.committee.Form', {
 	dlgNonEmployeeUserCallBack:function(id, r) {
 		var me = this;
 	
-		var CHAIRMAN = "ประธานกรรมการ";
-		var COMMITTEE = "กรรมการ";
-		
 		var grid = this.targetPanel;
 		
 		var store = grid.getStore();
@@ -451,9 +444,6 @@ Ext.define('PBPcm.controller.committee.Form', {
 		var store = me.grid.getStore(); 
 		store.remove(me.selectedRec);
 		
-		var CHAIRMAN = "ประธานกรรมการ";
-		var COMMITTEE = "กรรมการ";
-
 		if (store.getCount()>1) {
 			store.getAt(0).set('position', CHAIRMAN);
 			store.getAt(0).commit();
@@ -496,7 +486,7 @@ Ext.define('PBPcm.controller.committee.Form', {
 	          },
 			  { text: PB.Label.m.ecode,  dataIndex: 'code', width:100},
 			  { text: PB.Label.m.fullname,  dataIndex: 'fname', flex:1, renderer:function(v,m,r){return r.get('title')+' '+r.get('fname')+' '+r.get('lname')}},
-			  { text: PB.Label.m.pos,  dataIndex: 'position', width:150}
+			  { text: PB.Label.m.pos,  dataIndex: 'position', width:150, renderer:me.positionRenderer}
 		);
 		
 		var data = rec[0].data.data;
@@ -527,12 +517,12 @@ Ext.define('PBPcm.controller.committee.Form', {
 								xtype : 'tbfill'
 						    },{
 				        		xtype: 'button',
-				                text: PB.Label.m.add + (getLang().startsWith("th") ? "" : " ") + PB.Label.m.emp,
+				                text: PB.Label.m.add + (getLang().indexOf("th")==0 ? "" : " ") + PB.Label.m.emp,
 				                iconCls: "icon_add",
 				                action:'addCmtEmployee'
 						    },{
 				        		xtype: 'button',
-				                text: PB.Label.m.add + (getLang().startsWith("th") ? "" : " ") + PB.Label.m.nonemp,
+				                text: PB.Label.m.add + (getLang().indexOf("th")==0 ? "" : " ") + PB.Label.m.nonemp,
 				                iconCls: "icon_add",
 				                action:'addCmtNonEmployee'
 				        	}],
@@ -562,6 +552,16 @@ Ext.define('PBPcm.controller.committee.Form', {
 			});
 		}
 		
+	},
+
+	positionRenderer:function(v,m,r){
+		var f=null;
+		if (getLang().indexOf("th")==0) {
+			return r.get('position');
+		}
+		else {
+			return r.get('position')==COMMITTEE ? "Member" : "Chairman" ;
+		}
 	}
 	
 //	selectSrcType:function(rad, v) {

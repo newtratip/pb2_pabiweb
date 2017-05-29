@@ -11,6 +11,7 @@ Ext.define('PBExpUse.model.ItemGridModel', {
     		 , {name : 'position'}
     		 , {name : 'uom'}
     		 , {name : 'amount'}
+    		 , {name : 'specialWorkflow'}
     		 , {name : 'action'}
     ]
 });

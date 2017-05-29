@@ -84,6 +84,10 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 				margin:'0 10 0 0',
 				items:[{
 						xtype:'hidden',
+						name:'emotion',
+						value:replaceIfNull(me.rec.emotion, "")
+					},{
+						xtype:'hidden',
 						name:'fundId',
 						value:replaceIfNull(me.rec.fund_id, null)
 					},{
@@ -147,7 +151,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						margin:"5 0 0 10",
 						flex:1,
 						allowBlank:false,
-						value:replaceIfNull(me.rec.objective, null)
+						value:replaceIfNull(me.rec.objective, null),
+						maxLength:255
 					}]
 				},{
 					xtype:'container',
@@ -224,6 +229,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 							change:function(rad, newV, oldV) {
 								if (newV) {
 									me.fireEvent("selectPayType",rad, '0');
+								} else {
+									me.oldPayType = "0";
 								}
 							}
 						}
@@ -245,6 +252,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 							change:function(rad, newV, oldV) {
 								if (newV) {
 									me.fireEvent("selectPayType",rad, '1');
+								} else {
+									me.oldPayType = "1";
 								}
 							}
 						}
@@ -258,7 +267,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						value:replaceIfNull(pd1.sup_code, ''),
 						allowBlank:false,
 						disabled:true,
-						emptyText:PBExpUse.Label.n.paySupEmpty
+						emptyText:PBExpUse.Label.n.paySupEmpty,
+						maxLength:255
 					},{
 						xtype:'combo',
 						name:'poNo',
@@ -339,6 +349,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 							change:function(rad, newV, oldV) {
 								if (newV) {
 									me.fireEvent("selectPayType",rad, '2');
+								} else {
+									me.oldPayType = "2";
 								}
 							}
 						}
@@ -355,11 +367,11 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 				        typeAhead:true,
 				        multiSelect:false,
 				        forceSelection:true,
-						width:450,
+				        flex:1,
 						allowBlank:false,
 				        listConfig : {
 						    getInnerTpl: function () {
-								return '<div>{number} ({balance:number("0,000.00")})</div>';
+								return '<div>{number} {name} (คงเหลือ {balance:number("0,000.00")} จาก {waitamt:number("0,000.00")})</div>';
 						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
 						    }
 						},
@@ -392,6 +404,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 							change:function(rad, newV, oldV) {
 								if (newV) {
 									me.fireEvent("selectPayType",rad, '3');
+								} else {
+									me.oldPayType = "3";
 								}
 							}
 						}
@@ -427,37 +441,6 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						value:replaceIfNull(pd3.icharge_name, ''),
 						readOnly:true,
 						fieldStyle:READ_ONLY
-					},{
-						xtype:'combo',
-						name:'ichargeActId',
-						fieldLabel:mandatoryLabel(PBExpUse.Label.i.act),
-				    	displayField:'name',
-				    	valueField:'id',
-				        emptyText : PB.Label.m.select,
-				        store: astore,
-//				        queryMode: 'local',
-				        typeAhead:true,
-				        multiSelect:false,
-				        forceSelection:true,
-				        listWidth:300,
-				        width:300,
-//				        anchor:"-10",
-						labelWidth:70,
-						margin: '5 0 0 10',
-						allowBlank:false,
-				        listConfig : {
-						    getInnerTpl: function () {
-								return '<div>{name}</div>';
-						        //return '<div>{name}<tpl if="id != \'\'"> ({id})</tpl></div>';
-						    }
-						},
-				        listeners:{
-							beforequery : function(qe) {
-								qe.query = getLang()+" "+qe.query;
-							}
-						},
-						value:replaceIfNull(pd3.icharge_act_id,null),
-						disabled:true
 					}]
 				},{
 					xtype:'radio',
@@ -471,6 +454,8 @@ Ext.define('PBExpUse.view.MainFormInfoTab', {
 						change:function(rad, newV, oldV) {
 							if (newV) {
 								me.fireEvent("selectPayType",rad, '4');
+							} else {
+								me.oldPayType = "4";
 							}
 						}
 					}

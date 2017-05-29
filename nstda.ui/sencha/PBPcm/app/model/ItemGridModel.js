@@ -1,7 +1,9 @@
 Ext.define('PBPcm.model.ItemGridModel', {
     extend: 'Ext.data.Model',
     fields : [ {name : 'id'}
-    		 , {name : 'actGrp'}
+    		 , {name : 'actName'}
+    		 , {name : 'actId'}
+    		 , {name : 'actGrpName'}
     		 , {name : 'actGrpId'}
     		 , {name : 'description'}
     		 , {name : 'quantity'}

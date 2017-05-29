@@ -155,7 +155,7 @@ public class CompleteTask implements ExecutionListener {
 
 	@Override
 	public void notify(final DelegateExecution execution) throws Exception {
-		log.info("<- pr.start.CompleteTask ->");
+		log.info("<- av.start.CompleteTask ->");
 		
 		AuthenticationUtil.runAs(new RunAsWork<String>() {
 			public String doWork() throws Exception

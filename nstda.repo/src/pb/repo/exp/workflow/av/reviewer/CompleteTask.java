@@ -1,5 +1,7 @@
 package pb.repo.exp.workflow.av.reviewer;
 
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 import org.activiti.engine.delegate.DelegateTask;
@@ -30,6 +32,7 @@ import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainWorkflowReviewerModel;
 import pb.repo.admin.service.AdminCompleteNotificationService;
+import pb.repo.admin.service.AdminHrEmployeeService;
 import pb.repo.admin.service.AdminMasterService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
@@ -106,11 +109,14 @@ public class CompleteTask implements TaskListener {
 	@Autowired
 	InterfaceService interfaceService;
 	
+	@Autowired
+	private AdminHrEmployeeService adminHrEmployeeService;
+	
 	private static final String WF_PREFIX = ExpBrwWorkflowConstant.MODEL_PREFIX;
 	
 	public void notify(final DelegateTask task) {
 		
-		log.info("<- pr.reviewer.CompleteTask ->");
+		log.info("<- av.reviewer.CompleteTask ->");
 		
 		try {
 			
@@ -147,7 +153,9 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_REJECT)) {
 							Object comment = task.getVariable("bpm_comment");
 							if (comment==null || comment.toString().trim().equals("")) {
-								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
+								String lang = (String)task.getVariable(WF_PREFIX+"lang");
+								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", new Locale(lang));
+//								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
 								throw new FormException(CommonConstant.FORM_ERR+errMsg);
 							}
 							
@@ -237,7 +245,6 @@ public class CompleteTask implements TaskListener {
 		}
 		catch (Exception ex) {
 			log.error("",ex);
-			ex.printStackTrace();
 			throw ex;
 		}
 	}

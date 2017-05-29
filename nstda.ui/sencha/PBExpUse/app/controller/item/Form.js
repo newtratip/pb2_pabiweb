@@ -19,6 +19,9 @@ Ext.define('PBExpUse.controller.item.Form', {
 	},{
     	ref:'grid',
 		selector:'expUseItemTab grid'
+	},{
+	    ref: 'hidEmotion',
+	    selector: 'expUseMainForm field[name=emotion]'
     },{
         ref: 'hidId',     
         selector:'expUseItemDtlDlg field[name=id]'
@@ -55,6 +58,9 @@ Ext.define('PBExpUse.controller.item.Form', {
     },{
         ref: 'hidTotal',     
         selector:'expUseItemTab field[name=total]'
+	},{
+	    ref: 'radPayType',
+	    selector: 'expUseMainForm field[name=payType]'
     }],
     
     init:function() {
@@ -130,6 +136,7 @@ Ext.define('PBExpUse.controller.item.Form', {
 			me.getCmbActId().getStore().each(function(r){
 				if (r.get("id")==me.getCmbActId().getValue()) {
 					rec.set("actName", r.get("name"));
+					rec.set("specialWorkflow", r.get("data").special_workflow ? r.get("data").special_workflow : "");
 				}
 			});
 			rec.set("activity", me.getTxtActivity().getValue());
@@ -154,17 +161,23 @@ Ext.define('PBExpUse.controller.item.Form', {
 	
 	add:function() {
 		var me = this;
-	
-		this.createDlg(PB.Label.m.add).show();
+		
+		this.createDlg(PB.Label.m.add
+						,null
+						,me.getHidEmotion().getValue()
+						,me.getRadPayType().getGroupValue() == "3"
+		).show();
 	},
 	
-	createDlg:function(title, rec) {
+	createDlg:function(title, rec, emotion, icharge) {
 		
 		var me = this;
 		
 		var dialog = Ext.create('PBExpUse.view.item.DtlDlg', {
 		    title : title,
-		    rec : rec
+		    rec : rec,
+		    emotion : emotion,
+		    icharge : icharge
 		});
 		
 		return dialog;
@@ -176,7 +189,11 @@ Ext.define('PBExpUse.controller.item.Form', {
 		me.getGrid().getView().getSelectionModel().select(rec);
 		me.selectedRec = rec;		
 	
-		var dialog = me.createDlg(PB.Label.m.edit,rec);
+		var dialog = me.createDlg(PB.Label.m.edit
+								,rec
+								,me.getHidEmotion().getValue()
+								,me.getRadPayType().getGroupValue() == "3"
+		);
 		
 //		me.getHidId().setValue(rec.get("id"));
 //		me.getCmbActivityId().setValue(rec.get("activityId"));
@@ -239,10 +256,13 @@ Ext.define('PBExpUse.controller.item.Form', {
 		
 //		console.log("id:"+rec[0].data.id);
 
+		var payType = me.getRadPayType().getGroupValue();
+
 		var store = me.getCmbActId().getStore();
 		store.getProxy().extraParams = {
 			actGrpId:rec[0].data.id,
-			query:getLang()+" "
+			query:getLang()+" ",
+			icharge:payType==3
 		}
 		store.load();
 	},

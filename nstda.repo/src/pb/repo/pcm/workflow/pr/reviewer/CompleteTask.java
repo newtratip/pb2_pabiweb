@@ -1,5 +1,6 @@
 package pb.repo.pcm.workflow.pr.reviewer;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -23,7 +24,6 @@ import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Component;
 
 import pb.common.constant.CommonConstant;
@@ -31,8 +31,10 @@ import pb.repo.admin.constant.MainMasterConstant;
 import pb.repo.admin.constant.MainWorkflowConstant;
 import pb.repo.admin.model.MainMasterModel;
 import pb.repo.admin.model.MainWorkflowReviewerModel;
+import pb.repo.admin.service.AdminAccountFiscalYearService;
 import pb.repo.admin.service.AdminCompleteNotificationService;
 import pb.repo.admin.service.AdminMasterService;
+import pb.repo.admin.service.AdminModuleService;
 import pb.repo.admin.service.AdminViewerService;
 import pb.repo.admin.service.AlfrescoService;
 import pb.repo.admin.util.MainUserGroupUtil;
@@ -40,11 +42,12 @@ import pb.repo.admin.util.MainUtil;
 import pb.repo.admin.util.MainWorkflowUtil;
 import pb.repo.pcm.constant.PcmReqConstant;
 import pb.repo.pcm.constant.PcmReqWorkflowConstant;
+import pb.repo.pcm.model.PcmReqDtlModel;
 import pb.repo.pcm.model.PcmReqModel;
 import pb.repo.pcm.service.InterfaceService;
 import pb.repo.pcm.service.PcmReqService;
 import pb.repo.pcm.service.PcmReqWorkflowService;
-import pb.repo.pcm.service.PcmOrdSignatureService;
+import pb.repo.pcm.util.PcmReqDtlUtil;
 
 @Component("pb.pcm.workflow.pr.reviewer.CompleteTask")
 public class CompleteTask implements TaskListener {
@@ -86,9 +89,6 @@ public class CompleteTask implements TaskListener {
 	PcmReqWorkflowService mainWorkflowService;
 
 	@Autowired
-	PcmOrdSignatureService signatureService;
-	
-	@Autowired
 	AdminMasterService adminMasterService;
 	
 	@Autowired
@@ -111,6 +111,12 @@ public class CompleteTask implements TaskListener {
 	
 	@Autowired
 	InterfaceService interfaceService;
+	
+	@Autowired
+	AdminModuleService moduleService;
+	
+	@Autowired
+	AdminAccountFiscalYearService fiscalYearService;
 	
 	private static final String WF_PREFIX = PcmReqWorkflowConstant.MODEL_PREFIX;
 	
@@ -153,6 +159,7 @@ public class CompleteTask implements TaskListener {
 						if (action.equalsIgnoreCase(MainWorkflowConstant.TA_REJECT)) {
 							Object comment = task.getVariable("bpm_comment");
 							if (comment==null || comment.toString().trim().equals("")) {
+//								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", I18NUtil.getLocale());
 								String lang = (String)task.getVariable(WF_PREFIX+"lang");
 								String errMsg = MainUtil.getMessageWithOutCode("ERR_WF_REJECT_NO_COMMENT", new Locale(lang));
 								throw new FormException(CommonConstant.FORM_ERR+errMsg);
@@ -167,11 +174,32 @@ public class CompleteTask implements TaskListener {
 							Boolean checkBudget = chkBudgetModel.getFlag1().equals(CommonConstant.V_ENABLE);
 
 							if (checkBudget) {
-								Map<String, Object> chkResult = interfaceService.checkBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getTotal(), model.getCreatedBy());
+								Map<String, Object> budget = moduleService.getTotalPreBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getFundId(), model.getId(), null);
 								
-								if (!(Boolean)chkResult.get("budget_ok")) {
-									throw new FormException(CommonConstant.FORM_ERR+chkResult.get("message"));
+								Double checkTotal = model.getTotalCnv();
+								if (model.getIsAcrossBudget().equals("1")) {
+									Map<String, Object> fiscalYear = fiscalYearService.getCurrent();
+									List<PcmReqDtlModel> dtlList = pcmReqService.listDtlByMasterId(model.getId());
+									for(PcmReqDtlModel d : dtlList) {
+										if (d.getFiscalYear().equals(fiscalYear.get("fiscalyear"))) {
+											Double rate = model.getCurrencyRate();
+											checkTotal = (d.getTotal()+model.getVat())*model.getCurrencyRate();
+											break;
+										}
+									}
 								}
+								
+								Boolean budgetOk = Double.parseDouble(((String)budget.get("balance")).replaceAll(",", "")) >= checkTotal;
+								if (!budgetOk) {
+									String lang = (String)task.getVariable(WF_PREFIX+"lang");
+									throw new FormException(CommonConstant.FORM_ERR+MainUtil.getMessageWithOutCode("ERR_WF_BUDGET_NOT_ENOUGH", new Locale(lang)));
+								}
+								
+//								Map<String, Object> chkResult = interfaceService.checkBudget(model.getBudgetCcType(), model.getBudgetCc(), model.getTotal(), model.getCreatedBy());
+//								
+//								if (!(Boolean)chkResult.get("budget_ok")) {
+//									throw new FormException(CommonConstant.FORM_ERR+chkResult.get("message"));
+//								}
 							}
 							
 							if (lastLevel.equals(level)) {
@@ -253,7 +281,6 @@ public class CompleteTask implements TaskListener {
 		}
 		catch (Exception ex) {
 			log.error("",ex);
-			ex.printStackTrace();
 			throw ex;
 		}
 	}
