@@ -265,6 +265,11 @@ Ext.define('PBExpUse.controller.item.Form', {
 			icharge:payType==3
 		}
 		store.load();
+
+		var r = [{
+			data:{id:0}
+		}]
+		me.selectActivity(cmb, r);
 	},
 
 	selectActivity:function(cmb, rec) {

@@ -204,6 +204,11 @@ Ext.define('PBExp.controller.item.Form', {
 			query:getLang()+" "
 		}
 		store.load();
+		
+		var r = [{
+			data:{id:0}
+		}]
+		me.selectActivity(cmb, r);
 	},
 	
 	selectActivity:function(cmb, rec) {

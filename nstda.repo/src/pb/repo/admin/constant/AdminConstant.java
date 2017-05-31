@@ -3,15 +3,20 @@ package pb.repo.admin.constant;
 public class AdminConstant {
 	public static final StringBuffer CHANGE_LOG = new StringBuffer();
 	
-	public static final String VERSION = "1.0.127";
+	public static final String VERSION = "1.0.128";
 	
     static {
 //		CHANGE_LOG.append("  - Interface : Use user_id to call service\n");
 //		CHANGE_LOG.append("  - Interface : For Odoo : Manage Member in Accounting Group\n");
 //		CHANGE_LOG.append("  - Workflow : Admin Adhoc Task\n");
     	
-    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (29/05/2017)\n");
+    	CHANGE_LOG.append("\nV."+AdminConstant.VERSION+" --- (31/05/2017)\n");
+    	CHANGE_LOG.append("  - EX : Attendee Tab : Add Button : 2 Languages\n");
+    	
+    	CHANGE_LOG.append("\nV.1.0.127 --- (29/05/2017)\n");
     	CHANGE_LOG.append("  - Update Installation files\n");
+    	CHANGE_LOG.append("  - PR,AV,EX : Budget Source : Section : Remove name_short in front of project code\n");
+    	CHANGE_LOG.append("  - AV,EX : Select Activity Group : Clear Condition\n");
     	
     	CHANGE_LOG.append("\nV.1.0.126 --- (26/05/2017)\n");
     	CHANGE_LOG.append("  - PR,AV,EX : Budget Source : Project : Remove name_short in front of project code\n");

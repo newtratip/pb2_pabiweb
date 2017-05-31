@@ -95,7 +95,7 @@ public class AdminHrExpenseRuleService {
 	    		map.put(JsonConstant.COMBOBOX_DATA, tmpMap);
 	    		
 	    		list.add(map);
-    		} 
+    		}
         	
         } catch (Exception ex) {
         	log.error(ex);

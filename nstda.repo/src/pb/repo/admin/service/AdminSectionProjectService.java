@@ -126,7 +126,8 @@ public class AdminSectionProjectService {
         		lang = lang!=null && lang.startsWith("th") ? "_th" : "";
         		
         		obj.put("id", tmpMap.get("id"));
-        		obj.put("budget_name", tmpMap.get("name_short"+lang)+" "+tmpMap.get("description"+lang));
+        		obj.put("budget_name", tmpMap.get("description"+lang));
+//        		obj.put("budget_name", tmpMap.get("name_short"+lang)+" "+tmpMap.get("description"+lang));
         		obj.put("budget_type_name", lang.equals("") ? "Section" : "หน่วยงาน");
         	}
         	else
